@@ -1,0 +1,4 @@
+nome,cpf,email,telefone,camiseta,vestido,observacoes
+João Silva,123.456.789-00,joao@email.com,(11) 99999-9999,M,,Teste de importação
+Maria Santos,987.654.321-00,maria@email.com,(11) 88888-8888,,P,Participante teste
+Pedro Oliveira,456.789.123-00,pedro@email.com,(11) 77777-7777,G,,Importação CSV

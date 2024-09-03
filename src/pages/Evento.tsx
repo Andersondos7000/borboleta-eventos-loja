@@ -8,8 +8,6 @@ import EventCountdown from '@/components/EventCountdown';
 import { Link } from 'react-router-dom';
 
 const Evento = () => {
-  // Data do evento: 12 de Abril de 2025
-  const eventDate = new Date('2025-04-12T09:00:00');
   
   const eventSchedule = [
     {
@@ -69,7 +67,7 @@ const Evento = () => {
             <div className="flex flex-wrap gap-6 mb-8">
               <div className="flex items-center">
                 <Calendar className="text-butterfly-orange mr-2 h-5 w-5" />
-                <span>12 e 13 de Abril de 2025</span>
+                <span>17 e 18 de Abril de 2026</span>
               </div>
               
               <div className="flex items-center">
@@ -89,10 +87,11 @@ const Evento = () => {
             </div>
             
             <Button
+              asChild
               size="lg"
               className="bg-butterfly-orange hover:bg-butterfly-orange/90"
             >
-              Comprar Ingressos
+              <Link to="/ingressos">Comprar Ingressos</Link>
             </Button>
           </div>
         </div>
@@ -104,7 +103,7 @@ const Evento = () => {
           <div className="text-center mb-6">
             <h2 className="font-display text-2xl font-bold">O Evento Começa Em</h2>
           </div>
-          <EventCountdown targetDate={eventDate} />
+          <EventCountdown />
         </div>
       </section>
       

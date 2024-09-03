@@ -10,6 +10,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useCart, CartTicket } from '@/contexts/CartContext';
 import { supabase } from '@/lib/supabase';
 import { useToast } from '@/components/ui/use-toast';
+import ParticipantsModal from '@/components/ParticipantsModal';
 
 interface Event {
   id: string;
@@ -31,6 +32,8 @@ const Ingressos = () => {
   const [isAddingToCart, setIsAddingToCart] = useState(false);
   const [events, setEvents] = useState<Event[]>([]);
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+  const [showParticipantsModal, setShowParticipantsModal] = useState(false);
+  const [participantsData, setParticipantsData] = useState<any[]>([]);
   const navigate = useNavigate();
   const { user } = useAuth();
   const { addToCart } = useCart();
@@ -116,6 +119,14 @@ const Ingressos = () => {
 
   const handleGroupDecrement = () => {
     if (groupQuantity > 10) setGroupQuantity(groupQuantity - 1);
+  };
+
+  const handleSaveParticipants = (participants: any[]) => {
+    setParticipantsData(participants);
+    toast({
+      title: "Participantes salvos",
+      description: "Os dados dos participantes foram salvos com sucesso.",
+    });
   };
 
   const handleAddToCart = async () => {
@@ -222,7 +233,8 @@ const Ingressos = () => {
         name: selectedEvent.title, // Alias for event_title for consistency
         quantity: quantity,
         unit_price: price,
-        total_price: price * quantity
+        total_price: price * quantity,
+        participantsData: activeTab === 'group' ? participantsData : undefined
       };
 
       console.log('Adding to cart:', cartTicket);
@@ -386,6 +398,8 @@ const Ingressos = () => {
                           </span>
                         </div>
                       </div>
+
+
                     </TabsContent>
                     
                     <div className="border-t pt-4 mt-4">
@@ -411,6 +425,13 @@ const Ingressos = () => {
         </div>
       </div>
       <Footer />
+      
+      <ParticipantsModal
+         isOpen={showParticipantsModal}
+         onClose={() => setShowParticipantsModal(false)}
+         onSave={handleSaveParticipants}
+         quantity={groupQuantity}
+       />
     </div>
   );
 };

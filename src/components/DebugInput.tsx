@@ -120,7 +120,7 @@ const DebugInput = () => {
       {/* Informações de Debug */}
       <div className="space-y-2">
         <h4 className="text-sm font-medium">Debug Log:</h4>
-        <div className="bg-black text-green-400 p-2 rounded text-xs font-mono max-h-32 overflow-y-auto">
+        <div className="bg-orange-500 text-white p-2 rounded text-xs font-mono max-h-32 overflow-y-auto">
           {debugInfo.length === 0 ? (
             <p>Nenhum evento ainda...</p>
           ) : (

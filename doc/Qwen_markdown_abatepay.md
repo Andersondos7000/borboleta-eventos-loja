@@ -1,7 +1,7 @@
 # 📄 PRD: AbacatePay – Gateway de Pagamento Descomplicado  
 **Documento de Requisitos de Produto**  
 *Versão 1.0*  
-*Data: 5 de abril de 2025*
+*Data: 17 e 18 de abril de 2026*
 
 ---
 

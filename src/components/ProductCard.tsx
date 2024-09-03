@@ -91,7 +91,7 @@ const ProductCardContent: React.FC<{ product: ProductProps }> = ({ product }) =>
             }}
           />
           {!product.inStock && (
-            <div className="absolute inset-0 bg-black bg-opacity-60 flex items-center justify-center">
+            <div className="absolute inset-0 bg-orange-500 bg-opacity-60 flex items-center justify-center">
               <span className="bg-red-500 text-white px-6 py-3 rounded-full font-bold text-sm uppercase tracking-wide">
                 Esgotado
               </span>
@@ -99,7 +99,7 @@ const ProductCardContent: React.FC<{ product: ProductProps }> = ({ product }) =>
           )}
           
           {/* Overlay com informações adicionais */}
-          <div className={`absolute inset-0 bg-black bg-opacity-0 transition-all duration-300 flex items-end p-4 ${
+          <div className={`absolute inset-0 bg-orange-500 bg-opacity-0 transition-all duration-300 flex items-end p-4 ${
             isHovered ? 'bg-opacity-20' : ''
           }`}>
             <div className={`transform transition-all duration-300 ${
@@ -148,7 +148,7 @@ const ProductCardContent: React.FC<{ product: ProductProps }> = ({ product }) =>
           size="lg" 
           className={`w-full flex items-center justify-center font-semibold transition-all duration-200 ${
             product.inStock 
-              ? 'bg-black hover:bg-gray-800 text-white shadow-md hover:shadow-lg' 
+              ? 'bg-orange-500 hover:bg-orange-600 text-white shadow-md hover:shadow-lg' 
               : 'bg-gray-100 text-gray-400 cursor-not-allowed'
           }`}
           disabled={!product.inStock}

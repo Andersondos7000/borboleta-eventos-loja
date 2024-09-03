@@ -41,7 +41,7 @@ const AdminTickets = () => {
       quantity: 3,
       totalValue: 249,
       paymentStatus: 'Pendente',
-      purchaseDate: '17/01/2025'
+      purchaseDate: '17/04/2026'
     },
     {
       id: 'TK-004',
@@ -50,7 +50,7 @@ const AdminTickets = () => {
       quantity: 1,
       totalValue: 83,
       paymentStatus: 'Pago',
-      purchaseDate: '17/01/2025'
+      purchaseDate: '17/04/2026'
     },
     {
       id: 'TK-005',
@@ -59,7 +59,7 @@ const AdminTickets = () => {
       quantity: 2,
       totalValue: 166,
       paymentStatus: 'Cancelado',
-      purchaseDate: '18/01/2025'
+      purchaseDate: '18/04/2026'
     }
   ];
 

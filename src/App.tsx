@@ -30,6 +30,7 @@ import { CartProvider } from "./contexts/CartContext";
 import { AuthProvider } from "./contexts/AuthContext";
 import { RealtimeProvider } from "./contexts/RealtimeContext";
 import ErrorHandler from "./components/ErrorHandler";
+import ScrollToTop from "./components/ScrollToTop";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -48,6 +49,7 @@ const App = () => (
           <Toaster />
           <Sonner />
           <BrowserRouter>
+            <ScrollToTop />
             <ErrorHandler />
             <Routes>
               <Route path="/" element={<Index />} />

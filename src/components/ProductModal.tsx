@@ -21,6 +21,9 @@ const ProductModal: React.FC<ProductModalProps> = ({ product, children, onSelect
   const [selectedSize, setSelectedSize] = useState(product.sizes[0] || '');
   const [quantity, setQuantity] = useState(1);
   const [isFavorite, setIsFavorite] = useState(false);
+  const [panPosition, setPanPosition] = useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const { addToCart } = useCart();
   const { toast } = useToast();
 
@@ -39,18 +42,74 @@ const ProductModal: React.FC<ProductModalProps> = ({ product, children, onSelect
 
   const handleNextImage = () => {
     setCurrentImage((prev) => (prev + 1) % images.length);
+    setPanPosition({ x: 0, y: 0 }); // Reset pan when changing image
   };
 
   const handlePreviousImage = () => {
     setCurrentImage((prev) => (prev - 1 + images.length) % images.length);
+    setPanPosition({ x: 0, y: 0 }); // Reset pan when changing image
   };
 
   const handleZoomIn = () => {
-    setZoomLevel((prev) => Math.min(prev + 0.5, 3));
+    setZoomLevel((prev) => {
+      const newZoom = Math.min(prev + 0.5, 3);
+      if (newZoom === 1) {
+        setPanPosition({ x: 0, y: 0 }); // Reset pan when zoom is 1
+      }
+      return newZoom;
+    });
   };
 
   const handleZoomOut = () => {
-    setZoomLevel((prev) => Math.max(prev - 0.5, 1));
+    setZoomLevel((prev) => {
+      const newZoom = Math.max(prev - 0.5, 1);
+      if (newZoom === 1) {
+        setPanPosition({ x: 0, y: 0 }); // Reset pan when zoom is 1
+      }
+      return newZoom;
+    });
+  };
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (zoomLevel > 1) {
+      setIsDragging(true);
+      setDragStart({ x: e.clientX - panPosition.x, y: e.clientY - panPosition.y });
+      e.preventDefault();
+    }
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (isDragging && zoomLevel > 1) {
+      const maxPan = 100 * (zoomLevel - 1); // Limit pan based on zoom level
+      const newX = Math.max(-maxPan, Math.min(maxPan, e.clientX - dragStart.x));
+      const newY = Math.max(-maxPan, Math.min(maxPan, e.clientY - dragStart.y));
+      setPanPosition({ x: newX, y: newY });
+    }
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+
+  const handleDoubleClick = () => {
+    if (zoomLevel === 1) {
+      setZoomLevel(2);
+    } else {
+      setZoomLevel(1);
+      setPanPosition({ x: 0, y: 0 });
+    }
+  };
+
+  const handleWheel = (e: React.WheelEvent) => {
+    e.preventDefault();
+    const delta = e.deltaY > 0 ? -0.2 : 0.2;
+    setZoomLevel((prev) => {
+      const newZoom = Math.max(1, Math.min(3, prev + delta));
+      if (newZoom === 1) {
+        setPanPosition({ x: 0, y: 0 });
+      }
+      return newZoom;
+    });
   };
 
   const handleSizeSelect = (size: string) => {
@@ -153,15 +212,32 @@ const ProductModal: React.FC<ProductModalProps> = ({ product, children, onSelect
           <div className="space-y-4">
             <div className="relative">
               <AspectRatio ratio={1} className="overflow-hidden rounded-lg bg-gray-100">
-                <img
-                  src={images[currentImage]}
-                  alt={`${product.name} - ${getImageLabel(currentImage)}`}
-                  className="w-full h-full object-cover transition-transform duration-300 cursor-zoom-in"
-                  style={{ transform: `scale(${zoomLevel})` }}
-                />
+                <div
+                  className="w-full h-full cursor-grab active:cursor-grabbing"
+                  onMouseDown={handleMouseDown}
+                  onMouseMove={handleMouseMove}
+                  onMouseUp={handleMouseUp}
+                  onMouseLeave={handleMouseUp}
+                  onDoubleClick={handleDoubleClick}
+                  onWheel={handleWheel}
+                  style={{
+                    cursor: zoomLevel > 1 ? (isDragging ? 'grabbing' : 'grab') : 'default'
+                  }}
+                >
+                  <img
+                    src={images[currentImage]}
+                    alt={`${product.name} - ${getImageLabel(currentImage)}`}
+                    className="w-full h-full object-cover transition-transform duration-200 ease-out select-none"
+                    style={{
+                      transform: `scale(${zoomLevel}) translate(${panPosition.x}px, ${panPosition.y}px)`,
+                      transformOrigin: 'center center'
+                    }}
+                    draggable={false}
+                  />
+                </div>
               </AspectRatio>
               
-              {/* Image Controls */}
+              {/* Image Navigation Controls */}
               <div className="absolute inset-x-0 bottom-4 flex justify-center gap-2">
                 <Button
                   variant="outline"
@@ -169,26 +245,9 @@ const ProductModal: React.FC<ProductModalProps> = ({ product, children, onSelect
                   onClick={handlePreviousImage}
                   className="bg-white/90 backdrop-blur-sm hover:bg-white"
                   disabled={images.length <= 1}
+                  title="Imagem anterior"
                 >
                   <ArrowLeft className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={handleZoomOut}
-                  className="bg-white/90 backdrop-blur-sm hover:bg-white"
-                  disabled={zoomLevel <= 1}
-                >
-                  <ZoomOut className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={handleZoomIn}
-                  className="bg-white/90 backdrop-blur-sm hover:bg-white"
-                  disabled={zoomLevel >= 3}
-                >
-                  <ZoomIn className="h-4 w-4" />
                 </Button>
                 <Button
                   variant="outline"
@@ -196,14 +255,59 @@ const ProductModal: React.FC<ProductModalProps> = ({ product, children, onSelect
                   onClick={handleNextImage}
                   className="bg-white/90 backdrop-blur-sm hover:bg-white"
                   disabled={images.length <= 1}
+                  title="Próxima imagem"
                 >
                   <ArrowRight className="h-4 w-4" />
                 </Button>
               </div>
               
+              {/* Zoom Controls */}
+              <div className="absolute top-4 right-4 flex flex-col gap-2 z-10">
+                <Button
+                  variant="secondary"
+                  size="icon"
+                  onClick={handleZoomIn}
+                  disabled={zoomLevel >= 3}
+                  className="bg-white/80 backdrop-blur-sm hover:bg-white/90"
+                  title="Aumentar zoom"
+                >
+                  <ZoomIn className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="secondary"
+                  size="icon"
+                  onClick={handleZoomOut}
+                  disabled={zoomLevel <= 1}
+                  className="bg-white/80 backdrop-blur-sm hover:bg-white/90"
+                  title="Diminuir zoom"
+                >
+                  <ZoomOut className="h-4 w-4" />
+                </Button>
+                {/* Zoom Level Indicator */}
+                {zoomLevel > 1 && (
+                  <div className="bg-white/80 backdrop-blur-sm rounded-md px-2 py-1 text-xs font-medium text-center">
+                    {Math.round(zoomLevel * 100)}%
+                  </div>
+                )}
+              </div>
+              
+              {/* Zoom Instructions */}
+              {zoomLevel > 1 && (
+                <div className="absolute bottom-4 left-4 bg-orange-500/70 text-white text-xs px-3 py-2 rounded-md backdrop-blur-sm">
+                  Arraste para navegar • Duplo clique para resetar
+                </div>
+              )}
+              
+              {/* Scroll to Zoom Hint */}
+              {zoomLevel === 1 && (
+                <div className="absolute bottom-4 left-4 bg-orange-500/50 text-white text-xs px-3 py-2 rounded-md backdrop-blur-sm opacity-70">
+                  Role o mouse para zoom • Duplo clique para ampliar
+                </div>
+              )}
+              
               {/* Image Counter */}
-              <div className="absolute top-4 right-4">
-                <Badge variant="secondary" className="bg-black/70 text-white">
+              <div className="absolute top-4 left-4">
+                <Badge variant="secondary" className="bg-orange-500/70 text-white">
                   {currentImage + 1} / {images.length}
                 </Badge>
               </div>

@@ -15,6 +15,7 @@ import OrderSummary from "@/components/checkout/OrderSummary";
 import TermsSection from "@/components/checkout/TermsSection";
 import { useCart, isCartProduct } from "@/contexts/CartContext";
 import { supabase } from "@/lib/supabase";
+import { useParticipants } from "@/hooks/useParticipants";
 
 const formSchema = z.object({
   firstName: z.string().min(2, { message: "Nome deve ter pelo menos 2 caracteres" }),
@@ -48,9 +49,18 @@ const Checkout = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const { items, subtotal, shipping, total, clearCart } = useCart();
+  const { participants } = useParticipants();
   const [participantCount, setParticipantCount] = useState(1);
   const [paymentData, setPaymentData] = useState(null);
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
+  const [ticketQuantity, setTicketQuantity] = useState(1);
+  const [caravanParticipants, setCaravanParticipants] = useState([]);
+  
+  // Check if cart contains group/caravan tickets
+  const hasCaravanTickets = items.some(item => 
+    item.name.toLowerCase().includes('caravana') || 
+    item.quantity >= 10
+  );
   
   useEffect(() => {
     console.log("Checkout page loaded with cart items:", items);
@@ -75,6 +85,19 @@ const Checkout = () => {
     } : {})
   }));
 
+  // Converter participantes do hook para o formato do formulário
+  const getFormParticipants = () => {
+    if (participants.length > 0) {
+      return participants.map(participant => ({
+        name: participant.name || "",
+        cpf: participant.cpf || "",
+        tshirt: participant.shirt_size || "",
+        dress: participant.dress_size || ""
+      }));
+    }
+    return [{ name: "", cpf: "", tshirt: "", dress: "" }];
+  };
+
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -92,10 +115,65 @@ const Checkout = () => {
       state: "",
       phone: "",
       additionalNotes: "",
-      participants: Array(1).fill({ name: "", cpf: "", tshirt: "", dress: "" }),
+      participants: getFormParticipants(),
       terms: false,
     },
   });
+
+  // Atualizar formulário quando participantes mudarem
+  useEffect(() => {
+    const formParticipants = getFormParticipants();
+    form.setValue('participants', formParticipants);
+    setParticipantCount(formParticipants.length);
+  }, [participants, form]);
+
+  // Escutar mudanças nos participantes via evento customizado
+  useEffect(() => {
+    const handleParticipantsUpdate = (event: CustomEvent) => {
+      console.log('[DEBUG] Evento participantsUpdated recebido:', event.detail);
+      const formParticipants = getFormParticipants();
+      form.setValue('participants', formParticipants);
+      setParticipantCount(formParticipants.length);
+      console.log('[DEBUG] Formulário atualizado com novos participantes:', formParticipants);
+    };
+
+    window.addEventListener('participantsUpdated', handleParticipantsUpdate as EventListener);
+    
+    return () => {
+      window.removeEventListener('participantsUpdated', handleParticipantsUpdate as EventListener);
+    };
+  }, [form]);
+
+  // Validação de quantidade de participantes vs ingressos comprados
+  useEffect(() => {
+    const totalTickets = items.reduce((total, item) => {
+      // Contar apenas ingressos (tickets), não produtos
+      if (!isCartProduct(item)) {
+        return total + item.quantity;
+      }
+      return total;
+    }, 0);
+
+    const participantsCount = participants.length;
+
+    if (totalTickets > 0 && participantsCount !== totalTickets) {
+      if (participantsCount < totalTickets) {
+        const missing = totalTickets - participantsCount;
+        toast({
+          title: "Participantes insuficientes",
+          description: `Você comprou ${totalTickets} ingresso(s) mas adicionou apenas ${participantsCount} participante(s). Falta${missing > 1 ? 'm' : ''} ${missing} participante(s).`,
+          variant: "destructive"
+        });
+      } else if (participantsCount > totalTickets) {
+        const excess = participantsCount - totalTickets;
+        toast({
+          title: "Participantes em excesso",
+          description: `Você adicionou ${participantsCount} participante(s) mas comprou apenas ${totalTickets} ingresso(s). Você precisa comprar mais ${excess} ingresso(s) na aba de ingressos ou excluir ${excess} participante(s).`,
+          variant: "destructive"
+        });
+      }
+    }
+  }, [participants.length, items, toast]);
 
   const onSubmit = async (data: FormValues) => {
     console.log("Form submitted with data:", data);
@@ -204,6 +282,13 @@ const Checkout = () => {
                     participantCount={participantCount}
                     onAddParticipant={addParticipant}
                     onRemoveParticipant={removeParticipant}
+                    onParticipantCountChange={setParticipantCount}
+                    ticketQuantity={ticketQuantity}
+                    onTicketQuantityChange={setTicketQuantity}
+                    maxTickets={5}
+                    minTickets={1}
+                    showCaravanButton={hasCaravanTickets}
+                    onCaravanParticipantsSave={setCaravanParticipants}
                   />
                   <PaymentSection 
                     paymentData={paymentData}

@@ -9,13 +9,10 @@ import ButterflyLogo from '@/components/ButterflyLogo';
 import LocationMap from '@/components/LocationMap';
 
 const Index = () => {
-  // Data do evento: 12 de Abril de 2025
-  const eventDate = new Date('2025-04-12T09:00:00');
-
   // Data de início das vendas: 4 de Janeiro de 2025
   const salesStartDate = new Date('2025-01-04T00:00:00');
   
-  // Verifica se as vendas de ingressos já começaram
+  // Verificar se as vendas já começaram
   const ticketSalesStarted = new Date() >= salesStartDate;
 
   return (
@@ -23,22 +20,22 @@ const Index = () => {
       <Navbar />
       
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-butterfly-black to-butterfly-black/90 text-white">
-        <div className="absolute inset-0 overflow-hidden opacity-10">
-          <div className="absolute inset-0 bg-[url('/placeholder.svg')] bg-center bg-no-repeat bg-cover"></div>
-        </div>
+      <section className="relative bg-gradient-to-br from-butterfly-black/85 to-butterfly-black/85 text-white">
+          <div className="absolute inset-0 overflow-hidden">
+            <div className="absolute inset-0 bg-[url('/capa-home.jpg')] bg-center bg-no-repeat bg-cover"></div>
+          </div>
         
-        <div className="container mx-auto px-4 py-24 md:py-32 relative z-10">
+        <div className="container mx-auto px-4 py-64 md:py-80 relative z-10">
           <div className="flex flex-col items-center text-center max-w-3xl mx-auto">
             <ButterflyLogo className="w-20 h-20 mb-6 animate-butterfly-fly" />
             
-            <h1 className="font-display text-4xl md:text-6xl font-bold mb-4">
-              VII Conferência de Mulheres<br />
-              <span className="text-butterfly-orange">Queren Hapuque</span>
-            </h1>
+            <h1 className="font-display text-4xl md:text-6xl font-bold mb-4 text-butterfly-orange">
+                VII Conferência de Mulheres<br />
+                <span style={{color: '#313131'}}>Queren Hapuque</span>
+              </h1>
             
-            <p className="text-lg md:text-xl mb-8">
-              Dias 12 e 13 de Abril de 2025 • Uma jornada de transformação e renovo
+            <p className="text-lg md:text-xl mb-8" style={{color: '#313131'}}>
+              Dias 17 e 18 de Abril de 2026 • Uma jornada de transformação e renovo
             </p>
             
             <div className="flex flex-col md:flex-row gap-4 mb-12">
@@ -68,7 +65,7 @@ const Index = () => {
             <p className="text-gray-600">O evento começa em:</p>
           </div>
           
-          <EventCountdown targetDate={eventDate} className="mb-10" />
+          <EventCountdown className="mb-10" />
           
           <div className="text-center mt-8">
             {ticketSalesStarted ? (
@@ -78,7 +75,7 @@ const Index = () => {
             ) : (
               <div>
                 <p className="text-xl font-medium mb-3">As vendas começam em:</p>
-                <EventCountdown targetDate={salesStartDate} />
+                <EventCountdown />
               </div>
             )}
           </div>
@@ -108,7 +105,7 @@ const Index = () => {
                   </span>
                   <div>
                     <h3 className="font-medium">Data e Horário</h3>
-                    <p className="text-gray-600">12 e 13 de Abril de 2025, das 9h às 18h</p>
+                    <p className="text-gray-600">17 e 18 de Abril de 2026, das 9h às 18h</p>
                   </div>
                 </div>
                 <div className="flex items-start mb-4">
@@ -155,7 +152,7 @@ const Index = () => {
             <div className="rounded-lg overflow-hidden shadow-md border border-gray-200 hover:shadow-xl transition-shadow">
               <div className="h-60 overflow-hidden">
                 <img 
-                  src="/placeholder.svg" 
+                  src="/produto-1.webp" 
                   alt="Camiseta do evento" 
                   className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
                 />
@@ -175,8 +172,8 @@ const Index = () => {
             <div className="rounded-lg overflow-hidden shadow-md border border-gray-200 hover:shadow-xl transition-shadow">
               <div className="h-60 overflow-hidden">
                 <img 
-                  src="/placeholder.svg" 
-                  alt="Boné do evento" 
+                  src="/produto-2.webp" 
+                  alt="Vestido do evento" 
                   className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
                 />
               </div>
@@ -195,8 +192,8 @@ const Index = () => {
             <div className="rounded-lg overflow-hidden shadow-md border border-gray-200 hover:shadow-xl transition-shadow md:col-span-2 lg:col-span-1">
               <div className="h-60 overflow-hidden">
                 <img 
-                  src="/placeholder.svg" 
-                  alt="Caneca do evento" 
+                  src="/produto-3.webp" 
+                  alt="Produto do evento" 
                   className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
                 />
               </div>

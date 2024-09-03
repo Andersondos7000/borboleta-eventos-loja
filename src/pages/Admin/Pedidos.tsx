@@ -131,7 +131,7 @@ const AdminPedidos = () => {
       ],
       total: 200,
       status: 'Enviado',
-      date: '17/01/2025',
+      date: '17/04/2026',
       shippingAddress: {
         street: 'Av. Paulista, 1000',
         city: 'São Paulo',
@@ -159,7 +159,7 @@ const AdminPedidos = () => {
       ],
       total: 83,
       status: 'Pendente',
-      date: '17/01/2025',
+      date: '17/04/2026',
       hasTickets: true,
       hasProducts: false
     },
@@ -182,7 +182,7 @@ const AdminPedidos = () => {
       ],
       total: 140,
       status: 'Cancelado',
-      date: '18/01/2025',
+      date: '18/04/2026',
       shippingAddress: {
         street: 'Rua dos Pinheiros, 500',
         city: 'São Paulo',

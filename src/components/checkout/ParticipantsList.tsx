@@ -1,26 +1,104 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
-import { Info } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Info, Minus, Plus, Users, Settings } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { UseFormReturn } from 'react-hook-form';
+import ParticipantsModal from '@/components/ParticipantsModal';
+import { ParticipantsManager } from '@/components/ParticipantsManager';
+import { Participant } from '@/hooks/useParticipants';
+import { toast } from '@/hooks/use-toast';
 
 interface ParticipantsListProps {
   form: UseFormReturn<any>;
   participantCount: number;
   onAddParticipant: () => void;
   onRemoveParticipant: (index: number) => void;
+  onParticipantCountChange?: (count: number) => void;
+  ticketQuantity?: number;
+  onTicketQuantityChange?: (quantity: number) => void;
+  maxTickets?: number;
+  minTickets?: number;
+  showCaravanButton?: boolean;
+  onCaravanParticipantsSave?: (participants: any[]) => void;
 }
 
 const ParticipantsList: React.FC<ParticipantsListProps> = ({ 
   form, 
   participantCount, 
   onAddParticipant, 
-  onRemoveParticipant 
+  onRemoveParticipant,
+  onParticipantCountChange,
+  ticketQuantity = 1,
+  onTicketQuantityChange,
+  maxTickets = 5,
+  minTickets = 1,
+  showCaravanButton = false,
+  onCaravanParticipantsSave
 }) => {
+  const [showParticipantsModal, setShowParticipantsModal] = useState(false);
+  const [showParticipantsManager, setShowParticipantsManager] = useState(false);
+
+  const handleSaveParticipants = (participants: any[]) => {
+    // Aplicar participantes diretamente ao formulário
+    if (participants && participants.length > 0) {
+      // Atualizar o formulário com os participantes importados
+      form.setValue('participants', participants);
+      
+      // Salvar também no estado de caravana se necessário
+      if (onCaravanParticipantsSave) {
+        onCaravanParticipantsSave(participants);
+      }
+    }
+    setShowParticipantsModal(false);
+  };
+
+  // Função para aplicar participantes selecionados do gerenciador
+  const handleSelectParticipantsFromManager = (selectedParticipants: Participant[]) => {
+    // Converter participantes do banco para o formato do formulário
+    const formattedParticipants = selectedParticipants.map(participant => ({
+      name: participant.name,
+      cpf: participant.cpf || '',
+      tshirt: participant.shirt_size || '',
+      dress: participant.dress_size || ''
+    }));
+
+    // Aplicar ao formulário
+    form.setValue('participants', formattedParticipants);
+    
+    // Atualizar o contador de participantes
+    if (onParticipantCountChange) {
+      onParticipantCountChange(formattedParticipants.length);
+    }
+    
+    // Opcionalmente, salvar no estado da caravana
+    if (onCaravanParticipantsSave) {
+      onCaravanParticipantsSave(formattedParticipants);
+    }
+    
+    // Fechar modal e mostrar confirmação
+    setShowParticipantsManager(false);
+    
+    toast({
+      title: "Participantes aplicados!",
+      description: `${formattedParticipants.length} participantes foram adicionados ao checkout.`,
+    });
+  };
+  const handleTicketIncrement = () => {
+    if (onTicketQuantityChange && ticketQuantity < maxTickets) {
+      onTicketQuantityChange(ticketQuantity + 1);
+    }
+  };
+
+  const handleTicketDecrement = () => {
+    if (onTicketQuantityChange && ticketQuantity > minTickets) {
+      onTicketQuantityChange(ticketQuantity - 1);
+    }
+  };
   return (
     <Card>
       <CardContent className="pt-6">
@@ -29,9 +107,46 @@ const ParticipantsList: React.FC<ParticipantsListProps> = ({
             <Info className="h-5 w-5 text-butterfly-orange" />
             Participantes
           </h2>
-          <Button type="button" variant="outline" onClick={onAddParticipant}>
-            Adicionar Participante
-          </Button>
+          <div className="flex items-center gap-4">
+
+            <div className="flex gap-2">
+              <Dialog open={showParticipantsManager} onOpenChange={setShowParticipantsManager}>
+                <DialogTrigger asChild>
+                  <Button 
+                    type="button" 
+                    variant="outline"
+                    className="flex items-center gap-2"
+                  >
+                    <Settings className="h-4 w-4" />
+                    Gerenciar Participantes
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+                  <DialogHeader>
+                    <DialogTitle>Gerenciador de Participantes</DialogTitle>
+                  </DialogHeader>
+                  <ParticipantsManager onSelectParticipants={handleSelectParticipantsFromManager} />
+                </DialogContent>
+              </Dialog>
+              {showCaravanButton && (
+                <Button 
+                  type="button" 
+                  className="flex items-center gap-2 bg-butterfly-orange hover:bg-butterfly-orange/90 text-white border-butterfly-orange"
+                  onClick={() => setShowParticipantsModal(true)}
+                >
+                  <Users className="h-4 w-4" />
+                  Participantes Caravana
+                </Button>
+              )}
+              <Button 
+                type="button" 
+                className="bg-butterfly-orange hover:bg-butterfly-orange/90 text-white border-butterfly-orange"
+                onClick={onAddParticipant}
+              >
+                Adicionar Participante
+              </Button>
+            </div>
+          </div>
         </div>
 
         {Array.from({ length: participantCount }).map((_, index) => (
@@ -141,6 +256,15 @@ const ParticipantsList: React.FC<ParticipantsListProps> = ({
             </div>
           </div>
         ))}
+        
+        {showParticipantsModal && (
+           <ParticipantsModal
+             isOpen={showParticipantsModal}
+             onClose={() => setShowParticipantsModal(false)}
+             onSave={handleSaveParticipants}
+             quantity={ticketQuantity}
+           />
+         )}
       </CardContent>
     </Card>
   );
