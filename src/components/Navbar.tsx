@@ -28,6 +28,9 @@ const Navbar: React.FC = () => {
             <Link to="/loja" className="px-3 py-2 rounded-md text-sm font-medium hover:bg-butterfly-orange/10 transition-colors flex items-center">
               <Shirt className="mr-1 h-4 w-4" /> Loja
             </Link>
+            <Link to="/checkout" className="px-3 py-2 rounded-md text-sm font-medium hover:bg-butterfly-orange/10 transition-colors">
+              Checkout
+            </Link>
             <Link to="/admin" className="px-3 py-2 rounded-md text-sm font-medium hover:bg-butterfly-orange/10 transition-colors">
               Admin
             </Link>
