@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { ShoppingCart, Calendar, Shirt } from 'lucide-react';
@@ -33,6 +32,9 @@ const Navbar: React.FC = () => {
             </Link>
             <Link to="/admin" className="px-3 py-2 rounded-md text-sm font-medium hover:bg-butterfly-orange/10 transition-colors">
               Admin
+            </Link>
+            <Link to="/ingressos" className="px-3 py-2 rounded-md text-sm font-medium hover:bg-butterfly-orange/10 transition-colors flex items-center">
+              <Calendar className="mr-1 h-4 w-4" /> Ingressos
             </Link>
           </div>
 

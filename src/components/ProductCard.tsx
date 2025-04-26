@@ -23,8 +23,12 @@ const ProductCard: React.FC<{ product: ProductProps }> = ({ product }) => {
   }).format(product.price);
 
   const handleAddToCart = () => {
-    // Navigate to cart page
-    navigate('/carrinho');
+    navigate('/carrinho', { 
+      state: { 
+        productId: product.id,
+        directCheckout: true 
+      } 
+    });
   };
 
   return (
