@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Link } from 'react-router-dom';
-import { ArrowRight, Copy, Info, LifeBuoy, Lock, ShieldCheck } from 'lucide-react';
+import { ArrowRight, Copy, Info, LifeBuoy, Lock, ShieldCheck, ShoppingCart } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
