@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -7,6 +6,7 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import EventCountdown from '@/components/EventCountdown';
 import ButterflyLogo from '@/components/ButterflyLogo';
+import LocationMap from '@/components/LocationMap';
 
 const Index = () => {
   // Data do evento: 12 de Abril de 2025
@@ -88,7 +88,7 @@ const Index = () => {
       {/* Event Info Section */}
       <section className="bg-gray-50 py-16">
         <div className="container mx-auto px-4">
-          <div className="grid md:grid-cols-2 gap-12 items-center">
+          <div className="grid md:grid-cols-2 gap-12">
             <div>
               <h2 className="font-display text-3xl font-bold mb-4">Sobre o Evento</h2>
               <p className="text-gray-600 mb-6">
@@ -139,16 +139,20 @@ const Index = () => {
               </Button>
             </div>
             
-            <div className="relative">
-              <div className="aspect-w-4 aspect-h-3 rounded-lg overflow-hidden shadow-xl">
-                <img 
-                  src="https://images.unsplash.com/photo-1491438590914-bc09fcaaf77a?q=80" 
-                  alt="Mulheres celebrando juntas" 
-                  className="w-full h-full object-cover" 
-                />
+            <div className="space-y-6">
+              <div className="relative">
+                <div className="aspect-w-4 aspect-h-3 rounded-lg overflow-hidden shadow-xl">
+                  <img 
+                    src="https://images.unsplash.com/photo-1491438590914-bc09fcaaf77a?q=80" 
+                    alt="Mulheres celebrando juntas" 
+                    className="w-full h-full object-cover" 
+                  />
+                </div>
+                <div className="absolute -bottom-6 -left-6 w-48 h-48 bg-butterfly-orange/20 rounded-full -z-10"></div>
+                <div className="absolute -top-6 -right-6 w-32 h-32 bg-butterfly-orange/20 rounded-full -z-10"></div>
               </div>
-              <div className="absolute -bottom-6 -left-6 w-48 h-48 bg-butterfly-orange/20 rounded-full -z-10"></div>
-              <div className="absolute -top-6 -right-6 w-32 h-32 bg-butterfly-orange/20 rounded-full -z-10"></div>
+              
+              <LocationMap />
             </div>
           </div>
         </div>
@@ -166,7 +170,7 @@ const Index = () => {
             <div className="rounded-lg overflow-hidden shadow-md border border-gray-200 hover:shadow-xl transition-shadow">
               <div className="h-60 overflow-hidden">
                 <img 
-                  src="https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?q=80" 
+                  src="https://images.unsplash.com/photo-1521572163474-6864f9cf177a?q=80" 
                   alt="Camiseta do evento" 
                   className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
                 />

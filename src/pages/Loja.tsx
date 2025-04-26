@@ -45,7 +45,7 @@ const Loja = () => {
       price: 140,
       image: 'https://images.unsplash.com/photo-1539008835657-9e8e9680c956?q=80',
       category: 'vestido',
-      sizes: ['0', '2', '4', '6', '8', '10', '12', '14', '16', 'EXGG'],
+      sizes: ['PP', 'P', 'M', 'G', 'GG', 'XGG', 'EXGG'],
       inStock: true
     },
     {
@@ -54,7 +54,7 @@ const Loja = () => {
       price: 140,
       image: 'https://images.unsplash.com/photo-1612336307429-8a898d10e223?q=80',
       category: 'vestido',
-      sizes: ['0', '2', '4', '6', '8', '10', '12', '14'],
+      sizes: ['PP', 'P', 'M', 'G', 'GG', 'XGG', 'EXGG'],
       inStock: true
     },
     {
@@ -63,7 +63,7 @@ const Loja = () => {
       price: 140,
       image: 'https://images.unsplash.com/photo-1542295669297-4d352b042bca?q=80',
       category: 'vestido',
-      sizes: ['0', '2', '4', '6', '8', '10', '12', '14', '16'],
+      sizes: ['PP', 'P', 'M', 'G', 'GG', 'XGG', 'EXGG'],
       inStock: true
     }
   ];

@@ -2,6 +2,8 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { ShoppingCart } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import ProductModal from './ProductModal';
 
 export interface ProductProps {
   id: string;
@@ -14,27 +16,35 @@ export interface ProductProps {
 }
 
 const ProductCard: React.FC<{ product: ProductProps }> = ({ product }) => {
+  const navigate = useNavigate();
   const formattedPrice = new Intl.NumberFormat('pt-BR', {
     style: 'currency',
     currency: 'BRL'
   }).format(product.price);
 
+  const handleAddToCart = () => {
+    // Navigate to cart page
+    navigate('/carrinho');
+  };
+
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden transition-transform hover:translate-y-[-5px] border border-gray-200">
-      <div className="relative h-64 overflow-hidden">
-        <img 
-          src={product.image} 
-          alt={product.name} 
-          className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" 
-        />
-        {!product.inStock && (
-          <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-            <span className="bg-red-500 text-white px-4 py-2 rounded-full font-semibold">
-              Esgotado
-            </span>
-          </div>
-        )}
-      </div>
+      <ProductModal product={product}>
+        <div className="relative h-64 overflow-hidden cursor-pointer">
+          <img 
+            src={product.image} 
+            alt={product.name} 
+            className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" 
+          />
+          {!product.inStock && (
+            <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+              <span className="bg-red-500 text-white px-4 py-2 rounded-full font-semibold">
+                Esgotado
+              </span>
+            </div>
+          )}
+        </div>
+      </ProductModal>
       
       <div className="p-4">
         <h3 className="font-medium text-lg">{product.name}</h3>
@@ -52,6 +62,7 @@ const ProductCard: React.FC<{ product: ProductProps }> = ({ product }) => {
           size="sm" 
           className="w-full mt-4 flex items-center justify-center"
           disabled={!product.inStock}
+          onClick={handleAddToCart}
         >
           <ShoppingCart className="mr-2 h-4 w-4" /> 
           {product.inStock ? 'Adicionar ao Carrinho' : 'Indisponível'}
