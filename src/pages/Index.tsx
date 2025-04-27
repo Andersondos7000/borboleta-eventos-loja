@@ -23,43 +23,47 @@ const Index = () => {
       <Navbar />
       
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-butterfly-black to-butterfly-black/90 text-white">
-        <div className="absolute inset-0 overflow-hidden opacity-10">
-          <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1505236858219-8359eb29e329?q=80')] bg-center bg-no-repeat bg-cover"></div>
-        </div>
-        
-        <div className="container mx-auto px-4 py-24 md:py-32 relative z-10">
-          <div className="flex flex-col items-center text-center max-w-3xl mx-auto">
-            <ButterflyLogo className="w-20 h-20 mb-6 animate-butterfly-fly" />
-            
-            <h1 className="font-display text-4xl md:text-6xl font-bold mb-4">
-              VII Conferência de Mulheres<br />
-              <span className="text-butterfly-orange">Queren Hapuque</span>
-            </h1>
-            
-            <p className="text-lg md:text-xl mb-8">
-              Dias 12 e 13 de Abril de 2025 • Uma jornada de transformação e renovo
-            </p>
-            
-            <div className="flex flex-col md:flex-row gap-4 mb-12">
-              <Button asChild size="lg" className="bg-butterfly-orange hover:bg-butterfly-orange/90">
-                <Link to="/evento">
-                  <Calendar className="mr-2 h-5 w-5" /> Sobre o Evento
-                </Link>
-              </Button>
+      <section className="relative bg-white">
+        <div className="container mx-auto px-4 py-16 md:py-24">
+          <div className="grid md:grid-cols-2 gap-12 items-center">
+            <div className="space-y-8">
+              <h1 className="font-display text-4xl md:text-6xl font-bold text-gray-900">
+                Queren Hapuque, VII Conferência de Mulheres 2025
+              </h1>
               
-              <Button asChild size="lg" variant="outline" className="text-butterfly-orange border-butterfly-orange hover:bg-butterfly-orange/10">
-                <Link to="/loja">
-                  <Shirt className="mr-2 h-5 w-5" /> Loja Oficial
-                </Link>
-              </Button>
+              <p className="text-lg md:text-xl text-gray-600">
+                Seja bem-vinda à nossa Conferência de Mulheres! Junte-se a nós para momentos únicos e repletos de empoderamento!
+              </p>
+              
+              <div className="flex flex-col sm:flex-row gap-4">
+                <Button asChild size="lg" className="bg-butterfly-orange hover:bg-butterfly-orange/90">
+                  <Link to="/evento">
+                    Explorar eventos Agora
+                  </Link>
+                </Button>
+                <Button asChild size="lg" variant="outline" className="border-butterfly-orange text-butterfly-orange hover:bg-butterfly-orange/10">
+                  <Link to="/ingressos">
+                    Compre online
+                  </Link>
+                </Button>
+              </div>
+              
+              <div className="inline-block px-4 py-2 bg-white rounded-full shadow-sm border border-gray-200">
+                <span className="text-gray-600">100% seguro</span>
+              </div>
             </div>
             
-            <ArrowDown className="animate-bounce text-butterfly-orange h-8 w-8" />
+            <div className="relative">
+              <img 
+                src="/lovable-uploads/02407974-bd63-45d0-a566-f66d92f28f8e.png"
+                alt="Queren Hapuque VII Conferência de Mulheres" 
+                className="w-full h-auto rounded-lg shadow-2xl"
+              />
+            </div>
           </div>
         </div>
       </section>
-      
+
       {/* Countdown Section */}
       <section className="bg-white py-16">
         <div className="container mx-auto px-4">
