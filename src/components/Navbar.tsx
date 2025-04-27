@@ -45,7 +45,11 @@ const Navbar: React.FC = () => {
                 0
               </span>
             </Link>
-            <Button variant="default" className="hidden md:flex">
+            <Button 
+              variant="default" 
+              className="hidden md:flex"
+              onClick={() => window.location.href = '/ingressos'}
+            >
               Comprar Ingresso
             </Button>
           </div>

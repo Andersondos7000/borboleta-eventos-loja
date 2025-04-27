@@ -26,7 +26,11 @@ const ProductCard: React.FC<{ product: ProductProps }> = ({ product }) => {
     navigate('/carrinho', { 
       state: { 
         productId: product.id,
-        directCheckout: true 
+        productName: product.name,
+        productPrice: product.price,
+        productImage: product.image,
+        productCategory: product.category,
+        productSizes: product.sizes,
       } 
     });
   };

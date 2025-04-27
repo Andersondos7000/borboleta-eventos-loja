@@ -16,7 +16,13 @@ import AdminEstoque from "./pages/Admin/Estoque";
 import NotFound from "./pages/NotFound";
 import Ingressos from "./pages/Ingressos";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60 * 5, // 5 minutes
+    },
+  },
+});
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
