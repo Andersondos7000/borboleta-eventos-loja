@@ -1,10 +1,9 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Button } from '@/components/ui/button';
 import { ShoppingCart } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import ProductModal from './ProductModal';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export interface ProductProps {
   id: string;
@@ -18,16 +17,12 @@ export interface ProductProps {
 
 const ProductCard: React.FC<{ product: ProductProps }> = ({ product }) => {
   const navigate = useNavigate();
-  const [selectedSize, setSelectedSize] = useState<string>("");
-  
   const formattedPrice = new Intl.NumberFormat('pt-BR', {
     style: 'currency',
     currency: 'BRL'
   }).format(product.price);
 
   const handleAddToCart = () => {
-    if (!selectedSize) return;
-    
     navigate('/carrinho', { 
       state: { 
         productId: product.id,
@@ -35,7 +30,7 @@ const ProductCard: React.FC<{ product: ProductProps }> = ({ product }) => {
         productPrice: product.price,
         productImage: product.image,
         productCategory: product.category,
-        productSize: selectedSize,
+        productSizes: product.sizes,
       } 
     });
   };
@@ -61,32 +56,24 @@ const ProductCard: React.FC<{ product: ProductProps }> = ({ product }) => {
       
       <div className="p-4">
         <h3 className="font-medium text-lg">{product.name}</h3>
-        <div className="flex flex-col gap-3 mt-2">
+        <div className="flex justify-between items-center mt-2">
           <span className="text-butterfly-orange font-bold text-xl">{formattedPrice}</span>
           
-          <Select value={selectedSize} onValueChange={setSelectedSize}>
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder="Selecione o tamanho" />
-            </SelectTrigger>
-            <SelectContent>
-              {product.sizes.map((size) => (
-                <SelectItem key={size} value={size}>
-                  {size}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <div className="text-sm text-gray-500">
+            {product.sizes.slice(0, 3).join(', ')}
+            {product.sizes.length > 3 && '...'}
+          </div>
         </div>
         
         <Button 
           variant="default" 
           size="sm" 
           className="w-full mt-4 flex items-center justify-center"
-          disabled={!product.inStock || !selectedSize}
+          disabled={!product.inStock}
           onClick={handleAddToCart}
         >
           <ShoppingCart className="mr-2 h-4 w-4" /> 
-          {product.inStock ? (selectedSize ? 'Adicionar ao Carrinho' : 'Selecione um tamanho') : 'Indisponível'}
+          {product.inStock ? 'Adicionar ao Carrinho' : 'Indisponível'}
         </Button>
       </div>
     </div>

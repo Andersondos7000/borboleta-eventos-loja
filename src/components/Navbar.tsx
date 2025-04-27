@@ -25,24 +25,26 @@ const Navbar: React.FC = () => {
             <Link to="/ingressos" className="text-gray-600 hover:text-butterfly-orange transition-colors">
               Ingressos
             </Link>
-            <Link to="/loja" className="text-gray-600 hover:text-butterfly-orange transition-colors">
-              Loja
-            </Link>
             <Link to="/evento" className="text-gray-600 hover:text-butterfly-orange transition-colors">
               Contato
             </Link>
           </div>
 
           <div className="flex items-center space-x-4">
-            <Link to="/carrinho" className="relative text-butterfly-orange hover:text-butterfly-orange/80 transition-colors">
-              <ShoppingCart className="h-6 w-6" />
-            </Link>
+            <div className="flex items-center space-x-2">
+              <Link to="/carrinho" className="relative text-butterfly-orange hover:text-butterfly-orange/80 transition-colors">
+                <ShoppingCart className="h-6 w-6" />
+                <span className="absolute -top-2 -right-2 bg-butterfly-orange text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                  R$ 0,00
+                </span>
+              </Link>
+            </div>
             <Button 
               variant="default" 
               className="bg-butterfly-orange hover:bg-butterfly-orange/90"
-              asChild
+              onClick={() => window.location.href = '/ingressos'}
             >
-              <Link to="/ingressos">Área do cliente</Link>
+              Área do cliente
             </Button>
           </div>
         </div>
