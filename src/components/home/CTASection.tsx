@@ -15,7 +15,7 @@ const CTASection = () => {
           Reserve seu lugar hoje mesmo!
         </p>
         <Button asChild size="lg" variant="outline" className="border-white text-white hover:bg-white/20">
-          <Link to="/evento">Garantir Meu Ingresso</Link>
+          <Link to="/ingressos">Garantir Meu Ingresso</Link>
         </Button>
       </div>
     </section>
