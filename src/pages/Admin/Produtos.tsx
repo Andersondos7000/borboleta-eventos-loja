@@ -1,11 +1,10 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Shirt, Search, PlusCircle } from 'lucide-react';
+import { Shirt, Search, PlusCircle, ImagePlus } from 'lucide-react';
 import AdminSidebar from '@/components/AdminSidebar';
 
 interface Product {
@@ -22,6 +21,20 @@ interface Product {
 const AdminProdutos = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('all');
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string>('');
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setSelectedImage(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   const products: Product[] = [
     {
@@ -164,21 +177,50 @@ const AdminProdutos = () => {
                   <Input id="stock" className="col-span-3" type="number" />
                 </div>
                 <div className="grid grid-cols-4 items-center gap-4">
-                  <label htmlFor="image" className="text-right text-sm font-medium">
-                    Imagem URL
+                  <label className="text-right text-sm font-medium">
+                    Imagem
                   </label>
-                  <Input id="image" className="col-span-3" />
+                  <div className="col-span-3 space-y-4">
+                    <div className="flex items-center gap-4">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => document.getElementById('image-upload')?.click()}
+                        className="w-full"
+                      >
+                        <ImagePlus className="mr-2 h-4 w-4" />
+                        Selecionar Imagem
+                      </Button>
+                      <input
+                        type="file"
+                        id="image-upload"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={handleImageChange}
+                      />
+                    </div>
+                    {imagePreview && (
+                      <div className="relative w-full h-40 rounded-md overflow-hidden">
+                        <img
+                          src={imagePreview}
+                          alt="Preview"
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
               <DialogFooter>
                 <Button variant="outline" className="mr-2">Cancelar</Button>
-                <Button className="bg-butterfly-orange hover:bg-butterfly-orange/90">Salvar</Button>
+                <Button className="bg-butterfly-orange hover:bg-butterfly-orange/90">
+                  Salvar
+                </Button>
               </DialogFooter>
             </DialogContent>
           </Dialog>
         </div>
         
-        {/* Filters */}
         <div className="flex flex-col md:flex-row gap-4 mb-6">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
