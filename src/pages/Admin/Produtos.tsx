@@ -23,6 +23,7 @@ const AdminProdutos = () => {
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>('');
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -34,6 +35,17 @@ const AdminProdutos = () => {
       };
       reader.readAsDataURL(file);
     }
+  };
+
+  const handleEditClick = (product: Product) => {
+    setEditingProduct(product);
+    setImagePreview(product.image);
+  };
+
+  const handleEditDialogClose = () => {
+    setEditingProduct(null);
+    setSelectedImage(null);
+    setImagePreview('');
   };
 
   const products: Product[] = [
@@ -305,9 +317,133 @@ const AdminProdutos = () => {
                       </td>
                       <td className="py-3 px-4 text-right">
                         <div className="flex justify-end gap-2">
-                          <Button variant="outline" size="sm" className="h-8">
-                            Editar
-                          </Button>
+                          <Dialog>
+                            <DialogTrigger asChild>
+                              <Button variant="outline" size="sm" className="h-8">
+                                Editar
+                              </Button>
+                            </DialogTrigger>
+                            <DialogContent className="sm:max-w-[550px]">
+                              <DialogHeader>
+                                <DialogTitle>Editar Produto</DialogTitle>
+                                <DialogDescription>
+                                  Altere os detalhes do produto.
+                                </DialogDescription>
+                              </DialogHeader>
+                              <div className="grid gap-4 py-4">
+                                <div className="grid grid-cols-4 items-center gap-4">
+                                  <label htmlFor="edit-name" className="text-right text-sm font-medium">
+                                    Nome
+                                  </label>
+                                  <Input 
+                                    id="edit-name" 
+                                    className="col-span-3" 
+                                    defaultValue={product.name} 
+                                  />
+                                </div>
+                                <div className="grid grid-cols-4 items-center gap-4">
+                                  <label htmlFor="edit-description" className="text-right text-sm font-medium">
+                                    Descrição
+                                  </label>
+                                  <Input 
+                                    id="edit-description" 
+                                    className="col-span-3" 
+                                    defaultValue={product.description} 
+                                  />
+                                </div>
+                                <div className="grid grid-cols-4 items-center gap-4">
+                                  <label htmlFor="edit-category" className="text-right text-sm font-medium">
+                                    Categoria
+                                  </label>
+                                  <Select defaultValue={product.category}>
+                                    <SelectTrigger className="col-span-3">
+                                      <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="camiseta">Camiseta</SelectItem>
+                                      <SelectItem value="vestido">Vestido</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                </div>
+                                <div className="grid grid-cols-4 items-center gap-4">
+                                  <label htmlFor="edit-price" className="text-right text-sm font-medium">
+                                    Preço (R$)
+                                  </label>
+                                  <Input 
+                                    id="edit-price" 
+                                    className="col-span-3" 
+                                    type="number" 
+                                    defaultValue={product.price}
+                                  />
+                                </div>
+                                <div className="grid grid-cols-4 items-center gap-4">
+                                  <label htmlFor="edit-stock" className="text-right text-sm font-medium">
+                                    Estoque
+                                  </label>
+                                  <Input 
+                                    id="edit-stock" 
+                                    className="col-span-3" 
+                                    type="number" 
+                                    defaultValue={product.stock}
+                                  />
+                                </div>
+                                <div className="grid grid-cols-4 items-center gap-4">
+                                  <label htmlFor="edit-status" className="text-right text-sm font-medium">
+                                    Status
+                                  </label>
+                                  <Select defaultValue={product.status}>
+                                    <SelectTrigger className="col-span-3">
+                                      <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="Ativo">Ativo</SelectItem>
+                                      <SelectItem value="Inativo">Inativo</SelectItem>
+                                      <SelectItem value="Esgotado">Esgotado</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                </div>
+                                <div className="grid grid-cols-4 items-center gap-4">
+                                  <label className="text-right text-sm font-medium">
+                                    Imagem
+                                  </label>
+                                  <div className="col-span-3 space-y-4">
+                                    <div className="flex items-center gap-4">
+                                      <Button
+                                        type="button"
+                                        variant="outline"
+                                        onClick={() => document.getElementById(`edit-image-upload-${product.id}`)?.click()}
+                                        className="w-full"
+                                      >
+                                        <ImagePlus className="mr-2 h-4 w-4" />
+                                        Alterar Imagem
+                                      </Button>
+                                      <input
+                                        type="file"
+                                        id={`edit-image-upload-${product.id}`}
+                                        accept="image/*"
+                                        className="hidden"
+                                        onChange={handleImageChange}
+                                      />
+                                    </div>
+                                    <div className="relative w-full h-40 rounded-md overflow-hidden border">
+                                      <img
+                                        src={product.image}
+                                        alt={product.name}
+                                        className="w-full h-full object-cover"
+                                      />
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                              <DialogFooter>
+                                <Button variant="outline" className="mr-2">Cancelar</Button>
+                                <Button className="bg-butterfly-orange hover:bg-butterfly-orange/90">
+                                  Salvar Alterações
+                                </Button>
+                              </DialogFooter>
+                            </DialogContent>
+                          </Dialog>
+                          
                           <Dialog>
                             <DialogTrigger asChild>
                               <Button variant="outline" size="sm" className="h-8">
