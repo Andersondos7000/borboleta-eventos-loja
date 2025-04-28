@@ -5,6 +5,13 @@ import { Button } from '@/components/ui/button';
 import { Trash2 } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface CartItem {
   id: string;
@@ -13,7 +20,13 @@ interface CartItem {
   price: number;
   size: string;
   quantity: number;
+  category: 'camiseta' | 'vestido';
 }
+
+const sizes = {
+  camiseta: ['PP', 'P', 'M', 'G', 'GG', 'XGG', 'EXGG'],
+  vestido: ['PP', 'P', 'M', 'G', 'GG', 'XGG', 'EXGG']
+};
 
 const Carrinho = () => {
   const [cartItems, setCartItems] = useState<CartItem[]>([
@@ -23,7 +36,8 @@ const Carrinho = () => {
       image: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?q=80',
       price: 60,
       size: 'M',
-      quantity: 1
+      quantity: 1,
+      category: 'camiseta'
     },
     {
       id: 'dress-1',
@@ -31,7 +45,8 @@ const Carrinho = () => {
       image: 'https://images.unsplash.com/photo-1539008835657-9e8e9680c956?q=80',
       price: 140,
       size: '6',
-      quantity: 1
+      quantity: 1,
+      category: 'vestido'
     }
   ]);
 
@@ -52,6 +67,12 @@ const Carrinho = () => {
     if (newQuantity < 1) return;
     setCartItems(cartItems.map(item => 
       item.id === id ? {...item, quantity: newQuantity} : item
+    ));
+  };
+
+  const updateSize = (id: string, newSize: string) => {
+    setCartItems(cartItems.map(item => 
+      item.id === id ? {...item, size: newSize} : item
     ));
   };
 
@@ -109,7 +130,6 @@ const Carrinho = () => {
           ) : (
             <div className="grid lg:grid-cols-3 gap-8">
               <div className="lg:col-span-2">
-                {/* Produtos */}
                 {cartItems.length > 0 && (
                   <div className="bg-white rounded-lg shadow-sm mb-6">
                     <div className="p-6 border-b border-gray-200">
@@ -128,24 +148,43 @@ const Carrinho = () => {
                         
                         <div className="flex-1">
                           <h3 className="font-medium text-lg">{item.name}</h3>
-                          <p className="text-gray-500 mb-2">Tamanho: {item.size}</p>
                           <div className="flex flex-wrap justify-between items-center mt-2">
-                            <div className="flex items-center">
-                              <label className="mr-2 text-sm">Qtd:</label>
-                              <div className="flex border border-gray-300 rounded-md">
-                                <button 
-                                  onClick={() => updateQuantity(item.id, item.quantity - 1)} 
-                                  className="px-2 py-1 border-r border-gray-300"
+                            <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                              <div className="flex items-center gap-4">
+                                <Select
+                                  value={item.size}
+                                  onValueChange={(value) => updateSize(item.id, value)}
                                 >
-                                  -
-                                </button>
-                                <span className="px-4 py-1">{item.quantity}</span>
-                                <button 
-                                  onClick={() => updateQuantity(item.id, item.quantity + 1)} 
-                                  className="px-2 py-1 border-l border-gray-300"
-                                >
-                                  +
-                                </button>
+                                  <SelectTrigger className="w-24">
+                                    <SelectValue placeholder="Tamanho" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {sizes[item.category].map((size) => (
+                                      <SelectItem key={size} value={size}>
+                                        {size}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                                
+                                <div className="flex items-center">
+                                  <label className="mr-2 text-sm">Qtd:</label>
+                                  <div className="flex border border-gray-300 rounded-md">
+                                    <button 
+                                      onClick={() => updateQuantity(item.id, item.quantity - 1)} 
+                                      className="px-2 py-1 border-r border-gray-300"
+                                    >
+                                      -
+                                    </button>
+                                    <span className="px-4 py-1">{item.quantity}</span>
+                                    <button 
+                                      onClick={() => updateQuantity(item.id, item.quantity + 1)} 
+                                      className="px-2 py-1 border-l border-gray-300"
+                                    >
+                                      +
+                                    </button>
+                                  </div>
+                                </div>
                               </div>
                             </div>
                             
