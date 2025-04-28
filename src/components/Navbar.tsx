@@ -1,16 +1,10 @@
 import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { ShoppingCart, Calendar, Shirt } from 'lucide-react';
 import ButterflyLogo from './ButterflyLogo';
 import { Button } from '@/components/ui/button';
 
 const Navbar: React.FC = () => {
-  const navigate = useNavigate();
-
-  const handleTicketPurchase = () => {
-    navigate('/ingressos');
-  };
-
   return (
     <nav className="sticky top-0 z-50 w-full bg-white shadow-sm border-b border-butterfly-orange/10">
       <div className="container mx-auto px-4 py-3">
@@ -54,7 +48,7 @@ const Navbar: React.FC = () => {
             <Button 
               variant="default" 
               className="hidden md:flex"
-              onClick={handleTicketPurchase}
+              onClick={() => window.location.href = '/ingressos'}
             >
               Comprar Ingresso
             </Button>

@@ -1,5 +1,6 @@
+
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Trash2 } from 'lucide-react';
 import Navbar from '@/components/Navbar';
@@ -43,8 +44,6 @@ const Carrinho = () => {
   
   const [hasTicket, setHasTicket] = useState(true);
 
-  const navigate = useNavigate();
-
   const removeItem = (id: string) => {
     setCartItems(cartItems.filter(item => item.id !== id));
   };
@@ -82,10 +81,6 @@ const Carrinho = () => {
       style: 'currency',
       currency: 'BRL'
     }).format(value);
-  };
-
-  const handleCheckout = () => {
-    navigate('/checkout', { state: { cartItems, hasTicket, eventTicket, total } });
   };
 
   return (
@@ -250,10 +245,7 @@ const Carrinho = () => {
                   </div>
                 </div>
                 
-                <Button 
-                  className="w-full mt-6 bg-butterfly-orange hover:bg-butterfly-orange/90"
-                  onClick={handleCheckout}
-                >
+                <Button className="w-full mt-6 bg-butterfly-orange hover:bg-butterfly-orange/90">
                   Finalizar Compra
                 </Button>
                 
