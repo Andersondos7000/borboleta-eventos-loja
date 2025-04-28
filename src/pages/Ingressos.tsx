@@ -2,26 +2,44 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Minus, Plus, MapPin, Calendar, Users } from 'lucide-react';
+import { Minus, Plus, MapPin, Calendar, Users, Bus } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { Card, CardContent } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const Ingressos = () => {
-  const [quantity, setQuantity] = useState(1);
+  const [individualQuantity, setIndividualQuantity] = useState(1);
+  const [groupQuantity, setGroupQuantity] = useState(10);
+  const [activeTab, setActiveTab] = useState("individual");
   const navigate = useNavigate();
-  const ticketPrice = 83.00;
+  const individualTicketPrice = 83.00;
+  const groupTicketPrice = 75.00;
 
-  const handleIncrement = () => {
-    if (quantity < 5) setQuantity(quantity + 1);
+  const handleIndividualIncrement = () => {
+    if (individualQuantity < 5) setIndividualQuantity(individualQuantity + 1);
   };
 
-  const handleDecrement = () => {
-    if (quantity > 1) setQuantity(quantity - 1);
+  const handleIndividualDecrement = () => {
+    if (individualQuantity > 1) setIndividualQuantity(individualQuantity - 1);
+  };
+
+  const handleGroupIncrement = () => {
+    setGroupQuantity(groupQuantity + 1);
+  };
+
+  const handleGroupDecrement = () => {
+    if (groupQuantity > 10) setGroupQuantity(groupQuantity - 1);
   };
 
   const handleAddToCart = () => {
     navigate('/carrinho');
+  };
+
+  const calculateTotal = () => {
+    return activeTab === "individual" 
+      ? individualTicketPrice * individualQuantity 
+      : groupTicketPrice * groupQuantity;
   };
 
   return (
@@ -64,43 +82,93 @@ const Ingressos = () => {
               <Card>
                 <CardContent className="pt-6">
                   <h2 className="text-xl font-semibold mb-6">Comprar Ingressos</h2>
-                  <div className="space-y-6">
-                    <div>
-                      <p className="text-gray-600 mb-2">Preço por ingresso</p>
-                      <p className="text-2xl font-bold text-butterfly-orange">
-                        R$ {ticketPrice.toFixed(2).replace('.', ',')}
-                      </p>
-                    </div>
+                  
+                  <Tabs defaultValue="individual" onValueChange={setActiveTab} className="w-full">
+                    <TabsList className="grid w-full grid-cols-2 mb-6">
+                      <TabsTrigger value="individual" className="flex items-center gap-2">
+                        <Users className="h-4 w-4" />
+                        Individual
+                      </TabsTrigger>
+                      <TabsTrigger value="group" className="flex items-center gap-2">
+                        <Bus className="h-4 w-4" />
+                        Caravana
+                      </TabsTrigger>
+                    </TabsList>
 
-                    <div>
-                      <label className="block text-sm font-medium mb-2">Quantidade</label>
-                      <div className="flex items-center gap-4">
-                        <div className="flex items-center border rounded-md">
-                          <button 
-                            onClick={handleDecrement}
-                            className="px-3 py-2 hover:bg-gray-100"
-                          >
-                            <Minus className="h-4 w-4" />
-                          </button>
-                          <span className="px-4 py-2">{quantity}</span>
-                          <button 
-                            onClick={handleIncrement}
-                            className="px-3 py-2 hover:bg-gray-100"
-                          >
-                            <Plus className="h-4 w-4" />
-                          </button>
-                        </div>
-                        <span className="text-sm text-gray-500">
-                          (Máximo 5 ingressos por compra)
-                        </span>
+                    <TabsContent value="individual" className="space-y-6">
+                      <div>
+                        <p className="text-gray-600 mb-2">Preço por ingresso</p>
+                        <p className="text-2xl font-bold text-butterfly-orange">
+                          R$ {individualTicketPrice.toFixed(2).replace('.', ',')}
+                        </p>
                       </div>
-                    </div>
 
-                    <div className="border-t pt-4">
+                      <div>
+                        <label className="block text-sm font-medium mb-2">Quantidade</label>
+                        <div className="flex items-center gap-4">
+                          <div className="flex items-center border rounded-md">
+                            <button 
+                              onClick={handleIndividualDecrement}
+                              className="px-3 py-2 hover:bg-gray-100"
+                            >
+                              <Minus className="h-4 w-4" />
+                            </button>
+                            <span className="px-4 py-2">{individualQuantity}</span>
+                            <button 
+                              onClick={handleIndividualIncrement}
+                              className="px-3 py-2 hover:bg-gray-100"
+                            >
+                              <Plus className="h-4 w-4" />
+                            </button>
+                          </div>
+                          <span className="text-sm text-gray-500">
+                            (Máximo 5 ingressos por compra)
+                          </span>
+                        </div>
+                      </div>
+                    </TabsContent>
+
+                    <TabsContent value="group" className="space-y-6">
+                      <div>
+                        <p className="text-gray-600 mb-2">Preço por ingresso (caravana)</p>
+                        <p className="text-2xl font-bold text-butterfly-orange">
+                          R$ {groupTicketPrice.toFixed(2).replace('.', ',')}
+                        </p>
+                        <p className="text-sm text-green-600 mt-1">
+                          Desconto de 10% por ingresso para caravanas!
+                        </p>
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium mb-2">Quantidade</label>
+                        <div className="flex items-center gap-4">
+                          <div className="flex items-center border rounded-md">
+                            <button 
+                              onClick={handleGroupDecrement}
+                              className="px-3 py-2 hover:bg-gray-100"
+                            >
+                              <Minus className="h-4 w-4" />
+                            </button>
+                            <span className="px-4 py-2">{groupQuantity}</span>
+                            <button 
+                              onClick={handleGroupIncrement}
+                              className="px-3 py-2 hover:bg-gray-100"
+                            >
+                              <Plus className="h-4 w-4" />
+                            </button>
+                          </div>
+                          <span className="text-sm text-gray-500">
+                            (Mínimo 10 ingressos)
+                          </span>
+                        </div>
+                      </div>
+                    </TabsContent>
+                    
+                    <div className="border-t pt-4 mt-4">
                       <div className="flex justify-between mb-4">
                         <span className="font-semibold">Total:</span>
                         <span className="text-xl font-bold text-butterfly-orange">
-                          R$ {(ticketPrice * quantity).toFixed(2).replace('.', ',')}
+                          R$ {calculateTotal().toFixed(2).replace('.', ',')}
                         </span>
                       </div>
                       <Button 
@@ -110,7 +178,7 @@ const Ingressos = () => {
                         Adicionar ao Carrinho
                       </Button>
                     </div>
-                  </div>
+                  </Tabs>
                 </CardContent>
               </Card>
             </div>
