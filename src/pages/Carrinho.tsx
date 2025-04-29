@@ -114,16 +114,24 @@ const Carrinho = () => {
 
       if (ticketsError) throw ticketsError;
 
-      const formattedItems = items?.map(item => ({
-        id: item.products?.id || '',
-        name: item.products?.name || '',
-        image: item.products?.image || '',
-        price: item.price,
-        size: item.size || '',
-        quantity: item.quantity,
-        category: (item.products?.category as 'camiseta' | 'vestido') || 'camiseta',
-        order_item_id: item.id
-      })) || [];
+      const formattedItems = items?.map(item => {
+        let imageUrl = item.products?.image || '';
+        
+        if (imageUrl && !imageUrl.startsWith('http://') && !imageUrl.startsWith('https://')) {
+          imageUrl = `/placeholder.svg`;
+        }
+        
+        return {
+          id: item.products?.id || '',
+          name: item.products?.name || '',
+          image: imageUrl,
+          price: item.price || 0,
+          size: item.size || '',
+          quantity: item.quantity || 1,
+          category: (item.products?.category as 'camiseta' | 'vestido') || 'camiseta',
+          order_item_id: item.id
+        };
+      }) || [];
 
       setCartItems(formattedItems);
 
@@ -423,7 +431,7 @@ const Carrinho = () => {
   const total = subtotal + shipping;
 
   const formatCurrency = (value: number) => {
-    if (isNaN(value)) return 'R$ 0,00';
+    if (isNaN(value) || value === null || value === undefined) return 'R$ 0,00';
     
     return new Intl.NumberFormat('pt-BR', {
       style: 'currency',
@@ -478,11 +486,16 @@ const Carrinho = () => {
                     {cartItems.map((item) => (
                       <div key={item.id} className="p-6 border-b border-gray-100">
                         <div className="flex items-center">
-                          <div className="w-24 h-24 rounded-md overflow-hidden flex-shrink-0 mr-4">
+                          <div className="w-24 h-24 rounded-md overflow-hidden flex-shrink-0 mr-4 bg-gray-100">
                             <img 
-                              src={item.image} 
+                              src={item.image || '/placeholder.svg'} 
                               alt={item.name} 
                               className="w-full h-full object-cover" 
+                              onError={(e) => {
+                                const target = e.target as HTMLImageElement;
+                                target.onerror = null;
+                                target.src = "/placeholder.svg";
+                              }}
                             />
                           </div>
                           
