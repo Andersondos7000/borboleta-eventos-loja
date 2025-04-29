@@ -120,21 +120,21 @@ const Carrinho = () => {
 
       if (ticketsError) throw ticketsError;
 
-      // Format cart items
-      const formattedItems = items.map(item => ({
-        id: item.products.id,
-        name: item.products.name,
-        image: item.products.image,
+      // Format cart items - Add a null check for items
+      const formattedItems = items?.map(item => ({
+        id: item.products?.id || '',
+        name: item.products?.name || '',
+        image: item.products?.image || '',
         price: item.price,
         size: item.size || '',
         quantity: item.quantity,
-        category: item.products.category as 'camiseta' | 'vestido',
+        category: (item.products?.category as 'camiseta' | 'vestido') || 'camiseta',
         order_item_id: item.id
-      }));
+      })) || [];
 
       setCartItems(formattedItems);
 
-      // Check if there are ticket items
+      // Check if there are ticket items - Add null check
       if (ticketItems && ticketItems.length > 0) {
         const ticketItem = ticketItems[0];
         eventTicket.quantity = ticketItem.quantity;
@@ -523,11 +523,12 @@ const Carrinho = () => {
                                     <SelectValue placeholder="Tamanho" />
                                   </SelectTrigger>
                                   <SelectContent>
-                                    {sizes[item.category].map((size) => (
+                                    {/* Add null check for sizes */}
+                                    {sizes[item.category]?.map((size) => (
                                       <SelectItem key={size} value={size}>
                                         {size}
                                       </SelectItem>
-                                    ))}
+                                    )) || []}
                                   </SelectContent>
                                 </Select>
                                 
