@@ -1,10 +1,13 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Trash2 } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from '@/hooks/use-toast';
 import {
   Select,
   SelectContent,
@@ -21,6 +24,7 @@ interface CartItem {
   size: string;
   quantity: number;
   category: 'camiseta' | 'vestido';
+  order_item_id?: string;
 }
 
 const sizes = {
@@ -29,26 +33,10 @@ const sizes = {
 };
 
 const Carrinho = () => {
-  const [cartItems, setCartItems] = useState<CartItem[]>([
-    {
-      id: 'tshirt-1',
-      name: 'Camiseta Logo Conferência',
-      image: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?q=80',
-      price: 60,
-      size: 'M',
-      quantity: 1,
-      category: 'camiseta'
-    },
-    {
-      id: 'dress-1',
-      name: 'Vestido Elegance',
-      image: 'https://images.unsplash.com/photo-1539008835657-9e8e9680c956?q=80',
-      price: 140,
-      size: '6',
-      quantity: 1,
-      category: 'vestido'
-    }
-  ]);
+  const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { user } = useAuth();
+  const [orderId, setOrderId] = useState<string | null>(null);
 
   const eventTicket = {
     id: 'ticket-1',
@@ -57,33 +45,397 @@ const Carrinho = () => {
     quantity: 1
   };
   
-  const [hasTicket, setHasTicket] = useState(true);
+  const [hasTicket, setHasTicket] = useState(false);
 
-  const removeItem = (id: string) => {
-    setCartItems(cartItems.filter(item => item.id !== id));
+  useEffect(() => {
+    fetchCartItems();
+  }, [user]);
+
+  const fetchCartItems = async () => {
+    try {
+      setLoading(true);
+      
+      if (!user) {
+        // Handle guest user with temp cart in localStorage
+        const tempCartItems = JSON.parse(localStorage.getItem('tempCart') || '[]');
+        setCartItems(tempCartItems);
+        setLoading(false);
+        return;
+      }
+
+      // Find the user's pending order
+      const { data: order, error: orderError } = await supabase
+        .from('orders')
+        .select('id')
+        .eq('user_id', user.id)
+        .eq('status', 'Pendente')
+        .maybeSingle();
+
+      if (orderError) throw orderError;
+
+      if (!order) {
+        // No pending order found
+        setCartItems([]);
+        setLoading(false);
+        return;
+      }
+
+      setOrderId(order.id);
+
+      // Get order items with product details
+      const { data: items, error: itemsError } = await supabase
+        .from('order_items')
+        .select(`
+          id,
+          quantity,
+          size,
+          price,
+          products:product_id (
+            id,
+            name,
+            image,
+            category
+          )
+        `)
+        .eq('order_id', order.id)
+        .is('ticket_id', null); // Only get product items, not tickets
+
+      if (itemsError) throw itemsError;
+
+      // Get ticket items
+      const { data: ticketItems, error: ticketsError } = await supabase
+        .from('order_items')
+        .select(`
+          id,
+          quantity,
+          price,
+          tickets:ticket_id (
+            id,
+            type,
+            price
+          )
+        `)
+        .eq('order_id', order.id)
+        .not('ticket_id', 'is', null);
+
+      if (ticketsError) throw ticketsError;
+
+      // Format cart items
+      const formattedItems = items.map(item => ({
+        id: item.products.id,
+        name: item.products.name,
+        image: item.products.image,
+        price: item.price,
+        size: item.size || '',
+        quantity: item.quantity,
+        category: item.products.category as 'camiseta' | 'vestido',
+        order_item_id: item.id
+      }));
+
+      setCartItems(formattedItems);
+
+      // Check if there are ticket items
+      if (ticketItems && ticketItems.length > 0) {
+        const ticketItem = ticketItems[0];
+        eventTicket.quantity = ticketItem.quantity;
+        eventTicket.price = ticketItem.price;
+        setHasTicket(true);
+      } else {
+        setHasTicket(false);
+      }
+
+    } catch (error: any) {
+      console.error('Error fetching cart:', error);
+      toast({
+        variant: "destructive",
+        title: "Erro ao carregar carrinho",
+        description: error.message
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const updateQuantity = (id: string, newQuantity: number) => {
+  const removeItem = async (id: string, order_item_id?: string) => {
+    try {
+      if (!user) {
+        // Handle guest user
+        const tempCartItems = JSON.parse(localStorage.getItem('tempCart') || '[]');
+        const updatedItems = tempCartItems.filter((item: any) => item.productId !== id);
+        localStorage.setItem('tempCart', JSON.stringify(updatedItems));
+        setCartItems(updatedItems);
+        return;
+      }
+
+      if (!order_item_id || !orderId) return;
+
+      // Delete item from database
+      const { error } = await supabase
+        .from('order_items')
+        .delete()
+        .eq('id', order_item_id);
+
+      if (error) throw error;
+
+      // Update local state
+      setCartItems(cartItems.filter(item => item.order_item_id !== order_item_id));
+
+      // Update order total
+      const { data: orderItems, error: itemsError } = await supabase
+        .from('order_items')
+        .select('price, quantity')
+        .eq('order_id', orderId);
+
+      if (itemsError) throw itemsError;
+
+      const newTotal = orderItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
+      const { error: updateOrderError } = await supabase
+        .from('orders')
+        .update({ total: newTotal })
+        .eq('id', orderId);
+
+      if (updateOrderError) throw updateOrderError;
+
+      toast({
+        title: "Item removido",
+        description: "Item removido do carrinho com sucesso"
+      });
+    } catch (error: any) {
+      console.error('Error removing item:', error);
+      toast({
+        variant: "destructive",
+        title: "Erro ao remover item",
+        description: error.message
+      });
+    }
+  };
+
+  const updateQuantity = async (id: string, newQuantity: number, order_item_id?: string) => {
     if (newQuantity < 1) return;
-    setCartItems(cartItems.map(item => 
-      item.id === id ? {...item, quantity: newQuantity} : item
-    ));
+
+    try {
+      if (!user) {
+        // Handle guest user
+        const tempCartItems = JSON.parse(localStorage.getItem('tempCart') || '[]');
+        const updatedItems = tempCartItems.map((item: any) => 
+          item.productId === id ? {...item, quantity: newQuantity} : item
+        );
+        localStorage.setItem('tempCart', JSON.stringify(updatedItems));
+        setCartItems(updatedItems);
+        return;
+      }
+
+      if (!order_item_id || !orderId) return;
+
+      // Update item in database
+      const { error } = await supabase
+        .from('order_items')
+        .update({ quantity: newQuantity })
+        .eq('id', order_item_id);
+
+      if (error) throw error;
+
+      // Update local state
+      setCartItems(cartItems.map(item => 
+        item.order_item_id === order_item_id ? {...item, quantity: newQuantity} : item
+      ));
+
+      // Update order total
+      const { data: orderItems, error: itemsError } = await supabase
+        .from('order_items')
+        .select('price, quantity')
+        .eq('order_id', orderId);
+
+      if (itemsError) throw itemsError;
+
+      const newTotal = orderItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
+      const { error: updateOrderError } = await supabase
+        .from('orders')
+        .update({ total: newTotal })
+        .eq('id', orderId);
+
+      if (updateOrderError) throw updateOrderError;
+    } catch (error: any) {
+      console.error('Error updating quantity:', error);
+      toast({
+        variant: "destructive",
+        title: "Erro ao atualizar quantidade",
+        description: error.message
+      });
+    }
   };
 
-  const updateSize = (id: string, newSize: string) => {
-    setCartItems(cartItems.map(item => 
-      item.id === id ? {...item, size: newSize} : item
-    ));
+  const updateSize = async (id: string, newSize: string, order_item_id?: string) => {
+    try {
+      if (!user) {
+        // Handle guest user
+        const tempCartItems = JSON.parse(localStorage.getItem('tempCart') || '[]');
+        const updatedItems = tempCartItems.map((item: any) => 
+          item.productId === id ? {...item, size: newSize} : item
+        );
+        localStorage.setItem('tempCart', JSON.stringify(updatedItems));
+        setCartItems(updatedItems);
+        return;
+      }
+
+      if (!order_item_id || !orderId) return;
+
+      // Update item in database
+      const { error } = await supabase
+        .from('order_items')
+        .update({ size: newSize })
+        .eq('id', order_item_id);
+
+      if (error) throw error;
+
+      // Update local state
+      setCartItems(cartItems.map(item => 
+        item.order_item_id === order_item_id ? {...item, size: newSize} : item
+      ));
+
+      toast({
+        title: "Tamanho atualizado",
+        description: "Tamanho atualizado com sucesso"
+      });
+    } catch (error: any) {
+      console.error('Error updating size:', error);
+      toast({
+        variant: "destructive",
+        title: "Erro ao atualizar tamanho",
+        description: error.message
+      });
+    }
   };
 
-  const removeTicket = () => {
-    setHasTicket(false);
+  const removeTicket = async () => {
+    try {
+      if (!user || !orderId) {
+        setHasTicket(false);
+        return;
+      }
+
+      // Remove ticket from database
+      const { error } = await supabase
+        .from('order_items')
+        .delete()
+        .eq('order_id', orderId)
+        .not('ticket_id', 'is', null);
+
+      if (error) throw error;
+
+      setHasTicket(false);
+
+      // Update order total
+      const { data: orderItems, error: itemsError } = await supabase
+        .from('order_items')
+        .select('price, quantity')
+        .eq('order_id', orderId);
+
+      if (itemsError) throw itemsError;
+
+      const newTotal = orderItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
+      const { error: updateOrderError } = await supabase
+        .from('orders')
+        .update({ total: newTotal })
+        .eq('id', orderId);
+
+      if (updateOrderError) throw updateOrderError;
+
+      toast({
+        title: "Ingresso removido",
+        description: "Ingresso removido do carrinho com sucesso"
+      });
+    } catch (error: any) {
+      console.error('Error removing ticket:', error);
+      toast({
+        variant: "destructive",
+        title: "Erro ao remover ingresso",
+        description: error.message
+      });
+    }
   };
 
-  const updateTicketQuantity = (newQuantity: number) => {
+  const updateTicketQuantity = async (newQuantity: number) => {
     if (newQuantity < 1) return;
-    eventTicket.quantity = newQuantity;
-    setHasTicket(true);
+    
+    try {
+      eventTicket.quantity = newQuantity;
+
+      if (!user || !orderId) {
+        setHasTicket(true);
+        return;
+      }
+
+      // Get ticket item id
+      const { data: ticketItem, error: ticketError } = await supabase
+        .from('order_items')
+        .select('id')
+        .eq('order_id', orderId)
+        .not('ticket_id', 'is', null)
+        .maybeSingle();
+
+      if (ticketError) throw ticketError;
+
+      if (ticketItem) {
+        // Update existing ticket
+        const { error } = await supabase
+          .from('order_items')
+          .update({ quantity: newQuantity })
+          .eq('id', ticketItem.id);
+
+        if (error) throw error;
+      } else {
+        // Get ticket ID
+        const { data: ticket, error: ticketDataError } = await supabase
+          .from('tickets')
+          .select('id')
+          .eq('type', 'Individual')
+          .single();
+
+        if (ticketDataError) throw ticketDataError;
+
+        // Add new ticket
+        const { error } = await supabase
+          .from('order_items')
+          .insert({
+            order_id: orderId,
+            ticket_id: ticket.id,
+            quantity: newQuantity,
+            price: eventTicket.price,
+          });
+
+        if (error) throw error;
+      }
+
+      setHasTicket(true);
+
+      // Update order total
+      const { data: orderItems, error: itemsError } = await supabase
+        .from('order_items')
+        .select('price, quantity')
+        .eq('order_id', orderId);
+
+      if (itemsError) throw itemsError;
+
+      const newTotal = orderItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
+      const { error: updateOrderError } = await supabase
+        .from('orders')
+        .update({ total: newTotal })
+        .eq('id', orderId);
+
+      if (updateOrderError) throw updateOrderError;
+    } catch (error: any) {
+      console.error('Error updating ticket quantity:', error);
+      toast({
+        variant: "destructive",
+        title: "Erro ao atualizar ingresso",
+        description: error.message
+      });
+    }
   };
 
   // Cálculos do carrinho
@@ -103,6 +455,18 @@ const Carrinho = () => {
       currency: 'BRL'
     }).format(value);
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Navbar />
+        <div className="flex-1 flex items-center justify-center">
+          <p className="text-xl">Carregando seu carrinho...</p>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -153,7 +517,7 @@ const Carrinho = () => {
                               <div className="flex items-center gap-4">
                                 <Select
                                   value={item.size}
-                                  onValueChange={(value) => updateSize(item.id, value)}
+                                  onValueChange={(value) => updateSize(item.id, value, item.order_item_id)}
                                 >
                                   <SelectTrigger className="w-24">
                                     <SelectValue placeholder="Tamanho" />
@@ -171,14 +535,14 @@ const Carrinho = () => {
                                   <label className="mr-2 text-sm">Qtd:</label>
                                   <div className="flex border border-gray-300 rounded-md">
                                     <button 
-                                      onClick={() => updateQuantity(item.id, item.quantity - 1)} 
+                                      onClick={() => updateQuantity(item.id, item.quantity - 1, item.order_item_id)} 
                                       className="px-2 py-1 border-r border-gray-300"
                                     >
                                       -
                                     </button>
                                     <span className="px-4 py-1">{item.quantity}</span>
                                     <button 
-                                      onClick={() => updateQuantity(item.id, item.quantity + 1)} 
+                                      onClick={() => updateQuantity(item.id, item.quantity + 1, item.order_item_id)} 
                                       className="px-2 py-1 border-l border-gray-300"
                                     >
                                       +
@@ -190,7 +554,7 @@ const Carrinho = () => {
                             
                             <div className="flex items-center gap-4">
                               <span className="font-bold">{formatCurrency(item.price * item.quantity)}</span>
-                              <button onClick={() => removeItem(item.id)} className="text-red-500 hover:text-red-700">
+                              <button onClick={() => removeItem(item.id, item.order_item_id)} className="text-red-500 hover:text-red-700">
                                 <Trash2 className="h-5 w-5" />
                               </button>
                             </div>

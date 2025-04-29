@@ -4,6 +4,9 @@ import { Button } from '@/components/ui/button';
 import { ShoppingCart } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import ProductModal from './ProductModal';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
+import { toast } from '@/hooks/use-toast';
 
 export interface ProductProps {
   id: string;
@@ -17,22 +20,113 @@ export interface ProductProps {
 
 const ProductCard: React.FC<{ product: ProductProps }> = ({ product }) => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const formattedPrice = new Intl.NumberFormat('pt-BR', {
     style: 'currency',
     currency: 'BRL'
   }).format(product.price);
 
-  const handleAddToCart = () => {
-    navigate('/carrinho', { 
-      state: { 
-        productId: product.id,
-        productName: product.name,
-        productPrice: product.price,
-        productImage: product.image,
-        productCategory: product.category,
-        productSizes: product.sizes,
-      } 
-    });
+  const handleAddToCart = async () => {
+    try {
+      if (!user) {
+        // If user is not logged in, store product in localStorage temporarily
+        // and redirect to login page
+        const cartItems = JSON.parse(localStorage.getItem('tempCart') || '[]');
+        cartItems.push({
+          productId: product.id,
+          productName: product.name,
+          productPrice: product.price,
+          productImage: product.image,
+          productCategory: product.category,
+          size: product.sizes[0], // Default to first available size
+          quantity: 1
+        });
+        localStorage.setItem('tempCart', JSON.stringify(cartItems));
+        
+        toast({
+          title: "Produto adicionado ao carrinho",
+          description: "Faça login para finalizar sua compra"
+        });
+        
+        navigate('/carrinho');
+        return;
+      }
+
+      // Check if there's an open cart (order with status 'Pendente')
+      const { data: existingOrder, error: orderError } = await supabase
+        .from('orders')
+        .select('id')
+        .eq('user_id', user.id)
+        .eq('status', 'Pendente')
+        .maybeSingle();
+
+      if (orderError) throw orderError;
+
+      let orderId;
+
+      if (existingOrder) {
+        // Use existing order
+        orderId = existingOrder.id;
+      } else {
+        // Create new order
+        const { data: newOrder, error: createOrderError } = await supabase
+          .from('orders')
+          .insert({
+            user_id: user.id,
+            total: product.price, // Initial total is just the product price
+            status: 'Pendente'
+          })
+          .select('id')
+          .single();
+
+        if (createOrderError) throw createOrderError;
+        orderId = newOrder.id;
+      }
+
+      // Add product to order_items
+      const { error: itemError } = await supabase
+        .from('order_items')
+        .insert({
+          order_id: orderId,
+          product_id: product.id,
+          quantity: 1,
+          price: product.price,
+          size: product.sizes[0] // Default to first available size
+        });
+
+      if (itemError) throw itemError;
+
+      // Update order total
+      const { data: orderItems, error: itemsError } = await supabase
+        .from('order_items')
+        .select('price, quantity')
+        .eq('order_id', orderId);
+
+      if (itemsError) throw itemsError;
+
+      const newTotal = orderItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
+      const { error: updateOrderError } = await supabase
+        .from('orders')
+        .update({ total: newTotal })
+        .eq('id', orderId);
+
+      if (updateOrderError) throw updateOrderError;
+
+      toast({
+        title: "Produto adicionado ao carrinho",
+        description: "Seu carrinho foi atualizado com sucesso"
+      });
+
+      navigate('/carrinho');
+    } catch (error: any) {
+      console.error('Error adding to cart:', error);
+      toast({
+        variant: "destructive",
+        title: "Erro ao adicionar ao carrinho",
+        description: error.message || "Ocorreu um erro ao adicionar o produto ao carrinho"
+      });
+    }
   };
 
   return (
