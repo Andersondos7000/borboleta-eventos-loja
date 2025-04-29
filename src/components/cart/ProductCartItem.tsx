@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Trash2 } from 'lucide-react';
+import { Trash2, Plus, Minus } from 'lucide-react';
 import { CartItem } from '@/hooks/useCart';
 import { formatCurrency } from '@/utils/formatCurrency';
 import {
@@ -29,6 +29,13 @@ const ProductCartItem: React.FC<ProductCartItemProps> = ({
   removeItem,
   sizes
 }) => {
+  // Function to prevent negative quantities
+  const handleQuantityChange = (newQuantity: number) => {
+    if (newQuantity > 0) {
+      updateQuantity(item.id, newQuantity, item.order_item_id);
+    }
+  };
+
   return (
     <div className="p-6 border-b border-gray-100">
       <div className="flex items-center">
@@ -70,17 +77,20 @@ const ProductCartItem: React.FC<ProductCartItemProps> = ({
                 <span className="mr-2 text-sm">Qtd:</span>
                 <div className="flex border border-gray-300 rounded-md">
                   <button 
-                    onClick={() => updateQuantity(item.id, item.quantity - 1, item.order_item_id)} 
-                    className="px-2 py-1 border-r border-gray-300"
+                    onClick={() => handleQuantityChange(item.quantity - 1)} 
+                    className="px-2 py-1 border-r border-gray-300 disabled:opacity-50"
+                    disabled={item.quantity <= 1}
+                    aria-label="Diminuir quantidade"
                   >
-                    -
+                    <Minus className="h-4 w-4" />
                   </button>
                   <span className="px-4 py-1">{item.quantity}</span>
                   <button 
-                    onClick={() => updateQuantity(item.id, item.quantity + 1, item.order_item_id)} 
+                    onClick={() => handleQuantityChange(item.quantity + 1)} 
                     className="px-2 py-1 border-l border-gray-300"
+                    aria-label="Aumentar quantidade"
                   >
-                    +
+                    <Plus className="h-4 w-4" />
                   </button>
                 </div>
               </div>
@@ -89,7 +99,11 @@ const ProductCartItem: React.FC<ProductCartItemProps> = ({
           
           <div className="flex items-center gap-4 mt-4 md:mt-0">
             <span className="font-bold">{formatCurrency(item.price * item.quantity)}</span>
-            <button onClick={() => removeItem(item.id, item.order_item_id)} className="text-red-500 hover:text-red-700">
+            <button 
+              onClick={() => removeItem(item.id, item.order_item_id)} 
+              className="text-red-500 hover:text-red-700"
+              aria-label="Remover item"
+            >
               <Trash2 className="h-5 w-5" />
             </button>
           </div>
