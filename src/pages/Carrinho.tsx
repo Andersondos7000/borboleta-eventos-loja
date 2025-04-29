@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -56,14 +55,12 @@ const Carrinho = () => {
       setLoading(true);
       
       if (!user) {
-        // Handle guest user with temp cart in localStorage
         const tempCartItems = JSON.parse(localStorage.getItem('tempCart') || '[]');
         setCartItems(tempCartItems);
         setLoading(false);
         return;
       }
 
-      // Find the user's pending order
       const { data: order, error: orderError } = await supabase
         .from('orders')
         .select('id')
@@ -74,7 +71,6 @@ const Carrinho = () => {
       if (orderError) throw orderError;
 
       if (!order) {
-        // No pending order found
         setCartItems([]);
         setLoading(false);
         return;
@@ -82,7 +78,6 @@ const Carrinho = () => {
 
       setOrderId(order.id);
 
-      // Get order items with product details
       const { data: items, error: itemsError } = await supabase
         .from('order_items')
         .select(`
@@ -98,11 +93,10 @@ const Carrinho = () => {
           )
         `)
         .eq('order_id', order.id)
-        .is('ticket_id', null); // Only get product items, not tickets
+        .is('ticket_id', null);
 
       if (itemsError) throw itemsError;
 
-      // Get ticket items
       const { data: ticketItems, error: ticketsError } = await supabase
         .from('order_items')
         .select(`
@@ -120,7 +114,6 @@ const Carrinho = () => {
 
       if (ticketsError) throw ticketsError;
 
-      // Format cart items - Add a null check for items
       const formattedItems = items?.map(item => ({
         id: item.products?.id || '',
         name: item.products?.name || '',
@@ -134,7 +127,6 @@ const Carrinho = () => {
 
       setCartItems(formattedItems);
 
-      // Check if there are ticket items - Add null check
       if (ticketItems && ticketItems.length > 0) {
         const ticketItem = ticketItems[0];
         eventTicket.quantity = ticketItem.quantity;
@@ -159,7 +151,6 @@ const Carrinho = () => {
   const removeItem = async (id: string, order_item_id?: string) => {
     try {
       if (!user) {
-        // Handle guest user
         const tempCartItems = JSON.parse(localStorage.getItem('tempCart') || '[]');
         const updatedItems = tempCartItems.filter((item: any) => item.productId !== id);
         localStorage.setItem('tempCart', JSON.stringify(updatedItems));
@@ -169,7 +160,6 @@ const Carrinho = () => {
 
       if (!order_item_id || !orderId) return;
 
-      // Delete item from database
       const { error } = await supabase
         .from('order_items')
         .delete()
@@ -177,10 +167,8 @@ const Carrinho = () => {
 
       if (error) throw error;
 
-      // Update local state
       setCartItems(cartItems.filter(item => item.order_item_id !== order_item_id));
 
-      // Update order total
       const { data: orderItems, error: itemsError } = await supabase
         .from('order_items')
         .select('price, quantity')
@@ -216,7 +204,6 @@ const Carrinho = () => {
 
     try {
       if (!user) {
-        // Handle guest user
         const tempCartItems = JSON.parse(localStorage.getItem('tempCart') || '[]');
         const updatedItems = tempCartItems.map((item: any) => 
           item.productId === id ? {...item, quantity: newQuantity} : item
@@ -228,7 +215,6 @@ const Carrinho = () => {
 
       if (!order_item_id || !orderId) return;
 
-      // Update item in database
       const { error } = await supabase
         .from('order_items')
         .update({ quantity: newQuantity })
@@ -236,12 +222,10 @@ const Carrinho = () => {
 
       if (error) throw error;
 
-      // Update local state
       setCartItems(cartItems.map(item => 
         item.order_item_id === order_item_id ? {...item, quantity: newQuantity} : item
       ));
 
-      // Update order total
       const { data: orderItems, error: itemsError } = await supabase
         .from('order_items')
         .select('price, quantity')
@@ -270,7 +254,6 @@ const Carrinho = () => {
   const updateSize = async (id: string, newSize: string, order_item_id?: string) => {
     try {
       if (!user) {
-        // Handle guest user
         const tempCartItems = JSON.parse(localStorage.getItem('tempCart') || '[]');
         const updatedItems = tempCartItems.map((item: any) => 
           item.productId === id ? {...item, size: newSize} : item
@@ -282,7 +265,6 @@ const Carrinho = () => {
 
       if (!order_item_id || !orderId) return;
 
-      // Update item in database
       const { error } = await supabase
         .from('order_items')
         .update({ size: newSize })
@@ -290,7 +272,6 @@ const Carrinho = () => {
 
       if (error) throw error;
 
-      // Update local state
       setCartItems(cartItems.map(item => 
         item.order_item_id === order_item_id ? {...item, size: newSize} : item
       ));
@@ -316,7 +297,6 @@ const Carrinho = () => {
         return;
       }
 
-      // Remove ticket from database
       const { error } = await supabase
         .from('order_items')
         .delete()
@@ -327,7 +307,6 @@ const Carrinho = () => {
 
       setHasTicket(false);
 
-      // Update order total
       const { data: orderItems, error: itemsError } = await supabase
         .from('order_items')
         .select('price, quantity')
@@ -369,7 +348,6 @@ const Carrinho = () => {
         return;
       }
 
-      // Get ticket item id
       const { data: ticketItem, error: ticketError } = await supabase
         .from('order_items')
         .select('id')
@@ -380,7 +358,6 @@ const Carrinho = () => {
       if (ticketError) throw ticketError;
 
       if (ticketItem) {
-        // Update existing ticket
         const { error } = await supabase
           .from('order_items')
           .update({ quantity: newQuantity })
@@ -388,7 +365,6 @@ const Carrinho = () => {
 
         if (error) throw error;
       } else {
-        // Get ticket ID
         const { data: ticket, error: ticketDataError } = await supabase
           .from('tickets')
           .select('id')
@@ -397,7 +373,6 @@ const Carrinho = () => {
 
         if (ticketDataError) throw ticketDataError;
 
-        // Add new ticket
         const { error } = await supabase
           .from('order_items')
           .insert({
@@ -412,7 +387,6 @@ const Carrinho = () => {
 
       setHasTicket(true);
 
-      // Update order total
       const { data: orderItems, error: itemsError } = await supabase
         .from('order_items')
         .select('price, quantity')
@@ -438,7 +412,6 @@ const Carrinho = () => {
     }
   };
 
-  // Cálculos do carrinho
   const subtotalProducts = cartItems.reduce(
     (total, item) => total + item.price * item.quantity, 0
   );
@@ -450,6 +423,8 @@ const Carrinho = () => {
   const total = subtotal + shipping;
 
   const formatCurrency = (value: number) => {
+    if (isNaN(value)) return 'R$ 0,00';
+    
     return new Intl.NumberFormat('pt-BR', {
       style: 'currency',
       currency: 'BRL'
@@ -501,20 +476,21 @@ const Carrinho = () => {
                     </div>
                     
                     {cartItems.map((item) => (
-                      <div key={item.id} className="p-6 border-b border-gray-100 flex flex-wrap md:flex-nowrap gap-4">
-                        <div className="w-24 h-24 rounded-md overflow-hidden flex-shrink-0">
-                          <img 
-                            src={item.image} 
-                            alt={item.name} 
-                            className="w-full h-full object-cover" 
-                          />
-                        </div>
-                        
-                        <div className="flex-1">
-                          <h3 className="font-medium text-lg">{item.name}</h3>
-                          <div className="flex flex-wrap justify-between items-center mt-2">
-                            <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-                              <div className="flex items-center gap-4">
+                      <div key={item.id} className="p-6 border-b border-gray-100">
+                        <div className="flex items-center">
+                          <div className="w-24 h-24 rounded-md overflow-hidden flex-shrink-0 mr-4">
+                            <img 
+                              src={item.image} 
+                              alt={item.name} 
+                              className="w-full h-full object-cover" 
+                            />
+                          </div>
+                          
+                          <div className="flex-1 flex flex-col md:flex-row md:items-center md:justify-between">
+                            <div>
+                              <h3 className="font-medium text-lg">{item.name}</h3>
+                              
+                              <div className="flex flex-wrap items-center gap-4 mt-2">
                                 <Select
                                   value={item.size}
                                   onValueChange={(value) => updateSize(item.id, value, item.order_item_id)}
@@ -523,7 +499,6 @@ const Carrinho = () => {
                                     <SelectValue placeholder="Tamanho" />
                                   </SelectTrigger>
                                   <SelectContent>
-                                    {/* Add null check for sizes */}
                                     {sizes[item.category]?.map((size) => (
                                       <SelectItem key={size} value={size}>
                                         {size}
@@ -533,7 +508,7 @@ const Carrinho = () => {
                                 </Select>
                                 
                                 <div className="flex items-center">
-                                  <label className="mr-2 text-sm">Qtd:</label>
+                                  <span className="mr-2 text-sm">Qtd:</span>
                                   <div className="flex border border-gray-300 rounded-md">
                                     <button 
                                       onClick={() => updateQuantity(item.id, item.quantity - 1, item.order_item_id)} 
@@ -553,7 +528,7 @@ const Carrinho = () => {
                               </div>
                             </div>
                             
-                            <div className="flex items-center gap-4">
+                            <div className="flex items-center gap-4 mt-4 md:mt-0">
                               <span className="font-bold">{formatCurrency(item.price * item.quantity)}</span>
                               <button onClick={() => removeItem(item.id, item.order_item_id)} className="text-red-500 hover:text-red-700">
                                 <Trash2 className="h-5 w-5" />
@@ -566,7 +541,6 @@ const Carrinho = () => {
                   </div>
                 )}
                 
-                {/* Ingressos */}
                 {hasTicket && (
                   <div className="bg-white rounded-lg shadow-sm">
                     <div className="p-6 border-b border-gray-200">
@@ -609,7 +583,6 @@ const Carrinho = () => {
                 )}
               </div>
               
-              {/* Resumo */}
               <div className="bg-white rounded-lg shadow-sm p-6 h-fit">
                 <h2 className="text-xl font-bold mb-4 pb-4 border-b border-gray-200">
                   Resumo do Pedido
@@ -649,8 +622,10 @@ const Carrinho = () => {
                   </div>
                 </div>
                 
-                <Button className="w-full mt-6 bg-butterfly-orange hover:bg-butterfly-orange/90">
-                  Finalizar Compra
+                <Button asChild className="w-full mt-6 bg-butterfly-orange hover:bg-butterfly-orange/90">
+                  <Link to="/checkout">
+                    Finalizar Compra
+                  </Link>
                 </Button>
                 
                 <div className="mt-6 text-center">
