@@ -81,6 +81,7 @@ const ProductCartItem: React.FC<ProductCartItemProps> = ({
                     className="px-2 py-1 border-r border-gray-300 disabled:opacity-50"
                     disabled={item.quantity <= 1}
                     aria-label="Diminuir quantidade"
+                    type="button"
                   >
                     <Minus className="h-4 w-4" />
                   </button>
@@ -89,6 +90,7 @@ const ProductCartItem: React.FC<ProductCartItemProps> = ({
                     onClick={() => handleQuantityChange(item.quantity + 1)} 
                     className="px-2 py-1 border-l border-gray-300"
                     aria-label="Aumentar quantidade"
+                    type="button"
                   >
                     <Plus className="h-4 w-4" />
                   </button>
@@ -103,6 +105,7 @@ const ProductCartItem: React.FC<ProductCartItemProps> = ({
               onClick={() => removeItem(item.id, item.order_item_id)} 
               className="text-red-500 hover:text-red-700"
               aria-label="Remover item"
+              type="button"
             >
               <Trash2 className="h-5 w-5" />
             </button>

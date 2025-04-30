@@ -37,6 +37,7 @@ const TicketCartItem: React.FC<TicketCartItemProps> = ({
               className="px-2 py-1 border-r border-gray-300 disabled:opacity-50"
               disabled={eventTicket.quantity <= 1}
               aria-label="Diminuir quantidade"
+              type="button"
             >
               <Minus className="h-4 w-4" />
             </button>
@@ -45,6 +46,7 @@ const TicketCartItem: React.FC<TicketCartItemProps> = ({
               onClick={() => handleQuantityChange(eventTicket.quantity + 1)} 
               className="px-2 py-1 border-l border-gray-300"
               aria-label="Aumentar quantidade"
+              type="button"
             >
               <Plus className="h-4 w-4" />
             </button>
@@ -56,6 +58,7 @@ const TicketCartItem: React.FC<TicketCartItemProps> = ({
           onClick={removeTicket} 
           className="text-red-500 hover:text-red-700"
           aria-label="Remover ingresso"
+          type="button"
         >
           <Trash2 className="h-5 w-5" />
         </button>
