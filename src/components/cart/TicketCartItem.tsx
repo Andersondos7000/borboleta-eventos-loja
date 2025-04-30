@@ -22,7 +22,7 @@ const TicketCartItem: React.FC<TicketCartItemProps> = ({
   };
 
   return (
-    <div className="p-6 flex flex-wrap justify-between items-center">
+    <div className="p-6 flex flex-wrap justify-between items-center border-b border-gray-100">
       <div>
         <h3 className="font-medium text-lg">{eventTicket.name}</h3>
         <p className="text-gray-500">12 e 13 de Abril de 2025</p>

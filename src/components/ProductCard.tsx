@@ -28,6 +28,15 @@ const ProductCard: React.FC<{ product: ProductProps }> = ({ product }) => {
 
   const handleAddToCart = async () => {
     try {
+      if (!product.inStock) {
+        toast({
+          variant: "destructive",
+          title: "Produto esgotado",
+          description: "Este produto está esgotado no momento."
+        });
+        return;
+      }
+      
       if (!user) {
         // If user is not logged in, store product in localStorage temporarily
         // and redirect to login page
@@ -137,6 +146,11 @@ const ProductCard: React.FC<{ product: ProductProps }> = ({ product }) => {
             src={product.image} 
             alt={product.name} 
             className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" 
+            onError={(e) => {
+              const target = e.target as HTMLImageElement;
+              target.onerror = null;
+              target.src = "/placeholder.svg";
+            }}
           />
           {!product.inStock && (
             <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">

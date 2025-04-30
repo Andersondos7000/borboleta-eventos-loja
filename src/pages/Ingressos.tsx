@@ -7,6 +7,8 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useCart } from '@/hooks/useCart';
+import { toast } from '@/hooks/use-toast';
 
 const Ingressos = () => {
   const [individualQuantity, setIndividualQuantity] = useState(1);
@@ -15,6 +17,7 @@ const Ingressos = () => {
   const navigate = useNavigate();
   const individualTicketPrice = 83.00;
   const groupTicketPrice = 75.00;
+  const { updateTicketQuantity } = useCart();
 
   const handleIndividualIncrement = () => {
     if (individualQuantity < 5) setIndividualQuantity(individualQuantity + 1);
@@ -33,6 +36,12 @@ const Ingressos = () => {
   };
 
   const handleAddToCart = () => {
+    const quantity = activeTab === "individual" ? individualQuantity : groupQuantity;
+    updateTicketQuantity(quantity);
+    toast({
+      title: "Ingresso adicionado",
+      description: "Ingresso adicionado ao carrinho com sucesso"
+    });
     navigate('/carrinho');
   };
 
