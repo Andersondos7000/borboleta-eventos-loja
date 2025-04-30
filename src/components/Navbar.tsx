@@ -1,17 +1,10 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { ShoppingCart, Calendar, Shirt } from 'lucide-react';
 import ButterflyLogo from './ButterflyLogo';
 import { Button } from '@/components/ui/button';
-import { useCart } from '@/hooks/useCart';
 
 const Navbar: React.FC = () => {
-  const { cartItems, hasTicket, eventTicket } = useCart();
-  
-  const cartCount = cartItems.reduce((total, item) => total + item.quantity, 0) +
-    (hasTicket ? eventTicket.quantity : 0);
-
   return (
     <nav className="sticky top-0 z-50 w-full bg-white shadow-sm border-b border-butterfly-orange/10">
       <div className="container mx-auto px-4 py-3">
@@ -49,7 +42,7 @@ const Navbar: React.FC = () => {
             <Link to="/carrinho" className="relative text-butterfly-orange hover:text-butterfly-orange/80 transition-colors">
               <ShoppingCart className="h-6 w-6" />
               <span className="absolute -top-2 -right-2 bg-butterfly-orange text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                {cartCount}
+                0
               </span>
             </Link>
             <Button 
