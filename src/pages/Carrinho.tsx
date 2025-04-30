@@ -63,7 +63,7 @@ const Carrinho = () => {
                     
                     {cartItems.map((item) => (
                       <ProductCartItem 
-                        key={`${item.id}-${item.order_item_id || ''}-${item.size}`}
+                        key={`${item.id}-${item.order_item_id || ''}-${item.size}-${item.quantity}`}
                         item={item}
                         updateQuantity={updateQuantity}
                         updateSize={updateSize}

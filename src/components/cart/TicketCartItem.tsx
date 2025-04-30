@@ -30,7 +30,7 @@ const TicketCartItem: React.FC<TicketCartItemProps> = ({
       
       <div className="flex items-center gap-4 mt-4 md:mt-0">
         <div className="flex items-center">
-          <label className="mr-2 text-sm">Qtd:</label>
+          <label htmlFor="ticket-quantity" className="mr-2 text-sm">Qtd:</label>
           <div className="flex border border-gray-300 rounded-md">
             <button 
               onClick={() => handleQuantityChange(eventTicket.quantity - 1)} 
@@ -41,7 +41,7 @@ const TicketCartItem: React.FC<TicketCartItemProps> = ({
             >
               <Minus className="h-4 w-4" />
             </button>
-            <span className="px-4 py-1">{eventTicket.quantity}</span>
+            <span id="ticket-quantity" className="px-4 py-1">{eventTicket.quantity}</span>
             <button 
               onClick={() => handleQuantityChange(eventTicket.quantity + 1)} 
               className="px-2 py-1 border-l border-gray-300"

@@ -36,6 +36,13 @@ const ProductCartItem: React.FC<ProductCartItemProps> = ({
     }
   };
 
+  // Handling image errors
+  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
+    const target = e.target as HTMLImageElement;
+    target.onerror = null;
+    target.src = "/placeholder.svg";
+  };
+
   return (
     <div className="p-6 border-b border-gray-100">
       <div className="flex items-center">
@@ -44,11 +51,7 @@ const ProductCartItem: React.FC<ProductCartItemProps> = ({
             src={item.image || '/placeholder.svg'} 
             alt={item.name} 
             className="w-full h-full object-cover" 
-            onError={(e) => {
-              const target = e.target as HTMLImageElement;
-              target.onerror = null;
-              target.src = "/placeholder.svg";
-            }}
+            onError={handleImageError}
           />
         </div>
         
@@ -58,7 +61,7 @@ const ProductCartItem: React.FC<ProductCartItemProps> = ({
             
             <div className="flex flex-wrap items-center gap-4 mt-2">
               <Select
-                value={item.size}
+                value={item.size || ''}
                 onValueChange={(value) => updateSize(item.id, value, item.order_item_id)}
               >
                 <SelectTrigger className="w-24">
@@ -74,7 +77,7 @@ const ProductCartItem: React.FC<ProductCartItemProps> = ({
               </Select>
               
               <div className="flex items-center">
-                <span className="mr-2 text-sm">Qtd:</span>
+                <label htmlFor={`quantity-${item.id}`} className="mr-2 text-sm">Qtd:</label>
                 <div className="flex border border-gray-300 rounded-md">
                   <button 
                     onClick={() => handleQuantityChange(item.quantity - 1)} 
@@ -85,7 +88,7 @@ const ProductCartItem: React.FC<ProductCartItemProps> = ({
                   >
                     <Minus className="h-4 w-4" />
                   </button>
-                  <span className="px-4 py-1">{item.quantity}</span>
+                  <span id={`quantity-${item.id}`} className="px-4 py-1">{item.quantity}</span>
                   <button 
                     onClick={() => handleQuantityChange(item.quantity + 1)} 
                     className="px-2 py-1 border-l border-gray-300"
