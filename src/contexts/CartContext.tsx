@@ -106,25 +106,28 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
           
           for (const item of data) {
             if (item.products) {
-              // It's a product - access as a single object, not an array
+              // It's a product - products is an object, not an array
+              const product = item.products;
               cartItems.push({
                 id: item.id,
-                name: item.products.name,
-                price: item.products.price,
-                image: item.products.image_url,
-                category: item.products.category,
+                name: product.name,
+                price: product.price,
+                image: product.image_url,
+                category: product.category,
                 size: item.size || '',
                 quantity: item.quantity,
-                productId: item.products.id
+                productId: product.id
               } as CartProduct);
             } else if (item.tickets && item.tickets.events) {
-              // It's a ticket - access as a single object, not an array
+              // It's a ticket - tickets and events are objects, not arrays
+              const ticket = item.tickets;
+              const event = ticket.events;
               cartItems.push({
                 id: item.id,
-                name: item.tickets.events.name,
-                price: item.tickets.events.price,
+                name: event.name,
+                price: event.price,
                 quantity: item.quantity,
-                ticketId: item.tickets.id
+                ticketId: ticket.id
               } as CartTicket);
             }
           }
