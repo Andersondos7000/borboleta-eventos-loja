@@ -133,10 +133,9 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 events: { 
                   name: string; 
                   price: number; 
-                } 
+                }
               };
               
-              // Access the events property on the ticket object
               const event = ticket.events;
               
               cartItems.push({

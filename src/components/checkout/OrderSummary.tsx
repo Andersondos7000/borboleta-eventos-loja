@@ -7,13 +7,20 @@ import { Separator } from "@/components/ui/separator";
 import { ShoppingCart, ShieldCheck, LifeBuoy, Lock } from 'lucide-react';
 import { useToast } from "@/components/ui/use-toast";
 
+type CartItemBase = {
+  id: string;
+  name: string;
+  price: number;
+  quantity: number;
+};
+
+type ProductItem = CartItemBase & {
+  category?: 'camiseta' | 'vestido';
+  size?: string;
+};
+
 interface OrderSummaryProps {
-  cartItems: Array<{
-    id: number;
-    name: string;
-    price: number;
-    quantity: number;
-  }>;
+  cartItems: ProductItem[];
   subtotal: number;
   total: number;
 }
