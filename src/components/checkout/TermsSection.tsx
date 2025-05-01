@@ -30,7 +30,7 @@ const TermsSection: React.FC<TermsSectionProps> = ({ form, total }) => {
               </FormControl>
               <div className="space-y-1 leading-none">
                 <FormLabel>
-                  Eu li e concordo com os <Link to="#" className="text-butterfly-orange hover:underline">Termos de Serviço</Link> e <Link to="#" className="text-butterfly-orange hover:underline">Política de Privacidade</Link>
+                  Eu li e concordo com os <Link to="/termos" className="text-butterfly-orange hover:underline">Termos de Serviço</Link> e <Link to="/privacidade" className="text-butterfly-orange hover:underline">Política de Privacidade</Link>
                 </FormLabel>
                 <FormMessage />
               </div>

@@ -107,7 +107,6 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
           for (const item of data) {
             // Check if this item has products data
             if (item.products) {
-              // Correctly type the products response - it's an object, not an array
               const product = item.products as {
                 id: string;
                 name: string;
@@ -129,7 +128,6 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
             } 
             // Check if this item has tickets data with events
             else if (item.tickets && item.tickets.events) {
-              // Correctly type the tickets response - ticket is an object, not an array
               const ticket = item.tickets as { 
                 id: string; 
                 events: { 

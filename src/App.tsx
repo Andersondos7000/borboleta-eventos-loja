@@ -16,6 +16,8 @@ import AdminPedidos from "./pages/Admin/Pedidos";
 import AdminEstoque from "./pages/Admin/Estoque";
 import NotFound from "./pages/NotFound";
 import Ingressos from "./pages/Ingressos";
+import Terms from "./pages/Terms";
+import Privacy from "./pages/Privacy";
 import { CartProvider } from "./contexts/CartContext";
 
 const queryClient = new QueryClient({
@@ -39,6 +41,8 @@ const App = () => (
             <Route path="/loja" element={<Loja />} />
             <Route path="/carrinho" element={<Carrinho />} />
             <Route path="/checkout" element={<Checkout />} />
+            <Route path="/termos" element={<Terms />} />
+            <Route path="/privacidade" element={<Privacy />} />
             <Route path="/admin" element={<AdminDashboard />} />
             <Route path="/admin/tickets" element={<AdminTickets />} />
             <Route path="/admin/produtos" element={<AdminProdutos />} />

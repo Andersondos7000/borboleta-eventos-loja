@@ -1,5 +1,6 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -13,6 +14,7 @@ import ParticipantsList from "@/components/checkout/ParticipantsList";
 import PaymentSection from "@/components/checkout/PaymentSection";
 import OrderSummary from "@/components/checkout/OrderSummary";
 import TermsSection from "@/components/checkout/TermsSection";
+import { useCart, isCartProduct } from "@/contexts/CartContext";
 
 const formSchema = z.object({
   firstName: z.string().min(2, { message: "Nome deve ter pelo menos 2 caracteres" }),
@@ -43,16 +45,29 @@ type FormValues = z.infer<typeof formSchema>;
 
 const Checkout = () => {
   const { toast } = useToast();
+  const navigate = useNavigate();
+  const { items, subtotal, shipping, total, clearCart } = useCart();
   const [participantCount, setParticipantCount] = useState(1);
   
-  //Dados do carrinho fictícios - em uma aplicação real, viriam do estado global
-  const cartItems = [
-    { id: 1, name: "Ingresso Conferência", price: 83.00, quantity: 1 },
-    { id: 2, name: "Camiseta Borboleta", price: 60.00, quantity: 1 },
-  ];
-  
-  const subtotal = cartItems.reduce((acc, item) => acc + (item.price * item.quantity), 0);
-  const total = subtotal;
+  useEffect(() => {
+    // Redirect to cart if the cart is empty
+    if (items.length === 0) {
+      navigate('/carrinho');
+      toast({
+        title: "Carrinho vazio",
+        description: "Adicione itens ao carrinho antes de prosseguir para o checkout.",
+      });
+    }
+  }, [items.length, navigate, toast]);
+
+  // Convert cart items to match the OrderSummary component's expected format
+  const formattedCartItems = items.map(item => ({
+    id: item.id,
+    name: item.name,
+    price: item.price,
+    quantity: item.quantity,
+    ...(isCartProduct(item) ? { category: item.category, size: item.size } : {})
+  }));
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -77,9 +92,19 @@ const Checkout = () => {
 
   const onSubmit = (data: FormValues) => {
     console.log(data);
+    
+    // Here you would normally make an API call to create an order
+    // For now, we just show a success message and clear the cart
+    
     toast({
       title: "Pedido realizado com sucesso!",
       description: "Você receberá um e-mail com as instruções para pagamento.",
+    });
+    
+    clearCart().then(() => {
+      setTimeout(() => {
+        navigate('/');
+      }, 2000);
     });
   };
 
@@ -131,7 +156,7 @@ const Checkout = () => {
             </div>
             
             <OrderSummary 
-              cartItems={cartItems}
+              cartItems={formattedCartItems}
               subtotal={subtotal}
               total={total}
             />
