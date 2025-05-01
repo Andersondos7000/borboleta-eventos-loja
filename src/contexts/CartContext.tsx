@@ -95,11 +95,19 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
             
           if (error) throw error;
           
+          if (!data) {
+            setItems([]);
+            setIsLoading(false);
+            return;
+          }
+          
           // Transform data into CartItems
-          const cartItems: CartItem[] = data.map(item => {
+          const cartItems: CartItem[] = [];
+          
+          for (const item of data) {
             if (item.products) {
               // It's a product
-              return {
+              cartItems.push({
                 id: item.id,
                 name: item.products.name,
                 price: item.products.price,
@@ -108,21 +116,18 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 size: item.size || '',
                 quantity: item.quantity,
                 productId: item.products.id
-              } as CartProduct;
+              } as CartProduct);
             } else if (item.tickets && item.tickets.events) {
               // It's a ticket
-              return {
+              cartItems.push({
                 id: item.id,
                 name: item.tickets.events.name,
                 price: item.tickets.events.price,
                 quantity: item.quantity,
                 ticketId: item.tickets.id
-              } as CartTicket;
+              } as CartTicket);
             }
-            
-            // This should never happen if data is consistent
-            throw new Error('Invalid cart item data');
-          });
+          }
           
           setItems(cartItems);
         } else {

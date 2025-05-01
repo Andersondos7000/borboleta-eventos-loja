@@ -57,9 +57,13 @@ const ProductCardContent: React.FC<{ product: ProductProps }> = ({ product }) =>
     });
   };
 
+  const handleSelectSize = (size: string) => {
+    setSelectedSize(size);
+  };
+
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden transition-transform hover:translate-y-[-5px] border border-gray-200">
-      <ProductModal product={product} onSelectSize={setSelectedSize}>
+      <ProductModal product={product} onSelectSize={handleSelectSize}>
         <div className="relative h-64 overflow-hidden cursor-pointer">
           <img 
             src={product.image} 

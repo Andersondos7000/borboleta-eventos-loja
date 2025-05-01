@@ -9,9 +9,10 @@ import { ProductProps } from './ProductCard';
 interface ProductModalProps {
   product: ProductProps;
   children: React.ReactNode;
+  onSelectSize?: (size: string) => void;
 }
 
-const ProductModal: React.FC<ProductModalProps> = ({ product, children }) => {
+const ProductModal: React.FC<ProductModalProps> = ({ product, children, onSelectSize }) => {
   const [currentImage, setCurrentImage] = useState(0);
   const [zoomLevel, setZoomLevel] = useState(1);
 
