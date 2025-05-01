@@ -105,9 +105,16 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
           const cartItems: CartItem[] = [];
           
           for (const item of data) {
+            // Check if this item has products data and it's a valid object
             if (item.products) {
-              // It's a product - products is an object, not an array
-              const product = item.products;
+              const product = item.products as {
+                id: string;
+                name: string;
+                price: number;
+                image_url: string;
+                category: 'camiseta' | 'vestido';
+              };
+              
               cartItems.push({
                 id: item.id,
                 name: product.name,
@@ -118,10 +125,12 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 quantity: item.quantity,
                 productId: product.id
               } as CartProduct);
-            } else if (item.tickets && item.tickets.events) {
-              // It's a ticket - tickets and events are objects, not arrays
-              const ticket = item.tickets;
+            } 
+            // Check if this item has tickets data and it's a valid object with events
+            else if (item.tickets && item.tickets.events) {
+              const ticket = item.tickets as { id: string; events: { name: string; price: number; } };
               const event = ticket.events;
+              
               cartItems.push({
                 id: item.id,
                 name: event.name,
