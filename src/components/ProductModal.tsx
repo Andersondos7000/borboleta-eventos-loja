@@ -15,6 +15,7 @@ interface ProductModalProps {
 const ProductModal: React.FC<ProductModalProps> = ({ product, children, onSelectSize }) => {
   const [currentImage, setCurrentImage] = useState(0);
   const [zoomLevel, setZoomLevel] = useState(1);
+  const [selectedSize, setSelectedSize] = useState(product.sizes[0] || '');
 
   // Mock front and back images (in a real app, these would come from the product data)
   const images = [
@@ -36,6 +37,13 @@ const ProductModal: React.FC<ProductModalProps> = ({ product, children, onSelect
 
   const handleZoomOut = () => {
     setZoomLevel((prev) => Math.max(prev - 0.5, 1));
+  };
+
+  const handleSizeSelect = (size: string) => {
+    setSelectedSize(size);
+    if (onSelectSize) {
+      onSelectSize(size);
+    }
   };
 
   return (
@@ -90,6 +98,26 @@ const ProductModal: React.FC<ProductModalProps> = ({ product, children, onSelect
               <ArrowRight className="h-4 w-4" />
             </Button>
           </div>
+
+          {product.sizes.length > 0 && (
+            <div className="absolute inset-x-0 top-4 flex justify-center">
+              <div className="bg-white/80 backdrop-blur-sm p-2 rounded-md">
+                <div className="flex flex-wrap gap-2">
+                  {product.sizes.map((size) => (
+                    <Button
+                      key={size}
+                      variant={selectedSize === size ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => handleSizeSelect(size)}
+                      className="min-w-[40px]"
+                    >
+                      {size}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </DialogContent>
     </Dialog>

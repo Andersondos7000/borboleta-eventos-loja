@@ -106,7 +106,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
           
           for (const item of data) {
             if (item.products) {
-              // It's a product
+              // It's a product - access as a single object, not an array
               cartItems.push({
                 id: item.id,
                 name: item.products.name,
@@ -118,7 +118,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 productId: item.products.id
               } as CartProduct);
             } else if (item.tickets && item.tickets.events) {
-              // It's a ticket
+              // It's a ticket - access as a single object, not an array
               cartItems.push({
                 id: item.id,
                 name: item.tickets.events.name,
