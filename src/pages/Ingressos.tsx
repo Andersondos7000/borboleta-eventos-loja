@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Minus, Plus, MapPin, Calendar, Users, Bus } from 'lucide-react';
@@ -7,14 +7,53 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useAuth } from '@/contexts/AuthContext';
+import { useCart, CartTicket } from '@/contexts/CartContext';
+import { supabase } from '@/lib/supabase';
+import { useToast } from '@/components/ui/use-toast';
 
 const Ingressos = () => {
   const [individualQuantity, setIndividualQuantity] = useState(1);
   const [groupQuantity, setGroupQuantity] = useState(10);
   const [activeTab, setActiveTab] = useState("individual");
+  const [eventData, setEventData] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const { addToCart } = useCart();
+  const { toast } = useToast();
+
   const individualTicketPrice = 83.00;
   const groupTicketPrice = 75.00;
+
+  // Fetch event data
+  useEffect(() => {
+    const fetchEvent = async () => {
+      setIsLoading(true);
+      try {
+        const { data, error } = await supabase
+          .from('events')
+          .select('*')
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .single();
+
+        if (error) throw error;
+        setEventData(data);
+      } catch (error) {
+        console.error('Error fetching event:', error);
+        toast({
+          title: "Erro ao carregar evento",
+          description: "Não foi possível carregar os detalhes do evento.",
+          variant: "destructive"
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchEvent();
+  }, [toast]);
 
   const handleIndividualIncrement = () => {
     if (individualQuantity < 5) setIndividualQuantity(individualQuantity + 1);
@@ -32,8 +71,61 @@ const Ingressos = () => {
     if (groupQuantity > 10) setGroupQuantity(groupQuantity - 1);
   };
 
-  const handleAddToCart = () => {
-    navigate('/carrinho');
+  const handleAddToCart = async () => {
+    try {
+      if (!eventData) {
+        toast({
+          title: "Evento não encontrado",
+          description: "Não foi possível adicionar o ingresso ao carrinho.",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      // If user is not logged in, redirect to auth page
+      if (!user) {
+        toast({
+          title: "Login necessário",
+          description: "Faça login para adicionar ingressos ao carrinho.",
+          variant: "default"
+        });
+        navigate('/auth');
+        return;
+      }
+
+      // Create a new ticket in the database
+      const { data: ticketData, error: ticketError } = await supabase
+        .from('tickets')
+        .insert({
+          event_id: eventData.id,
+          price: activeTab === "individual" ? individualTicketPrice : groupTicketPrice,
+          status: 'reserved',
+          user_id: user.id
+        })
+        .select('id')
+        .single();
+
+      if (ticketError) throw ticketError;
+
+      // Add ticket to cart
+      const cartTicket: CartTicket = {
+        id: crypto.randomUUID(), // Temporary ID until added to cart
+        name: eventData.name || "VII Conferência de Mulheres",
+        price: activeTab === "individual" ? individualTicketPrice : groupTicketPrice,
+        quantity: activeTab === "individual" ? individualQuantity : groupQuantity,
+        ticketId: ticketData.id
+      };
+
+      await addToCart(cartTicket);
+      navigate('/carrinho');
+    } catch (error) {
+      console.error('Error adding ticket to cart:', error);
+      toast({
+        title: "Erro ao adicionar ingresso",
+        description: "Não foi possível adicionar o ingresso ao carrinho.",
+        variant: "destructive"
+      });
+    }
   };
 
   const calculateTotal = () => {
@@ -174,6 +266,7 @@ const Ingressos = () => {
                       <Button 
                         onClick={handleAddToCart}
                         className="w-full bg-butterfly-orange hover:bg-butterfly-orange/90"
+                        disabled={isLoading}
                       >
                         Adicionar ao Carrinho
                       </Button>

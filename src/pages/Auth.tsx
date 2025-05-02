@@ -37,7 +37,7 @@ type LoginFormValues = z.infer<typeof loginSchema>;
 type SignupFormValues = z.infer<typeof signupSchema>;
 
 const Auth = () => {
-  const { user, signIn, signUp, loading } = useAuth();
+  const { user, signIn, signUp, signInWithGoogle, loading } = useAuth();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<string>("login");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -85,6 +85,15 @@ const Auth = () => {
       console.error("Signup error:", error);
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  // Handle Google login
+  const handleGoogleLogin = async () => {
+    try {
+      await signInWithGoogle();
+    } catch (error) {
+      console.error("Google login error:", error);
     }
   };
 
@@ -176,6 +185,25 @@ const Auth = () => {
                       "Entrar"
                     )}
                   </Button>
+
+                  <div className="relative my-6">
+                    <div className="absolute inset-0 flex items-center">
+                      <span className="w-full border-t"></span>
+                    </div>
+                    <div className="relative flex justify-center text-xs uppercase">
+                      <span className="bg-white px-2 text-gray-500">ou</span>
+                    </div>
+                  </div>
+
+                  <Button 
+                    type="button" 
+                    variant="outline"
+                    className="w-full"
+                    onClick={handleGoogleLogin}
+                  >
+                    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="w-5 h-5 mr-2" />
+                    Entrar com Google
+                  </Button>
                 </form>
               </Form>
             ) : (
@@ -246,6 +274,25 @@ const Auth = () => {
                     ) : (
                       "Cadastrar"
                     )}
+                  </Button>
+
+                  <div className="relative my-6">
+                    <div className="absolute inset-0 flex items-center">
+                      <span className="w-full border-t"></span>
+                    </div>
+                    <div className="relative flex justify-center text-xs uppercase">
+                      <span className="bg-white px-2 text-gray-500">ou</span>
+                    </div>
+                  </div>
+
+                  <Button 
+                    type="button" 
+                    variant="outline"
+                    className="w-full"
+                    onClick={handleGoogleLogin}
+                  >
+                    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="w-5 h-5 mr-2" />
+                    Cadastrar com Google
                   </Button>
                 </form>
               </Form>

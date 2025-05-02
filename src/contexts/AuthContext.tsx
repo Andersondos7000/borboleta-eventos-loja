@@ -1,7 +1,7 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
-import { User, Session } from '@supabase/supabase-js';
+import { User, Session, Provider } from '@supabase/supabase-js';
 import { useToast } from '@/components/ui/use-toast';
 
 type AuthContextType = {
@@ -10,6 +10,7 @@ type AuthContextType = {
   loading: boolean;
   signIn: (email: string, password: string) => Promise<void>;
   signUp: (email: string, password: string, username: string) => Promise<void>;
+  signInWithGoogle: () => Promise<void>;
   signOut: () => Promise<void>;
 };
 
@@ -92,6 +93,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const signInWithGoogle = async () => {
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: window.location.origin + '/auth/callback',
+        },
+      });
+      
+      if (error) throw error;
+    } catch (error: any) {
+      toast({
+        title: "Erro ao fazer login com Google",
+        description: error.error_description || error.message || "Tente novamente mais tarde",
+        variant: "destructive"
+      });
+      throw error;
+    }
+  };
+
   const signOut = async () => {
     try {
       await supabase.auth.signOut();
@@ -114,6 +135,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     loading,
     signIn,
     signUp,
+    signInWithGoogle,
     signOut,
   };
 
