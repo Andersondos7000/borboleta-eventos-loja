@@ -13,6 +13,8 @@ export type Database = {
         Row: {
           created_at: string
           id: string
+          order_id: string | null
+          price: number | null
           product_id: string | null
           quantity: number
           size: string | null
@@ -22,6 +24,8 @@ export type Database = {
         Insert: {
           created_at?: string
           id?: string
+          order_id?: string | null
+          price?: number | null
           product_id?: string | null
           quantity?: number
           size?: string | null
@@ -31,6 +35,8 @@ export type Database = {
         Update: {
           created_at?: string
           id?: string
+          order_id?: string | null
+          price?: number | null
           product_id?: string | null
           quantity?: number
           size?: string | null
@@ -39,10 +45,10 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "cart_items_product_id_fkey"
-            columns: ["product_id"]
+            foreignKeyName: "cart_items_order_id_fkey"
+            columns: ["order_id"]
             isOneToOne: false
-            referencedRelation: "products"
+            referencedRelation: "orders"
             referencedColumns: ["id"]
           },
           {

@@ -1,14 +1,16 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ShoppingCart, Calendar, Shirt } from 'lucide-react';
+import { ShoppingCart, Calendar, Shirt, User } from 'lucide-react';
 import ButterflyLogo from './ButterflyLogo';
 import { Button } from '@/components/ui/button';
 import { useCart } from '@/contexts/CartContext';
+import { useAuth } from '@/contexts/AuthContext';
 import MobileMenu from './MobileMenu';
 
 const Navbar: React.FC = () => {
   const { items } = useCart();
+  const { user, signOut } = useAuth();
   
   return (
     <nav className="sticky top-0 z-50 w-full bg-white shadow-sm border-b border-butterfly-orange/10">
@@ -53,6 +55,25 @@ const Navbar: React.FC = () => {
                 {items.length}
               </span>
             </Link>
+            
+            {user ? (
+              <Link 
+                to="/perfil"
+                className="hidden md:flex items-center space-x-2 text-butterfly-orange hover:text-butterfly-orange/80 transition-colors"
+              >
+                <User className="h-5 w-5" />
+                <span className="font-medium">Perfil</span>
+              </Link>
+            ) : (
+              <Button 
+                variant="default" 
+                className="hidden md:flex"
+                onClick={() => window.location.href = '/auth'}
+              >
+                Entrar
+              </Button>
+            )}
+            
             <Button 
               variant="default" 
               className="hidden md:flex"

@@ -1,15 +1,22 @@
 
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Menu, X, Calendar, Shirt, ShoppingCart, Settings } from 'lucide-react';
+import { Menu, X, Calendar, Shirt, ShoppingCart, Settings, LogIn, User, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Separator } from '@/components/ui/separator';
+import { useAuth } from '@/contexts/AuthContext';
 
 const MobileMenu: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const { user, signOut } = useAuth();
 
   const closeMenu = () => setIsOpen(false);
+
+  const handleSignOut = async () => {
+    await signOut();
+    closeMenu();
+  };
 
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
@@ -85,6 +92,37 @@ const MobileMenu: React.FC = () => {
               <Settings className="mr-2 h-5 w-5" />
               <span>Admin</span>
             </Link>
+
+            <Separator className="my-2" />
+            
+            {user ? (
+              <>
+                <Link 
+                  to="/perfil" 
+                  className="flex items-center px-4 py-3 hover:bg-butterfly-orange/10 rounded-md transition-colors"
+                  onClick={closeMenu}
+                >
+                  <User className="mr-2 h-5 w-5" />
+                  <span>Meu Perfil</span>
+                </Link>
+                <button 
+                  className="flex items-center px-4 py-3 hover:bg-butterfly-orange/10 rounded-md transition-colors text-left w-full"
+                  onClick={handleSignOut}
+                >
+                  <LogOut className="mr-2 h-5 w-5" />
+                  <span>Sair</span>
+                </button>
+              </>
+            ) : (
+              <Link 
+                to="/auth" 
+                className="flex items-center px-4 py-3 hover:bg-butterfly-orange/10 rounded-md transition-colors"
+                onClick={closeMenu}
+              >
+                <LogIn className="mr-2 h-5 w-5" />
+                <span>Entrar / Cadastrar</span>
+              </Link>
+            )}
           </nav>
 
           <div className="mt-auto mb-4">

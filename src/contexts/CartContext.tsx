@@ -107,20 +107,14 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
           for (const item of data) {
             // Check if this item has products data
             if (item.products) {
-              const product = item.products as {
-                id: string;
-                name: string;
-                price: number;
-                image_url: string;
-                category: 'camiseta' | 'vestido';
-              };
+              const product = item.products;
               
               cartItems.push({
                 id: item.id,
                 name: product.name,
                 price: product.price,
                 image: product.image_url,
-                category: product.category,
+                category: product.category as 'camiseta' | 'vestido',
                 size: item.size || '',
                 quantity: item.quantity,
                 productId: product.id
@@ -128,14 +122,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
             } 
             // Check if this item has tickets data with events
             else if (item.tickets && item.tickets.events) {
-              const ticket = item.tickets as { 
-                id: string; 
-                events: { 
-                  name: string; 
-                  price: number; 
-                }
-              };
-              
+              const ticket = item.tickets;
               const event = ticket.events;
               
               cartItems.push({
