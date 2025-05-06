@@ -12,6 +12,7 @@ const TicketCartItem: React.FC<TicketCartItemProps> = ({ item }) => {
   
   const handleQuantityChange = (newQuantity: number) => {
     if (newQuantity >= 1) {
+      console.log(`Updating ticket quantity: ${item.id} to ${newQuantity}`);
       updateQuantity(item.id, newQuantity);
     }
   };
@@ -43,7 +44,7 @@ const TicketCartItem: React.FC<TicketCartItemProps> = ({ item }) => {
             >
               -
             </button>
-            <span className="px-4 py-1">{item.quantity}</span>
+            <span className="px-4 py-1" data-testid="ticket-quantity">{item.quantity}</span>
             <button 
               onClick={() => handleQuantityChange(item.quantity + 1)} 
               className="px-2 py-1 border-l border-gray-300"

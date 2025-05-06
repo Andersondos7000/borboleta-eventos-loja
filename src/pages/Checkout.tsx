@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from "react-hook-form";
@@ -50,6 +49,7 @@ const Checkout = () => {
   const [participantCount, setParticipantCount] = useState(1);
   
   useEffect(() => {
+    console.log("Checkout page loaded with cart items:", items);
     // Redirect to cart if the cart is empty
     if (items.length === 0) {
       navigate('/carrinho');
@@ -58,7 +58,7 @@ const Checkout = () => {
         description: "Adicione itens ao carrinho antes de prosseguir para o checkout.",
       });
     }
-  }, [items.length, navigate, toast]);
+  }, [items, navigate, toast]);
 
   // Convert cart items to match the OrderSummary component's expected format
   const formattedCartItems = items.map(item => ({
@@ -91,7 +91,7 @@ const Checkout = () => {
   });
 
   const onSubmit = (data: FormValues) => {
-    console.log(data);
+    console.log("Form submitted with data:", data);
     console.log('Items being purchased:', items);
     
     // Here you would normally make an API call to create an order

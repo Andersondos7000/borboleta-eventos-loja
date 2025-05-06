@@ -35,6 +35,7 @@ const CartContent = () => {
       return;
     }
     
+    console.log("Navigating to checkout with items:", items);
     navigate('/checkout');
   };
 
