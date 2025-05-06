@@ -18,6 +18,7 @@ const Ingressos = () => {
   const [activeTab, setActiveTab] = useState("individual");
   const [eventData, setEventData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isAddingToCart, setIsAddingToCart] = useState(false);
   const navigate = useNavigate();
   const { user } = useAuth();
   const { addToCart } = useCart();
@@ -73,6 +74,8 @@ const Ingressos = () => {
 
   const handleAddToCart = async () => {
     try {
+      setIsAddingToCart(true);
+      
       if (!eventData) {
         toast({
           title: "Evento não encontrado",
@@ -93,30 +96,42 @@ const Ingressos = () => {
         return;
       }
 
+      const quantity = activeTab === "individual" ? individualQuantity : groupQuantity;
+      const price = activeTab === "individual" ? individualTicketPrice : groupTicketPrice;
+
       // Create a new ticket in the database
       const { data: ticketData, error: ticketError } = await supabase
         .from('tickets')
         .insert({
           event_id: eventData.id,
-          price: activeTab === "individual" ? individualTicketPrice : groupTicketPrice,
+          price: price,
           status: 'reserved',
           user_id: user.id
         })
         .select('id')
         .single();
 
-      if (ticketError) throw ticketError;
+      if (ticketError) {
+        console.error('Error creating ticket:', ticketError);
+        throw ticketError;
+      }
 
       // Add ticket to cart
       const cartTicket: CartTicket = {
         id: crypto.randomUUID(), // Temporary ID until added to cart
         name: eventData.name || "VII Conferência de Mulheres",
-        price: activeTab === "individual" ? individualTicketPrice : groupTicketPrice,
-        quantity: activeTab === "individual" ? individualQuantity : groupQuantity,
+        price: price,
+        quantity: quantity,
         ticketId: ticketData.id
       };
 
       await addToCart(cartTicket);
+      
+      toast({
+        title: "Ingresso adicionado!",
+        description: `${quantity} ${quantity > 1 ? 'ingressos foram adicionados' : 'ingresso foi adicionado'} ao seu carrinho.`,
+      });
+      
       navigate('/carrinho');
     } catch (error) {
       console.error('Error adding ticket to cart:', error);
@@ -125,6 +140,8 @@ const Ingressos = () => {
         description: "Não foi possível adicionar o ingresso ao carrinho.",
         variant: "destructive"
       });
+    } finally {
+      setIsAddingToCart(false);
     }
   };
 
@@ -202,6 +219,7 @@ const Ingressos = () => {
                             <button 
                               onClick={handleIndividualDecrement}
                               className="px-3 py-2 hover:bg-gray-100"
+                              disabled={individualQuantity <= 1}
                             >
                               <Minus className="h-4 w-4" />
                             </button>
@@ -209,6 +227,7 @@ const Ingressos = () => {
                             <button 
                               onClick={handleIndividualIncrement}
                               className="px-3 py-2 hover:bg-gray-100"
+                              disabled={individualQuantity >= 5}
                             >
                               <Plus className="h-4 w-4" />
                             </button>
@@ -238,6 +257,7 @@ const Ingressos = () => {
                             <button 
                               onClick={handleGroupDecrement}
                               className="px-3 py-2 hover:bg-gray-100"
+                              disabled={groupQuantity <= 10}
                             >
                               <Minus className="h-4 w-4" />
                             </button>
@@ -266,9 +286,9 @@ const Ingressos = () => {
                       <Button 
                         onClick={handleAddToCart}
                         className="w-full bg-butterfly-orange hover:bg-butterfly-orange/90"
-                        disabled={isLoading}
+                        disabled={isLoading || isAddingToCart}
                       >
-                        Adicionar ao Carrinho
+                        {isAddingToCart ? 'Adicionando...' : 'Adicionar ao Carrinho'}
                       </Button>
                     </div>
                   </Tabs>

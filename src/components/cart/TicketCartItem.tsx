@@ -24,10 +24,11 @@ const TicketCartItem: React.FC<TicketCartItemProps> = ({ item }) => {
   };
   
   return (
-    <div className="p-6 flex flex-wrap justify-between items-center">
+    <div className="p-6 flex flex-wrap justify-between items-center border-b border-gray-200 last:border-b-0">
       <div>
         <h3 className="font-medium text-lg">{item.name}</h3>
         <p className="text-gray-500">12 e 13 de Abril de 2025</p>
+        <p className="text-sm mt-1">Ingresso: {item.price.toFixed(2).replace('.', ',')} R$ (cada)</p>
       </div>
       
       <div className="flex items-center gap-4 mt-4 md:mt-0">

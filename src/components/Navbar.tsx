@@ -12,6 +12,9 @@ const Navbar: React.FC = () => {
   const { items } = useCart();
   const { user, signOut } = useAuth();
   
+  // Calcular o total de itens no carrinho (soma de quantidades)
+  const cartItemsCount = items.reduce((total, item) => total + item.quantity, 0);
+  
   return (
     <nav className="sticky top-0 z-50 w-full bg-white shadow-sm border-b border-butterfly-orange/10">
       <div className="container mx-auto px-4 py-3">
@@ -51,9 +54,11 @@ const Navbar: React.FC = () => {
           <div className="flex items-center space-x-4">
             <Link to="/carrinho" className="relative text-butterfly-orange hover:text-butterfly-orange/80 transition-colors">
               <ShoppingCart className="h-6 w-6" />
-              <span className="absolute -top-2 -right-2 bg-butterfly-orange text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                {items.length}
-              </span>
+              {cartItemsCount > 0 && (
+                <span className="absolute -top-2 -right-2 bg-butterfly-orange text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                  {cartItemsCount}
+                </span>
+              )}
             </Link>
             
             {user ? (

@@ -217,7 +217,8 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
             product_id: isCartProduct(item) ? item.productId : null,
             ticket_id: isCartTicket(item) ? item.ticketId : null,
             quantity: item.quantity,
-            size: isCartProduct(item) ? item.size : null
+            size: isCartProduct(item) ? item.size : null,
+            price: item.price // Adicionado para garantir que o preço está sendo salvo
           })
           .select('id')
           .single();
