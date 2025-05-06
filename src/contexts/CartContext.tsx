@@ -48,6 +48,27 @@ interface CartContextType {
   total: number;
 }
 
+// Define the structure of the data returned from Supabase
+interface CartItemFromSupabase {
+  id: string;
+  quantity: number;
+  size: string | null;
+  products?: {
+    id: string;
+    name: string;
+    price: number;
+    image_url: string;
+    category: string;
+  };
+  tickets?: {
+    id: string;
+    events?: {
+      name: string;
+      price: number;
+    };
+  };
+}
+
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -104,7 +125,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
           // Transform data into CartItems
           const cartItems: CartItem[] = [];
           
-          for (const item of data) {
+          for (const item of data as CartItemFromSupabase[]) {
             // Check if this item has products data
             if (item.products) {
               const product = item.products;
