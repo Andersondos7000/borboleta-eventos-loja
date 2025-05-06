@@ -92,10 +92,9 @@ const Checkout = () => {
 
   const onSubmit = (data: FormValues) => {
     console.log(data);
+    console.log('Items being purchased:', items);
     
     // Here you would normally make an API call to create an order
-    // For now, we just show a success message and clear the cart
-    
     toast({
       title: "Pedido realizado com sucesso!",
       description: "Você receberá um e-mail com as instruções para pagamento.",

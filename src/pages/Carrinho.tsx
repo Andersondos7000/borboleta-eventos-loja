@@ -1,15 +1,18 @@
 
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { CartProvider, useCart, isCartProduct, isCartTicket } from '@/contexts/CartContext';
 import ProductCartItem from '@/components/cart/ProductCartItem';
 import TicketCartItem from '@/components/cart/TicketCartItem';
+import { useToast } from '@/components/ui/use-toast';
 
 const CartContent = () => {
   const { items, subtotal, shipping, total, isLoading } = useCart();
+  const navigate = useNavigate();
+  const { toast } = useToast();
 
   // Separate products and tickets
   const products = items.filter(isCartProduct);
@@ -20,6 +23,19 @@ const CartContent = () => {
       style: 'currency',
       currency: 'BRL'
     }).format(value);
+  };
+
+  const handleCheckout = () => {
+    if (items.length === 0) {
+      toast({
+        title: "Carrinho vazio",
+        description: "Adicione itens ao carrinho antes de finalizar a compra.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    navigate('/checkout');
   };
 
   if (isLoading) {
@@ -117,10 +133,11 @@ const CartContent = () => {
           </div>
         </div>
         
-        <Button className="w-full mt-6 bg-butterfly-orange hover:bg-butterfly-orange/90">
-          <Link to="/checkout" className="w-full text-center">
-            Finalizar Compra
-          </Link>
+        <Button 
+          className="w-full mt-6 bg-butterfly-orange hover:bg-butterfly-orange/90"
+          onClick={handleCheckout}
+        >
+          Finalizar Compra
         </Button>
         
         <div className="mt-6 text-center">

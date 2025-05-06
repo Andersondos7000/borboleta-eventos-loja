@@ -28,7 +28,7 @@ const TicketCartItem: React.FC<TicketCartItemProps> = ({ item }) => {
       <div>
         <h3 className="font-medium text-lg">{item.name}</h3>
         <p className="text-gray-500">12 e 13 de Abril de 2025</p>
-        <p className="text-sm mt-1">Ingresso: {item.price.toFixed(2).replace('.', ',')} R$ (cada)</p>
+        <p className="text-sm mt-1">Ingresso: {formatCurrency(item.price)} (cada)</p>
       </div>
       
       <div className="flex items-center gap-4 mt-4 md:mt-0">

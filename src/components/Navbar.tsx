@@ -12,7 +12,7 @@ const Navbar: React.FC = () => {
   const { items } = useCart();
   const { user, signOut } = useAuth();
   
-  // Calcular o total de itens no carrinho (soma de quantidades)
+  // Calculate total quantity by summing up all item quantities
   const cartItemsCount = items.reduce((total, item) => total + item.quantity, 0);
   
   return (

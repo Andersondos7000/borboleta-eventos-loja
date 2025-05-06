@@ -1,5 +1,4 @@
-
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Minus, Plus, MapPin, Calendar, Users, Bus } from 'lucide-react';
@@ -16,8 +15,7 @@ const Ingressos = () => {
   const [individualQuantity, setIndividualQuantity] = useState(1);
   const [groupQuantity, setGroupQuantity] = useState(10);
   const [activeTab, setActiveTab] = useState("individual");
-  const [eventData, setEventData] = useState<any>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [isAddingToCart, setIsAddingToCart] = useState(false);
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -26,35 +24,6 @@ const Ingressos = () => {
 
   const individualTicketPrice = 83.00;
   const groupTicketPrice = 75.00;
-
-  // Fetch event data
-  useEffect(() => {
-    const fetchEvent = async () => {
-      setIsLoading(true);
-      try {
-        const { data, error } = await supabase
-          .from('events')
-          .select('*')
-          .order('created_at', { ascending: false })
-          .limit(1)
-          .single();
-
-        if (error) throw error;
-        setEventData(data);
-      } catch (error) {
-        console.error('Error fetching event:', error);
-        toast({
-          title: "Erro ao carregar evento",
-          description: "Não foi possível carregar os detalhes do evento.",
-          variant: "destructive"
-        });
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchEvent();
-  }, [toast]);
 
   const handleIndividualIncrement = () => {
     if (individualQuantity < 5) setIndividualQuantity(individualQuantity + 1);
@@ -76,15 +45,6 @@ const Ingressos = () => {
     try {
       setIsAddingToCart(true);
       
-      if (!eventData) {
-        toast({
-          title: "Evento não encontrado",
-          description: "Não foi possível adicionar o ingresso ao carrinho.",
-          variant: "destructive"
-        });
-        return;
-      }
-
       // If user is not logged in, redirect to auth page
       if (!user) {
         toast({
@@ -98,12 +58,12 @@ const Ingressos = () => {
 
       const quantity = activeTab === "individual" ? individualQuantity : groupQuantity;
       const price = activeTab === "individual" ? individualTicketPrice : groupTicketPrice;
+      const ticketName = "VII Conferência de Mulheres";
 
-      // Create a new ticket in the database
+      // Create a new ticket directly without checking for events
       const { data: ticketData, error: ticketError } = await supabase
         .from('tickets')
         .insert({
-          event_id: eventData.id,
           price: price,
           status: 'reserved',
           user_id: user.id
@@ -119,7 +79,7 @@ const Ingressos = () => {
       // Add ticket to cart
       const cartTicket: CartTicket = {
         id: crypto.randomUUID(), // Temporary ID until added to cart
-        name: eventData.name || "VII Conferência de Mulheres",
+        name: ticketName,
         price: price,
         quantity: quantity,
         ticketId: ticketData.id
