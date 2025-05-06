@@ -125,7 +125,10 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
           // Transform data into CartItems
           const cartItems: CartItem[] = [];
           
-          for (const item of data as CartItemFromSupabase[]) {
+          // Type assertion after verifying the structure
+          const typedData = data as unknown as CartItemFromSupabase[];
+          
+          for (const item of typedData) {
             // Check if this item has products data
             if (item.products) {
               const product = item.products;
