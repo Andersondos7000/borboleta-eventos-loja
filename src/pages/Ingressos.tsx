@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Minus, Plus, MapPin, Calendar, Users, Bus } from 'lucide-react';
@@ -11,19 +11,58 @@ import { useCart, CartTicket } from '@/contexts/CartContext';
 import { supabase } from '@/lib/supabase';
 import { useToast } from '@/components/ui/use-toast';
 
+interface Event {
+  id: string;
+  name: string;
+  description: string;
+  date: string;
+  location: string;
+  price: number;
+  available_tickets: number;
+  image_url: string;
+}
+
 const Ingressos = () => {
   const [individualQuantity, setIndividualQuantity] = useState(1);
   const [groupQuantity, setGroupQuantity] = useState(10);
   const [activeTab, setActiveTab] = useState("individual");
   const [isLoading, setIsLoading] = useState(false);
   const [isAddingToCart, setIsAddingToCart] = useState(false);
+  const [events, setEvents] = useState<Event[]>([]);
+  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const navigate = useNavigate();
   const { user } = useAuth();
   const { addToCart } = useCart();
   const { toast } = useToast();
 
-  const individualTicketPrice = 83.00;
-  const groupTicketPrice = 75.00;
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('events')
+          .select('*')
+          .gte('available_tickets', 1)
+          .order('date', { ascending: true });
+
+        if (error) {
+          console.error('Error fetching events:', error);
+          return;
+        }
+
+        setEvents(data || []);
+        if (data && data.length > 0) {
+          setSelectedEvent(data[0]);
+        }
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    };
+
+    fetchEvents();
+  }, []);
+
+  const individualTicketPrice = selectedEvent?.price || 85.00;
+  const groupTicketPrice = selectedEvent ? selectedEvent.price * 0.9 : 75.00;
 
   const handleIndividualIncrement = () => {
     if (individualQuantity < 5) setIndividualQuantity(individualQuantity + 1);
@@ -56,14 +95,24 @@ const Ingressos = () => {
         return;
       }
 
+      if (!selectedEvent) {
+        toast({
+          title: "Erro",
+          description: "Nenhum evento selecionado.",
+          variant: "destructive"
+        });
+        return;
+      }
+
       const quantity = activeTab === "individual" ? individualQuantity : groupQuantity;
       const price = activeTab === "individual" ? individualTicketPrice : groupTicketPrice;
-      const ticketName = "VII Conferência de Mulheres";
+      const ticketName = selectedEvent.name;
 
-      // Create a new ticket directly without checking for events
+      // Create a new ticket with event reference
       const { data: ticketData, error: ticketError } = await supabase
         .from('tickets')
         .insert({
+          event_id: selectedEvent.id,
           price: price,
           status: 'reserved',
           user_id: user.id
@@ -129,20 +178,28 @@ const Ingressos = () => {
               <Card className="mb-6">
                 <CardContent className="pt-6">
                   <h2 className="text-xl font-semibold mb-4">Detalhes do Evento</h2>
-                  <div className="space-y-4">
-                    <div className="flex items-center gap-2">
-                      <Calendar className="text-butterfly-orange h-5 w-5" />
-                      <span>12 e 13 de Abril de 2025</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <MapPin className="text-butterfly-orange h-5 w-5" />
-                      <span>Centro de Convenções ExpoCenter - São Paulo, SP</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Users className="text-butterfly-orange h-5 w-5" />
-                      <span>1300 vagas disponíveis</span>
-                    </div>
-                  </div>
+                   <div className="space-y-4">
+                     {selectedEvent ? (
+                       <>
+                         <div className="flex items-center gap-2">
+                           <Calendar className="text-butterfly-orange h-5 w-5" />
+                           <span>{new Date(selectedEvent.date).toLocaleDateString('pt-BR')}</span>
+                         </div>
+                         <div className="flex items-center gap-2">
+                           <MapPin className="text-butterfly-orange h-5 w-5" />
+                           <span>{selectedEvent.location}</span>
+                         </div>
+                         <div className="flex items-center gap-2">
+                           <Users className="text-butterfly-orange h-5 w-5" />
+                           <span>{selectedEvent.available_tickets} vagas disponíveis</span>
+                         </div>
+                       </>
+                     ) : (
+                       <div className="text-center py-4 text-gray-500">
+                         Carregando informações do evento...
+                       </div>
+                     )}
+                   </div>
                 </CardContent>
               </Card>
             </div>

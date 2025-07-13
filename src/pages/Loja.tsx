@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
@@ -7,66 +7,59 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import ProductCard, { ProductProps } from '@/components/ProductCard';
 import SizeChart from '@/components/SizeChart';
+import { supabase } from '@/lib/supabase';
+import { useToast } from '@/components/ui/use-toast';
 
 const Loja = () => {
   const [activeCategory, setActiveCategory] = useState<'all' | 'camisetas' | 'vestidos'>('all');
+  const [products, setProducts] = useState<ProductProps[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const { toast } = useToast();
 
-  const products: ProductProps[] = [
-    {
-      id: 'tshirt-1',
-      name: 'Camiseta Logo Conferência',
-      price: 60,
-      image: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?q=80',
-      category: 'camiseta',
-      sizes: ['PP', 'P', 'M', 'G', 'GG', 'XGG', 'EXGG'],
-      inStock: true
-    },
-    {
-      id: 'tshirt-2',
-      name: 'Camiseta Borboleta',
-      price: 60,
-      image: 'https://images.unsplash.com/photo-1583744946564-b52d01a7f084?q=80',
-      category: 'camiseta',
-      sizes: ['PP', 'P', 'M', 'G', 'GG', 'XGG', 'EXGG'],
-      inStock: true
-    },
-    {
-      id: 'tshirt-3',
-      name: 'Camiseta Queren',
-      price: 60,
-      image: 'https://images.unsplash.com/photo-1576566588028-4147f3842f27?q=80',
-      category: 'camiseta',
-      sizes: ['PP', 'P', 'M', 'G', 'GG', 'XGG'],
-      inStock: false
-    },
-    {
-      id: 'dress-1',
-      name: 'Vestido Elegance',
-      price: 140,
-      image: 'https://images.unsplash.com/photo-1539008835657-9e8e9680c956?q=80',
-      category: 'vestido',
-      sizes: ['PP', 'P', 'M', 'G', 'GG', 'XGG', 'EXGG'],
-      inStock: true
-    },
-    {
-      id: 'dress-2',
-      name: 'Vestido Celebration',
-      price: 140,
-      image: 'https://images.unsplash.com/photo-1612336307429-8a898d10e223?q=80',
-      category: 'vestido',
-      sizes: ['PP', 'P', 'M', 'G', 'GG', 'XGG', 'EXGG'],
-      inStock: true
-    },
-    {
-      id: 'dress-3',
-      name: 'Vestido Butterfly',
-      price: 140,
-      image: 'https://images.unsplash.com/photo-1542295669297-4d352b042bca?q=80',
-      category: 'vestido',
-      sizes: ['PP', 'P', 'M', 'G', 'GG', 'XGG', 'EXGG'],
-      inStock: true
-    }
-  ];
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        setIsLoading(true);
+        const { data, error } = await supabase
+          .from('products')
+          .select('*')
+          .eq('in_stock', true);
+
+        if (error) {
+          console.error('Error fetching products:', error);
+          toast({
+            title: "Erro ao carregar produtos",
+            description: "Não foi possível carregar os produtos.",
+            variant: "destructive"
+          });
+          return;
+        }
+
+        const formattedProducts: ProductProps[] = (data || []).map(product => ({
+          id: product.id,
+          name: product.name,
+          price: product.price,
+          image: product.image_url || 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400',
+          category: product.category as 'camiseta' | 'vestido',
+          sizes: product.sizes || [],
+          inStock: product.in_stock
+        }));
+
+        setProducts(formattedProducts);
+      } catch (error) {
+        console.error('Error:', error);
+        toast({
+          title: "Erro",
+          description: "Ocorreu um erro inesperado.",
+          variant: "destructive"
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, [toast]);
 
   const filteredProducts = activeCategory === 'all' 
     ? products 
@@ -120,27 +113,69 @@ const Loja = () => {
             </div>
             
             <TabsContent value="all" className="mt-0">
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {filteredProducts.map(product => (
-                  <ProductCard key={product.id} product={product} />
-                ))}
-              </div>
+              {isLoading ? (
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                  {[1, 2, 3].map(i => (
+                    <div key={i} className="bg-gray-200 animate-pulse h-64 rounded-lg"></div>
+                  ))}
+                </div>
+              ) : (
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                  {filteredProducts.length > 0 ? (
+                    filteredProducts.map(product => (
+                      <ProductCard key={product.id} product={product} />
+                    ))
+                  ) : (
+                    <div className="col-span-full text-center py-8 text-gray-500">
+                      Nenhum produto encontrado.
+                    </div>
+                  )}
+                </div>
+              )}
             </TabsContent>
             
             <TabsContent value="camisetas" className="mt-0">
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {filteredProducts.map(product => (
-                  <ProductCard key={product.id} product={product} />
-                ))}
-              </div>
+              {isLoading ? (
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                  {[1, 2].map(i => (
+                    <div key={i} className="bg-gray-200 animate-pulse h-64 rounded-lg"></div>
+                  ))}
+                </div>
+              ) : (
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                  {filteredProducts.length > 0 ? (
+                    filteredProducts.map(product => (
+                      <ProductCard key={product.id} product={product} />
+                    ))
+                  ) : (
+                    <div className="col-span-full text-center py-8 text-gray-500">
+                      Nenhuma camiseta encontrada.
+                    </div>
+                  )}
+                </div>
+              )}
             </TabsContent>
             
             <TabsContent value="vestidos" className="mt-0">
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {filteredProducts.map(product => (
-                  <ProductCard key={product.id} product={product} />
-                ))}
-              </div>
+              {isLoading ? (
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                  {[1, 2].map(i => (
+                    <div key={i} className="bg-gray-200 animate-pulse h-64 rounded-lg"></div>
+                  ))}
+                </div>
+              ) : (
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                  {filteredProducts.length > 0 ? (
+                    filteredProducts.map(product => (
+                      <ProductCard key={product.id} product={product} />
+                    ))
+                  ) : (
+                    <div className="col-span-full text-center py-8 text-gray-500">
+                      Nenhum vestido encontrado.
+                    </div>
+                  )}
+                </div>
+              )}
             </TabsContent>
           </Tabs>
         </div>
