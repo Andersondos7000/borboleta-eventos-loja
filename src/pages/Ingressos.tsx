@@ -123,7 +123,7 @@ const Ingressos = () => {
           event_id: selectedEvent.id,
           price: price,
           status: 'reserved',
-          user_id: user?.id || 'anonymous-user'
+          user_id: user?.id || null // Use null instead of 'anonymous-user'
         })
         .select('id')
         .single();
