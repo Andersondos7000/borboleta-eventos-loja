@@ -42,6 +42,7 @@ const Ingressos = () => {
           .from('events')
           .select('*')
           .gte('available_tickets', 1)
+          .gte('date', new Date().toISOString())
           .order('date', { ascending: true });
 
         if (error) {
