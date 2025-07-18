@@ -49,9 +49,14 @@ const Ingressos = () => {
           return;
         }
 
+        console.log('Events fetched:', data);
+
         setEvents(data || []);
         if (data && data.length > 0) {
           setSelectedEvent(data[0]);
+          console.log('Selected event set:', data[0]);
+        } else {
+          console.log('No events found or data is empty');
         }
       } catch (error) {
         console.error('Error:', error);
@@ -83,6 +88,8 @@ const Ingressos = () => {
   const handleAddToCart = async () => {
     try {
       setIsAddingToCart(true);
+      
+      console.log('Selected event before check:', selectedEvent);
       
       // Temporarily disabled auth check for testing
       // if (!user) {
