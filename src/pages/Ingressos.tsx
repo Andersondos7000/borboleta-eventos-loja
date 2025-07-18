@@ -84,16 +84,16 @@ const Ingressos = () => {
     try {
       setIsAddingToCart(true);
       
-      // If user is not logged in, redirect to auth page
-      if (!user) {
-        toast({
-          title: "Login necessário",
-          description: "Faça login para adicionar ingressos ao carrinho.",
-          variant: "default"
-        });
-        navigate('/auth');
-        return;
-      }
+      // Temporarily disabled auth check for testing
+      // if (!user) {
+      //   toast({
+      //     title: "Login necessário",
+      //     description: "Faça login para adicionar ingressos ao carrinho.",
+      //     variant: "default"
+      //   });
+      //   navigate('/auth');
+      //   return;
+      // }
 
       if (!selectedEvent) {
         toast({
@@ -115,7 +115,7 @@ const Ingressos = () => {
           event_id: selectedEvent.id,
           price: price,
           status: 'reserved',
-          user_id: user.id
+          user_id: user?.id || 'anonymous-user'
         })
         .select('id')
         .single();
