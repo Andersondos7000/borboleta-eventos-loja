@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { ShoppingCart } from 'lucide-react';
 import ProductModal from './ProductModal';
-import { CartProvider, useCart } from '@/contexts/CartContext';
+import { useCart } from '@/contexts/CartContext';
 import { useToast } from '@/components/ui/use-toast';
 
 export interface ProductProps {
@@ -112,11 +112,7 @@ const ProductCardContent: React.FC<{ product: ProductProps }> = ({ product }) =>
 };
 
 const ProductCard: React.FC<{ product: ProductProps }> = ({ product }) => {
-  return (
-    <CartProvider>
-      <ProductCardContent product={product} />
-    </CartProvider>
-  );
+  return <ProductCardContent product={product} />;
 };
 
 export default ProductCard;
