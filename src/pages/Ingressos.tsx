@@ -90,7 +90,10 @@ const Ingressos = () => {
     try {
       setIsAddingToCart(true);
       
-      console.log('Selected event before check:', selectedEvent);
+      console.log('Starting add to cart process');
+      console.log('Selected event:', selectedEvent);
+      console.log('User:', user);
+      console.log('Active tab:', activeTab);
       
       // Temporarily disabled auth check for testing
       // if (!user) {
@@ -104,6 +107,7 @@ const Ingressos = () => {
       // }
 
       if (!selectedEvent) {
+        console.log('No selected event - showing error');
         toast({
           title: "Erro",
           description: "Nenhum evento selecionado.",
@@ -116,7 +120,10 @@ const Ingressos = () => {
       const price = activeTab === "individual" ? individualTicketPrice : groupTicketPrice;
       const ticketName = selectedEvent.name;
 
+      console.log('Ticket details:', { quantity, price, ticketName, selectedEventId: selectedEvent.id });
+
       // Create a new ticket with event reference
+      console.log('Creating ticket in database...');
       const { data: ticketData, error: ticketError } = await supabase
         .from('tickets')
         .insert({
@@ -133,6 +140,8 @@ const Ingressos = () => {
         throw ticketError;
       }
 
+      console.log('Ticket created successfully:', ticketData);
+
       // Add ticket to cart
       const cartTicket: CartTicket = {
         id: crypto.randomUUID(), // Temporary ID until added to cart
@@ -142,7 +151,10 @@ const Ingressos = () => {
         ticketId: ticketData.id
       };
 
+      console.log('Adding to cart:', cartTicket);
       await addToCart(cartTicket);
+      
+      console.log('Successfully added to cart');
       
       toast({
         title: "Ingresso adicionado!",
@@ -151,7 +163,8 @@ const Ingressos = () => {
       
       navigate('/carrinho');
     } catch (error) {
-      console.error('Error adding ticket to cart:', error);
+      console.error('Full error details:', error);
+      console.error('Error stack:', error.stack);
       toast({
         title: "Erro ao adicionar ingresso",
         description: "Não foi possível adicionar o ingresso ao carrinho.",
