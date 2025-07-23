@@ -14,6 +14,7 @@ import PaymentSection from "@/components/checkout/PaymentSection";
 import OrderSummary from "@/components/checkout/OrderSummary";
 import TermsSection from "@/components/checkout/TermsSection";
 import { useCart, isCartProduct } from "@/contexts/CartContext";
+import { supabase } from "@/lib/supabase";
 
 const formSchema = z.object({
   firstName: z.string().min(2, { message: "Nome deve ter pelo menos 2 caracteres" }),
@@ -47,6 +48,8 @@ const Checkout = () => {
   const navigate = useNavigate();
   const { items, subtotal, shipping, total, clearCart } = useCart();
   const [participantCount, setParticipantCount] = useState(1);
+  const [paymentData, setPaymentData] = useState(null);
+  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
   
   useEffect(() => {
     console.log("Checkout page loaded with cart items:", items);
@@ -90,21 +93,68 @@ const Checkout = () => {
     },
   });
 
-  const onSubmit = (data: FormValues) => {
+  const onSubmit = async (data: FormValues) => {
     console.log("Form submitted with data:", data);
     console.log('Items being purchased:', items);
     
-    // Here you would normally make an API call to create an order
-    toast({
-      title: "Pedido realizado com sucesso!",
-      description: "Você receberá um e-mail com as instruções para pagamento.",
-    });
+    setIsProcessingPayment(true);
     
-    clearCart().then(() => {
-      setTimeout(() => {
-        navigate('/');
-      }, 2000);
-    });
+    try {
+      // Get current session
+      const { data: session } = await supabase.auth.getSession();
+      
+      if (!session.session) {
+        toast({
+          title: "Erro de autenticação",
+          description: "Você precisa estar logado para finalizar o pedido.",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      // Call Abacate Pay edge function
+      const { data: paymentResponse, error } = await supabase.functions.invoke('create-abacate-payment', {
+        body: {
+          orderData: data,
+          total: total,
+          items: items.map(item => ({
+            productId: isCartProduct(item) ? item.id : null,
+            ticketId: !isCartProduct(item) ? item.id : null,
+            price: item.price,
+            quantity: item.quantity,
+            size: isCartProduct(item) ? item.size : null,
+            name: item.name
+          }))
+        }
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      if (paymentResponse.success) {
+        setPaymentData(paymentResponse.paymentData);
+        
+        // Clear cart after successful order creation
+        await clearCart();
+        
+        toast({
+          title: "Pedido criado com sucesso!",
+          description: "Escaneie o QR Code ou copie o código PIX para pagar.",
+        });
+      } else {
+        throw new Error(paymentResponse.error || 'Erro ao processar pagamento');
+      }
+    } catch (error) {
+      console.error('Error creating order:', error);
+      toast({
+        title: "Erro ao processar pedido",
+        description: "Tente novamente em alguns minutos.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsProcessingPayment(false);
+    }
   };
 
   const addParticipant = () => {
@@ -148,8 +198,15 @@ const Checkout = () => {
                     onAddParticipant={addParticipant}
                     onRemoveParticipant={removeParticipant}
                   />
-                  <PaymentSection />
-                  <TermsSection form={form} total={total} />
+                  <PaymentSection 
+                    paymentData={paymentData} 
+                    isLoading={isProcessingPayment}
+                  />
+                  <TermsSection 
+                    form={form} 
+                    total={total} 
+                    isProcessing={isProcessingPayment}
+                  />
                 </form>
               </Form>
             </div>

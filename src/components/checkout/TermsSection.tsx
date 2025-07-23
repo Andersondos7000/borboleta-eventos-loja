@@ -11,9 +11,10 @@ import { ArrowRight } from 'lucide-react';
 interface TermsSectionProps {
   form: UseFormReturn<any>;
   total: number;
+  isProcessing?: boolean;
 }
 
-const TermsSection: React.FC<TermsSectionProps> = ({ form, total }) => {
+const TermsSection: React.FC<TermsSectionProps> = ({ form, total, isProcessing = false }) => {
   return (
     <Card>
       <CardContent className="pt-6">
@@ -41,9 +42,10 @@ const TermsSection: React.FC<TermsSectionProps> = ({ form, total }) => {
         <div className="mt-6">
           <Button
             type="submit"
-            className="w-full bg-butterfly-orange hover:bg-butterfly-orange/90 text-white py-3 text-lg"
+            disabled={isProcessing}
+            className="w-full bg-butterfly-orange hover:bg-butterfly-orange/90 text-white py-3 text-lg disabled:opacity-50"
           >
-            Fazer Pedido R$ {total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+            {isProcessing ? "Processando..." : `Fazer Pedido R$ ${total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`}
             <ArrowRight className="ml-2 h-5 w-5" />
           </Button>
         </div>
