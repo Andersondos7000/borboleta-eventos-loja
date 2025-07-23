@@ -208,30 +208,29 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       const { data: sessionData } = await supabase.auth.getSession();
       
-      // Temporarily allow cart operations without authentication for testing
-      // if (sessionData.session) {
-      //   // User is logged in, save to DB
-      //   const { error, data } = await supabase
-      //     .from('cart_items')
-      //     .insert({
-      //       user_id: sessionData.session.user.id,
-      //       product_id: isCartProduct(item) ? item.productId : null,
-      //       ticket_id: isCartTicket(item) ? item.ticketId : null,
-      //       quantity: item.quantity,
-      //       size: isCartProduct(item) ? item.size : null,
-      //       price: item.price
-      //     })
-      //     .select('id')
-      //     .single();
-      //     
-      //   if (error) throw error;
-      //   
-      //   // Update local state with the DB-assigned ID
-      //   setItems(prev => [...prev, { ...item, id: data.id }]);
-      // } else {
+      if (sessionData.session) {
+        // User is logged in, save to DB
+        const { error, data } = await supabase
+          .from('cart_items')
+          .insert({
+            user_id: sessionData.session.user.id,
+            product_id: isCartProduct(item) ? item.productId : null,
+            ticket_id: isCartTicket(item) ? item.ticketId : null,
+            quantity: item.quantity,
+            size: isCartProduct(item) ? item.size : null,
+            price: item.price
+          })
+          .select('id')
+          .single();
+          
+        if (error) throw error;
+        
+        // Update local state with the DB-assigned ID
+        setItems(prev => [...prev, { ...item, id: data.id }]);
+      } else {
         // User is not logged in, use local storage
         setItems(prev => [...prev, { ...item, id: crypto.randomUUID() }]);
-      // }
+      }
       
       toast({
         title: "Adicionado ao carrinho",
