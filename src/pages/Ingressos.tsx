@@ -144,7 +144,7 @@ const Ingressos = () => {
 
       // Add ticket to cart
       const cartTicket: CartTicket = {
-        id: crypto.randomUUID(), // Temporary ID until added to cart
+        id: Date.now().toString() + Math.random().toString(36).substr(2, 9), // Generate unique ID
         name: ticketName,
         price: price,
         quantity: quantity,

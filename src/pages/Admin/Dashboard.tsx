@@ -1,11 +1,63 @@
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Calendar, Shirt, ShoppingCart, Users, ArrowDown, ArrowUp, Database } from 'lucide-react';
 import AdminSidebar from '@/components/AdminSidebar';
+import { supabase } from '@/lib/supabase';
 
 const AdminDashboard = () => {
+  const [totalVendas, setTotalVendas] = useState(0);
+  const [produtosVendidos, setProdutosVendidos] = useState(0);
+  const [itensEstoque, setItensEstoque] = useState(0);
+  const [ingressosVendidos, setIngressosVendidos] = useState(0);
+
+  useEffect(() => {
+    // Buscar total de vendas (soma dos pedidos pagos)
+    const fetchVendas = async () => {
+      const { data, error } = await supabase
+        .from('orders')
+        .select('total')
+        .eq('status', 'Pago');
+      if (!error && data) {
+        setTotalVendas(data.reduce((sum, o) => sum + Number(o.total), 0));
+      }
+    };
+    // Buscar produtos vendidos (soma de order_items)
+    const fetchProdutosVendidos = async () => {
+      const { data, error } = await supabase
+        .from('order_items')
+        .select('quantity')
+        .not('product_id', 'is', null);
+      if (!error && data) {
+        setProdutosVendidos(data.reduce((sum, o) => sum + Number(o.quantity), 0));
+      }
+    };
+    // Buscar itens em estoque (soma de product_stock)
+    const fetchEstoque = async () => {
+      const { data, error } = await supabase
+        .from('product_stock')
+        .select('quantity');
+      if (!error && data) {
+        setItensEstoque(data.reduce((sum, o) => sum + Number(o.quantity), 0));
+      }
+    };
+    // Buscar ingressos vendidos (tickets com status Pago)
+    const fetchIngressos = async () => {
+      const { data, error } = await supabase
+        .from('tickets')
+        .select('id')
+        .eq('status', 'Pago');
+      if (!error && data) {
+        setIngressosVendidos(data.length);
+      }
+    };
+    fetchVendas();
+    fetchProdutosVendidos();
+    fetchEstoque();
+    fetchIngressos();
+  }, []);
+
   return (
     <div className="flex min-h-screen bg-gray-100">
       <AdminSidebar />
@@ -20,7 +72,7 @@ const AdminDashboard = () => {
               <ShoppingCart className="h-4 w-4 text-butterfly-orange" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">R$ 24.680,00</div>
+              <div className="text-2xl font-bold">{`R$ ${totalVendas.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`}</div>
               <p className="text-xs text-muted-foreground">
                 <span className="text-green-500 flex items-center">
                   <ArrowUp className="h-3 w-3 mr-1" /> +12% comparado ao mês anterior
@@ -35,7 +87,7 @@ const AdminDashboard = () => {
               <Ticket className="h-4 w-4 text-butterfly-orange" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">246</div>
+              <div className="text-2xl font-bold">{ingressosVendidos}</div>
               <p className="text-xs text-muted-foreground">
                 <span className="flex items-center">
                   de 1300 disponíveis (19%)
@@ -50,7 +102,7 @@ const AdminDashboard = () => {
               <Shirt className="h-4 w-4 text-butterfly-orange" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">78</div>
+              <div className="text-2xl font-bold">{produtosVendidos}</div>
               <p className="text-xs text-muted-foreground">
                 <span className="text-green-500 flex items-center">
                   <ArrowUp className="h-3 w-3 mr-1" /> +25% comparado à semana anterior
@@ -65,7 +117,7 @@ const AdminDashboard = () => {
               <Database className="h-4 w-4 text-butterfly-orange" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">362</div>
+              <div className="text-2xl font-bold">{itensEstoque}</div>
               <p className="text-xs text-muted-foreground">
                 <span className="text-red-500 flex items-center">
                   <ArrowDown className="h-3 w-3 mr-1" /> 2 produtos com estoque baixo

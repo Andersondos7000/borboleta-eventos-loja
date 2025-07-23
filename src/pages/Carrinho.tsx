@@ -58,8 +58,8 @@ const CartContent = () => {
           <Button asChild className="bg-butterfly-orange hover:bg-butterfly-orange/90">
             <Link to="/loja">Explorar Loja</Link>
           </Button>
-          <Button asChild variant="outline">
-            <Link to="/evento">Ver Ingressos</Link>
+          <Button variant="outline">
+            <Link to="/evento" className="text-inherit">Ver Ingressos</Link>
           </Button>
         </div>
       </div>

@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,6 +7,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Search, ArrowUpCircle, ArrowDownCircle, AlertTriangle } from 'lucide-react';
 import AdminSidebar from '@/components/AdminSidebar';
+import { supabase } from '@/lib/supabase';
+import { updateProductStock } from '@/lib/updateProductStock';
 
 interface StockItem {
   id: string;
@@ -24,127 +26,67 @@ const AdminEstoque = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [selectedItem, setSelectedItem] = useState<StockItem | null>(null);
+  const [stockItems, setStockItems] = useState<StockItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [selectedSize, setSelectedSize] = useState('');
+  const [operation, setOperation] = useState('set');
+  const [quantity, setQuantity] = useState(1);
 
-  const stockItems: StockItem[] = [
-    {
-      id: 'P001',
-      name: 'Camiseta Logo Conferência',
-      category: 'camiseta',
-      stock: 45,
-      reserved: 3,
-      available: 42,
-      minStock: 10,
-      image: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?q=80',
-      sizes: [
-        { size: 'PP', stock: 5 },
-        { size: 'P', stock: 8 },
-        { size: 'M', stock: 12 },
-        { size: 'G', stock: 10 },
-        { size: 'GG', stock: 6 },
-        { size: 'XGG', stock: 3 },
-        { size: 'EXGG', stock: 1 }
-      ]
-    },
-    {
-      id: 'P002',
-      name: 'Camiseta Borboleta',
-      category: 'camiseta',
-      stock: 37,
-      reserved: 2,
-      available: 35,
-      minStock: 10,
-      image: 'https://images.unsplash.com/photo-1583744946564-b52d01a7f084?q=80',
-      sizes: [
-        { size: 'PP', stock: 4 },
-        { size: 'P', stock: 6 },
-        { size: 'M', stock: 10 },
-        { size: 'G', stock: 8 },
-        { size: 'GG', stock: 5 },
-        { size: 'XGG', stock: 3 },
-        { size: 'EXGG', stock: 1 }
-      ]
-    },
-    {
-      id: 'P003',
-      name: 'Camiseta Queren',
-      category: 'camiseta',
-      stock: 0,
-      reserved: 0,
-      available: 0,
-      minStock: 10,
-      image: 'https://images.unsplash.com/photo-1576566588028-4147f3842f27?q=80',
-      sizes: [
-        { size: 'PP', stock: 0 },
-        { size: 'P', stock: 0 },
-        { size: 'M', stock: 0 },
-        { size: 'G', stock: 0 },
-        { size: 'GG', stock: 0 },
-        { size: 'XGG', stock: 0 }
-      ]
-    },
-    {
-      id: 'P004',
-      name: 'Vestido Elegance',
-      category: 'vestido',
-      stock: 28,
-      reserved: 4,
-      available: 24,
-      minStock: 5,
-      image: 'https://images.unsplash.com/photo-1539008835657-9e8e9680c956?q=80',
-      sizes: [
-        { size: '0', stock: 2 },
-        { size: '2', stock: 3 },
-        { size: '4', stock: 4 },
-        { size: '6', stock: 6 },
-        { size: '8', stock: 5 },
-        { size: '10', stock: 3 },
-        { size: '12', stock: 3 },
-        { size: '14', stock: 1 },
-        { size: '16', stock: 1 }
-      ]
-    },
-    {
-      id: 'P005',
-      name: 'Vestido Celebration',
-      category: 'vestido',
-      stock: 15,
-      reserved: 1,
-      available: 14,
-      minStock: 5,
-      image: 'https://images.unsplash.com/photo-1612336307429-8a898d10e223?q=80',
-      sizes: [
-        { size: '0', stock: 1 },
-        { size: '2', stock: 2 },
-        { size: '4', stock: 3 },
-        { size: '6', stock: 3 },
-        { size: '8', stock: 2 },
-        { size: '10', stock: 2 },
-        { size: '12', stock: 1 },
-        { size: '14', stock: 1 }
-      ]
-    },
-    {
-      id: 'P006',
-      name: 'Vestido Butterfly',
-      category: 'vestido',
-      stock: 3,
-      reserved: 0,
-      available: 3,
-      minStock: 5,
-      image: 'https://images.unsplash.com/photo-1542295669297-4d352b042bca?q=80',
-      sizes: [
-        { size: '0', stock: 0 },
-        { size: '2', stock: 0 },
-        { size: '4', stock: 1 },
-        { size: '6', stock: 1 },
-        { size: '8', stock: 1 },
-        { size: '10', stock: 0 },
-        { size: '12', stock: 0 },
-        { size: '14', stock: 0 },
-        { size: '16', stock: 0 }
-      ]
+  useEffect(() => {
+    const fetchStock = async () => {
+      setIsLoading(true);
+      // Buscar produtos
+      const { data: products } = await supabase.from('products').select('id, name, category, image_url');
+      // Buscar estoque por tamanho
+      const { data: stock } = await supabase.from('product_stock').select('*');
+      if (products && stock) {
+        const items: StockItem[] = products.map((p: any) => {
+          const sizes = stock.filter((s: any) => s.product_id === p.id).map((s: any) => ({ size: s.size, stock: s.quantity }));
+          const total = sizes.reduce((sum, s) => sum + s.stock, 0);
+          return {
+            id: p.id,
+            name: p.name,
+            category: p.category,
+            stock: total,
+            reserved: 0,
+            available: total,
+            minStock: 2,
+            image: p.image_url || '',
+            sizes,
+          };
+        });
+        setStockItems(items);
+      }
+      setIsLoading(false);
+    };
+    fetchStock();
+  }, []);
+
+  // Função para atualizar estoque por tamanho
+  const handleUpdateStockSize = async (productId: string, size: string, newQuantity: number) => {
+    await updateProductStock(productId, size, newQuantity);
+    // Recarregar estoque após atualização
+    const { data: products } = await supabase.from('products').select('id, name, category, image_url');
+    const { data: stock } = await supabase.from('product_stock').select('*');
+    if (products && stock) {
+      const items: StockItem[] = products.map((p: any) => {
+        const sizes = stock.filter((s: any) => s.product_id === p.id).map((s: any) => ({ size: s.size, stock: s.quantity }));
+        const total = sizes.reduce((sum, s) => sum + s.stock, 0);
+        return {
+          id: p.id,
+          name: p.name,
+          category: p.category,
+          stock: total,
+          reserved: 0,
+          available: total,
+          minStock: 2,
+          image: p.image_url || '',
+          sizes,
+        };
+      });
+      setStockItems(items);
     }
-  ];
+  };
 
   const filteredItems = stockItems
     .filter(item => item.name.toLowerCase().includes(searchQuery.toLowerCase()))
@@ -411,10 +353,10 @@ const AdminEstoque = () => {
                                                 </td>
                                                 <td className="py-3 px-4 text-right">
                                                   <div className="flex justify-end gap-2">
-                                                    <Button size="sm" variant="outline" className="h-7 w-7 p-0">
+                                                    <Button size="sm" variant="outline" className="h-7 w-7 p-0" onClick={() => handleUpdateStockSize(selectedItem.id, sizeItem.size, sizeItem.stock + 1)}>
                                                       <ArrowUpCircle className="h-4 w-4" />
                                                     </Button>
-                                                    <Button size="sm" variant="outline" className="h-7 w-7 p-0">
+                                                    <Button size="sm" variant="outline" className="h-7 w-7 p-0" onClick={() => handleUpdateStockSize(selectedItem.id, sizeItem.size, sizeItem.stock - 1)}>
                                                       <ArrowDownCircle className="h-4 w-4" />
                                                     </Button>
                                                   </div>

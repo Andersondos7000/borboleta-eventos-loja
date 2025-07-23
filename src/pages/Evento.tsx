@@ -5,10 +5,9 @@ import { Calendar, MapPin, Ticket, Users } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import EventCountdown from '@/components/EventCountdown';
+import { Link } from 'react-router-dom';
 
 const Evento = () => {
-  const [quantity, setQuantity] = useState(1);
-  
   // Data do evento: 12 de Abril de 2025
   const eventDate = new Date('2025-04-12T09:00:00');
   
@@ -43,20 +42,7 @@ const Evento = () => {
     }
   ];
 
-  const ticketPrice = 83.00;
-  const totalPrice = ticketPrice * quantity;
-  const formattedPrice = new Intl.NumberFormat('pt-BR', {
-    style: 'currency',
-    currency: 'BRL'
-  }).format(totalPrice);
 
-  const handleIncrement = () => {
-    if (quantity < 5) setQuantity(quantity + 1);
-  };
-
-  const handleDecrement = () => {
-    if (quantity > 1) setQuantity(quantity - 1);
-  };
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -105,7 +91,6 @@ const Evento = () => {
             <Button
               size="lg"
               className="bg-butterfly-orange hover:bg-butterfly-orange/90"
-              onClick={() => document.getElementById('comprar-ingressos')?.scrollIntoView({ behavior: 'smooth' })}
             >
               Comprar Ingressos
             </Button>
@@ -229,72 +214,7 @@ const Evento = () => {
         </div>
       </section>
       
-      {/* Tickets Section */}
-      <section id="comprar-ingressos" className="bg-gray-50 py-16">
-        <div className="container mx-auto px-4">
-          <div className="max-w-3xl mx-auto">
-            <h2 className="font-display text-3xl font-bold mb-10 text-center">Comprar Ingressos</h2>
-            
-            <div className="bg-white rounded-lg shadow-md p-8">
-              <div className="flex justify-between items-center mb-8 pb-6 border-b border-gray-200">
-                <div>
-                  <h3 className="text-xl font-bold mb-1">Ingresso Conferência</h3>
-                  <p className="text-gray-600">Acesso completo aos dois dias do evento</p>
-                </div>
-                <div className="text-2xl font-bold text-butterfly-orange">
-                  R$ 83,00
-                </div>
-              </div>
-              
-              <div className="mb-8">
-                <label className="block text-sm font-medium mb-2">Quantidade</label>
-                <div className="flex items-center">
-                  <button 
-                    onClick={handleDecrement} 
-                    className="w-10 h-10 bg-gray-100 rounded-l-lg flex items-center justify-center border border-gray-300 hover:bg-gray-200 transition-colors"
-                  >
-                    -
-                  </button>
-                  <span className="w-12 h-10 flex items-center justify-center border-t border-b border-gray-300 bg-white">
-                    {quantity}
-                  </span>
-                  <button 
-                    onClick={handleIncrement} 
-                    className="w-10 h-10 bg-gray-100 rounded-r-lg flex items-center justify-center border border-gray-300 hover:bg-gray-200 transition-colors"
-                  >
-                    +
-                  </button>
-                  <span className="ml-4 text-sm text-gray-500">
-                    (Máximo 5 ingressos por compra)
-                  </span>
-                </div>
-              </div>
-              
-              <div className="mb-8 pb-6 border-b border-gray-200">
-                <div className="flex justify-between items-center text-lg font-semibold">
-                  <span>Total</span>
-                  <span className="text-butterfly-orange">{formattedPrice}</span>
-                </div>
-              </div>
-              
-              <Button className="w-full bg-butterfly-orange hover:bg-butterfly-orange/90 text-lg py-6">
-                Finalizar Compra
-              </Button>
-              
-              <p className="mt-4 text-sm text-gray-500 text-center">
-                As vendas de ingressos começam em 04 de Janeiro de 2025
-              </p>
-            </div>
-            
-            <div className="mt-8 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-              <p className="text-sm">
-                <span className="font-semibold">Importante:</span> Após a compra, você receberá o ingresso por e-mail. 
-                É necessário apresentar o ingresso impresso ou no celular no dia do evento junto com um documento de identificação.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
+
       
       {/* FAQ Section */}
       <section className="bg-white py-16">
@@ -356,12 +276,11 @@ const Evento = () => {
             conexão e transformação. Garanta seu lugar hoje mesmo!
           </p>
           <Button
+            asChild
             size="lg"
-            variant="outline"
-            className="border-white text-white hover:bg-white/20"
-            onClick={() => document.getElementById('comprar-ingressos')?.scrollIntoView({ behavior: 'smooth' })}
+            className="bg-white hover:bg-butterfly-orange text-butterfly-orange border border-butterfly-orange hover:text-white transition-colors"
           >
-            Comprar Ingressos Agora
+            <Link to="/ingressos">Comprar Ingressos Agora</Link>
           </Button>
         </div>
       </section>

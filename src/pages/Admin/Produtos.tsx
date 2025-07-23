@@ -1,11 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Shirt, Search, PlusCircle, ImagePlus } from 'lucide-react';
+import { Shirt, Search, PlusCircle, ImagePlus, Trash2 } from 'lucide-react';
 import AdminSidebar from '@/components/AdminSidebar';
+import { useToast } from '@/components/ui/use-toast';
+import { supabase } from '@/lib/supabase';
 
 interface Product {
   id: string;
@@ -24,6 +26,57 @@ const AdminProdutos = () => {
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>('');
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [newStockValue, setNewStockValue] = useState<number>(0);
+  const [editingStockProduct, setEditingStockProduct] = useState<Product | null>(null);
+  const { toast } = useToast();
+
+  // Estado para gerenciar produtos
+  const [products, setProducts] = useState<Product[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Estado para o formulário de cadastro
+  const [newProduct, setNewProduct] = useState({
+    name: '',
+    description: '',
+    category: '',
+    price: '',
+    stock: '',
+    image_url: ''
+  });
+  const [isSaving, setIsSaving] = useState(false);
+
+  // Função para buscar produtos (reutilizável)
+  const fetchProducts = async () => {
+    setIsLoading(true);
+    const { data, error } = await supabase
+      .from('products')
+      .select('*');
+    if (error) {
+      toast({
+        title: 'Erro ao carregar produtos',
+        description: error.message,
+        variant: 'destructive',
+      });
+      setIsLoading(false);
+      return;
+    }
+    const formattedProducts: Product[] = (data || []).map((product: any) => ({
+      id: product.id,
+      name: product.name,
+      description: product.description,
+      category: product.category,
+      price: Number(product.price),
+      stock: product.stock ?? 0,
+      image: product.image_url || '',
+      status: product.in_stock === false || product.stock === 0 ? 'Esgotado' : 'Ativo',
+    }));
+    setProducts(formattedProducts);
+    setIsLoading(false);
+  };
+
+  useEffect(() => {
+    fetchProducts();
+  }, [toast]);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -48,68 +101,95 @@ const AdminProdutos = () => {
     setImagePreview('');
   };
 
-  const products: Product[] = [
-    {
-      id: 'P001',
-      name: 'Camiseta Logo Conferência',
-      description: 'Camiseta oficial com logo da conferência',
-      category: 'camiseta',
-      price: 60,
-      stock: 45,
-      image: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?q=80',
-      status: 'Ativo'
-    },
-    {
-      id: 'P002',
-      name: 'Camiseta Borboleta',
-      description: 'Camiseta com estampa de borboleta',
-      category: 'camiseta',
-      price: 60,
-      stock: 37,
-      image: 'https://images.unsplash.com/photo-1583744946564-b52d01a7f084?q=80',
-      status: 'Ativo'
-    },
-    {
-      id: 'P003',
-      name: 'Camiseta Queren',
-      description: 'Camiseta com tema Queren Hapuque',
-      category: 'camiseta',
-      price: 60,
-      stock: 0,
-      image: 'https://images.unsplash.com/photo-1576566588028-4147f3842f27?q=80',
-      status: 'Esgotado'
-    },
-    {
-      id: 'P004',
-      name: 'Vestido Elegance',
-      description: 'Vestido elegante para ocasiões especiais',
-      category: 'vestido',
-      price: 140,
-      stock: 28,
-      image: 'https://images.unsplash.com/photo-1539008835657-9e8e9680c956?q=80',
-      status: 'Ativo'
-    },
-    {
-      id: 'P005',
-      name: 'Vestido Celebration',
-      description: 'Vestido para celebrações e eventos',
-      category: 'vestido',
-      price: 140,
-      stock: 15,
-      image: 'https://images.unsplash.com/photo-1612336307429-8a898d10e223?q=80',
-      status: 'Ativo'
-    },
-    {
-      id: 'P006',
-      name: 'Vestido Butterfly',
-      description: 'Vestido com estampa de borboletas',
-      category: 'vestido',
-      price: 140,
-      stock: 3,
-      image: 'https://images.unsplash.com/photo-1542295669297-4d352b042bca?q=80',
-      status: 'Ativo'
+  // Função para atualizar produto
+  const handleUpdateProduct = (productId: string, updatedData: Partial<Product>) => {
+    setProducts(prevProducts => 
+      prevProducts.map(product => 
+        product.id === productId 
+          ? { ...product, ...updatedData }
+          : product
+      )
+    );
+    
+    toast({
+      title: "Produto atualizado",
+      description: "As alterações foram salvas com sucesso.",
+    });
+    
+    handleEditDialogClose();
+  };
+
+  // Função para atualizar estoque
+  const handleUpdateStock = async (productId: string, newStock: number) => {
+    // Atualiza no banco
+    const { error } = await supabase
+      .from('products')
+      .update({ stock: newStock, in_stock: newStock > 0 })
+      .eq('id', productId);
+    if (error) {
+      toast({
+        title: 'Erro ao atualizar estoque',
+        description: error.message,
+        variant: 'destructive',
+      });
+      return;
     }
-  ];
+    toast({
+      title: 'Estoque atualizado',
+      description: `Estoque atualizado para ${newStock} unidades.`,
+    });
+    setEditingStockProduct(null);
+    setNewStockValue(0);
+    fetchProducts();
+  };
+
+  // Função para remover produto
+  const handleRemoveProduct = (productId: string) => {
+    setProducts(prevProducts => 
+      prevProducts.filter(product => product.id !== productId)
+    );
+    
+    toast({
+      title: "Produto removido",
+      description: "O produto foi removido com sucesso.",
+    });
+  };
+
+  // Função para abrir diálogo de estoque
+  const handleStockClick = (product: Product) => {
+    setEditingStockProduct(product);
+    setNewStockValue(product.stock);
+  };
+
+  // Função para cadastrar produto no Supabase
+  const handleCreateProduct = async () => {
+    setIsSaving(true);
+    const { name, description, category, price, stock, image_url } = newProduct;
+    const { error } = await supabase.from('products').insert({
+      name,
+      description,
+      category,
+      price: Number(price),
+      stock: Number(stock),
+      image_url,
+      in_stock: Number(stock) > 0
+    });
+    setIsSaving(false);
+    if (error) {
+      toast({
+        title: 'Erro ao cadastrar produto',
+        description: error.message,
+        variant: 'destructive',
+      });
+      return;
+    }
+    toast({
+      title: 'Produto cadastrado',
+      description: 'Produto adicionado com sucesso!',
+    });
+    setNewProduct({ name: '', description: '', category: '', price: '', stock: '', image_url: '' });
+    fetchProducts();
+  };
 
   const filteredProducts = products
     .filter(product => product.name.toLowerCase().includes(searchQuery.toLowerCase()))
@@ -319,7 +399,12 @@ const AdminProdutos = () => {
                         <div className="flex justify-end gap-2">
                           <Dialog>
                             <DialogTrigger asChild>
-                              <Button variant="outline" size="sm" className="h-8">
+                              <Button 
+                                variant="outline" 
+                                size="sm" 
+                                className="h-8"
+                                onClick={() => handleEditClick(product)}
+                              >
                                 Editar
                               </Button>
                             </DialogTrigger>
@@ -436,8 +521,18 @@ const AdminProdutos = () => {
                                 </div>
                               </div>
                               <DialogFooter>
-                                <Button variant="outline" className="mr-2">Cancelar</Button>
-                                <Button className="bg-butterfly-orange hover:bg-butterfly-orange/90">
+                                <Button variant="outline" className="mr-2" onClick={handleEditDialogClose}>
+                                  Cancelar
+                                </Button>
+                                <Button 
+                                  className="bg-butterfly-orange hover:bg-butterfly-orange/90"
+                                  onClick={() => handleUpdateProduct(product.id, {
+                                    name: (document.getElementById('edit-name') as HTMLInputElement)?.value || product.name,
+                                    description: (document.getElementById('edit-description') as HTMLInputElement)?.value || product.description,
+                                    price: Number((document.getElementById('edit-price') as HTMLInputElement)?.value) || product.price,
+                                    stock: Number((document.getElementById('edit-stock') as HTMLInputElement)?.value) || product.stock,
+                                  })}
+                                >
                                   Salvar Alterações
                                 </Button>
                               </DialogFooter>
@@ -446,7 +541,12 @@ const AdminProdutos = () => {
                           
                           <Dialog>
                             <DialogTrigger asChild>
-                              <Button variant="outline" size="sm" className="h-8">
+                              <Button 
+                                variant="outline" 
+                                size="sm" 
+                                className="h-8"
+                                onClick={() => handleStockClick(product)}
+                              >
                                 Estoque
                               </Button>
                             </DialogTrigger>
@@ -472,13 +572,56 @@ const AdminProdutos = () => {
                                   <label className="text-sm font-medium block mb-2">
                                     Novo Estoque:
                                   </label>
-                                  <Input type="number" defaultValue={product.stock} />
+                                  <Input 
+                                    type="number" 
+                                    value={newStockValue}
+                                    onChange={(e) => setNewStockValue(Number(e.target.value))}
+                                  />
                                 </div>
                               </div>
                               <DialogFooter>
-                                <Button variant="outline" className="mr-2">Cancelar</Button>
-                                <Button className="bg-butterfly-orange hover:bg-butterfly-orange/90">
+                                <Button 
+                                  variant="outline" 
+                                  className="mr-2"
+                                  onClick={() => {
+                                    setEditingStockProduct(null);
+                                    setNewStockValue(0);
+                                  }}
+                                >
+                                  Cancelar
+                                </Button>
+                                <Button 
+                                  className="bg-butterfly-orange hover:bg-butterfly-orange/90"
+                                  onClick={() => handleUpdateStock(product.id, newStockValue)}
+                                >
                                   Salvar
+                                </Button>
+                              </DialogFooter>
+                            </DialogContent>
+                          </Dialog>
+
+                          <Dialog>
+                            <DialogTrigger asChild>
+                              <Button variant="outline" size="sm" className="h-8 text-red-600 hover:text-red-700">
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </DialogTrigger>
+                            <DialogContent className="sm:max-w-[425px]">
+                              <DialogHeader>
+                                <DialogTitle>Remover Produto</DialogTitle>
+                                <DialogDescription>
+                                  Tem certeza que deseja remover "{product.name}"? Esta ação não pode ser desfeita.
+                                </DialogDescription>
+                              </DialogHeader>
+                              <DialogFooter>
+                                <Button variant="outline" className="mr-2">
+                                  Cancelar
+                                </Button>
+                                <Button 
+                                  variant="destructive"
+                                  onClick={() => handleRemoveProduct(product.id)}
+                                >
+                                  Remover
                                 </Button>
                               </DialogFooter>
                             </DialogContent>

@@ -324,7 +324,7 @@ const Loja = () => {
           <Button 
             variant="outline" 
             size="lg" 
-            className="border-white text-white hover:bg-white/20"
+            className="border-white text-white hover:bg-white hover:text-butterfly-orange"
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
           >
             Ver Produtos
