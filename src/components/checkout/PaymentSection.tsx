@@ -9,10 +9,9 @@ import { useToast } from "@/components/ui/use-toast";
 interface PaymentSectionProps {
   paymentData?: {
     data?: {
-      qrCode?: string;
-      payload?: string;
-      transactionId?: string;
-      expiresAt?: string;
+      brCodeBase64?: string;
+      brCode?: string;
+      id?: string;
     };
   } | null;
   isLoading?: boolean;
@@ -83,9 +82,9 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({ paymentData, isLoading 
             </div>
             
             <div className="mt-6 flex flex-col items-center">
-              {paymentData.data?.qrCode ? (
+              {paymentData.data?.brCodeBase64 ? (
                 <img 
-                  src={paymentData.data.qrCode}
+                  src={paymentData.data.brCodeBase64}
                   alt="QR Code PIX"
                   className="w-48 h-48 mb-4"
                 />
@@ -95,10 +94,10 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({ paymentData, isLoading 
                 </div>
               )}
               
-              {paymentData.data?.payload && (
+              {paymentData.data?.brCode && (
                 <div className="flex items-center w-full max-w-md">
                   <Input 
-                    value={paymentData.data.payload}
+                    value={paymentData.data.brCode}
                     className="text-xs"
                     readOnly
                   />
@@ -106,7 +105,7 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({ paymentData, isLoading 
                     type="button" 
                     variant="outline" 
                     className="ml-2" 
-                    onClick={() => copyToClipboard(paymentData.data!.payload!)}
+                    onClick={() => copyToClipboard(paymentData.data!.brCode!)}
                   >
                     <Copy className="h-4 w-4" />
                   </Button>

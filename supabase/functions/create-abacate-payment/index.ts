@@ -106,8 +106,18 @@ serve(async (req) => {
 
     // Create payment with Abacate Pay
     const abacatePayload = {
-      amount: total, // Amount as decimal number
-      transactionId: `TXID-${order.id}` // Required unique transaction identifier
+      amount: total * 100, // Convert to cents as expected by Abacate Pay
+      expiresIn: 3600, // 1 hour expiration
+      description: `Pedido #${order.id}`,
+      customer: {
+        name: `${orderData.firstName} ${orderData.lastName}`,
+        email: user.email,
+        cellphone: orderData.phone,
+        taxId: orderData.cpf
+      },
+      metadata: {
+        externalId: order.id
+      }
     };
 
     console.log("Sending payload to Abacate Pay:", JSON.stringify(abacatePayload, null, 2));
