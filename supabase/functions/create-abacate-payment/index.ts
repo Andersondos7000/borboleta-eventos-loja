@@ -50,6 +50,44 @@ serve(async (req) => {
 
     if (orderError) throw orderError;
 
+    // Validate items exist before inserting
+    const productIds = items.filter((item: any) => item.productId).map((item: any) => item.productId);
+    const ticketIds = items.filter((item: any) => item.ticketId).map((item: any) => item.ticketId);
+    
+    // Check if all products exist
+    if (productIds.length > 0) {
+      const { data: existingProducts, error: productCheckError } = await supabaseService
+        .from("products")
+        .select("id")
+        .in("id", productIds);
+      
+      if (productCheckError) throw productCheckError;
+      
+      const existingProductIds = existingProducts?.map(p => p.id) || [];
+      const missingProducts = productIds.filter(id => !existingProductIds.includes(id));
+      
+      if (missingProducts.length > 0) {
+        throw new Error(`Products not found: ${missingProducts.join(', ')}`);
+      }
+    }
+    
+    // Check if all tickets exist
+    if (ticketIds.length > 0) {
+      const { data: existingTickets, error: ticketCheckError } = await supabaseService
+        .from("tickets")
+        .select("id")
+        .in("id", ticketIds);
+      
+      if (ticketCheckError) throw ticketCheckError;
+      
+      const existingTicketIds = existingTickets?.map(t => t.id) || [];
+      const missingTickets = ticketIds.filter(id => !existingTicketIds.includes(id));
+      
+      if (missingTickets.length > 0) {
+        throw new Error(`Tickets not found: ${missingTickets.join(', ')}`);
+      }
+    }
+
     // Insert order items
     const orderItems = items.map((item: any) => ({
       order_id: order.id,
