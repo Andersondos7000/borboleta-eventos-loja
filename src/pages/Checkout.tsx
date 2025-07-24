@@ -114,12 +114,15 @@ const Checkout = () => {
 
       // Call Abacate Pay edge function
       const { data: paymentResponse, error } = await supabase.functions.invoke('create-abacate-payment', {
+        headers: {
+          Authorization: `Bearer ${session.session.access_token}`
+        },
         body: {
           orderData: data,
           total: total,
           items: items.map(item => ({
-            productId: isCartProduct(item) ? item.id : null,
-            ticketId: !isCartProduct(item) ? item.id : null,
+            productId: isCartProduct(item) ? item.productId : null,
+            ticketId: !isCartProduct(item) ? item.ticketId : null,
             price: item.price,
             quantity: item.quantity,
             size: isCartProduct(item) ? item.size : null,
