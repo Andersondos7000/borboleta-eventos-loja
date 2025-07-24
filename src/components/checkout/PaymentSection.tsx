@@ -8,9 +8,11 @@ import { useToast } from "@/components/ui/use-toast";
 
 interface PaymentSectionProps {
   paymentData?: {
-    qr_code_base64?: string;
-    qr_code?: string;
-    payment_url?: string;
+    data?: {
+      brCodeBase64?: string;
+      brCode?: string;
+      id?: string;
+    };
   } | null;
   isLoading?: boolean;
 }
@@ -80,9 +82,9 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({ paymentData, isLoading 
             </div>
             
             <div className="mt-6 flex flex-col items-center">
-              {paymentData.qr_code_base64 ? (
+              {paymentData.data?.brCodeBase64 ? (
                 <img 
-                  src={`data:image/png;base64,${paymentData.qr_code_base64}`}
+                  src={paymentData.data.brCodeBase64}
                   alt="QR Code PIX"
                   className="w-48 h-48 mb-4"
                 />
@@ -92,10 +94,10 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({ paymentData, isLoading 
                 </div>
               )}
               
-              {paymentData.qr_code && (
+              {paymentData.data?.brCode && (
                 <div className="flex items-center w-full max-w-md">
                   <Input 
-                    value={paymentData.qr_code}
+                    value={paymentData.data.brCode}
                     className="text-xs"
                     readOnly
                   />
@@ -103,7 +105,7 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({ paymentData, isLoading 
                     type="button" 
                     variant="outline" 
                     className="ml-2" 
-                    onClick={() => copyToClipboard(paymentData.qr_code!)}
+                    onClick={() => copyToClipboard(paymentData.data!.brCode!)}
                   >
                     <Copy className="h-4 w-4" />
                   </Button>

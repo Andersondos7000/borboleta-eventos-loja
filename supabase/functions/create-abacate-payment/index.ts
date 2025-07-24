@@ -106,20 +106,23 @@ serve(async (req) => {
 
     // Create payment with Abacate Pay
     const abacatePayload = {
-      amount: total,
-      currency: "BRL",
+      amount: total * 100, // Convert to cents as expected by Abacate Pay
+      expiresIn: 3600, // 1 hour expiration
       description: `Pedido #${order.id}`,
-      external_reference: order.id,
       customer: {
         name: `${orderData.firstName} ${orderData.lastName}`,
         email: user.email,
-        phone: orderData.phone,
-        document: orderData.cpf
+        cellphone: orderData.phone,
+        taxId: orderData.cpf
       },
-      notification_url: `${Deno.env.get("SUPABASE_URL")}/functions/v1/abacate-webhook`
+      metadata: {
+        externalId: order.id
+      }
     };
 
-    const abacateResponse = await fetch("https://api.abacatepay.com/v1/payments", {
+    console.log("Sending payload to Abacate Pay:", JSON.stringify(abacatePayload, null, 2));
+
+    const abacateResponse = await fetch("https://api.abacatepay.com/v1/pixQrCode/create", {
       method: "POST",
       headers: {
         "Authorization": `Bearer ${Deno.env.get("ABACATE_PAY_API_KEY")}`,
