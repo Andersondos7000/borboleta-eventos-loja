@@ -1,10 +1,11 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Lock, Copy, Loader2 } from 'lucide-react';
 import { useToast } from "@/components/ui/use-toast";
+import PaymentPopup from './PaymentPopup';
 
 interface PaymentSectionProps {
   paymentData?: {
@@ -19,6 +20,7 @@ interface PaymentSectionProps {
 
 const PaymentSection: React.FC<PaymentSectionProps> = ({ paymentData, isLoading = false }) => {
   const { toast } = useToast();
+  const [showPaymentPopup, setShowPaymentPopup] = useState(false);
   
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
@@ -26,6 +28,12 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({ paymentData, isLoading 
       title: "Código PIX copiado!",
       description: "O código PIX foi copiado para a área de transferência.",
     });
+  };
+
+  const openPaymentPopup = () => {
+    if (paymentData) {
+      setShowPaymentPopup(true);
+    }
   };
 
   if (isLoading) {
@@ -59,67 +67,42 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({ paymentData, isLoading 
             </p>
           </div>
         ) : (
-          <div className="bg-gray-50 border border-dashed border-gray-300 rounded-md p-5 mb-4">
-            <div className="flex items-center mb-4">
-              <div className="bg-butterfly-orange rounded-full p-2 text-white mr-2">
-                <span className="font-bold">1</span>
-              </div>
-              <p className="font-medium">Abra o aplicativo do seu banco</p>
-            </div>
-            
-            <div className="flex items-center mb-4">
-              <div className="bg-butterfly-orange rounded-full p-2 text-white mr-2">
-                <span className="font-bold">2</span>
-              </div>
-              <p className="font-medium">Escaneie o QR Code ou copie o código abaixo</p>
-            </div>
-            
-            <div className="flex items-center mb-4">
-              <div className="bg-butterfly-orange rounded-full p-2 text-white mr-2">
-                <span className="font-bold">3</span>
-              </div>
-              <p className="font-medium">Confirme o pagamento no seu app</p>
-            </div>
-            
-            <div className="mt-6 flex flex-col items-center">
-              {paymentData.data?.brCodeBase64 ? (
-                <img 
-                  src={paymentData.data.brCodeBase64}
-                  alt="QR Code PIX"
-                  className="w-48 h-48 mb-4"
-                />
-              ) : (
-                <div className="w-48 h-48 bg-gray-200 rounded-lg flex items-center justify-center mb-4">
-                  <span className="text-gray-500">QR Code do PIX</span>
+          <div className="bg-green-50 border border-green-200 rounded-md p-5 mb-4">
+            <div className="text-center">
+              <div className="mb-4">
+                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
                 </div>
-              )}
+                <h3 className="text-lg font-semibold text-green-800 mb-2">
+                  Pagamento PIX Gerado!
+                </h3>
+                <p className="text-green-700 mb-4">
+                  Seu código PIX foi gerado com sucesso. Clique no botão abaixo para abrir o QR Code e efetuar o pagamento.
+                </p>
+              </div>
               
-              {paymentData.data?.brCode && (
-                <div className="flex items-center w-full max-w-md">
-                  <Input 
-                    value={paymentData.data.brCode}
-                    className="text-xs"
-                    readOnly
-                  />
-                  <Button 
-                    type="button" 
-                    variant="outline" 
-                    className="ml-2" 
-                    onClick={() => copyToClipboard(paymentData.data!.brCode!)}
-                  >
-                    <Copy className="h-4 w-4" />
-                  </Button>
-                </div>
-              )}
-            </div>
-            
-            <div className="text-xs text-gray-500 mt-4 text-center">
-              <p>• Após o pagamento, seu pedido será processado automaticamente</p>
-              <p>• Você receberá uma confirmação por e-mail</p>
-              <p>• O pagamento pode levar alguns minutos para ser confirmado</p>
+              <Button 
+                onClick={openPaymentPopup}
+                className="bg-green-600 hover:bg-green-700 text-white px-6 py-2"
+              >
+                Fazer Pagamento PIX
+              </Button>
+              
+              <div className="text-xs text-green-600 mt-4">
+                <p>• Escaneie o QR Code ou copie o código PIX</p>
+                <p>• O pagamento será confirmado automaticamente</p>
+              </div>
             </div>
           </div>
         )}
+        
+        <PaymentPopup 
+          isOpen={showPaymentPopup}
+          onClose={() => setShowPaymentPopup(false)}
+          paymentData={paymentData}
+        />
       </CardContent>
     </Card>
   );
