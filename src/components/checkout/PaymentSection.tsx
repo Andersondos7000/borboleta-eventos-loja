@@ -10,15 +10,25 @@ import PaymentPopup from './PaymentPopup';
 interface PaymentSectionProps {
   paymentData?: {
     data?: {
-      brCodeBase64?: string;
-      brCode?: string;
       id?: string;
+      amount?: number;
+      brCode?: string;
+      brCodeBase64?: string;
+      status?: string;
+      expiresAt?: string;
     };
   } | null;
+  customerData?: {
+    name?: string;
+    email?: string;
+    phone?: string;
+    cpf?: string;
+  };
+  orderTotal?: number;
   isLoading?: boolean;
 }
 
-const PaymentSection: React.FC<PaymentSectionProps> = ({ paymentData, isLoading = false }) => {
+const PaymentSection: React.FC<PaymentSectionProps> = ({ paymentData, customerData, orderTotal, isLoading = false }) => {
   const { toast } = useToast();
   const [showPaymentPopup, setShowPaymentPopup] = useState(false);
   
@@ -102,6 +112,8 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({ paymentData, isLoading 
           isOpen={showPaymentPopup}
           onClose={() => setShowPaymentPopup(false)}
           paymentData={paymentData}
+          customerData={customerData}
+          orderTotal={orderTotal}
         />
       </CardContent>
     </Card>

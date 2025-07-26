@@ -203,6 +203,13 @@ const Checkout = () => {
                   />
                   <PaymentSection 
                     paymentData={paymentData} 
+                    customerData={{
+                      name: `${form.watch('firstName')} ${form.watch('lastName')}`,
+                      email: '', // Email será obtido do usuário logado
+                      phone: form.watch('phone'),
+                      cpf: form.watch('cpf')
+                    }}
+                    orderTotal={total * 100} // Converter para centavos
                     isLoading={isProcessingPayment}
                   />
                   <TermsSection 
