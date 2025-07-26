@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -32,6 +32,17 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({ paymentData, customerDa
   const { toast } = useToast();
   const [showPaymentPopup, setShowPaymentPopup] = useState(false);
   
+  // Abrir popup automaticamente quando paymentData está disponível
+  useEffect(() => {
+    console.log('PaymentSection - PaymentData changed:', paymentData);
+    if (paymentData && paymentData.data) {
+      console.log('PaymentSection - PaymentData received, opening popup:', paymentData);
+      console.log('PaymentSection - QR Code Base64:', paymentData.data.brCodeBase64 ? 'Present' : 'Missing');
+      console.log('PaymentSection - PIX Code:', paymentData.data.brCode ? 'Present' : 'Missing');
+      setShowPaymentPopup(true);
+    }
+  }, [paymentData]);
+  
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
     toast({
@@ -41,8 +52,13 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({ paymentData, customerDa
   };
 
   const openPaymentPopup = () => {
+    console.log('openPaymentPopup called, paymentData:', paymentData);
+    console.log('showPaymentPopup current state:', showPaymentPopup);
     if (paymentData) {
+      console.log('Opening payment popup...');
       setShowPaymentPopup(true);
+    } else {
+      console.log('PaymentData is null, cannot open popup');
     }
   };
 

@@ -138,8 +138,7 @@ const Checkout = () => {
       if (paymentResponse.success) {
         setPaymentData(paymentResponse.paymentData);
         
-        // Clear cart after successful order creation
-        await clearCart();
+        // NÃO limpar carrinho aqui - só depois do pagamento confirmado
         
         toast({
           title: "Pedido criado com sucesso!",
@@ -148,11 +147,12 @@ const Checkout = () => {
       } else {
         throw new Error(paymentResponse.error || 'Erro ao processar pagamento');
       }
+      
     } catch (error) {
       console.error('Error creating order:', error);
       toast({
         title: "Erro ao processar pedido",
-        description: "Tente novamente em alguns minutos.",
+        description: error instanceof Error ? error.message : "Tente novamente em alguns minutos.",
         variant: "destructive"
       });
     } finally {

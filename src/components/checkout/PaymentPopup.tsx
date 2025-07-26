@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Copy, X, Loader2, CheckCircle, User, DollarSign, Hash, Building } from 'lucide-react';
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/lib/supabase";
+import { useCart } from "@/contexts/CartContext";
 
 interface PaymentPopupProps {
   isOpen: boolean;
@@ -30,8 +31,11 @@ interface PaymentPopupProps {
 
 const PaymentPopup: React.FC<PaymentPopupProps> = ({ isOpen, onClose, paymentData, customerData, orderTotal }) => {
   const { toast } = useToast();
+  const { clearCart } = useCart();
   const [isCheckingPayment, setIsCheckingPayment] = useState(false);
   const [paymentConfirmed, setPaymentConfirmed] = useState(false);
+  
+  console.log('PaymentPopup render - isOpen:', isOpen, 'paymentData:', paymentData);
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
@@ -54,6 +58,7 @@ const PaymentPopup: React.FC<PaymentPopupProps> = ({ isOpen, onClose, paymentDat
     setIsCheckingPayment(true);
 
     try {
+      // Get current session
       const { data: session } = await supabase.auth.getSession();
       
       if (!session.session) {
@@ -65,6 +70,7 @@ const PaymentPopup: React.FC<PaymentPopupProps> = ({ isOpen, onClose, paymentDat
         return;
       }
 
+      // Usar Supabase Edge Function para verificar pagamento
       const { data: statusResponse, error } = await supabase.functions.invoke('check-abacate-payment', {
         headers: {
           Authorization: `Bearer ${session.session.access_token}`
@@ -78,8 +84,13 @@ const PaymentPopup: React.FC<PaymentPopupProps> = ({ isOpen, onClose, paymentDat
         throw error;
       }
 
-      if (statusResponse.data?.status === "APPROVED") {
+      // Status conforme documentação do Abacate Pay: PENDING, PAID, EXPIRED, CANCELLED, REFUNDED
+      if (statusResponse.data?.status === "PAID") {
         setPaymentConfirmed(true);
+        
+        // Limpar carrinho apenas quando pagamento for confirmado
+        await clearCart();
+        
         toast({
           title: "Pagamento confirmado!",
           description: "Seu pedido foi efetuado com sucesso!",
@@ -89,10 +100,22 @@ const PaymentPopup: React.FC<PaymentPopupProps> = ({ isOpen, onClose, paymentDat
           title: "Pagamento pendente",
           description: "O pagamento ainda não foi confirmado. Tente novamente em alguns minutos.",
         });
+      } else if (statusResponse.data?.status === "EXPIRED") {
+        toast({
+          title: "PIX expirado",
+          description: "O código PIX expirou. Gere um novo pagamento.",
+          variant: "destructive"
+        });
+      } else if (statusResponse.data?.status === "CANCELLED") {
+        toast({
+          title: "Pagamento cancelado",
+          description: "O pagamento foi cancelado.",
+          variant: "destructive"
+        });
       } else {
         toast({
-          title: "Pagamento não confirmado",
-          description: "O pagamento ainda não foi processado. Verifique se foi efetuado corretamente.",
+          title: "Status desconhecido",
+          description: `Status: ${statusResponse.data?.status || 'N/A'}. Verifique se o pagamento foi efetuado corretamente.`,
         });
       }
     } catch (error) {
