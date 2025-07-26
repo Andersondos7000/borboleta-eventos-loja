@@ -1,8 +1,9 @@
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import AdminSidebar from '@/components/AdminSidebar';
+import { supabase } from '@/lib/supabase';
 
 interface Ticket {
   id: string;
@@ -15,60 +16,43 @@ interface Ticket {
 }
 
 const AdminTickets = () => {
-  const tickets: Ticket[] = [
-    {
-      id: 'TK-001',
-      customerName: 'Maria Silva',
-      email: 'maria.silva@example.com',
-      quantity: 2,
-      totalValue: 166,
-      paymentStatus: 'Pago',
-      purchaseDate: '15/01/2025'
-    },
-    {
-      id: 'TK-002',
-      customerName: 'João Oliveira',
-      email: 'joao.oliveira@example.com',
-      quantity: 1,
-      totalValue: 83,
-      paymentStatus: 'Pago',
-      purchaseDate: '16/01/2025'
-    },
-    {
-      id: 'TK-003',
-      customerName: 'Ana Santos',
-      email: 'ana.santos@example.com',
-      quantity: 3,
-      totalValue: 249,
-      paymentStatus: 'Pendente',
-      purchaseDate: '17/01/2025'
-    },
-    {
-      id: 'TK-004',
-      customerName: 'Lucas Ferreira',
-      email: 'lucas.ferreira@example.com',
-      quantity: 1,
-      totalValue: 83,
-      paymentStatus: 'Pago',
-      purchaseDate: '17/01/2025'
-    },
-    {
-      id: 'TK-005',
-      customerName: 'Juliana Costa',
-      email: 'juliana.costa@example.com',
-      quantity: 2,
-      totalValue: 166,
-      paymentStatus: 'Cancelado',
-      purchaseDate: '18/01/2025'
-    }
-  ];
+  const [tickets, setTickets] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchTickets = async () => {
+      setIsLoading(true);
+      // Busca tickets + dados do usuário
+      const { data, error } = await supabase
+        .from('tickets')
+        .select('id, price, status, created_at, user_id, events(*), profiles:profiles!tickets_user_id_fkey(email, first_name, last_name)')
+        .order('created_at', { ascending: false });
+      if (!error && data) {
+        setTickets(data);
+      }
+      setIsLoading(false);
+    };
+    fetchTickets();
+    // --- SUPABASE REALTIME ---
+    const ticketsChannel = supabase.channel('realtime-admin-tickets')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'tickets' }, () => {
+        fetchTickets();
+      })
+      .subscribe();
+    return () => {
+      supabase.removeChannel(ticketsChannel);
+    };
+  }, []);
 
   const getStatusBadgeClass = (status: string) => {
     switch (status) {
+      case 'pago':
       case 'Pago':
         return 'bg-green-100 text-green-800';
+      case 'pendente':
       case 'Pendente':
         return 'bg-yellow-100 text-yellow-800';
+      case 'cancelado':
       case 'Cancelado':
         return 'bg-red-100 text-red-800';
       default:
@@ -142,19 +126,23 @@ const AdminTickets = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {tickets.map((ticket) => (
+                  {isLoading ? (
+                    <tr><td colSpan={8} className="text-center py-6">Carregando...</td></tr>
+                  ) : tickets.length === 0 ? (
+                    <tr><td colSpan={8} className="text-center py-6">Nenhum ingresso encontrado.</td></tr>
+                  ) : tickets.map((ticket) => (
                     <tr key={ticket.id} className="border-b">
                       <td className="py-3 px-4 text-sm">{ticket.id}</td>
-                      <td className="py-3 px-4 text-sm">{ticket.customerName}</td>
-                      <td className="py-3 px-4 text-sm">{ticket.email}</td>
-                      <td className="py-3 px-4 text-sm text-center">{ticket.quantity}</td>
-                      <td className="py-3 px-4 text-sm text-right">R$ {ticket.totalValue.toFixed(2)}</td>
+                      <td className="py-3 px-4 text-sm">{ticket.profiles?.first_name || ''} {ticket.profiles?.last_name || ''}</td>
+                      <td className="py-3 px-4 text-sm">{ticket.profiles?.email || ''}</td>
+                      <td className="py-3 px-4 text-sm text-center">1</td>
+                      <td className="py-3 px-4 text-sm text-right">R$ {Number(ticket.price).toFixed(2)}</td>
                       <td className="py-3 px-4 text-center">
-                        <span className={`text-xs py-1 px-2 rounded ${getStatusBadgeClass(ticket.paymentStatus)}`}>
-                          {ticket.paymentStatus}
+                        <span className={`text-xs py-1 px-2 rounded ${getStatusBadgeClass(ticket.status)}`}>
+                          {ticket.status.charAt(0).toUpperCase() + ticket.status.slice(1)}
                         </span>
                       </td>
-                      <td className="py-3 px-4 text-sm text-center">{ticket.purchaseDate}</td>
+                      <td className="py-3 px-4 text-sm text-center">{new Date(ticket.created_at).toLocaleDateString('pt-BR')}</td>
                       <td className="py-3 px-4 text-right">
                         <Button variant="ghost" size="sm" className="h-8">
                           Detalhes

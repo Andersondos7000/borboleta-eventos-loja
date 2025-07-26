@@ -76,6 +76,15 @@ const AdminProdutos = () => {
 
   useEffect(() => {
     fetchProducts();
+    // --- SUPABASE REALTIME ---
+    const productsChannel = supabase.channel('realtime-products')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'products' }, () => {
+        fetchProducts();
+      })
+      .subscribe();
+    return () => {
+      supabase.removeChannel(productsChannel);
+    };
   }, [toast]);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {

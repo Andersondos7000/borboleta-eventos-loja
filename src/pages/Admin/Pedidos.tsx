@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Search } from 'lucide-react';
 import { Input } from "@/components/ui/input";
 import AdminSidebar from '@/components/AdminSidebar';
+import { supabase } from '@/lib/supabase';
 
 interface OrderItem {
   id: string;
@@ -41,177 +42,63 @@ interface Order {
 }
 
 const AdminPedidos = () => {
+  const [orders, setOrders] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
-  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [selectedOrder, setSelectedOrder] = useState<any | null>(null);
 
-  const orders: Order[] = [
-    {
-      id: 'ORD-001',
-      customer: {
-        name: 'Maria Silva',
-        email: 'maria.silva@example.com',
-        phone: '(11) 98765-4321'
-      },
-      items: [
-        {
-          id: 'TICKET-1',
-          name: 'Ingresso Conferência',
-          price: 83,
-          quantity: 2,
-          isTicket: true
-        },
-        {
-          id: 'P001',
-          name: 'Camiseta Logo Conferência',
-          price: 60,
-          quantity: 1,
-          size: 'M',
-          image: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?q=80'
-        }
-      ],
-      total: 226,
-      status: 'Pago',
-      date: '15/01/2025',
-      shippingAddress: {
-        street: 'Rua das Flores, 123',
-        city: 'São Paulo',
-        state: 'SP',
-        zipCode: '01234-567'
-      },
-      hasTickets: true,
-      hasProducts: true
-    },
-    {
-      id: 'ORD-002',
-      customer: {
-        name: 'João Oliveira',
-        email: 'joao.oliveira@example.com',
-        phone: '(11) 97654-3210'
-      },
-      items: [
-        {
-          id: 'TICKET-1',
-          name: 'Ingresso Conferência',
-          price: 83,
-          quantity: 1,
-          isTicket: true
-        }
-      ],
-      total: 83,
-      status: 'Pago',
-      date: '16/01/2025',
-      hasTickets: true,
-      hasProducts: false
-    },
-    {
-      id: 'ORD-003',
-      customer: {
-        name: 'Ana Santos',
-        email: 'ana.santos@example.com',
-        phone: '(11) 96543-2109'
-      },
-      items: [
-        {
-          id: 'P004',
-          name: 'Vestido Elegance',
-          price: 140,
-          quantity: 1,
-          size: '6',
-          image: 'https://images.unsplash.com/photo-1539008835657-9e8e9680c956?q=80'
-        },
-        {
-          id: 'P002',
-          name: 'Camiseta Borboleta',
-          price: 60,
-          quantity: 1,
-          size: 'P',
-          image: 'https://images.unsplash.com/photo-1583744946564-b52d01a7f084?q=80'
-        }
-      ],
-      total: 200,
-      status: 'Enviado',
-      date: '17/01/2025',
-      shippingAddress: {
-        street: 'Av. Paulista, 1000',
-        city: 'São Paulo',
-        state: 'SP',
-        zipCode: '01310-100'
-      },
-      hasTickets: false,
-      hasProducts: true
-    },
-    {
-      id: 'ORD-004',
-      customer: {
-        name: 'Lucas Ferreira',
-        email: 'lucas.ferreira@example.com',
-        phone: '(11) 95432-1098'
-      },
-      items: [
-        {
-          id: 'TICKET-1',
-          name: 'Ingresso Conferência',
-          price: 83,
-          quantity: 1,
-          isTicket: true
-        }
-      ],
-      total: 83,
-      status: 'Pendente',
-      date: '17/01/2025',
-      hasTickets: true,
-      hasProducts: false
-    },
-    {
-      id: 'ORD-005',
-      customer: {
-        name: 'Juliana Costa',
-        email: 'juliana.costa@example.com',
-        phone: '(11) 94321-0987'
-      },
-      items: [
-        {
-          id: 'P006',
-          name: 'Vestido Butterfly',
-          price: 140,
-          quantity: 1,
-          size: '8',
-          image: 'https://images.unsplash.com/photo-1542295669297-4d352b042bca?q=80'
-        }
-      ],
-      total: 140,
-      status: 'Cancelado',
-      date: '18/01/2025',
-      shippingAddress: {
-        street: 'Rua dos Pinheiros, 500',
-        city: 'São Paulo',
-        state: 'SP',
-        zipCode: '05422-010'
-      },
-      hasTickets: false,
-      hasProducts: true
-    }
-  ];
+  useEffect(() => {
+    const fetchOrders = async () => {
+      setIsLoading(true);
+      // Busca pedidos + dados do usuário
+      const { data, error } = await supabase
+        .from('orders')
+        .select('id, total, status, created_at, user_id, customer_data, order_items(*), profiles:profiles!orders_user_id_fkey(email, first_name, last_name, phone)')
+        .order('created_at', { ascending: false });
+      if (!error && data) {
+        setOrders(data);
+      }
+      setIsLoading(false);
+    };
+    fetchOrders();
+    // --- SUPABASE REALTIME ---
+    const ordersChannel = supabase.channel('realtime-admin-orders')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, () => {
+        fetchOrders();
+      })
+      .subscribe();
+    return () => {
+      supabase.removeChannel(ordersChannel);
+    };
+  }, []);
 
   const filteredOrders = orders
-    .filter(order => 
-      order.customer.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      order.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      order.customer.email.toLowerCase().includes(searchQuery.toLowerCase())
-    )
+    .filter(order => {
+      const name = order.profiles?.first_name + ' ' + (order.profiles?.last_name || '');
+      return (
+        name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        order.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (order.profiles?.email || '').toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    })
     .filter(order => statusFilter === 'all' || order.status === statusFilter);
 
   const getStatusBadgeClass = (status: string) => {
     switch (status) {
+      case 'pago':
       case 'Pago':
         return 'bg-green-100 text-green-800';
+      case 'pendente':
       case 'Pendente':
         return 'bg-yellow-100 text-yellow-800';
+      case 'enviado':
       case 'Enviado':
         return 'bg-blue-100 text-blue-800';
+      case 'entregue':
       case 'Entregue':
         return 'bg-purple-100 text-purple-800';
+      case 'cancelado':
       case 'Cancelado':
         return 'bg-red-100 text-red-800';
       default:
@@ -219,7 +106,7 @@ const AdminPedidos = () => {
     }
   };
 
-  const openOrderDetails = (order: Order) => {
+  const openOrderDetails = (order: any) => {
     setSelectedOrder(order);
   };
 
@@ -336,20 +223,29 @@ const AdminPedidos = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredOrders.map((order) => (
+                  {isLoading ? (
+                    <tr><td colSpan={7} className="text-center py-6">Carregando...</td></tr>
+                  ) : filteredOrders.length === 0 ? (
+                    <tr>
+                      <td colSpan={7} className="py-6 text-center text-gray-500">
+                        Nenhum pedido encontrado com esses filtros.
+                      </td>
+                    </tr>
+                  ) : filteredOrders.map((order) => (
                     <tr key={order.id} className="border-b">
                       <td className="py-3 px-4 text-sm font-medium">{order.id}</td>
                       <td className="py-3 px-4">
                         <div>
-                          <div className="font-medium">{order.customer.name}</div>
-                          <div className="text-sm text-gray-500">{order.customer.email}</div>
+                          <div className="font-medium">{order.profiles?.first_name} {order.profiles?.last_name}</div>
+                          <div className="text-sm text-gray-500">{order.profiles?.email}</div>
                         </div>
                       </td>
-                      <td className="py-3 px-4 text-sm text-center">{order.date}</td>
+                      <td className="py-3 px-4 text-sm text-center">{new Date(order.created_at).toLocaleDateString('pt-BR')}</td>
                       <td className="py-3 px-4 text-sm text-center">
-                        {order.hasTickets && order.hasProducts
+                        {/* Tipo: Ingressos, Produtos ou ambos */}
+                        {order.order_items?.some((item: any) => item.ticket_id) && order.order_items?.some((item: any) => item.product_id)
                           ? 'Ingr. + Prod.'
-                          : order.hasTickets
+                          : order.order_items?.some((item: any) => item.ticket_id)
                           ? 'Ingressos'
                           : 'Produtos'
                         }
@@ -359,7 +255,7 @@ const AdminPedidos = () => {
                       </td>
                       <td className="py-3 px-4 text-center">
                         <span className={`text-xs py-1 px-2 rounded ${getStatusBadgeClass(order.status)}`}>
-                          {order.status}
+                          {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
                         </span>
                       </td>
                       <td className="py-3 px-4 text-right">
@@ -378,50 +274,44 @@ const AdminPedidos = () => {
                             <DialogHeader>
                               <DialogTitle>Detalhes do Pedido {order.id}</DialogTitle>
                               <DialogDescription>
-                                Pedido realizado em {order.date}
+                                Pedido realizado em {new Date(order.created_at).toLocaleDateString('pt-BR')}
                               </DialogDescription>
                             </DialogHeader>
-                            
                             {selectedOrder && (
                               <div className="mt-4">
                                 <Tabs defaultValue="info">
                                   <TabsList className="mb-4">
                                     <TabsTrigger value="info">Informações</TabsTrigger>
                                     <TabsTrigger value="items">Itens</TabsTrigger>
-                                    {selectedOrder.shippingAddress && (
-                                      <TabsTrigger value="shipping">Envio</TabsTrigger>
-                                    )}
                                   </TabsList>
-                                  
                                   <TabsContent value="info">
                                     <div className="space-y-4">
                                       <h3 className="font-medium text-lg">Informações do Cliente</h3>
                                       <div className="grid grid-cols-2 gap-4">
                                         <div>
                                           <p className="text-sm text-gray-500">Nome:</p>
-                                          <p className="font-medium">{selectedOrder.customer.name}</p>
+                                          <p className="font-medium">{selectedOrder.profiles?.first_name} {selectedOrder.profiles?.last_name}</p>
                                         </div>
                                         <div>
                                           <p className="text-sm text-gray-500">Email:</p>
-                                          <p className="font-medium">{selectedOrder.customer.email}</p>
+                                          <p className="font-medium">{selectedOrder.profiles?.email}</p>
                                         </div>
-                                        {selectedOrder.customer.phone && (
+                                        {selectedOrder.profiles?.phone && (
                                           <div>
                                             <p className="text-sm text-gray-500">Telefone:</p>
-                                            <p className="font-medium">{selectedOrder.customer.phone}</p>
+                                            <p className="font-medium">{selectedOrder.profiles?.phone}</p>
                                           </div>
                                         )}
                                       </div>
-                                      
                                       <div className="pt-4 border-t">
                                         <h3 className="font-medium text-lg mb-2">Resumo do Pedido</h3>
                                         <div className="space-y-1">
                                           <div className="flex justify-between">
                                             <span className="text-gray-600">Tipo:</span>
                                             <span>
-                                              {selectedOrder.hasTickets && selectedOrder.hasProducts
+                                              {selectedOrder.order_items?.some((item: any) => item.ticket_id) && selectedOrder.order_items?.some((item: any) => item.product_id)
                                                 ? 'Ingressos e Produtos'
-                                                : selectedOrder.hasTickets
+                                                : selectedOrder.order_items?.some((item: any) => item.ticket_id)
                                                 ? 'Ingressos'
                                                 : 'Produtos'
                                               }
@@ -429,12 +319,12 @@ const AdminPedidos = () => {
                                           </div>
                                           <div className="flex justify-between">
                                             <span className="text-gray-600">Data do pedido:</span>
-                                            <span>{selectedOrder.date}</span>
+                                            <span>{new Date(selectedOrder.created_at).toLocaleDateString('pt-BR')}</span>
                                           </div>
                                           <div className="flex justify-between">
                                             <span className="text-gray-600">Status:</span>
                                             <span className={`text-xs py-1 px-2 rounded ${getStatusBadgeClass(selectedOrder.status)}`}>
-                                              {selectedOrder.status}
+                                              {selectedOrder.status.charAt(0).toUpperCase() + selectedOrder.status.slice(1)}
                                             </span>
                                           </div>
                                           <div className="flex justify-between font-bold">
@@ -443,38 +333,18 @@ const AdminPedidos = () => {
                                           </div>
                                         </div>
                                       </div>
-                                      
-                                      <div className="pt-4 flex justify-between border-t">
-                                        <Select>
-                                          <SelectTrigger className="w-[200px]">
-                                            <SelectValue placeholder="Atualizar status" />
-                                          </SelectTrigger>
-                                          <SelectContent>
-                                            <SelectItem value="Pendente">Pendente</SelectItem>
-                                            <SelectItem value="Pago">Pago</SelectItem>
-                                            <SelectItem value="Enviado">Enviado</SelectItem>
-                                            <SelectItem value="Entregue">Entregue</SelectItem>
-                                            <SelectItem value="Cancelado">Cancelado</SelectItem>
-                                          </SelectContent>
-                                        </Select>
-                                        <Button className="bg-butterfly-orange hover:bg-butterfly-orange/90">
-                                          Salvar Alterações
-                                        </Button>
-                                      </div>
                                     </div>
                                   </TabsContent>
-                                  
                                   <TabsContent value="items">
                                     <div className="space-y-4">
                                       <h3 className="font-medium text-lg mb-2">Itens do Pedido</h3>
-                                      
-                                      {selectedOrder.items.map((item, index) => (
+                                      {selectedOrder.order_items?.map((item: any, index: number) => (
                                         <div key={index} className="flex justify-between border-b py-3">
                                           <div className="flex items-center">
-                                            {item.image && !item.isTicket ? (
+                                            {item.product_id && item.name ? (
                                               <div className="h-16 w-16 flex-shrink-0 rounded overflow-hidden mr-3">
                                                 <img 
-                                                  src={item.image} 
+                                                  src={item.image || ''} 
                                                   alt={item.name} 
                                                   className="h-full w-full object-cover"
                                                 />
@@ -484,7 +354,6 @@ const AdminPedidos = () => {
                                                 <span className="text-2xl">🎟️</span>
                                               </div>
                                             )}
-                                            
                                             <div>
                                               <div className="font-medium">{item.name}</div>
                                               {item.size && (
@@ -497,55 +366,21 @@ const AdminPedidos = () => {
                                               </div>
                                             </div>
                                           </div>
-                                          
                                           <div className="text-right">
                                             <div className="font-medium">
-                                              {formatCurrency(item.price * item.quantity)}
+                                              {formatCurrency(Number(item.price) * Number(item.quantity))}
                                             </div>
                                             <div className="text-sm text-gray-500">
-                                              {formatCurrency(item.price)} cada
+                                              {formatCurrency(Number(item.price))} cada
                                             </div>
                                           </div>
                                         </div>
                                       ))}
-                                      
                                       <div className="pt-4 font-bold text-right">
                                         Total: {formatCurrency(selectedOrder.total)}
                                       </div>
                                     </div>
                                   </TabsContent>
-                                  
-                                  {selectedOrder.shippingAddress && (
-                                    <TabsContent value="shipping">
-                                      <div className="space-y-4">
-                                        <h3 className="font-medium text-lg">Endereço de Entrega</h3>
-                                        <div className="p-4 border rounded-lg">
-                                          <p>{selectedOrder.shippingAddress.street}</p>
-                                          <p>{selectedOrder.shippingAddress.city}, {selectedOrder.shippingAddress.state}</p>
-                                          <p>CEP: {selectedOrder.shippingAddress.zipCode}</p>
-                                        </div>
-                                        
-                                        <div className="pt-4">
-                                          <h3 className="font-medium text-lg mb-2">Status de Envio</h3>
-                                          <div className="space-y-2">
-                                            <div className="flex justify-between">
-                                              <span className="text-gray-600">Status atual:</span>
-                                              <span className={`text-xs py-1 px-2 rounded ${getStatusBadgeClass(selectedOrder.status)}`}>
-                                                {selectedOrder.status}
-                                              </span>
-                                            </div>
-                                            
-                                            {selectedOrder.status === 'Enviado' && (
-                                              <div className="flex justify-between">
-                                                <span className="text-gray-600">Código de Rastreamento:</span>
-                                                <span>BR123456789</span>
-                                              </div>
-                                            )}
-                                          </div>
-                                        </div>
-                                      </div>
-                                    </TabsContent>
-                                  )}
                                 </Tabs>
                               </div>
                             )}
@@ -554,13 +389,6 @@ const AdminPedidos = () => {
                       </td>
                     </tr>
                   ))}
-                  {filteredOrders.length === 0 && (
-                    <tr>
-                      <td colSpan={7} className="py-6 text-center text-gray-500">
-                        Nenhum pedido encontrado com esses filtros.
-                      </td>
-                    </tr>
-                  )}
                 </tbody>
               </table>
             </div>

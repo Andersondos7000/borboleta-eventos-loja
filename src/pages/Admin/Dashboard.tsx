@@ -18,7 +18,7 @@ const AdminDashboard = () => {
       const { data, error } = await supabase
         .from('orders')
         .select('total')
-        .eq('status', 'Pago');
+        .eq('status', 'completed');
       if (!error && data) {
         setTotalVendas(data.reduce((sum, o) => sum + Number(o.total), 0));
       }
@@ -42,12 +42,12 @@ const AdminDashboard = () => {
         setItensEstoque(data.reduce((sum, o) => sum + Number(o.quantity), 0));
       }
     };
-    // Buscar ingressos vendidos (tickets com status Pago)
+    // Buscar ingressos vendidos (tickets com status sold)
     const fetchIngressos = async () => {
       const { data, error } = await supabase
         .from('tickets')
         .select('id')
-        .eq('status', 'Pago');
+        .eq('status', 'sold');
       if (!error && data) {
         setIngressosVendidos(data.length);
       }
@@ -56,6 +56,34 @@ const AdminDashboard = () => {
     fetchProdutosVendidos();
     fetchEstoque();
     fetchIngressos();
+
+    // --- SUPABASE REALTIME ---
+    const ordersChannel = supabase.channel('realtime-orders')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, () => {
+        fetchVendas();
+      })
+      .subscribe();
+    const orderItemsChannel = supabase.channel('realtime-order-items')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'order_items' }, () => {
+        fetchProdutosVendidos();
+      })
+      .subscribe();
+    const stockChannel = supabase.channel('realtime-product-stock')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'product_stock' }, () => {
+        fetchEstoque();
+      })
+      .subscribe();
+    const ticketsChannel = supabase.channel('realtime-tickets')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'tickets' }, () => {
+        fetchIngressos();
+      })
+      .subscribe();
+    return () => {
+      supabase.removeChannel(ordersChannel);
+      supabase.removeChannel(orderItemsChannel);
+      supabase.removeChannel(stockChannel);
+      supabase.removeChannel(ticketsChannel);
+    };
   }, []);
 
   return (

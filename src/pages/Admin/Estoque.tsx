@@ -60,6 +60,21 @@ const AdminEstoque = () => {
       setIsLoading(false);
     };
     fetchStock();
+    // --- SUPABASE REALTIME ---
+    const productsChannel = supabase.channel('realtime-products')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'products' }, () => {
+        fetchStock();
+      })
+      .subscribe();
+    const stockChannel = supabase.channel('realtime-product-stock')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'product_stock' }, () => {
+        fetchStock();
+      })
+      .subscribe();
+    return () => {
+      supabase.removeChannel(productsChannel);
+      supabase.removeChannel(stockChannel);
+    };
   }, []);
 
   // Função para atualizar estoque por tamanho

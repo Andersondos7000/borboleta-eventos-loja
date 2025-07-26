@@ -34,14 +34,14 @@ serve(async (req) => {
     let orderStatus = "pending";
     switch (status) {
       case "paid":
-        orderStatus = "paid";
+        orderStatus = "completed";
         break;
       case "failed":
       case "cancelled":
         orderStatus = "cancelled";
         break;
       case "pending":
-        orderStatus = "awaiting_payment";
+        orderStatus = "pending";
         break;
     }
 
@@ -57,6 +57,25 @@ serve(async (req) => {
     if (error) {
       console.error("Error updating order:", error);
       throw error;
+    }
+
+    // Se o pagamento foi confirmado, também atualizar tickets relacionados
+    if (orderStatus === "completed") {
+      const { data: orderItems } = await supabaseService
+        .from("order_items")
+        .select("ticket_id")
+        .eq("order_id", external_reference)
+        .not("ticket_id", "is", null);
+      
+      if (orderItems && orderItems.length > 0) {
+        const ticketIds = orderItems.map(item => item.ticket_id).filter(Boolean);
+        if (ticketIds.length > 0) {
+          await supabaseService
+            .from("tickets")
+            .update({ status: "sold", updated_at: new Date().toISOString() })
+            .in("id", ticketIds);
+        }
+      }
     }
 
     console.log(`Order ${external_reference} updated to status: ${orderStatus}`);

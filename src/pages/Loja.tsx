@@ -59,6 +59,15 @@ const Loja = () => {
     };
 
     fetchProducts();
+    // --- SUPABASE REALTIME ---
+    const productsChannel = supabase.channel('realtime-loja-products')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'products' }, () => {
+        fetchProducts();
+      })
+      .subscribe();
+    return () => {
+      supabase.removeChannel(productsChannel);
+    };
   }, [toast]);
 
   const filteredProducts = activeCategory === 'all' 

@@ -124,16 +124,13 @@ const Profile = () => {
   useEffect(() => {
     const fetchTickets = async () => {
       if (!user) return;
-
       try {
         const { data, error } = await supabase
           .from("tickets")
           .select("*, events(*)")
           .eq("user_id", user.id)
           .order("created_at", { ascending: false });
-
         if (error) throw error;
-
         if (data) {
           setTickets(data);
         }
@@ -143,9 +140,17 @@ const Profile = () => {
         setLoadingTickets(false);
       }
     };
-
     if (user) {
       fetchTickets();
+      // --- SUPABASE REALTIME ---
+      const ticketsChannel = supabase.channel('realtime-profile-tickets')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'tickets', filter: `user_id=eq.${user.id}` }, () => {
+          fetchTickets();
+        })
+        .subscribe();
+      return () => {
+        supabase.removeChannel(ticketsChannel);
+      };
     }
   }, [user]);
 
