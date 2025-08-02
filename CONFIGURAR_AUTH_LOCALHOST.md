@@ -55,10 +55,6 @@ additional_redirect_urls = ["https://127.0.0.1:3000"]
 Sua aplicação está rodando em: **http://localhost:8083/**
 (Conforme visto no terminal anterior)
 
-## ⚙️ **Configuração Alternativa via MCP**
-
-Posso tentar atualizar via MCP do Supabase se necessário, mas o dashboard é mais direto.
-
 ## 🧪 **Testar Após Configurar**
 
 1. **Acesse**: http://localhost:8083/

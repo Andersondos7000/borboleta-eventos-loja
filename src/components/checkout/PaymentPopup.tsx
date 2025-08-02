@@ -149,13 +149,6 @@ const PaymentPopup: React.FC<PaymentPopupProps> = ({ isOpen, onClose, paymentDat
   };
 
   const checkPaymentStatus = async () => {
-    // Log MCP: início da verificação de pagamento
-    if (window && window.console) {
-      window.console.log('[MCP] Iniciando verificação de pagamento', {
-        transactionId: paymentData?.data?.id,
-        status: paymentData?.data?.status
-      });
-    }
     if (!paymentData?.data?.id) {
       toast({
         title: "Erro na transação",
@@ -204,6 +197,7 @@ const PaymentPopup: React.FC<PaymentPopupProps> = ({ isOpen, onClose, paymentDat
       switch (status) {
         case 'PAID':
           setPaymentConfirmed(true);
+          await clearCart(); // Limpar carrinho apenas quando pagamento for confirmado
           toast({
             title: "✅ Pagamento confirmado!",
             description: "Seu pedido foi processado com sucesso e está sendo preparado.",
@@ -264,13 +258,10 @@ const PaymentPopup: React.FC<PaymentPopupProps> = ({ isOpen, onClose, paymentDat
   };
 
   // Estado de confirmação de pagamento
-  // Se paymentConfirmed, não renderiza o Dialog principal
-  // Apenas o Dialog de confirmação
   if (paymentConfirmed) {
     return (
       <AnimatePresence>
-        <Dialog open={true}>
-          {/* O Dialog permanece aberto até o usuário clicar em ESC ou no botão */}
+        <Dialog open={isOpen} onOpenChange={onClose}>
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -286,6 +277,7 @@ const PaymentPopup: React.FC<PaymentPopupProps> = ({ isOpen, onClose, paymentDat
                   Pedido Confirmado!
                 </DialogTitle>
               </DialogHeader>
+              
               <div className="text-center py-4 px-2">
                 <motion.div
                   initial={{ opacity: 0, y: 10 }}
@@ -296,6 +288,7 @@ const PaymentPopup: React.FC<PaymentPopupProps> = ({ isOpen, onClose, paymentDat
                   <p className="text-gray-600 mb-6">
                     Seu pedido foi processado com sucesso. Enviamos os detalhes para <span className="font-medium text-gray-900">{customerData?.email || 'seu e-mail'}</span>.
                   </p>
+                  
                   <div className="bg-green-50 rounded-lg p-4 mb-6 text-left">
                     <div className="flex items-start">
                       <div className="flex-shrink-0">
@@ -309,15 +302,14 @@ const PaymentPopup: React.FC<PaymentPopupProps> = ({ isOpen, onClose, paymentDat
                       </div>
                     </div>
                   </div>
+                  
                   <Button 
-                    onClick={() => {
-                      clearCart();
-                      onClose();
-                    }}
+                    onClick={onClose} 
                     className="w-full bg-green-600 hover:bg-green-700 text-white py-6 text-base font-medium"
                   >
                     Continuar Comprando
                   </Button>
+                  
                   <p className="mt-4 text-sm text-gray-500">
                     Em caso de dúvidas, entre em contato com nosso suporte.
                   </p>
