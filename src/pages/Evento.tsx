@@ -88,12 +88,14 @@ const Evento = () => {
               </div>
             </div>
             
-            <Button
-              size="lg"
-              className="bg-butterfly-orange hover:bg-butterfly-orange/90"
-            >
-              Comprar Ingressos
-            </Button>
+            <Link to="/ingressos">
+              <Button
+                size="lg"
+                className="bg-butterfly-orange hover:bg-butterfly-orange/90"
+              >
+                Comprar Ingressos
+              </Button>
+            </Link>
           </div>
         </div>
       </section>

@@ -10,7 +10,6 @@ import Footer from "@/components/Footer";
 import CustomerInformation from "@/components/checkout/CustomerInformation";
 import AdditionalNotes from "@/components/checkout/AdditionalNotes";
 import ParticipantsList from "@/components/checkout/ParticipantsList";
-import PaymentSection from "@/components/checkout/PaymentSection";
 import OrderSummary from "@/components/checkout/OrderSummary";
 import TermsSection from "@/components/checkout/TermsSection";
 import { useCart, isCartProduct } from "@/contexts/CartContext";
@@ -48,7 +47,6 @@ const Checkout = () => {
   const navigate = useNavigate();
   const { items, subtotal, shipping, total, clearCart } = useCart();
   const [participantCount, setParticipantCount] = useState(1);
-  const [paymentData, setPaymentData] = useState(null);
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
   
   useEffect(() => {
@@ -136,8 +134,6 @@ const Checkout = () => {
       }
 
       if (paymentResponse.success) {
-        setPaymentData(paymentResponse.paymentData);
-        
         // NÃO limpar carrinho aqui - só depois do pagamento confirmado
         
         toast({
@@ -200,17 +196,6 @@ const Checkout = () => {
                     participantCount={participantCount}
                     onAddParticipant={addParticipant}
                     onRemoveParticipant={removeParticipant}
-                  />
-                  <PaymentSection 
-                    paymentData={paymentData} 
-                    customerData={{
-                      name: `${form.watch('firstName')} ${form.watch('lastName')}`,
-                      email: '', // Email será obtido do usuário logado
-                      phone: form.watch('phone'),
-                      cpf: form.watch('cpf')
-                    }}
-                    orderTotal={total * 100} // Converter para centavos
-                    isLoading={isProcessingPayment}
                   />
                   <TermsSection 
                     form={form} 

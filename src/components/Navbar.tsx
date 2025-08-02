@@ -52,6 +52,16 @@ const Navbar: React.FC = () => {
           </div>
 
           <div className="flex items-center space-x-4">
+            {/* Botão de Login para Mobile */}
+            {!user && (
+              <Link 
+                to="/auth" 
+                className="md:hidden text-butterfly-orange hover:text-butterfly-orange/80 transition-colors"
+              >
+                <User className="h-6 w-6" />
+              </Link>
+            )}
+            
             <Link to="/carrinho" className="relative text-butterfly-orange hover:text-butterfly-orange/80 transition-colors">
               <ShoppingCart className="h-6 w-6" />
               {cartItemsCount > 0 && (
@@ -70,22 +80,23 @@ const Navbar: React.FC = () => {
                 <span className="font-medium">Perfil</span>
               </Link>
             ) : (
+              <Link to="/auth" className="hidden md:flex">
+                <Button 
+                  variant="default" 
+                >
+                  Entrar
+                </Button>
+              </Link>
+            )}
+            
+            <Link to="/ingressos">
               <Button 
                 variant="default" 
                 className="hidden md:flex"
-                onClick={() => window.location.href = '/auth'}
               >
-                Entrar
+                Comprar Ingresso
               </Button>
-            )}
-            
-            <Button 
-              variant="default" 
-              className="hidden md:flex"
-              onClick={() => window.location.href = '/ingressos'}
-            >
-              Comprar Ingresso
-            </Button>
+            </Link>
           </div>
         </div>
       </div>

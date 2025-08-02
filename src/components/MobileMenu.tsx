@@ -126,15 +126,13 @@ const MobileMenu: React.FC = () => {
           </nav>
 
           <div className="mt-auto mb-4">
-            <Button 
-              className="w-full bg-butterfly-orange hover:bg-butterfly-orange/90"
-              onClick={() => {
-                closeMenu();
-                window.location.href = '/ingressos';
-              }}
-            >
-              Comprar Ingresso
-            </Button>
+            <Link to="/ingressos" onClick={closeMenu}>
+              <Button 
+                className="w-full bg-butterfly-orange hover:bg-butterfly-orange/90"
+              >
+                Comprar Ingresso
+              </Button>
+            </Link>
           </div>
         </div>
       </SheetContent>
