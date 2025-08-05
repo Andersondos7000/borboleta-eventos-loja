@@ -1,0 +1,58 @@
+name: Deploy to Supabase
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'supabase/functions/**'
+  workflow_dispatch:
+    inputs:
+      function_name:
+        description: 'Nome da função para deploy (opcional, deploy todas se vazio)'
+        required: false
+        type: string
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        
+    - name: Install Supabase CLI
+      run: npm install -g supabase
+      
+    - name: Deploy Edge Functions
+      env:
+        SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        SUPABASE_PROJECT_ID: ${{ secrets.SUPABASE_PROJECT_ID }}
+      run: |
+        echo "🚀 Iniciando deploy das Edge Functions..."
+        
+        # Fazer login no Supabase
+        supabase login --token $SUPABASE_ACCESS_TOKEN
+        
+        # Linkar com o projeto
+        supabase link --project-ref $SUPABASE_PROJECT_ID
+        
+        # Deploy das functions
+        if [ -n "${{ github.event.inputs.function_name }}" ]; then
+          echo "📦 Deploy da função específica: ${{ github.event.inputs.function_name }}"
+          supabase functions deploy ${{ github.event.inputs.function_name }}
+        else
+          echo "📦 Deploy de todas as Edge Functions"
+          supabase functions deploy
+        fi
+        
+        echo "✅ Deploy concluído com sucesso!"
+        
+    - name: Verify Deployment
+      run: |
+        echo "🔍 Verificando status das funções..."
+        supabase functions list
