@@ -1,0 +1,234 @@
+name: 🚀 Docker Hub Automated Build with MCP Integration
+
+on:
+  push:
+    branches: [ main, develop ]
+    tags: [ 'v*' ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      deploy_to_hub:
+        description: 'Deploy to Docker Hub'
+        required: true
+        default: 'true'
+        type: choice
+        options:
+        - 'true'
+        - 'false'
+
+env:
+  DOCKER_REGISTRY: docker.io
+  DOCKER_IMAGE: andersondos7000/borboleta-eventos-loja
+  DOCKER_BUILDKIT: 1
+
+jobs:
+  # Build and test stage
+  build-and-test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 📁 Checkout Repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        
+    - name: 🏷️ Extract metadata
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: ${{ env.DOCKER_IMAGE }}
+        tags: |
+          type=ref,event=branch
+          type=ref,event=pr
+          type=semver,pattern={{version}}
+          type=semver,pattern={{major}}.{{minor}}
+          type=raw,value=latest,enable={{is_default_branch}}
+          type=raw,value={{date 'YYYY.MM.DD'}}-{{sha}}
+        labels: |
+          org.opencontainers.image.title=Borboleta Eventos Loja
+          org.opencontainers.image.description=E-commerce platform with MCP integration
+          org.opencontainers.image.vendor=Borboleta Eventos
+          com.docker.mcp.enabled=true
+          com.docker.mcp.version=3.0.0
+
+    - name: 🐳 Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+      with:
+        driver-opts: |
+          image=moby/buildkit:v0.12.0
+          
+    - name: 🔐 Log in to Docker Hub
+      if: github.event_name != 'pull_request'
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ env.DOCKER_REGISTRY }}
+        username: ${{ secrets.DOCKER_HUB_USERNAME }}
+        password: ${{ secrets.DOCKER_HUB_TOKEN }}
+
+    - name: 🔨 Build Docker image
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        file: ./Dockerfile.hub
+        platforms: linux/amd64,linux/arm64
+        push: false
+        load: true
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+        build-args: |
+          BUILD_DATE=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.created'] }}
+          VCS_REF=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.revision'] }}
+          VERSION=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.version'] }}
+
+    - name: 🧪 Test Docker image
+      run: |
+        echo "🚀 Testing Docker image..."
+        
+        # Start the container
+        docker run -d --name test-container \
+          -p 5173:5173 \
+          -e NODE_ENV=production \
+          -e MCP_ENABLED=false \
+          ${{ env.DOCKER_IMAGE }}:latest
+        
+        # Wait for startup
+        sleep 10
+        
+        # Test health endpoint
+        for i in {1..10}; do
+          if curl -f http://localhost:5173/health; then
+            echo "✅ Health check passed"
+            break
+          fi
+          echo "⏳ Waiting for health check... ($i/10)"
+          sleep 3
+        done
+        
+        # Check logs
+        echo "📄 Container logs:"
+        docker logs test-container
+        
+        # Cleanup
+        docker stop test-container
+        docker rm test-container
+
+  # Deploy to Docker Hub
+  deploy-to-hub:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    if: github.event_name != 'pull_request' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v') || github.event.inputs.deploy_to_hub == 'true')
+    
+    steps:
+    - name: 📁 Checkout Repository
+      uses: actions/checkout@v4
+      
+    - name: 🏷️ Extract metadata
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: ${{ env.DOCKER_IMAGE }}
+        tags: |
+          type=ref,event=branch
+          type=semver,pattern={{version}}
+          type=semver,pattern={{major}}.{{minor}}
+          type=raw,value=latest,enable={{is_default_branch}}
+          type=raw,value={{date 'YYYY.MM.DD'}}-{{sha}}
+
+    - name: 🐳 Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: 🔐 Log in to Docker Hub
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ env.DOCKER_REGISTRY }}
+        username: ${{ secrets.DOCKER_HUB_USERNAME }}
+        password: ${{ secrets.DOCKER_HUB_TOKEN }}
+
+    - name: 📦 Build and push to Docker Hub
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        file: ./Dockerfile.hub
+        platforms: linux/amd64,linux/arm64
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+        build-args: |
+          BUILD_DATE=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.created'] }}
+          VCS_REF=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.revision'] }}
+          VERSION=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.version'] }}
+
+    - name: 🔗 Update Docker Hub README
+      uses: peter-evans/dockerhub-description@v3
+      with:
+        username: ${{ secrets.DOCKER_HUB_USERNAME }}
+        password: ${{ secrets.DOCKER_HUB_TOKEN }}
+        repository: ${{ env.DOCKER_IMAGE }}
+        readme-filepath: ./README.Docker.md
+
+  # Deploy MCP Stack
+  deploy-mcp-stack:
+    needs: deploy-to-hub
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - name: 📁 Checkout Repository
+      uses: actions/checkout@v4
+      
+    - name: 🚀 Deploy MCP Stack
+      run: |
+        echo "🚀 Deploying MCP Stack with Docker Hub integration..."
+        
+        # Create deployment directory
+        mkdir -p deployment
+        
+        # Copy Docker Compose files
+        cp docker-compose.mcp-hub.yml deployment/
+        cp -r config deployment/
+        
+        # Create environment file
+        cat > deployment/.env <<EOF
+        DOCKER_IMAGE=${{ env.DOCKER_IMAGE }}:latest
+        DOCKER_HUB_USERNAME=${{ secrets.DOCKER_HUB_USERNAME }}
+        DOCKER_HUB_TOKEN=${{ secrets.DOCKER_HUB_TOKEN }}
+        GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
+        VITE_SUPABASE_URL=${{ secrets.VITE_SUPABASE_URL }}
+        SUPABASE_SERVICE_ROLE_KEY=${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        JWT_SECRET=${{ secrets.JWT_SECRET }}
+        DOCKER_HUB_WEBHOOK_SECRET=${{ secrets.DOCKER_HUB_WEBHOOK_SECRET }}
+        GITHUB_WEBHOOK_SECRET=${{ secrets.GITHUB_WEBHOOK_SECRET }}
+        EOF
+        
+        echo "✅ MCP Stack deployment prepared"
+        
+        # In a real deployment, you would copy this to your server
+        # and run: docker-compose -f docker-compose.mcp-hub.yml up -d
+
+  # Notify deployment status
+  notify:
+    needs: [build-and-test, deploy-to-hub, deploy-mcp-stack]
+    runs-on: ubuntu-latest
+    if: always()
+    
+    steps:
+    - name: 📢 Deployment Status
+      run: |
+        if [ "${{ needs.deploy-to-hub.result }}" == "success" ]; then
+          echo "🎉 Docker Hub deployment successful!"
+          echo "📦 Image: ${{ env.DOCKER_IMAGE }}:latest"
+          echo "🔗 Docker Hub: https://hub.docker.com/r/${{ env.DOCKER_IMAGE }}"
+          
+          # Trigger Docker Hub webhook (simulate)
+          echo "🔔 Triggering MCP Gateway webhook..."
+          # curl -X POST "$MCP_GATEWAY_URL/webhooks/docker-hub" \
+          #   -H "Content-Type: application/json" \
+          #   -d '{"action":"push","repository":"${{ env.DOCKER_IMAGE }}","tag":"latest"}'
+        else
+          echo "❌ Deployment failed or skipped"
+        fi

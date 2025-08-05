@@ -1,0 +1,184 @@
+{
+  "name": "Borboleta MCP - Docker Hub Auto Deploy",
+  "nodes": [
+    {
+      "parameters": {
+        "mode": "webhook",
+        "webhook": {
+          "httpMethod": "POST",
+          "path": "docker-hub-webhook",
+          "options": {}
+        }
+      },
+      "name": "Docker Hub Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        480,
+        240
+      ],
+      "webhookId": "docker-hub-webhook-123"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.MCP_GATEWAY_URL }}/docker/build",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer {{ $env.GITHUB_TOKEN }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "repository",
+              "value": "andersondos7000/borboleta-eventos-loja"
+            },
+            {
+              "name": "tag",
+              "value": "latest"
+            },
+            {
+              "name": "push",
+              "value": true
+            },
+            {
+              "name": "multiplatform",
+              "value": true
+            }
+          ]
+        }
+      },
+      "name": "Trigger Docker Build",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        700,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://hub.docker.com/v2/repositories/andersondos7000/borboleta-eventos-loja/",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer {{ $env.DOCKER_HUB_TOKEN }}"
+            }
+          ]
+        }
+      },
+      "name": "Verify Docker Hub Status",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        920,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.MCP_GATEWAY_URL }}/notify",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "type",
+              "value": "docker-deploy"
+            },
+            {
+              "name": "status",
+              "value": "={{ $node['Verify Docker Hub Status'].json.status || 'success' }}"
+            },
+            {
+              "name": "repository",
+              "value": "andersondos7000/borboleta-eventos-loja"
+            },
+            {
+              "name": "build_time",
+              "value": "={{ $now }}"
+            },
+            {
+              "name": "webhook_data",
+              "value": "={{ JSON.stringify($node['Docker Hub Webhook'].json) }}"
+            }
+          ]
+        }
+      },
+      "name": "Notify MCP Gateway",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        1140,
+        240
+      ]
+    }
+  ],
+  "connections": {
+    "Docker Hub Webhook": {
+      "main": [
+        [
+          {
+            "node": "Trigger Docker Build",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Trigger Docker Build": {
+      "main": [
+        [
+          {
+            "node": "Verify Docker Hub Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Verify Docker Hub Status": {
+      "main": [
+        [
+          {
+            "node": "Notify MCP Gateway",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "timezone": "America/Sao_Paulo"
+  },
+  "versionId": "1",
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "id": "borboleta-docker-hub-deploy",
+  "tags": ["borboleta", "docker", "hub", "deploy", "mcp", "automation"]
+}

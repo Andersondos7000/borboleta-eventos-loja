@@ -1,0 +1,110 @@
+# Multi-stage Docker build for Borboleta Eventos Loja
+# Optimized for Docker Hub automated builds with MCP integration
+
+# Stage 1: Build stage
+FROM node:20-alpine AS builder
+
+# Set working directory
+WORKDIR /app
+
+# Install build dependencies
+RUN apk add --no-cache git python3 make g++
+
+# Copy package files
+COPY package*.json ./
+COPY pnpm-lock.yaml ./
+
+# Install pnpm globally
+RUN npm install -g pnpm
+
+# Install dependencies
+RUN pnpm install --frozen-lockfile
+
+# Copy source code
+COPY . .
+
+# Build the application
+RUN pnpm build
+
+# Stage 2: Production stage
+FROM node:20-alpine AS production
+
+# Install runtime dependencies
+RUN apk add --no-cache \
+    curl \
+    git \
+    bash \
+    jq \
+    ca-certificates
+
+# Create non-root user
+RUN addgroup -g 1001 -S nodejs
+RUN adduser -S borboleta -u 1001
+
+# Set working directory
+WORKDIR /app
+
+# Install pnpm globally
+RUN npm install -g pnpm
+
+# Copy package files
+COPY package*.json ./
+COPY pnpm-lock.yaml ./
+
+# Install production dependencies only
+RUN pnpm install --prod --frozen-lockfile
+
+# Copy built application from builder stage
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/public ./public
+
+# Copy necessary files
+COPY --chown=borboleta:nodejs . .
+
+# Create directories for MCP integration
+RUN mkdir -p /app/logs /app/config /app/data && \
+    chown -R borboleta:nodejs /app/logs /app/config /app/data
+
+# Install MCP CLI tools
+RUN npm install -g @modelcontextprotocol/cli
+
+# Add health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+    CMD curl -f http://localhost:5173/health || exit 1
+
+# Expose ports
+EXPOSE 5173
+
+# MCP Gateway integration environment
+ENV NODE_ENV=production
+ENV MCP_ENABLED=true
+ENV MCP_GATEWAY_URL=http://mcp-gateway:3000
+ENV VITE_MCP_INTEGRATION=true
+
+# Docker Hub build arguments
+ARG BUILD_DATE
+ARG VCS_REF
+ARG VERSION
+
+# Docker Hub labels
+LABEL maintainer="anderson@borboletaeventos.com" \
+      org.label-schema.name="Borboleta Eventos Loja" \
+      org.label-schema.description="E-commerce platform with MCP integration" \
+      org.label-schema.url="https://github.com/Andersondos7000/borboleta-eventos-loja" \
+      org.label-schema.vcs-url="https://github.com/Andersondos7000/borboleta-eventos-loja" \
+      org.label-schema.vcs-ref=$VCS_REF \
+      org.label-schema.version=$VERSION \
+      org.label-schema.build-date=$BUILD_DATE \
+      org.label-schema.schema-version="1.0" \
+      com.docker.mcp.enabled="true" \
+      com.docker.mcp.version="3.0.0"
+
+# Switch to non-root user
+USER borboleta
+
+# Start script
+COPY --chown=borboleta:nodejs scripts/docker-entrypoint.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+
+# Default command
+CMD ["/usr/local/bin/docker-entrypoint.sh"]

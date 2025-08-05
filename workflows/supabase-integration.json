@@ -1,0 +1,285 @@
+{
+  "name": "📊 Borboleta MCP - Supabase Integration Workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "supabase-webhook",
+        "responseMode": "responseNode"
+      },
+      "id": "supabase-webhook",
+      "name": "Supabase Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json.type}}",
+              "operation": "equal",
+              "value2": "INSERT"
+            }
+          ]
+        }
+      },
+      "id": "filter-new-orders",
+      "name": "Filter New Orders",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [460, 200]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json.table}}",
+              "operation": "equal",
+              "value2": "orders"
+            }
+          ]
+        }
+      },
+      "id": "filter-order-table",
+      "name": "Filter Order Table",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [460, 400]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://supabase-mcp-server:3003/api/process-order",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer {{$env.SUPABASE_SERVICE_ROLE_KEY}}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "order_id",
+              "value": "={{$json.record.id}}"
+            },
+            {
+              "name": "customer_email",
+              "value": "={{$json.record.customer_email}}"
+            },
+            {
+              "name": "total_amount",
+              "value": "={{$json.record.total_amount}}"
+            },
+            {
+              "name": "status",
+              "value": "={{$json.record.status}}"
+            }
+          ]
+        }
+      },
+      "id": "process-new-order",
+      "name": "Process New Order",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [680, 200]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://mcp-gateway:3000/api/notifications/email",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "to",
+              "value": "admin@borboletaeventos.com"
+            },
+            {
+              "name": "subject",
+              "value": "🦋 Novo Pedido - Borboleta Eventos"
+            },
+            {
+              "name": "template",
+              "value": "new-order"
+            },
+            {
+              "name": "data",
+              "value": "={{JSON.stringify($json.record)}}"
+            }
+          ]
+        }
+      },
+      "id": "notify-admin",
+      "name": "Notify Admin",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [680, 400]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://github-mcp-server:3002/api/create-issue",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer {{$env.GITHUB_TOKEN}}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "title",
+              "value": "Análise de Pedido #{{$json.record.id}}"
+            },
+            {
+              "name": "body",
+              "value": "**Novo pedido para análise**\\n\\n- ID: {{$json.record.id}}\\n- Cliente: {{$json.record.customer_email}}\\n- Valor: R$ {{$json.record.total_amount}}\\n- Status: {{$json.record.status}}\\n\\nProcessamento automático via N8N MCP"
+            },
+            {
+              "name": "labels",
+              "value": "pedido,automação,mcp"
+            }
+          ]
+        }
+      },
+      "id": "create-github-issue",
+      "name": "Create GitHub Issue",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [900, 300]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"status\": \"processed\", \"order_id\": $json.record.id, \"timestamp\": new Date().toISOString() } }}"
+      },
+      "id": "webhook-response",
+      "name": "Webhook Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1120, 300]
+    }
+  ],
+  "connections": {
+    "Supabase Webhook": {
+      "main": [
+        [
+          {
+            "node": "Filter New Orders",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Filter Order Table",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter New Orders": {
+      "main": [
+        [
+          {
+            "node": "Process New Order",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Order Table": {
+      "main": [
+        [
+          {
+            "node": "Notify Admin",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process New Order": {
+      "main": [
+        [
+          {
+            "node": "Create GitHub Issue",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Notify Admin": {
+      "main": [
+        [
+          {
+            "node": "Create GitHub Issue",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create GitHub Issue": {
+      "main": [
+        [
+          {
+            "node": "Webhook Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {},
+  "versionId": "1",
+  "meta": {
+    "instanceId": "borboleta-mcp-n8n"
+  },
+  "id": "3",
+  "tags": [
+    {
+      "name": "Supabase",
+      "id": "supabase-integration"
+    },
+    {
+      "name": "Orders",
+      "id": "order-processing"
+    },
+    {
+      "name": "MCP",
+      "id": "mcp-automation"
+    }
+  ]
+}

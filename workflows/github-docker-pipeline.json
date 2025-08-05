@@ -1,0 +1,200 @@
+{
+  "name": "🦋 Borboleta MCP - GitHub to Docker Hub Pipeline",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "github-webhook",
+        "responseMode": "responseNode"
+      },
+      "id": "webhook-github",
+      "name": "GitHub Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json.ref}}",
+              "operation": "equal",
+              "value2": "refs/heads/main"
+            }
+          ]
+        }
+      },
+      "id": "filter-main-branch",
+      "name": "Filter Main Branch",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://mcp-gateway:3000/api/docker-hub/build",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer {{$env.DOCKER_HUB_TOKEN}}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "repository",
+              "value": "andersondos7000/borboleta-eventos-loja"
+            },
+            {
+              "name": "tag",
+              "value": "latest"
+            },
+            {
+              "name": "build_context",
+              "value": "{{$json.repository.clone_url}}"
+            },
+            {
+              "name": "dockerfile_path",
+              "value": "Dockerfile.hub"
+            }
+          ]
+        }
+      },
+      "id": "trigger-docker-build",
+      "name": "Trigger Docker Build",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [680, 200]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://github-mcp-server:3002/api/status",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer {{$env.GITHUB_TOKEN}}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "state",
+              "value": "pending"
+            },
+            {
+              "name": "description",
+              "value": "Docker Hub build started"
+            },
+            {
+              "name": "context",
+              "value": "continuous-integration/docker-hub"
+            }
+          ]
+        }
+      },
+      "id": "update-github-status",
+      "name": "Update GitHub Status",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [680, 400]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"status\": \"success\", \"message\": \"Build triggered successfully\", \"repository\": $json.repository.full_name, \"commit\": $json.head_commit.id } }}"
+      },
+      "id": "webhook-response",
+      "name": "Webhook Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [900, 300]
+    }
+  ],
+  "connections": {
+    "GitHub Webhook": {
+      "main": [
+        [
+          {
+            "node": "Filter Main Branch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Main Branch": {
+      "main": [
+        [
+          {
+            "node": "Trigger Docker Build",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Update GitHub Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Trigger Docker Build": {
+      "main": [
+        [
+          {
+            "node": "Webhook Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update GitHub Status": {
+      "main": [
+        [
+          {
+            "node": "Webhook Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {},
+  "versionId": "1",
+  "meta": {
+    "instanceId": "borboleta-mcp-n8n"
+  },
+  "id": "1",
+  "tags": [
+    {
+      "name": "MCP",
+      "id": "mcp-automation"
+    },
+    {
+      "name": "Docker Hub",
+      "id": "docker-hub"
+    },
+    {
+      "name": "GitHub",
+      "id": "github-integration"
+    }
+  ]
+}
