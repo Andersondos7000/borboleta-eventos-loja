@@ -135,9 +135,11 @@ const Index = () => {
                   </div>
                 </div>
               </div>
-              <Button asChild className="mt-8 bg-butterfly-orange hover:bg-butterfly-orange/90">
-                <Link to="/evento">Mais Informações</Link>
-              </Button>
+              <div className="flex justify-center">
+                <Button asChild className="mt-8 bg-butterfly-orange hover:bg-butterfly-orange/90">
+                  <Link to="/evento">Mais Informações</Link>
+                </Button>
+              </div>
             </div>
           </div>
         </div>

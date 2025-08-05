@@ -24,6 +24,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 interface PaymentPopupProps {
   isOpen: boolean;
   onClose: () => void;
+  onRegeneratePayment?: () => void; // Callback para regenerar pagamento quando expirar
   paymentData?: {
     data?: {
       id?: string;
@@ -43,7 +44,7 @@ interface PaymentPopupProps {
   orderTotal?: number;
 }
 
-const PaymentPopup: React.FC<PaymentPopupProps> = ({ isOpen, onClose, paymentData, customerData, orderTotal }) => {
+const PaymentPopup: React.FC<PaymentPopupProps> = ({ isOpen, onClose, onRegeneratePayment, paymentData, customerData, orderTotal }) => {
   const { toast } = useToast();
   const { clearCart } = useCart();
   const [isCheckingPayment, setIsCheckingPayment] = useState(false);
@@ -69,13 +70,52 @@ const PaymentPopup: React.FC<PaymentPopupProps> = ({ isOpen, onClose, paymentDat
       
       if (diff <= 0) {
         setTimeLeft('Expirado');
+        
+        // Fechar popup automaticamente quando PIX expirar (sincronizar com duração do QR Code)
+        setTimeout(() => {
+          onClose();
+          
+          // Mostrar toast com opção de regenerar pagamento
+          if (onRegeneratePayment) {
+            toast({
+              title: "⌛ PIX expirado",
+              description: "O código PIX expirou automaticamente. Clique em 'Gerar Novo' para criar um novo pagamento.",
+              variant: "destructive",
+              className: "bg-orange-50 text-orange-700 border-orange-200",
+              action: (
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={onRegeneratePayment}
+                  className="bg-orange-100 border-orange-300 text-orange-800 hover:bg-orange-200"
+                >
+                  Gerar Novo
+                </Button>
+              )
+            });
+          } else {
+            toast({
+              title: "⌛ PIX expirado",
+              description: "O código PIX expirou automaticamente. Gere um novo pagamento para continuar.",
+              variant: "destructive",
+              className: "bg-orange-50 text-orange-700 border-orange-200"
+            });
+          }
+        }, 3000); // Aguarda 3 segundos para mostrar "Expirado" antes de fechar
+        
         return;
       }
       
+      const hours = Math.floor(diff / (1000 * 60 * 60));
       const minutes = Math.floor((diff / 1000 / 60) % 60);
       const seconds = Math.floor((diff / 1000) % 60);
       
-      setTimeLeft(`${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`);
+      // Mostrar formato HH:MM:SS se tiver horas, senão MM:SS
+      if (hours > 0) {
+        setTimeLeft(`${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`);
+      } else {
+        setTimeLeft(`${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`);
+      }
     };
     
     // Atualizar a cada segundo
@@ -83,7 +123,7 @@ const PaymentPopup: React.FC<PaymentPopupProps> = ({ isOpen, onClose, paymentDat
     calculateTimeLeft(); // Chamada inicial
     
     return () => clearInterval(timer);
-  }, [paymentData?.data?.expiresAt]);
+  }, [paymentData?.data?.expiresAt, onClose, onRegeneratePayment, toast]);
   
   console.log('PaymentPopup render - isOpen:', isOpen, 'paymentData:', paymentData);
 
@@ -149,6 +189,8 @@ const PaymentPopup: React.FC<PaymentPopupProps> = ({ isOpen, onClose, paymentDat
   };
 
   const checkPaymentStatus = async () => {
+    console.log('DEBUG: checkPaymentStatus chamado');
+    console.log('DEBUG: paymentData', paymentData);
     if (!paymentData?.data?.id) {
       toast({
         title: "Erro na transação",
@@ -162,6 +204,8 @@ const PaymentPopup: React.FC<PaymentPopupProps> = ({ isOpen, onClose, paymentDat
     setIsCheckingPayment(true);
 
     try {
+      // Atualizar sessão Supabase antes de verificar pagamento
+      await supabase.auth.refreshSession();
       // Obter sessão atual
       const { data: session, error: sessionError } = await supabase.auth.getSession();
       
@@ -177,6 +221,7 @@ const PaymentPopup: React.FC<PaymentPopupProps> = ({ isOpen, onClose, paymentDat
       }
 
       // Usar Supabase Edge Function para verificar pagamento
+      console.log('DEBUG: Invocando função check-abacate-payment com transactionId:', paymentData.data.id);
       const { data: statusResponse, error } = await supabase.functions.invoke('check-abacate-payment', {
         headers: {
           Authorization: `Bearer ${session.session.access_token}`
@@ -185,6 +230,7 @@ const PaymentPopup: React.FC<PaymentPopupProps> = ({ isOpen, onClose, paymentDat
           transactionId: paymentData.data.id
         }
       });
+      console.log('DEBUG: statusResponse', statusResponse);
 
       if (error) {
         console.error('Erro na função de verificação:', error);
@@ -193,6 +239,7 @@ const PaymentPopup: React.FC<PaymentPopupProps> = ({ isOpen, onClose, paymentDat
 
       // Status conforme documentação do Abacate Pay: PENDING, PAID, EXPIRED, CANCELLED, REFUNDED
       const status = statusResponse?.data?.status?.toUpperCase() || 'PENDING';
+      console.log('DEBUG: status recebido', status);
       
       switch (status) {
         case 'PAID':
@@ -259,6 +306,7 @@ const PaymentPopup: React.FC<PaymentPopupProps> = ({ isOpen, onClose, paymentDat
 
   // Estado de confirmação de pagamento
   if (paymentConfirmed) {
+    // Popup permanece aberto até o usuário fechar manualmente (botão ou Esc)
     return (
       <AnimatePresence>
         <Dialog open={isOpen} onOpenChange={onClose}>
@@ -274,42 +322,24 @@ const PaymentPopup: React.FC<PaymentPopupProps> = ({ isOpen, onClose, paymentDat
                   <CheckCircle className="h-8 w-8 text-green-600" />
                 </div>
                 <DialogTitle className="text-center text-2xl font-bold text-gray-900 mt-4">
-                  Pedido Confirmado!
+                  Pagamento Aprovado!
                 </DialogTitle>
               </DialogHeader>
-              
               <div className="text-center py-4 px-2">
                 <motion.div
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.1 }}
                 >
-                  <h3 className="text-lg font-semibold text-gray-800 mb-2">Pagamento Aprovado!</h3>
                   <p className="text-gray-600 mb-6">
                     Seu pedido foi processado com sucesso. Enviamos os detalhes para <span className="font-medium text-gray-900">{customerData?.email || 'seu e-mail'}</span>.
                   </p>
-                  
-                  <div className="bg-green-50 rounded-lg p-4 mb-6 text-left">
-                    <div className="flex items-start">
-                      <div className="flex-shrink-0">
-                        <CheckCircle2 className="h-5 w-5 text-green-500" />
-                      </div>
-                      <div className="ml-3">
-                        <h4 className="text-sm font-medium text-green-800">Número do Pedido</h4>
-                        <p className="text-sm text-green-700 font-mono mt-1">
-                          {paymentData?.data?.id || 'N/A'}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                  
                   <Button 
                     onClick={onClose} 
                     className="w-full bg-green-600 hover:bg-green-700 text-white py-6 text-base font-medium"
                   >
                     Continuar Comprando
                   </Button>
-                  
                   <p className="mt-4 text-sm text-gray-500">
                     Em caso de dúvidas, entre em contato com nosso suporte.
                   </p>

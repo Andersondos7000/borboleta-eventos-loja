@@ -4,6 +4,11 @@ import { supabase } from '@/lib/supabase';
 import { User, Session, Provider } from '@supabase/supabase-js';
 import { useToast } from '@/components/ui/use-toast';
 
+interface SupabaseError {
+  error_description?: string;
+  message?: string;
+}
+
 type AuthContextType = {
   user: User | null;
   session: Session | null;
@@ -55,10 +60,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         title: "Login realizado com sucesso",
         description: "Bem-vindo de volta!"
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const err = error as SupabaseError;
       toast({
         title: "Erro ao fazer login",
-        description: error.error_description || error.message || "Verifique suas credenciais e tente novamente",
+        description: err.error_description || err.message || "Verifique suas credenciais e tente novamente",
         variant: "destructive"
       });
       throw error;
@@ -83,10 +89,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         title: "Cadastro realizado com sucesso",
         description: "Verifique seu email para confirmar seu cadastro."
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const err = error as SupabaseError;
       toast({
         title: "Erro ao criar conta",
-        description: error.error_description || error.message || "Tente novamente mais tarde",
+        description: err.error_description || err.message || "Tente novamente mais tarde",
         variant: "destructive"
       });
       throw error;
@@ -103,10 +110,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       });
       
       if (error) throw error;
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const err = error as SupabaseError;
       toast({
         title: "Erro ao fazer login com Google",
-        description: error.error_description || error.message || "Tente novamente mais tarde",
+        description: err.error_description || err.message || "Tente novamente mais tarde",
         variant: "destructive"
       });
       throw error;
@@ -120,10 +128,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         title: "Logout realizado",
         description: "Você foi desconectado com sucesso."
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const err = error as SupabaseError;
       toast({
         title: "Erro ao fazer logout",
-        description: error.message || "Tente novamente mais tarde",
+        description: err.message || "Tente novamente mais tarde",
         variant: "destructive"
       });
     }

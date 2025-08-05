@@ -21,7 +21,7 @@ const MobileMenu: React.FC = () => {
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
       <SheetTrigger asChild>
-        <Button variant="ghost" size="icon" className="md:hidden">
+        <Button variant="ghost" className="md:hidden h-8 w-8 p-0">
           <Menu className="h-6 w-6" />
           <span className="sr-only">Abrir menu</span>
         </Button>
@@ -126,13 +126,15 @@ const MobileMenu: React.FC = () => {
           </nav>
 
           <div className="mt-auto mb-4">
-            <Link to="/ingressos" onClick={closeMenu}>
-              <Button 
-                className="w-full bg-butterfly-orange hover:bg-butterfly-orange/90"
-              >
-                Comprar Ingresso
-              </Button>
-            </Link>
+            <Button 
+              className="w-full bg-butterfly-orange hover:bg-butterfly-orange/90"
+              onClick={() => {
+                closeMenu();
+                window.location.href = '/ingressos';
+              }}
+            >
+              Comprar Ingresso
+            </Button>
           </div>
         </div>
       </SheetContent>

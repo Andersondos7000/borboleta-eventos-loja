@@ -27,10 +27,12 @@ interface OrderSummaryProps {
 
 const OrderSummary: React.FC<OrderSummaryProps> = ({ cartItems, subtotal, total }) => {
   const [couponCode, setCouponCode] = useState("");
-  const { toast } = useToast();
-
+  // Remove all cart empty and similar popups from button logic
+  // Only keep coupon logic, no cart empty alerts
   const applyCoupon = () => {
     if (couponCode.trim()) {
+      // Only show coupon applied toast
+      // No cart empty or other alerts
       toast({
         title: "Cupom aplicado!",
         description: "Desconto aplicado ao seu pedido.",

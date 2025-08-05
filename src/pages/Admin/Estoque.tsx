@@ -10,6 +10,20 @@ import AdminSidebar from '@/components/AdminSidebar';
 import { supabase } from '@/lib/supabase';
 import { updateProductStock } from '@/lib/updateProductStock';
 
+interface DatabaseProduct {
+  id: string;
+  name: string;
+  category: 'camiseta' | 'vestido';
+  image?: string;
+}
+
+interface DatabaseProductStock {
+  id: string;
+  product_id: string;
+  size: string;
+  quantity: number;
+}
+
 interface StockItem {
   id: string;
   name: string;
@@ -40,8 +54,8 @@ const AdminEstoque = () => {
       // Buscar estoque por tamanho
       const { data: stock } = await supabase.from('product_stock').select('*');
       if (products && stock) {
-        const items: StockItem[] = products.map((p: any) => {
-          const sizes = stock.filter((s: any) => s.product_id === p.id).map((s: any) => ({ size: s.size, stock: s.quantity }));
+        const items: StockItem[] = products.map((p: DatabaseProduct) => {
+          const sizes = stock.filter((s: DatabaseProductStock) => s.product_id === p.id).map((s: DatabaseProductStock) => ({ size: s.size, stock: s.quantity }));
           const total = sizes.reduce((sum, s) => sum + s.stock, 0);
           return {
             id: p.id,
@@ -84,8 +98,8 @@ const AdminEstoque = () => {
     const { data: products } = await supabase.from('products').select('id, name, category, image_url');
     const { data: stock } = await supabase.from('product_stock').select('*');
     if (products && stock) {
-      const items: StockItem[] = products.map((p: any) => {
-        const sizes = stock.filter((s: any) => s.product_id === p.id).map((s: any) => ({ size: s.size, stock: s.quantity }));
+      const items: StockItem[] = products.map((p: DatabaseProduct) => {
+        const sizes = stock.filter((s: DatabaseProductStock) => s.product_id === p.id).map((s: DatabaseProductStock) => ({ size: s.size, stock: s.quantity }));
         const total = sizes.reduce((sum, s) => sum + s.stock, 0);
         return {
           id: p.id,

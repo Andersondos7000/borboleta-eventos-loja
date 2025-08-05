@@ -20,6 +20,16 @@ interface Product {
   status: 'Ativo' | 'Inativo' | 'Esgotado';
 }
 
+interface DatabaseProduct {
+  id: string;
+  name: string;
+  description: string;
+  category: 'camiseta' | 'vestido';
+  price: string | number;
+  stock?: number;
+  image_url?: string;
+}
+
 const AdminProdutos = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('all');
@@ -60,7 +70,7 @@ const AdminProdutos = () => {
       setIsLoading(false);
       return;
     }
-    const formattedProducts: Product[] = (data || []).map((product: any) => ({
+    const formattedProducts: Product[] = (data || []).map((product: DatabaseProduct) => ({
       id: product.id,
       name: product.name,
       description: product.description,

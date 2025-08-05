@@ -14,6 +14,7 @@ import AdminTickets from "./pages/Admin/Tickets";
 import AdminProdutos from "./pages/Admin/Produtos";
 import AdminPedidos from "./pages/Admin/Pedidos";
 import AdminEstoque from "./pages/Admin/Estoque";
+import AdminDatabase from "./pages/Admin/AdminDatabase";
 import NotFound from "./pages/NotFound";
 import Ingressos from "./pages/Ingressos";
 import Terms from "./pages/Terms";
@@ -53,6 +54,7 @@ const App = () => (
               <Route path="/admin/produtos" element={<AdminProdutos />} />
               <Route path="/admin/pedidos" element={<AdminPedidos />} />
               <Route path="/admin/estoque" element={<AdminEstoque />} />
+              <Route path="/admin/database" element={<AdminDatabase />} />
               <Route path="/ingressos" element={<Ingressos />} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/auth/callback" element={<AuthCallback />} />

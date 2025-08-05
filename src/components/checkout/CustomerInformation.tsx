@@ -28,7 +28,7 @@ const formSchema = z.object({
 export type CustomerFormData = z.infer<typeof formSchema>;
 
 interface CustomerInformationProps {
-  form: UseFormReturn<any>;
+  form: UseFormReturn<CustomerFormData>;
 }
 
 const CustomerInformation: React.FC<CustomerInformationProps> = ({ form }) => {

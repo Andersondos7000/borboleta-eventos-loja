@@ -10,6 +10,7 @@ import Footer from "@/components/Footer";
 import CustomerInformation from "@/components/checkout/CustomerInformation";
 import AdditionalNotes from "@/components/checkout/AdditionalNotes";
 import ParticipantsList from "@/components/checkout/ParticipantsList";
+import PaymentSection from "@/components/checkout/PaymentSection";
 import OrderSummary from "@/components/checkout/OrderSummary";
 import TermsSection from "@/components/checkout/TermsSection";
 import { useCart, isCartProduct } from "@/contexts/CartContext";
@@ -47,6 +48,7 @@ const Checkout = () => {
   const navigate = useNavigate();
   const { items, subtotal, shipping, total, clearCart } = useCart();
   const [participantCount, setParticipantCount] = useState(1);
+  const [paymentData, setPaymentData] = useState(null);
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
   
   useEffect(() => {
@@ -134,6 +136,8 @@ const Checkout = () => {
       }
 
       if (paymentResponse.success) {
+        setPaymentData(paymentResponse.paymentData);
+        
         // NÃO limpar carrinho aqui - só depois do pagamento confirmado
         
         toast({
@@ -148,6 +152,81 @@ const Checkout = () => {
       console.error('Error creating order:', error);
       toast({
         title: "Erro ao processar pedido",
+        description: error instanceof Error ? error.message : "Tente novamente em alguns minutos.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsProcessingPayment(false);
+    }
+  };
+
+  // Função para regenerar pagamento quando PIX expirar
+  const regeneratePayment = async () => {
+    const formData = form.getValues();
+    
+    if (!formData.terms) {
+      toast({
+        title: "Termos não aceitos",
+        description: "Você precisa aceitar os termos e condições para continuar.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsProcessingPayment(true);
+    
+    try {
+      // Get current session
+      const { data: session } = await supabase.auth.getSession();
+      
+      if (!session.session) {
+        toast({
+          title: "Erro de autenticação",
+          description: "Você precisa estar logado para finalizar o pedido.",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      // Call Abacate Pay edge function
+      const { data: paymentResponse, error } = await supabase.functions.invoke('create-abacate-payment', {
+        headers: {
+          Authorization: `Bearer ${session.session.access_token}`
+        },
+        body: {
+          orderData: formData,
+          total: total,
+          items: items.map(item => ({
+            productId: isCartProduct(item) ? item.productId : null,
+            ticketId: !isCartProduct(item) ? item.ticketId : null,
+            price: item.price,
+            quantity: item.quantity,
+            size: isCartProduct(item) ? item.size : null,
+            name: item.name
+          }))
+        }
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      if (paymentResponse.success) {
+        setPaymentData(paymentResponse.paymentData);
+        
+        toast({
+          title: "Novo pagamento gerado!",
+          description: "Um novo código PIX foi criado. Escaneie o QR Code ou copie o código PIX para pagar.",
+          className: "bg-green-50 text-green-700 border-green-200"
+        });
+      } else {
+        throw new Error(paymentResponse.error || 'Erro ao processar pagamento');
+      }
+      
+    } catch (error) {
+      console.error('Error regenerating payment:', error);
+      toast({
+        title: "Erro ao gerar novo pagamento",
         description: error instanceof Error ? error.message : "Tente novamente em alguns minutos.",
         variant: "destructive"
       });
@@ -196,6 +275,18 @@ const Checkout = () => {
                     participantCount={participantCount}
                     onAddParticipant={addParticipant}
                     onRemoveParticipant={removeParticipant}
+                  />
+                  <PaymentSection 
+                    paymentData={paymentData} 
+                    customerData={{
+                      name: `${form.watch('firstName')} ${form.watch('lastName')}`,
+                      email: '', // Email será obtido do usuário logado
+                      phone: form.watch('phone'),
+                      cpf: form.watch('cpf')
+                    }}
+                    orderTotal={total * 100} // Converter para centavos
+                    isLoading={isProcessingPayment}
+                    onRegeneratePayment={regeneratePayment}
                   />
                   <TermsSection 
                     form={form} 

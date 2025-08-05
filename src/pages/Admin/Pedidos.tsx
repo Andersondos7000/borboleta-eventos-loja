@@ -20,6 +20,35 @@ interface OrderItem {
   isTicket?: boolean;
 }
 
+interface Profile {
+  email: string;
+  first_name: string;
+  last_name: string;
+  phone?: string;
+}
+
+interface DatabaseOrderItem {
+  id: string;
+  order_id: string;
+  product_id?: string;
+  ticket_id?: string;
+  quantity: number;
+  price: number;
+  size?: string;
+  [key: string]: unknown;
+}
+
+interface DatabaseOrder {
+  id: string;
+  total: number;
+  status: 'Pendente' | 'Pago' | 'Enviado' | 'Entregue' | 'Cancelado';
+  created_at: string;
+  user_id: string;
+  customer_data: Record<string, unknown>;
+  order_items: DatabaseOrderItem[];
+  profiles: Profile;
+}
+
 interface Order {
   id: string;
   customer: {
@@ -42,11 +71,11 @@ interface Order {
 }
 
 const AdminPedidos = () => {
-  const [orders, setOrders] = useState<any[]>([]);
+  const [orders, setOrders] = useState<DatabaseOrder[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
-  const [selectedOrder, setSelectedOrder] = useState<any | null>(null);
+  const [selectedOrder, setSelectedOrder] = useState<DatabaseOrder | null>(null);
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -106,7 +135,7 @@ const AdminPedidos = () => {
     }
   };
 
-  const openOrderDetails = (order: any) => {
+  const openOrderDetails = (order: DatabaseOrder) => {
     setSelectedOrder(order);
   };
 
@@ -243,9 +272,9 @@ const AdminPedidos = () => {
                       <td className="py-3 px-4 text-sm text-center">{new Date(order.created_at).toLocaleDateString('pt-BR')}</td>
                       <td className="py-3 px-4 text-sm text-center">
                         {/* Tipo: Ingressos, Produtos ou ambos */}
-                        {order.order_items?.some((item: any) => item.ticket_id) && order.order_items?.some((item: any) => item.product_id)
+                        {order.order_items?.some((item: DatabaseOrderItem) => item.ticket_id) && order.order_items?.some((item: DatabaseOrderItem) => item.product_id)
                           ? 'Ingr. + Prod.'
-                          : order.order_items?.some((item: any) => item.ticket_id)
+                          : order.order_items?.some((item: DatabaseOrderItem) => item.ticket_id)
                           ? 'Ingressos'
                           : 'Produtos'
                         }
@@ -309,9 +338,9 @@ const AdminPedidos = () => {
                                           <div className="flex justify-between">
                                             <span className="text-gray-600">Tipo:</span>
                                             <span>
-                                              {selectedOrder.order_items?.some((item: any) => item.ticket_id) && selectedOrder.order_items?.some((item: any) => item.product_id)
+                                              {selectedOrder.order_items?.some((item: DatabaseOrderItem) => item.ticket_id) && selectedOrder.order_items?.some((item: DatabaseOrderItem) => item.product_id)
                                                 ? 'Ingressos e Produtos'
-                                                : selectedOrder.order_items?.some((item: any) => item.ticket_id)
+                                                : selectedOrder.order_items?.some((item: DatabaseOrderItem) => item.ticket_id)
                                                 ? 'Ingressos'
                                                 : 'Produtos'
                                               }
@@ -338,7 +367,7 @@ const AdminPedidos = () => {
                                   <TabsContent value="items">
                                     <div className="space-y-4">
                                       <h3 className="font-medium text-lg mb-2">Itens do Pedido</h3>
-                                      {selectedOrder.order_items?.map((item: any, index: number) => (
+                                      {selectedOrder.order_items?.map((item: DatabaseOrderItem, index: number) => (
                                         <div key={index} className="flex justify-between border-b py-3">
                                           <div className="flex items-center">
                                             {item.product_id && item.name ? (

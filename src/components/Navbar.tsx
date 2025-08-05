@@ -52,14 +52,25 @@ const Navbar: React.FC = () => {
           </div>
 
           <div className="flex items-center space-x-4">
-            {/* Botão de Login para Mobile */}
-            {!user && (
+            {/* Botão de Login/Perfil entre logo e carrinho */}
+            {user ? (
               <Link 
-                to="/auth" 
-                className="md:hidden text-butterfly-orange hover:text-butterfly-orange/80 transition-colors"
+                to="/perfil"
+                className="flex items-center space-x-2 text-butterfly-orange hover:text-butterfly-orange/80 transition-colors"
               >
-                <User className="h-6 w-6" />
+                <User className="h-5 w-5" />
+                <span className="font-medium hidden md:block">Perfil</span>
               </Link>
+            ) : (
+              <Button 
+                variant="default" 
+                size="sm"
+                className="flex items-center space-x-2"
+                onClick={() => window.location.href = '/auth'}
+              >
+                <User className="h-4 w-4" />
+                <span className="hidden md:block">Entrar</span>
+              </Button>
             )}
             
             <Link to="/carrinho" className="relative text-butterfly-orange hover:text-butterfly-orange/80 transition-colors">
@@ -70,24 +81,6 @@ const Navbar: React.FC = () => {
                 </span>
               )}
             </Link>
-            
-            {user ? (
-              <Link 
-                to="/perfil"
-                className="hidden md:flex items-center space-x-2 text-butterfly-orange hover:text-butterfly-orange/80 transition-colors"
-              >
-                <User className="h-5 w-5" />
-                <span className="font-medium">Perfil</span>
-              </Link>
-            ) : (
-              <Link to="/auth" className="hidden md:flex">
-                <Button 
-                  variant="default" 
-                >
-                  Entrar
-                </Button>
-              </Link>
-            )}
             
             <Link to="/ingressos">
               <Button 

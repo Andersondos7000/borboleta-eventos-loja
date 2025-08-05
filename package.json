@@ -8,7 +8,12 @@
     "build": "vite build",
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test:supabase": "node --loader ts-node/esm src/utils/supabaseTest.ts",
+    "mcp:start": "node scripts/mcp-orchestrator-simple.cjs",
+    "mcp:setup": "bash scripts/setup-mcp.sh",
+    "mcp:verify": "bash scripts/verify-mcp.sh",
+    "mcp:status": "ps aux | grep mcp"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",

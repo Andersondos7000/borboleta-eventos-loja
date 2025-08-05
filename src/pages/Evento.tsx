@@ -88,14 +88,12 @@ const Evento = () => {
               </div>
             </div>
             
-            <Link to="/ingressos">
-              <Button
-                size="lg"
-                className="bg-butterfly-orange hover:bg-butterfly-orange/90"
-              >
-                Comprar Ingressos
-              </Button>
-            </Link>
+            <Button
+              size="lg"
+              className="bg-butterfly-orange hover:bg-butterfly-orange/90"
+            >
+              Comprar Ingressos
+            </Button>
           </div>
         </div>
       </section>
@@ -280,7 +278,7 @@ const Evento = () => {
           <Button
             asChild
             size="lg"
-            className="bg-white hover:bg-butterfly-orange text-butterfly-orange border border-butterfly-orange hover:text-white transition-colors"
+            className="bg-white hover:bg-butterfly-orange text-butterfly-orange border border-butterfly-orange hover:text-white active:bg-butterfly-orange-dark active:text-white focus:bg-butterfly-orange focus:text-white transition-colors"
           >
             <Link to="/ingressos">Comprar Ingressos Agora</Link>
           </Button>

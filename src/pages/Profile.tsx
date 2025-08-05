@@ -32,6 +32,28 @@ type ProfileData = {
   created_at: string;
 };
 
+interface DatabaseOrder {
+  id: string;
+  user_id: string;
+  total: number;
+  status: string;
+  created_at: string;
+}
+
+interface DatabaseTicket {
+  id: string;
+  user_id: string;
+  event_id: string;
+  created_at: string;
+  events?: {
+    name: string;
+  };
+}
+
+interface SupabaseError {
+  message: string;
+}
+
 const Profile = () => {
   const { user, loading, signOut } = useAuth();
   const navigate = useNavigate();
@@ -40,8 +62,8 @@ const Profile = () => {
   const [loadingProfile, setLoadingProfile] = useState(true);
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("info");
-  const [orders, setOrders] = useState([]);
-  const [tickets, setTickets] = useState([]);
+  const [orders, setOrders] = useState<DatabaseOrder[]>([]);
+  const [tickets, setTickets] = useState<DatabaseTicket[]>([]);
   const [loadingOrders, setLoadingOrders] = useState(true);
   const [loadingTickets, setLoadingTickets] = useState(true);
 
@@ -75,10 +97,11 @@ const Profile = () => {
             avatar_url: data.avatar_url || "",
           });
         }
-      } catch (error: any) {
+      } catch (error: unknown) {
+        const err = error as SupabaseError;
         toast({
           title: "Erro ao carregar perfil",
-          description: error.message || "Tente novamente mais tarde",
+          description: err.message || "Tente novamente mais tarde",
           variant: "destructive",
         });
       } finally {
@@ -186,10 +209,11 @@ const Profile = () => {
       if (data) {
         setProfile(data);
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const err = error as SupabaseError;
       toast({
         title: "Erro ao atualizar perfil",
-        description: error.message || "Tente novamente mais tarde",
+        description: err.message || "Tente novamente mais tarde",
         variant: "destructive",
       });
     } finally {
@@ -328,7 +352,7 @@ const Profile = () => {
                     </div>
                   ) : orders.length > 0 ? (
                     <div className="space-y-4">
-                      {orders.map((order: any) => (
+                      {orders.map((order: DatabaseOrder) => (
                         <Card key={order.id}>
                           <CardContent className="p-4">
                             <div className="flex justify-between items-center">
@@ -386,7 +410,7 @@ const Profile = () => {
                     </div>
                   ) : tickets.length > 0 ? (
                     <div className="space-y-4">
-                      {tickets.map((ticket: any) => (
+                      {tickets.map((ticket: DatabaseTicket) => (
                         <Card key={ticket.id}>
                           <CardContent className="p-4">
                             <div className="flex justify-between items-center">

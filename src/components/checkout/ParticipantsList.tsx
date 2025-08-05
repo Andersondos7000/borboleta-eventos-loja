@@ -8,8 +8,31 @@ import { Info } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { UseFormReturn } from 'react-hook-form';
 
+interface CheckoutFormData {
+  firstName: string;
+  lastName: string;
+  personType: "fisica" | "juridica";
+  cpf: string;
+  country: string;
+  zipCode: string;
+  address: string;
+  number: string;
+  neighborhood?: string;
+  city: string;
+  state: string;
+  phone: string;
+  additionalNotes?: string;
+  participants: Array<{
+    name?: string;
+    cpf?: string;
+    tshirt?: string;
+    dress?: string;
+  }>;
+  terms: boolean;
+}
+
 interface ParticipantsListProps {
-  form: UseFormReturn<any>;
+  form: UseFormReturn<CheckoutFormData>;
   participantCount: number;
   onAddParticipant: () => void;
   onRemoveParticipant: (index: number) => void;

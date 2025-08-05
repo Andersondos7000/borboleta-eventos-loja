@@ -66,6 +66,7 @@ export default {
 				// Adicionando cores personalizadas
 				butterfly: {
 					orange: '#F97316',
+					'orange-dark': '#EA580C',
 					black: '#000000',
 					white: '#FFFFFF',
 				},

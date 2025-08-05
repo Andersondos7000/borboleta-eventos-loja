@@ -15,8 +15,24 @@ interface Ticket {
   purchaseDate: string;
 }
 
+interface DatabaseTicket {
+  id: string;
+  price: number;
+  status: string;
+  created_at: string;
+  user_id: string;
+  events?: {
+    name: string;
+  } | null;
+  profiles?: {
+    email: string;
+    first_name: string;
+    last_name: string;
+  } | null;
+}
+
 const AdminTickets = () => {
-  const [tickets, setTickets] = useState<any[]>([]);
+  const [tickets, setTickets] = useState<DatabaseTicket[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
