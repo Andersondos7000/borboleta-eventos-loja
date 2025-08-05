@@ -14,7 +14,7 @@ interface DatabaseProduct {
   id: string;
   name: string;
   category: 'camiseta' | 'vestido';
-  image?: string;
+  image_url?: string;
 }
 
 interface DatabaseProductStock {

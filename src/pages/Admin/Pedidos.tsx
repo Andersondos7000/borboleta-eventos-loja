@@ -46,7 +46,7 @@ interface DatabaseOrder {
   user_id: string;
   customer_data: Record<string, unknown>;
   order_items: DatabaseOrderItem[];
-  profiles: Profile;
+  profiles?: Profile;
 }
 
 interface Order {
@@ -86,7 +86,7 @@ const AdminPedidos = () => {
         .select('id, total, status, created_at, user_id, customer_data, order_items(*), profiles:profiles!orders_user_id_fkey(email, first_name, last_name, phone)')
         .order('created_at', { ascending: false });
       if (!error && data) {
-        setOrders(data);
+        setOrders(data as any);
       }
       setIsLoading(false);
     };
@@ -372,9 +372,9 @@ const AdminPedidos = () => {
                                           <div className="flex items-center">
                                             {item.product_id && item.name ? (
                                               <div className="h-16 w-16 flex-shrink-0 rounded overflow-hidden mr-3">
-                                                <img 
-                                                  src={item.image || ''} 
-                                                  alt={item.name} 
+                                                 <img 
+                                                   src={String(item.image || '')} 
+                                                   alt={String(item.name || 'Item')}
                                                   className="h-full w-full object-cover"
                                                 />
                                               </div>
@@ -384,7 +384,7 @@ const AdminPedidos = () => {
                                               </div>
                                             )}
                                             <div>
-                                              <div className="font-medium">{item.name}</div>
+                                              <div className="font-medium">{String(item.name || 'Item')}</div>
                                               {item.size && (
                                                 <div className="text-sm text-gray-500">
                                                   Tamanho: {item.size}

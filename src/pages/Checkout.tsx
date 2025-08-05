@@ -43,6 +43,9 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
+// Interface para compatibilidade com CheckoutFormData
+type CheckoutFormData = FormValues;
+
 const Checkout = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -268,10 +271,10 @@ const Checkout = () => {
             <div className="lg:col-span-2 space-y-8">
               <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-                  <CustomerInformation form={form} />
-                  <AdditionalNotes form={form} />
+                  <CustomerInformation form={form as any} />
+                  <AdditionalNotes form={form as any} />
                   <ParticipantsList 
-                    form={form}
+                    form={form as any}
                     participantCount={participantCount}
                     onAddParticipant={addParticipant}
                     onRemoveParticipant={removeParticipant}
@@ -289,7 +292,7 @@ const Checkout = () => {
                     onRegeneratePayment={regeneratePayment}
                   />
                   <TermsSection 
-                    form={form} 
+                    form={form as any} 
                     total={total} 
                     isProcessing={isProcessingPayment}
                   />

@@ -45,8 +45,11 @@ interface DatabaseTicket {
   user_id: string;
   event_id: string;
   created_at: string;
+  status: string;
   events?: {
     name: string;
+    date?: string;
+    location?: string;
   };
 }
 

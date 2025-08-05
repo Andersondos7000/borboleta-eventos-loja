@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { ShoppingCart, ShieldCheck, LifeBuoy, Lock } from 'lucide-react';
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 
 type CartItemBase = {
   id: string;
@@ -29,6 +29,8 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ cartItems, subtotal, total 
   const [couponCode, setCouponCode] = useState("");
   // Remove all cart empty and similar popups from button logic
   // Only keep coupon logic, no cart empty alerts
+  const { toast } = useToast();
+  
   const applyCoupon = () => {
     if (couponCode.trim()) {
       // Only show coupon applied toast

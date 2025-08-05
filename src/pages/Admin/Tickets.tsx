@@ -23,12 +23,12 @@ interface DatabaseTicket {
   user_id: string;
   events?: {
     name: string;
-  } | null;
+  }[];
   profiles?: {
     email: string;
     first_name: string;
     last_name: string;
-  } | null;
+  }[];
 }
 
 const AdminTickets = () => {
@@ -149,8 +149,8 @@ const AdminTickets = () => {
                   ) : tickets.map((ticket) => (
                     <tr key={ticket.id} className="border-b">
                       <td className="py-3 px-4 text-sm">{ticket.id}</td>
-                      <td className="py-3 px-4 text-sm">{ticket.profiles?.first_name || ''} {ticket.profiles?.last_name || ''}</td>
-                      <td className="py-3 px-4 text-sm">{ticket.profiles?.email || ''}</td>
+                      <td className="py-3 px-4 text-sm">{Array.isArray(ticket.profiles) ? ticket.profiles[0]?.first_name || '' : ''} {Array.isArray(ticket.profiles) ? ticket.profiles[0]?.last_name || '' : ''}</td>
+                      <td className="py-3 px-4 text-sm">{Array.isArray(ticket.profiles) ? ticket.profiles[0]?.email || '' : ''}</td>
                       <td className="py-3 px-4 text-sm text-center">1</td>
                       <td className="py-3 px-4 text-sm text-right">R$ {Number(ticket.price).toFixed(2)}</td>
                       <td className="py-3 px-4 text-center">

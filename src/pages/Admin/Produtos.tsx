@@ -27,6 +27,7 @@ interface DatabaseProduct {
   category: 'camiseta' | 'vestido';
   price: string | number;
   stock?: number;
+  in_stock?: boolean;
   image_url?: string;
 }
 
