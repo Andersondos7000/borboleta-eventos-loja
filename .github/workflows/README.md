@@ -23,5 +23,7 @@ O workflow mostra logs detalhados do processo de deploy.
 
 ### Status Atual:
 - ✅ Workflow criado
-- ⏳ Aguardando configuração de secrets
-- ⏳ Aguardando primeiro deploy
+- ✅ **Deploy via MCP GitHub realizado**
+- ✅ **Código da Edge Function atualizado**
+- ✅ **Problema do AbacatePay corrigido**
+- ⏳ Aguardando configuração de secrets para automação futura

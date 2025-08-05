@@ -1,0 +1,227 @@
+# MCP Gateway Configuration
+# Docker Hub Official Integration
+
+gateway:
+  port: 3000
+  host: "0.0.0.0"
+  log_level: "debug"
+  
+  # Security Settings
+  security:
+    enable_cors: true
+    cors_origins:
+      - "http://localhost:5173"
+      - "https://borboleta-eventos.vercel.app"
+    
+    # Rate Limiting
+    rate_limit:
+      enabled: true
+      requests_per_minute: 1000
+      burst: 100
+    
+    # Authentication
+    auth:
+      enabled: true
+      jwt_secret: "${JWT_SECRET}"
+      token_expiry: "24h"
+
+  # Container Management
+  containers:
+    network: "borboleta-mcp-network"
+    restart_policy: "unless-stopped"
+    resource_limits:
+      memory: "512MB"
+      cpu: "0.5"
+
+# MCP Servers Configuration
+servers:
+  - name: "docker-hub"
+    type: "docker-hub"
+    container: "borboleta-hub-mcp"
+    port: 3001
+    enabled: true
+    capabilities:
+      - "repositories"
+      - "automated_builds"
+      - "webhooks"
+      - "registry"
+    config:
+      username: "${DOCKER_HUB_USERNAME}"
+      token: "${DOCKER_HUB_TOKEN}"
+      
+  - name: "github-official"
+    type: "github"
+    container: "borboleta-github-mcp"
+    port: 3002
+    enabled: true
+    capabilities:
+      - "repositories"
+      - "issues"
+      - "pull_requests"
+      - "workflows"
+      - "deployments"
+    config:
+      token: "${GITHUB_TOKEN}"
+      
+  - name: "supabase"
+    type: "supabase"
+    container: "borboleta-supabase-mcp"
+    port: 3003
+    enabled: true
+    capabilities:
+      - "edge_functions"
+      - "database"
+      - "storage"
+      - "auth"
+      - "real_time"
+    config:
+      url: "${VITE_SUPABASE_URL}"
+      service_role_key: "${SUPABASE_SERVICE_ROLE_KEY}"
+      
+  - name: "browser-tools"
+    type: "browser"
+    container: "borboleta-browser-mcp"
+    port: 3004
+    enabled: true
+    capabilities:
+      - "web_scraping"
+      - "automated_testing"
+      - "screenshot"
+      - "pdf_generation"
+    config:
+      headless: true
+      timeout: 30000
+      
+  - name: "playwright"
+    type: "playwright"
+    container: "borboleta-playwright-mcp"
+    port: 3005
+    enabled: true
+    capabilities:
+      - "e2e_testing"
+      - "performance_testing"
+      - "mobile_testing"
+      - "cross_browser"
+    config:
+      browsers: ["chromium", "firefox", "webkit"]
+      headless: true
+
+# Monitoring & Observability
+monitoring:
+  enabled: true
+  
+  # Metrics Collection
+  metrics:
+    enabled: true
+    port: 9090
+    path: "/metrics"
+    
+  # Logging
+  logging:
+    level: "debug"
+    format: "json"
+    output:
+      - type: "file"
+        path: "/logs/mcp-gateway.log"
+        rotation: "daily"
+      - type: "stdout"
+        
+  # Health Checks
+  health:
+    enabled: true
+    path: "/health"
+    interval: "30s"
+    timeout: "10s"
+    
+  # Tracing
+  tracing:
+    enabled: true
+    jaeger_endpoint: "http://jaeger:14268/api/traces"
+
+# Registry & Discovery
+registry:
+  enabled: true
+  url: "http://mcp-registry:3006"
+  
+  # Auto-discovery
+  discovery:
+    enabled: true
+    scan_interval: "60s"
+    network_scan: true
+    
+  # Service Registration
+  registration:
+    auto_register: true
+    metadata:
+      project: "borboleta-eventos"
+      environment: "production"
+      version: "3.0.0"
+
+# Integration Settings
+integrations:
+  # Docker Hub Automated Builds
+  docker_hub:
+    webhooks:
+      enabled: true
+      endpoint: "/webhooks/docker-hub"
+      secret: "${DOCKER_HUB_WEBHOOK_SECRET}"
+      events:
+        - "push"
+        - "build_success"
+        - "build_failure"
+        
+  # GitHub Actions Integration
+  github:
+    webhooks:
+      enabled: true
+      endpoint: "/webhooks/github"
+      secret: "${GITHUB_WEBHOOK_SECRET}"
+      events:
+        - "push"
+        - "pull_request"
+        - "workflow_run"
+        
+  # Supabase Edge Functions
+  supabase:
+    auto_deploy: true
+    functions_path: "/app/supabase/functions"
+    deploy_on_change: true
+
+# Performance & Scaling
+performance:
+  # Connection Pooling
+  connection_pool:
+    max_connections: 100
+    idle_timeout: "300s"
+    
+  # Caching
+  cache:
+    enabled: true
+    ttl: "300s"
+    max_entries: 10000
+    
+  # Load Balancing
+  load_balancing:
+    strategy: "round_robin"
+    health_check_interval: "30s"
+
+# Development Tools
+development:
+  # VS Code Integration
+  vscode:
+    enabled: true
+    extension_port: 3007
+    debug_mode: true
+    
+  # Hot Reload
+  hot_reload:
+    enabled: true
+    watch_paths:
+      - "/app/src"
+      - "/app/supabase/functions"
+      
+  # Testing
+  testing:
+    enabled: true
+    test_server_port: 3008
+    mock_services: true

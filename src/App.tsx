@@ -22,6 +22,7 @@ import Privacy from "./pages/Privacy";
 import Auth from "./pages/Auth";
 import AuthCallback from "./pages/Auth/Callback";
 import Profile from "./pages/Profile";
+import MCPDemo from "./pages/MCPDemo";
 import { CartProvider } from "./contexts/CartContext";
 import { AuthProvider } from "./contexts/AuthContext";
 
@@ -59,6 +60,7 @@ const App = () => (
               <Route path="/auth" element={<Auth />} />
               <Route path="/auth/callback" element={<AuthCallback />} />
               <Route path="/perfil" element={<Profile />} />
+              <Route path="/mcp-demo" element={<MCPDemo />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>

@@ -1,0 +1,267 @@
+# 🚀 Docker Hub MCP Integration - Advanced Setup
+
+version: '3.8'
+
+services:
+  # MCP Gateway Service - Orquestrador oficial do Docker
+  mcp-gateway:
+    image: docker/mcp-gateway:latest
+    container_name: borboleta-mcp-gateway
+    ports:
+      - "3000:3000"
+      - "8080:8080"
+    environment:
+      - MCP_GATEWAY_PORT=3000
+      - MCP_GATEWAY_LOG_LEVEL=debug
+      - DOCKER_HOST=unix:///var/run/docker.sock
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./config/mcp-gateway:/config
+      - ./logs/mcp-gateway:/logs
+    networks:
+      - mcp-network
+    depends_on:
+      - mcp-hub-server
+    restart: unless-stopped
+    labels:
+      - "com.docker.mcp.type=gateway"
+      - "com.docker.mcp.project=borboleta-eventos"
+
+  # Docker Hub MCP Server - Integração oficial
+  mcp-hub-server:
+    image: docker/hub-mcp:latest
+    container_name: borboleta-hub-mcp
+    environment:
+      - DOCKER_HUB_TOKEN=${DOCKER_HUB_TOKEN}
+      - DOCKER_HUB_USERNAME=${DOCKER_HUB_USERNAME}
+      - MCP_SERVER_PORT=3001
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./config/hub-mcp:/config
+    networks:
+      - mcp-network
+    restart: unless-stopped
+    labels:
+      - "com.docker.mcp.type=server"
+      - "com.docker.mcp.service=docker-hub"
+
+  # N8N Workflow Automation - Essential MCP Component
+  n8n-mcp-server:
+    image: n8nio/n8n:latest
+    container_name: borboleta-n8n-mcp
+    ports:
+      - "5678:5678"
+    environment:
+      - N8N_HOST=0.0.0.0
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=http
+      - NODE_ENV=production
+      - WEBHOOK_URL=http://localhost:5678/
+      - GENERIC_TIMEZONE=America/Sao_Paulo
+      - N8N_METRICS=true
+      - N8N_DIAGNOSTICS_ENABLED=true
+      - N8N_MCP_INTEGRATION=true
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
+      - DOCKER_HUB_TOKEN=${DOCKER_HUB_TOKEN}
+      - VITE_SUPABASE_URL=${VITE_SUPABASE_URL}
+      - SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY}
+    volumes:
+      - n8n_data:/home/node/.n8n
+      - ./config/n8n:/config
+      - ./workflows:/workflows
+    networks:
+      - mcp-network
+    restart: unless-stopped
+    labels:
+      - "com.docker.mcp.type=automation"
+      - "com.docker.mcp.service=n8n"
+      - "com.docker.mcp.category=workflow"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5678/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # GitHub MCP Server (containerizado)
+  github-mcp-server:
+    image: node:18-alpine
+    container_name: borboleta-github-mcp
+    environment:
+      - GITHUB_PERSONAL_ACCESS_TOKEN=${GITHUB_TOKEN}
+      - MCP_SERVER_PORT=3002
+    ports:
+      - "3002:3002"
+    networks:
+      - mcp-network
+    restart: unless-stopped
+    labels:
+      - "com.docker.mcp.type=server"
+      - "com.docker.mcp.service=github"
+    command: ["sh", "-c", "npm install -g @modelcontextprotocol/server-github && sleep infinity"]
+
+  # Supabase MCP Server (containerizado)
+  supabase-mcp-server:
+    image: node:18-alpine
+    container_name: borboleta-supabase-mcp
+    environment:
+      - SUPABASE_URL=${VITE_SUPABASE_URL}
+      - SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY}
+      - MCP_SERVER_PORT=3003
+    ports:
+      - "3003:3003"
+    networks:
+      - mcp-network
+    restart: unless-stopped
+    labels:
+      - "com.docker.mcp.type=server"
+      - "com.docker.mcp.service=supabase"
+    command: ["sh", "-c", "npm install -g @modelcontextprotocol/server-supabase && sleep infinity"]
+
+  # Browser Tools MCP Server
+  browser-tools-mcp:
+    image: modelcontextprotocol/server-browser:latest
+    container_name: borboleta-browser-mcp
+    environment:
+      - MCP_SERVER_PORT=3004
+      - BROWSER_HEADLESS=true
+    ports:
+      - "3004:3004"
+    networks:
+      - mcp-network
+    restart: unless-stopped
+    labels:
+      - "com.docker.mcp.type=server"
+      - "com.docker.mcp.service=browser"
+
+  # Playwright MCP Server
+  playwright-mcp:
+    image: modelcontextprotocol/server-playwright:latest
+    container_name: borboleta-playwright-mcp
+    environment:
+      - MCP_SERVER_PORT=3005
+      - PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
+    ports:
+      - "3005:3005"
+    networks:
+      - mcp-network
+    restart: unless-stopped
+    labels:
+      - "com.docker.mcp.type=server"
+      - "com.docker.mcp.service=playwright"
+
+  # MCP Toolkit Manager
+  mcp-toolkit:
+    image: docker/mcp-toolkit:latest
+    container_name: borboleta-mcp-toolkit
+    environment:
+      - MCP_GATEWAY_URL=http://mcp-gateway:3000
+      - TOOLKIT_MODE=production
+    volumes:
+      - ./config/mcp-toolkit:/config
+      - ./data/mcp-toolkit:/data
+    networks:
+      - mcp-network
+    depends_on:
+      - mcp-gateway
+    restart: unless-stopped
+    labels:
+      - "com.docker.mcp.type=toolkit"
+      - "com.docker.mcp.role=manager"
+
+  # MCP Registry & Discovery Service
+  mcp-registry:
+    image: docker/mcp-registry:latest
+    container_name: borboleta-mcp-registry
+    environment:
+      - REGISTRY_PORT=3006
+      - REGISTRY_MODE=discovery
+    ports:
+      - "3006:3006"
+    volumes:
+      - ./config/mcp-registry:/config
+      - ./data/registry:/data
+    networks:
+      - mcp-network
+    restart: unless-stopped
+    labels:
+      - "com.docker.mcp.type=registry"
+      - "com.docker.mcp.role=discovery"
+
+  # Application Server (nosso projeto)
+  app:
+    build: .
+    container_name: borboleta-eventos-loja-app-1
+    ports:
+      - "5173:5173"
+    environment:
+      - NODE_ENV=production
+      - VITE_SUPABASE_URL=${VITE_SUPABASE_URL}
+      - VITE_SUPABASE_ANON_KEY=${VITE_SUPABASE_ANON_KEY}
+      - SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY}
+      - MCP_GATEWAY_URL=http://mcp-gateway:3000
+      - MCP_ENABLED=true
+    volumes:
+      - .:/app
+      - /app/node_modules
+    networks:
+      - mcp-network
+    depends_on:
+      - mcp-gateway
+      - mcp-toolkit
+    restart: unless-stopped
+    labels:
+      - "com.docker.mcp.type=client"
+      - "com.docker.mcp.project=borboleta-eventos"
+
+  # N8N Workflow Automation
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: borboleta-n8n
+    ports:
+      - "5678:5678"
+    environment:
+      - N8N_BASIC_AUTH_ACTIVE=true
+      - N8N_BASIC_AUTH_USER=admin
+      - N8N_BASIC_AUTH_PASSWORD=borboleta123
+      - N8N_HOST=0.0.0.0
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=http
+      - WEBHOOK_URL=http://localhost:5678
+      - GENERIC_TIMEZONE=America/Sao_Paulo
+      - MCP_GATEWAY_URL=http://mcp-gateway:3000
+      - SUPABASE_URL=${VITE_SUPABASE_URL}
+      - SUPABASE_KEY=${SUPABASE_SERVICE_ROLE_KEY}
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
+      - N8N_ENCRYPTION_KEY=borboleta-n8n-encryption-key-2025
+    volumes:
+      - n8n_data:/home/node/.n8n
+      - ./config/n8n:/etc/n8n
+      - ./workflows/n8n:/workflows
+    networks:
+      - mcp-network
+    depends_on:
+      - mcp-gateway
+      - supabase-mcp-server
+    restart: unless-stopped
+    labels:
+      - "com.docker.mcp.type=automation"
+      - "com.docker.mcp.service=n8n"
+      - "com.docker.mcp.project=borboleta-eventos"
+
+networks:
+  mcp-network:
+    driver: bridge
+    name: borboleta-mcp-network
+    labels:
+      - "com.docker.mcp.network=true"
+
+volumes:
+  mcp-gateway-config:
+    name: borboleta-mcp-gateway-config
+  mcp-toolkit-data:
+    name: borboleta-mcp-toolkit-data
+  mcp-registry-data:
+    name: borboleta-mcp-registry-data
+  n8n_data:
+    name: borboleta-n8n-data

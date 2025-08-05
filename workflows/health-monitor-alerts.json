@@ -1,0 +1,272 @@
+{
+  "name": "🔔 Borboleta MCP - Health Monitor & Alerts",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 5
+            }
+          ]
+        }
+      },
+      "id": "schedule-health-check",
+      "name": "Schedule Health Check",
+      "type": "n8n-nodes-base.cron",
+      "typeVersion": 1,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "http://mcp-gateway:3000/health"
+      },
+      "id": "check-mcp-gateway",
+      "name": "Check MCP Gateway",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [460, 200]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "http://app:3000/health"
+      },
+      "id": "check-borboleta-app",
+      "name": "Check Borboleta App",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "http://github-mcp-server:3002/health"
+      },
+      "id": "check-github-mcp",
+      "name": "Check GitHub MCP",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [460, 400]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "http://supabase-mcp-server:3003/health"
+      },
+      "id": "check-supabase-mcp",
+      "name": "Check Supabase MCP",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [460, 500]
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll"
+      },
+      "id": "merge-health-results",
+      "name": "Merge Health Results",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 2,
+      "position": [680, 350]
+    },
+    {
+      "parameters": {
+        "jsCode": "const healthData = {\n  timestamp: new Date().toISOString(),\n  services: {\n    mcp_gateway: false,\n    borboleta_app: false,\n    github_mcp: false,\n    supabase_mcp: false\n  },\n  overall_status: 'healthy',\n  issues: []\n};\n\n// Process health check results\nfor (const item of $input.all()) {\n  const url = item.json.url || '';\n  const statusCode = item.json.statusCode || 0;\n  const isHealthy = statusCode >= 200 && statusCode < 300;\n  \n  if (url.includes('mcp-gateway')) {\n    healthData.services.mcp_gateway = isHealthy;\n    if (!isHealthy) healthData.issues.push('MCP Gateway unreachable');\n  } else if (url.includes('app:3000')) {\n    healthData.services.borboleta_app = isHealthy;\n    if (!isHealthy) healthData.issues.push('Borboleta App unreachable');\n  } else if (url.includes('github-mcp')) {\n    healthData.services.github_mcp = isHealthy;\n    if (!isHealthy) healthData.issues.push('GitHub MCP unreachable');\n  } else if (url.includes('supabase-mcp')) {\n    healthData.services.supabase_mcp = isHealthy;\n    if (!isHealthy) healthData.issues.push('Supabase MCP unreachable');\n  }\n}\n\n// Determine overall status\nconst healthyServices = Object.values(healthData.services).filter(Boolean).length;\nconst totalServices = Object.keys(healthData.services).length;\n\nif (healthyServices === totalServices) {\n  healthData.overall_status = 'healthy';\n} else if (healthyServices >= totalServices * 0.5) {\n  healthData.overall_status = 'degraded';\n} else {\n  healthData.overall_status = 'unhealthy';\n}\n\nreturn [healthData];"
+      },
+      "id": "process-health-data",
+      "name": "Process Health Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [900, 350]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json.overall_status}}",
+              "operation": "notEqual",
+              "value2": "healthy"
+            }
+          ]
+        }
+      },
+      "id": "filter-unhealthy",
+      "name": "Filter Unhealthy",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [1120, 350]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://mcp-gateway:3000/api/alerts",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "type",
+              "value": "health_alert"
+            },
+            {
+              "name": "severity",
+              "value": "={{$json.overall_status === 'unhealthy' ? 'critical' : 'warning'}}"
+            },
+            {
+              "name": "message",
+              "value": "Borboleta MCP Health Issues Detected"
+            },
+            {
+              "name": "details",
+              "value": "={{JSON.stringify($json)}}"
+            }
+          ]
+        }
+      },
+      "id": "send-alert",
+      "name": "Send Alert",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [1340, 250]
+    }
+  ],
+  "connections": {
+    "Schedule Health Check": {
+      "main": [
+        [
+          {
+            "node": "Check MCP Gateway",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Check Borboleta App",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Check GitHub MCP",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Check Supabase MCP",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check MCP Gateway": {
+      "main": [
+        [
+          {
+            "node": "Merge Health Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Borboleta App": {
+      "main": [
+        [
+          {
+            "node": "Merge Health Results",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Check GitHub MCP": {
+      "main": [
+        [
+          {
+            "node": "Merge Health Results",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Check Supabase MCP": {
+      "main": [
+        [
+          {
+            "node": "Merge Health Results",
+            "type": "main",
+            "index": 3
+          }
+        ]
+      ]
+    },
+    "Merge Health Results": {
+      "main": [
+        [
+          {
+            "node": "Process Health Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process Health Data": {
+      "main": [
+        [
+          {
+            "node": "Filter Unhealthy",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Unhealthy": {
+      "main": [
+        [
+          {
+            "node": "Send Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {},
+  "versionId": "1",
+  "meta": {
+    "instanceId": "borboleta-mcp-n8n"
+  },
+  "id": "2",
+  "tags": [
+    {
+      "name": "Health Monitor",
+      "id": "health-monitoring"
+    },
+    {
+      "name": "Alerts",
+      "id": "alerts"
+    },
+    {
+      "name": "MCP",
+      "id": "mcp-automation"
+    }
+  ]
+}
