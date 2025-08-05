@@ -1,6 +1,6 @@
 
 import React, { useState } from "react";
-import { useNavigate, Navigate } from "react-router-dom";
+import { useNavigate, Navigate, Link } from "react-router-dom";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -303,13 +303,13 @@ const Auth = () => {
             <Separator className="my-4" />
             <p className="text-xs text-gray-500 text-center">
               Ao entrar ou se cadastrar, você concorda com nossos{" "}
-              <a href="/termos" className="text-butterfly-orange hover:underline">
+              <Link to="/termos" className="text-butterfly-orange hover:underline">
                 Termos de Uso
-              </a>{" "}
+              </Link>{" "}
               e{" "}
-              <a href="/privacidade" className="text-butterfly-orange hover:underline">
+              <Link to="/privacidade" className="text-butterfly-orange hover:underline">
                 Política de Privacidade
-              </a>
+              </Link>
               .
             </p>
           </CardFooter>
