@@ -9,7 +9,7 @@ import ButterflyLogo from '@/components/ButterflyLogo';
 import LocationMap from '@/components/LocationMap';
 
 const Index = () => {
-  // Data do evento: 12 de Abril de 2025
+  // 🔥 TESTE HOT RELOAD MCP - Data do evento: 12 de Abril de 2025
   const eventDate = new Date('2025-04-12T09:00:00');
 
   // Data de início das vendas: 4 de Janeiro de 2025
@@ -33,8 +33,8 @@ const Index = () => {
             <ButterflyLogo className="w-20 h-20 mb-6 animate-butterfly-fly" />
             
             <h1 className="font-display text-4xl md:text-6xl font-bold mb-4">
-              VII Conferência de Mulheres<br />
-              <span className="text-butterfly-orange">Queren Hapuque</span>
+              🔥 VII Conferência de Mulheres<br />
+              <span className="text-butterfly-orange">Queren Hapuque - TESTE MCP HOT RELOAD</span>
             </h1>
             
             <p className="text-lg md:text-xl mb-8">
