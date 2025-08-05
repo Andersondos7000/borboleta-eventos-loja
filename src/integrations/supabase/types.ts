@@ -57,6 +57,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "cart_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "cart_items_ticket_id_fkey"
             columns: ["ticket_id"]
             isOneToOne: false
@@ -108,6 +115,7 @@ export type Database = {
         Row: {
           created_at: string | null
           id: string
+          name: string | null
           order_id: string | null
           price: number
           product_id: string | null
@@ -118,6 +126,7 @@ export type Database = {
         Insert: {
           created_at?: string | null
           id?: string
+          name?: string | null
           order_id?: string | null
           price: number
           product_id?: string | null
@@ -128,6 +137,7 @@ export type Database = {
         Update: {
           created_at?: string | null
           id?: string
+          name?: string | null
           order_id?: string | null
           price?: number
           product_id?: string | null
@@ -137,17 +147,24 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "fk_order"
+            foreignKeyName: "order_items_order_id_fkey"
             columns: ["order_id"]
             isOneToOne: false
             referencedRelation: "orders"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "order_items_order_id_fkey"
-            columns: ["order_id"]
+            foreignKeyName: "order_items_product_id_fkey"
+            columns: ["product_id"]
             isOneToOne: false
-            referencedRelation: "orders"
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "order_items_ticket_id_fkey"
+            columns: ["ticket_id"]
+            isOneToOne: false
+            referencedRelation: "tickets"
             referencedColumns: ["id"]
           },
         ]
@@ -155,29 +172,76 @@ export type Database = {
       orders: {
         Row: {
           created_at: string | null
+          customer_data: Json | null
           id: string
-          status: string
+          payment_id: string | null
+          status: Database["public"]["Enums"]["order_status"]
           total: number
           updated_at: string | null
           user_id: string | null
         }
         Insert: {
           created_at?: string | null
+          customer_data?: Json | null
           id?: string
-          status: string
+          payment_id?: string | null
+          status?: Database["public"]["Enums"]["order_status"]
           total: number
           updated_at?: string | null
           user_id?: string | null
         }
         Update: {
           created_at?: string | null
+          customer_data?: Json | null
           id?: string
-          status?: string
+          payment_id?: string | null
+          status?: Database["public"]["Enums"]["order_status"]
           total?: number
           updated_at?: string | null
           user_id?: string | null
         }
         Relationships: []
+      }
+      product_stock: {
+        Row: {
+          created_at: string | null
+          id: string
+          min_quantity: number
+          product_id: string
+          quantity: number
+          reserved_quantity: number
+          size: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          min_quantity?: number
+          product_id: string
+          quantity?: number
+          reserved_quantity?: number
+          size: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          min_quantity?: number
+          product_id?: string
+          quantity?: number
+          reserved_quantity?: number
+          size?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_stock_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       products: {
         Row: {
@@ -254,7 +318,7 @@ export type Database = {
           event_id: string
           id: string
           price: number
-          status: string
+          status: Database["public"]["Enums"]["ticket_status"]
           updated_at: string
           user_id: string | null
         }
@@ -263,7 +327,7 @@ export type Database = {
           event_id: string
           id?: string
           price: number
-          status?: string
+          status?: Database["public"]["Enums"]["ticket_status"]
           updated_at?: string
           user_id?: string | null
         }
@@ -272,7 +336,7 @@ export type Database = {
           event_id?: string
           id?: string
           price?: number
-          status?: string
+          status?: Database["public"]["Enums"]["ticket_status"]
           updated_at?: string
           user_id?: string | null
         }
@@ -286,6 +350,48 @@ export type Database = {
           },
         ]
       }
+      webhook_logs: {
+        Row: {
+          amount: number
+          created_at: string | null
+          currency: string
+          error_message: string | null
+          event_type: string
+          id: string
+          order_id: string
+          payment_id: string
+          processed_at: string | null
+          raw_payload: Json | null
+          status: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string | null
+          currency?: string
+          error_message?: string | null
+          event_type: string
+          id?: string
+          order_id: string
+          payment_id: string
+          processed_at?: string | null
+          raw_payload?: Json | null
+          status: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string | null
+          currency?: string
+          error_message?: string | null
+          event_type?: string
+          id?: string
+          order_id?: string
+          payment_id?: string
+          processed_at?: string | null
+          raw_payload?: Json | null
+          status?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -294,7 +400,8 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      order_status: "pending" | "completed" | "cancelled" | "refunded"
+      ticket_status: "available" | "sold" | "reserved" | "cancelled"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -421,6 +528,9 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      order_status: ["pending", "completed", "cancelled", "refunded"],
+      ticket_status: ["available", "sold", "reserved", "cancelled"],
+    },
   },
 } as const
