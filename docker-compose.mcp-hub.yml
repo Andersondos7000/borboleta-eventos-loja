@@ -5,7 +5,7 @@ version: '3.8'
 services:
   # MCP Gateway Service - Orquestrador oficial do Docker
   mcp-gateway:
-    image: docker/mcp-gateway:latest
+    image: mcp-gateway:latest
     container_name: borboleta-mcp-gateway
     ports:
       - "3000:3000"
@@ -20,31 +20,10 @@ services:
       - ./logs/mcp-gateway:/logs
     networks:
       - mcp-network
-    depends_on:
-      - mcp-hub-server
     restart: unless-stopped
     labels:
       - "com.docker.mcp.type=gateway"
       - "com.docker.mcp.project=borboleta-eventos"
-
-  # Docker Hub MCP Server - Integração oficial
-  mcp-hub-server:
-    image: docker/hub-mcp:latest
-    container_name: borboleta-hub-mcp
-    environment:
-      - DOCKER_HUB_TOKEN=${DOCKER_HUB_TOKEN}
-      - DOCKER_HUB_USERNAME=${DOCKER_HUB_USERNAME}
-      - MCP_SERVER_PORT=3001
-    ports:
-      - "3001:3001"
-    volumes:
-      - ./config/hub-mcp:/config
-    networks:
-      - mcp-network
-    restart: unless-stopped
-    labels:
-      - "com.docker.mcp.type=server"
-      - "com.docker.mcp.service=docker-hub"
 
   # N8N Workflow Automation - Essential MCP Component
   n8n-mcp-server:
@@ -85,7 +64,7 @@ services:
 
   # GitHub MCP Server (containerizado)
   github-mcp-server:
-    image: node:18-alpine
+    image: mcp-github:latest
     container_name: borboleta-github-mcp
     environment:
       - GITHUB_PERSONAL_ACCESS_TOKEN=${GITHUB_TOKEN}
@@ -102,7 +81,7 @@ services:
 
   # Supabase MCP Server (containerizado)
   supabase-mcp-server:
-    image: node:18-alpine
+    image: mcp-supabase:latest
     container_name: borboleta-supabase-mcp
     environment:
       - SUPABASE_URL=${VITE_SUPABASE_URL}
@@ -117,10 +96,9 @@ services:
       - "com.docker.mcp.type=server"
       - "com.docker.mcp.service=supabase"
     command: ["sh", "-c", "npm install -g @modelcontextprotocol/server-supabase && sleep infinity"]
-
   # Browser Tools MCP Server
   browser-tools-mcp:
-    image: modelcontextprotocol/server-browser:latest
+    image: browser-tools-mcp:latest
     container_name: borboleta-browser-mcp
     environment:
       - MCP_SERVER_PORT=3004
@@ -134,25 +112,9 @@ services:
       - "com.docker.mcp.type=server"
       - "com.docker.mcp.service=browser"
 
-  # Playwright MCP Server
-  playwright-mcp:
-    image: modelcontextprotocol/server-playwright:latest
-    container_name: borboleta-playwright-mcp
-    environment:
-      - MCP_SERVER_PORT=3005
-      - PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
-    ports:
-      - "3005:3005"
-    networks:
-      - mcp-network
-    restart: unless-stopped
-    labels:
-      - "com.docker.mcp.type=server"
-      - "com.docker.mcp.service=playwright"
-
   # MCP Toolkit Manager
   mcp-toolkit:
-    image: docker/mcp-toolkit:latest
+    image: mcp-toolkit:latest
     container_name: borboleta-mcp-toolkit
     environment:
       - MCP_GATEWAY_URL=http://mcp-gateway:3000
@@ -171,7 +133,7 @@ services:
 
   # MCP Registry & Discovery Service
   mcp-registry:
-    image: docker/mcp-registry:latest
+    image: mcp-registry:latest
     container_name: borboleta-mcp-registry
     environment:
       - REGISTRY_PORT=3006
@@ -248,6 +210,22 @@ services:
       - "com.docker.mcp.type=automation"
       - "com.docker.mcp.service=n8n"
       - "com.docker.mcp.project=borboleta-eventos"
+
+  # 21dev Magic MCP Server
+  21dev-magic-mcp:
+    image: node:18-alpine
+    container_name: borboleta-21dev-magic-mcp
+    environment:
+      - MCP_SERVER_PORT=3007
+    ports:
+      - "3007:3007"
+    networks:
+      - mcp-network
+    restart: unless-stopped
+    labels:
+      - "com.docker.mcp.type=server"
+      - "com.docker.mcp.service=21dev-magic"
+    command: ["sh", "-c", "npm install -g @21st-dev/magic && npx -y @21st-dev/magic"]
 
 networks:
   mcp-network:

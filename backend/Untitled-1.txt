@@ -1,0 +1,1 @@
+open //./pipe/dockerDesktopLinuxEngine: O sistema não pode encontrar o arquivo especificado.
