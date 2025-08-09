@@ -1,0 +1,26 @@
+{
+  "orderData": {
+    "firstName": "João",
+    "lastName": "Silva",
+    "personType": "fisica",
+    "cpf": "11144477735",
+    "country": "Brasil",
+    "zipCode": "01310-100",
+    "address": "Av. Paulista",
+    "number": "1000",
+    "neighborhood": "Bela Vista",
+    "city": "São Paulo",
+    "state": "SP",
+    "phone": "11999887766",
+    "email": "joao.silva@email.com",
+    "terms": true
+  },
+  "total": 2500,
+  "items": [
+    {
+      "name": "Ingresso Teste",
+      "price": 2500,
+      "quantity": 1
+    }
+  ]
+}

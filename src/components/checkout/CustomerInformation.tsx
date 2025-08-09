@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { UseFormReturn } from 'react-hook-form';
 import { z } from "zod";
+import { formatDocument, validateDocument } from "@/lib/utils";
 
 const formSchema = z.object({
   firstName: z.string().min(2, { message: "Nome deve ter pelo menos 2 caracteres" }),
@@ -99,15 +100,36 @@ const CustomerInformation: React.FC<CustomerInformationProps> = ({ form }) => {
           <FormField
             control={form.control}
             name="cpf"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>CPF/CNPJ*</FormLabel>
-                <FormControl>
-                  <Input placeholder="000.000.000-00" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            render={({ field }) => {
+              const personType = form.watch('personType') || 'fisica';
+              const placeholder = personType === 'fisica' ? '000.000.000-00' : '00.000.000/0000-00';
+              
+              return (
+                <FormItem>
+                  <FormLabel>{personType === 'fisica' ? 'CPF*' : 'CNPJ*'}</FormLabel>
+                  <FormControl>
+                    <Input 
+                      placeholder={placeholder}
+                      {...field}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        const formatted = formatDocument(value, personType);
+                        field.onChange(formatted);
+                      }}
+                      onBlur={(e) => {
+                        const value = e.target.value;
+                        const isValid = validateDocument(value, personType);
+                        if (!isValid && value.length > 0) {
+                          // O erro será mostrado pelo schema de validação
+                        }
+                        field.onBlur();
+                      }}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              );
+            }}
           />
         </div>
 

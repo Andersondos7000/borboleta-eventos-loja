@@ -1,0 +1,36 @@
+{
+  "timestamp": "2025-08-09T01:58:09.152Z",
+  "totalDuration": "10339ms",
+  "totalAttempts": 3,
+  "maxRetries": 3,
+  "mcpEnabled": false,
+  "results": [
+    {
+      "attempt": 1,
+      "exitCode": -2,
+      "stdout": "",
+      "stderr": "",
+      "timestamp": "2025-08-09T01:57:59.054Z",
+      "success": false
+    },
+    {
+      "attempt": 2,
+      "exitCode": -2,
+      "stdout": "",
+      "stderr": "",
+      "timestamp": "2025-08-09T01:58:04.103Z",
+      "success": false
+    }
+  ],
+  "finalSuccess": false,
+  "errors": [
+    {
+      "attempt": 1,
+      "exitCode": -2
+    },
+    {
+      "attempt": 2,
+      "exitCode": -2
+    }
+  ]
+}

@@ -7,6 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Info } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { UseFormReturn } from 'react-hook-form';
+import { formatCPF, validateCPF } from "@/lib/utils";
 
 interface CheckoutFormData {
   firstName: string;
@@ -95,7 +96,22 @@ const ParticipantsList: React.FC<ParticipantsListProps> = ({
                   <FormItem>
                     <FormLabel>CPF do Participante (opcional)</FormLabel>
                     <FormControl>
-                      <Input placeholder="000.000.000-00" {...field} />
+                      <Input 
+                        placeholder="000.000.000-00" 
+                        {...field}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          const formatted = formatCPF(value);
+                          field.onChange(formatted);
+                        }}
+                        onBlur={(e) => {
+                          const value = e.target.value;
+                          if (value.length > 0 && !validateCPF(value)) {
+                            // Adicionar feedback visual se necessário
+                          }
+                          field.onBlur();
+                        }}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

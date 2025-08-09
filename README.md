@@ -48,6 +48,24 @@ npm run dev
 - Click on the "Code" button (green button) near the top right.
 - Select the "Codespaces" tab.
 - Click on "New codespace" to launch a new Codespace environment.
+
+## 📚 MCP Documentation
+
+This project includes a comprehensive Model Context Protocol (MCP) integration with 8 active servers. All MCP-related documentation has been organized in the `docs/mcp/` folder:
+
+- **[docs/mcp/README.md](./docs/mcp/README.md)** - Complete index of all MCP documentation
+- **[docs/mcp/DOCUMENTACAO_MCP_CONSOLIDADA_PARA_LLM.md](./docs/mcp/DOCUMENTACAO_MCP_CONSOLIDADA_PARA_LLM.md)** - Consolidated documentation for LLMs
+
+### Quick MCP Status Check:
+```bash
+# Check if MCP system is running
+curl http://localhost:3005/health
+
+# View active MCP processes
+docker exec queren-app-1 ps aux | grep mcp
+```
+
+For complete MCP setup and usage instructions, see the [MCP Documentation Index](./docs/mcp/README.md).
 - Edit files directly within the Codespace and commit and push your changes once you're done.
 
 ## What technologies are used for this project?

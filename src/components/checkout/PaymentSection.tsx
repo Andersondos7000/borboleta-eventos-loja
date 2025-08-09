@@ -40,6 +40,7 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({ paymentData, customerDa
       console.log('PaymentSection - PaymentData received, opening popup:', paymentData);
       console.log('PaymentSection - QR Code Base64:', paymentData.data.brCodeBase64 ? 'Present' : 'Missing');
       console.log('PaymentSection - PIX Code:', paymentData.data.brCode ? 'Present' : 'Missing');
+      console.log('PaymentSection - Full paymentData.data:', JSON.stringify(paymentData.data, null, 2));
       setShowPaymentPopup(true);
     }
   }, [paymentData]);

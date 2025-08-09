@@ -29,10 +29,10 @@ services:
 
   # Docker Hub MCP Server - Integração oficial
   mcp-hub-server:
-    image: docker/hub-mcp:latest
+    image: mcp/dockerhub:latest
     container_name: borboleta-hub-mcp
     environment:
-      - DOCKER_HUB_TOKEN=${DOCKER_HUB_TOKEN}
+      - HUB_PAT_TOKEN=${HUB_PAT_TOKEN}
       - DOCKER_HUB_USERNAME=${DOCKER_HUB_USERNAME}
       - MCP_SERVER_PORT=3001
     ports:
@@ -42,6 +42,8 @@ services:
     networks:
       - mcp-network
     restart: unless-stopped
+    stdin_open: true
+    tty: true
     labels:
       - "com.docker.mcp.type=server"
       - "com.docker.mcp.service=docker-hub"

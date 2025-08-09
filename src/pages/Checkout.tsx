@@ -15,12 +15,13 @@ import OrderSummary from "@/components/checkout/OrderSummary";
 import TermsSection from "@/components/checkout/TermsSection";
 import { useCart, isCartProduct } from "@/contexts/CartContext";
 import { supabase } from "@/lib/supabase";
+import { validateDocument } from "@/lib/utils";
 
 const formSchema = z.object({
   firstName: z.string().min(2, { message: "Nome deve ter pelo menos 2 caracteres" }),
   lastName: z.string().min(2, { message: "Sobrenome deve ter pelo menos 2 caracteres" }),
   personType: z.enum(["fisica", "juridica"]),
-  cpf: z.string().min(11, { message: "CPF deve ter pelo menos 11 caracteres" }),
+  cpf: z.string().min(1, { message: "CPF/CNPJ é obrigatório" }),
   country: z.string().min(2, { message: "País é obrigatório" }),
   zipCode: z.string().min(8, { message: "CEP deve ter pelo menos 8 caracteres" }),
   address: z.string().min(5, { message: "Endereço deve ter pelo menos 5 caracteres" }),
@@ -39,6 +40,17 @@ const formSchema = z.object({
     })
   ),
   terms: z.boolean().refine(val => val === true, { message: "Você deve aceitar os termos" }),
+}).superRefine((data, ctx) => {
+  // Validação cruzada do CPF/CNPJ com o tipo de pessoa
+  if (data.cpf && data.personType) {
+    if (!validateDocument(data.cpf, data.personType)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "CPF/CNPJ inválido",
+        path: ["cpf"]
+      });
+    }
+  }
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -138,6 +150,8 @@ const Checkout = () => {
         throw error;
       }
 
+      console.log('Full payment response:', paymentResponse);
+
       if (paymentResponse.success) {
         setPaymentData(paymentResponse.paymentData);
         
@@ -213,6 +227,8 @@ const Checkout = () => {
       if (error) {
         throw error;
       }
+
+      console.log('Full regenerate payment response:', paymentResponse);
 
       if (paymentResponse.success) {
         setPaymentData(paymentResponse.paymentData);

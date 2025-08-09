@@ -1,0 +1,145 @@
+# 🚀 MCP Orchestrator + Docker Hub MCP Integration
+# Configuração completa usando mcp-orchestrator:latest
+
+version: '3.8'
+
+services:
+  # MCP Orchestrator - Gerenciador central de serviços MCP
+  mcp-orchestrator:
+    image: mcp-orchestrator:latest
+    container_name: borboleta-mcp-orchestrator
+    environment:
+      # Configurações do Orchestrator
+      - MCP_ORCHESTRATOR_PORT=3000
+      - MCP_LOG_LEVEL=debug
+      
+      # Habilitar serviços MCP
+      - MCP_DOCKERHUB_ENABLED=true
+      - MCP_GITHUB_ENABLED=true
+      - MCP_SUPABASE_ENABLED=true
+      - MCP_BROWSER_ENABLED=true
+      - MCP_PLAYWRIGHT_ENABLED=true
+      
+      # Configurações Docker Hub
+      - HUB_PAT_TOKEN=${HUB_PAT_TOKEN}
+      - DOCKER_HUB_USERNAME=${DOCKER_HUB_USERNAME}
+      
+      # Configurações Supabase
+      - SUPABASE_URL=${VITE_SUPABASE_URL}
+      - SUPABASE_ANON_KEY=${VITE_SUPABASE_ANON_KEY}
+      - SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY}
+      
+      # Configurações GitHub
+      - GITHUB_PERSONAL_ACCESS_TOKEN=${GITHUB_PERSONAL_ACCESS_TOKEN}
+      
+      # Configurações N8N
+      - N8N_API_URL=http://n8n:5678
+    ports:
+      - "3000:3000"
+      - "8812:8812"  # Porta MCP
+    volumes:
+      - ./config/mcp-orchestrator:/config
+      - ./logs/mcp-orchestrator:/logs
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - mcp-network
+    restart: unless-stopped
+    labels:
+      - "com.docker.mcp.type=orchestrator"
+      - "com.docker.mcp.project=borboleta-eventos"
+
+  # Docker Hub MCP Server - Integração oficial
+  dockerhub-mcp:
+    image: mcp/dockerhub:latest
+    container_name: borboleta-dockerhub-mcp
+    environment:
+      - HUB_PAT_TOKEN=${HUB_PAT_TOKEN}
+      - DOCKER_HUB_USERNAME=${DOCKER_HUB_USERNAME}
+      - MCP_SERVER_PORT=3001
+    ports:
+      - "3001:3001"
+    networks:
+      - mcp-network
+    restart: unless-stopped
+    stdin_open: true
+    tty: true
+    labels:
+      - "com.docker.mcp.type=server"
+      - "com.docker.mcp.service=docker-hub"
+
+  # N8N Workflow Automation
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: borboleta-n8n
+    environment:
+      - N8N_HOST=0.0.0.0
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=http
+      - NODE_ENV=production
+      - WEBHOOK_URL=http://localhost:5678
+      - GENERIC_TIMEZONE=America/Sao_Paulo
+      # Configurações MCP
+      - MCP_ORCHESTRATOR_URL=http://mcp-orchestrator:3000
+      - DOCKERHUB_MCP_URL=http://dockerhub-mcp:3001
+    ports:
+      - "5678:5678"
+    volumes:
+      - n8n_data:/home/node/.n8n
+      - ./workflows/n8n:/home/node/.n8n/workflows
+    networks:
+      - mcp-network
+    depends_on:
+      - mcp-orchestrator
+      - dockerhub-mcp
+    restart: unless-stopped
+    labels:
+      - "com.docker.mcp.type=automation"
+      - "com.docker.mcp.service=n8n"
+
+  # Application Server (nosso projeto)
+  app:
+    build: .
+    container_name: borboleta-eventos-loja-app
+    ports:
+      - "5173:5173"
+    environment:
+      - NODE_ENV=production
+      - VITE_SUPABASE_URL=${VITE_SUPABASE_URL}
+      - VITE_SUPABASE_ANON_KEY=${VITE_SUPABASE_ANON_KEY}
+      - SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY}
+      # Configurações MCP
+      - MCP_ORCHESTRATOR_URL=http://mcp-orchestrator:3000
+      - DOCKERHUB_MCP_URL=http://dockerhub-mcp:3001
+      - N8N_API_URL=http://n8n:5678
+    volumes:
+      - ./src:/app/src
+      - ./public:/app/public
+    networks:
+      - mcp-network
+    depends_on:
+      - mcp-orchestrator
+      - dockerhub-mcp
+    restart: unless-stopped
+    labels:
+      - "com.docker.mcp.type=application"
+      - "com.docker.mcp.project=borboleta-eventos"
+
+networks:
+  mcp-network:
+    driver: bridge
+    labels:
+      - "com.docker.mcp.network=true"
+
+volumes:
+  n8n_data:
+    driver: local
+    labels:
+      - "com.docker.mcp.volume=n8n-data"
+  mcp-orchestrator-config:
+    driver: local
+    labels:
+      - "com.docker.mcp.volume=orchestrator-config"
+  mcp-orchestrator-logs:
+    driver: local
+    labels:
+      - "com.docker.mcp.volume=orchestrator-logs"

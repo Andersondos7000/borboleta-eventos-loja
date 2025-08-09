@@ -61,6 +61,24 @@ const MCP_SERVERS = {
         args: ['-y', 'playwright-mcp-server@latest'],
         description: 'Testes e automação web com Playwright',
         enabled: process.env.MCP_PLAYWRIGHT_ENABLED === 'true'
+    },
+    DOCKERHUB: {
+        command: 'docker',
+        args: [
+            'run',
+            '-i',
+            '--rm',
+            '-e',
+            'HUB_PAT_TOKEN',
+            'mcp/dockerhub',
+            '--transport=stdio',
+            '--username=dockerhub.andersondos7000'
+        ],
+        description: 'Docker Hub MCP Server para gerenciamento de repositórios',
+        enabled: process.env.MCP_DOCKERHUB_ENABLED === 'true',
+        env: {
+            HUB_PAT_TOKEN: process.env.HUB_PAT_TOKEN
+        }
     }
 };
 

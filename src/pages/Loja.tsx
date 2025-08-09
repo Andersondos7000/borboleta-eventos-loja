@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import ProductCard, { ProductProps } from '@/components/ProductCard';
@@ -212,6 +212,9 @@ const Loja = () => {
                 </div>
               </DialogTrigger>
               <DialogContent className="max-w-3xl">
+                <DialogHeader>
+                  <DialogTitle>Tabela de Medidas - Camisetas</DialogTitle>
+                </DialogHeader>
                 <SizeChart type="camiseta" />
               </DialogContent>
             </Dialog>
@@ -230,6 +233,9 @@ const Loja = () => {
                 </div>
               </DialogTrigger>
               <DialogContent className="max-w-3xl">
+                <DialogHeader>
+                  <DialogTitle>Tabela de Medidas - Vestidos</DialogTitle>
+                </DialogHeader>
                 <SizeChart type="vestido" />
               </DialogContent>
             </Dialog>

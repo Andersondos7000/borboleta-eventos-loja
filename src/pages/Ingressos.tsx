@@ -58,6 +58,32 @@ const Ingressos = () => {
           console.log('Selected event set:', data[0]);
         } else {
           console.log('No events found or data is empty');
+          // Create a mock event for testing and insert it into the database
+          const mockEvent = {
+            id: crypto.randomUUID(),
+            name: 'Festival Borboleta 2024',
+            description: 'Um evento incrível com música e arte',
+            date: '2024-12-31T20:00:00Z',
+            location: 'Centro de Convenções São Paulo',
+            price: 85.00,
+            available_tickets: 100,
+            image_url: 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?q=80'
+          };
+          
+          // Insert mock event into database
+          const { error: insertError } = await supabase
+            .from('events')
+            .insert(mockEvent);
+            
+          if (insertError) {
+            console.error('Error inserting mock event:', insertError);
+          } else {
+            console.log('Mock event inserted into database:', mockEvent);
+          }
+          
+          setEvents([mockEvent]);
+          setSelectedEvent(mockEvent);
+          console.log('Mock event created for testing:', mockEvent);
         }
       } catch (error) {
         console.error('Error:', error);

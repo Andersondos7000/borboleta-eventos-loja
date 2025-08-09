@@ -1,0 +1,92 @@
+{
+  "timestamp": "2025-08-09T02:12:31.630Z",
+  "duration": 32050,
+  "testData": {
+    "cliente": {
+      "nome": "João Silva Teste",
+      "email": "joao.teste@email.com",
+      "telefone": "(11) 99999-9999",
+      "documento": "123.456.789-00"
+    },
+    "participantes": [
+      {
+        "nome": "Maria Santos",
+        "email": "maria@email.com",
+        "telefone": "(11) 88888-8888",
+        "documento": "987.654.321-00"
+      },
+      {
+        "nome": "Pedro Costa",
+        "email": "pedro@email.com",
+        "telefone": "(11) 77777-7777",
+        "documento": "456.789.123-00"
+      }
+    ]
+  },
+  "tests": [
+    {
+      "name": "Acesso à Aplicação",
+      "status": "PASSOU",
+      "details": {
+        "title": "VII Conferência de Mulheres Queren Hapuque - Borboleta Eventos"
+      }
+    },
+    {
+      "name": "Navegação para Checkout",
+      "status": "PASSOU"
+    },
+    {
+      "name": "Elementos do Formulário",
+      "status": "FALHOU",
+      "details": {
+        "nome": 0,
+        "email": 0,
+        "telefone": 0,
+        "documento": 0,
+        "submit": 0
+      }
+    },
+    {
+      "name": "Preenchimento do Formulário",
+      "status": "FALHOU",
+      "details": {
+        "filledFields": 0
+      }
+    },
+    {
+      "name": "Submissão do Formulário",
+      "status": "FALHOU",
+      "error": "Botão não encontrado"
+    }
+  ],
+  "errors": [
+    {
+      "timestamp": "2025-08-09T02:12:38.848Z",
+      "message": "Network Error: 404 - https://images.unsplash.com/photo-1521572163474-6864f9cf177a?q=80"
+    },
+    {
+      "timestamp": "2025-08-09T02:12:38.849Z",
+      "message": "Console Error: Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+      "timestamp": "2025-08-09T02:13:03.293Z",
+      "message": "❌ Elementos básicos do formulário não encontrados"
+    },
+    {
+      "timestamp": "2025-08-09T02:13:03.490Z",
+      "message": "❌ Nenhum campo foi preenchido"
+    },
+    {
+      "timestamp": "2025-08-09T02:13:03.681Z",
+      "message": "❌ Botão de submit não encontrado"
+    }
+  ],
+  "screenshots": [
+    "1754705563118-01-app-access.png",
+    "1754705571823-02-checkout-navigation.png",
+    "1754705578049-03-form-elements.png",
+    "1754705583328-04-form-filled.png",
+    "1754705583510-05-form-submitted.png"
+  ],
+  "success": false
+}

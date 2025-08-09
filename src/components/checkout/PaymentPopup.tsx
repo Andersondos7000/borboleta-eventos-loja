@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { 
@@ -26,6 +26,13 @@ interface PaymentPopupProps {
   onClose: () => void;
   onRegeneratePayment?: () => void; // Callback para regenerar pagamento quando expirar
   paymentData?: {
+    // Dados podem estar na raiz ou em data
+    id?: string;
+    amount?: number;
+    brCode?: string;
+    brCodeBase64?: string;
+    status?: string;
+    expiresAt?: string;
     data?: {
       id?: string;
       amount?: number;
@@ -50,6 +57,17 @@ const PaymentPopup: React.FC<PaymentPopupProps> = ({ isOpen, onClose, onRegenera
   const [isCheckingPayment, setIsCheckingPayment] = useState(false);
   const [paymentConfirmed, setPaymentConfirmed] = useState(false);
   const [timeLeft, setTimeLeft] = useState<string>('');
+
+  // Debug logs para investigar o problema do QR Code
+  console.log('=== PaymentPopup Debug ===');
+  console.log('isOpen:', isOpen);
+  console.log('paymentData:', paymentData);
+  console.log('paymentData.data:', paymentData?.data);
+  console.log('brCodeBase64 (data):', paymentData?.data?.brCodeBase64);
+  console.log('brCode (data):', paymentData?.data?.brCode);
+  console.log('brCodeBase64 (root):', paymentData?.brCodeBase64);
+  console.log('brCode (root):', paymentData?.brCode);
+  console.log('========================');
   
   // Formatar valor monetário
   const formatCurrency = (value: number) => {
@@ -61,11 +79,12 @@ const PaymentPopup: React.FC<PaymentPopupProps> = ({ isOpen, onClose, onRegenera
 
   // Calcular tempo restante para expiração
   useEffect(() => {
-    if (!paymentData?.data?.expiresAt) return;
+    const expiresAt = paymentData?.data?.expiresAt || paymentData?.expiresAt;
+    if (!expiresAt) return;
     
     const calculateTimeLeft = () => {
       const now = new Date();
-      const expiry = new Date(paymentData.data!.expiresAt!);
+      const expiry = new Date(expiresAt);
       const diff = expiry.getTime() - now.getTime();
       
       if (diff <= 0) {
@@ -123,7 +142,7 @@ const PaymentPopup: React.FC<PaymentPopupProps> = ({ isOpen, onClose, onRegenera
     calculateTimeLeft(); // Chamada inicial
     
     return () => clearInterval(timer);
-  }, [paymentData?.data?.expiresAt, onClose, onRegeneratePayment, toast]);
+  }, [paymentData?.data?.expiresAt, paymentData?.expiresAt, onClose, onRegeneratePayment, toast]);
   
   console.log('PaymentPopup render - isOpen:', isOpen, 'paymentData:', paymentData);
 
@@ -191,7 +210,8 @@ const PaymentPopup: React.FC<PaymentPopupProps> = ({ isOpen, onClose, onRegenera
   const checkPaymentStatus = async () => {
     console.log('DEBUG: checkPaymentStatus chamado');
     console.log('DEBUG: paymentData', paymentData);
-    if (!paymentData?.data?.id) {
+    const paymentId = paymentData?.data?.id || paymentData?.id;
+    if (!paymentId) {
       toast({
         title: "Erro na transação",
         description: "ID da transação não encontrado. Por favor, tente novamente.",
@@ -221,13 +241,13 @@ const PaymentPopup: React.FC<PaymentPopupProps> = ({ isOpen, onClose, onRegenera
       }
 
       // Usar Supabase Edge Function para verificar pagamento
-      console.log('DEBUG: Invocando função check-abacate-payment com transactionId:', paymentData.data.id);
+      console.log('DEBUG: Invocando função check-abacate-payment com transactionId:', paymentId);
       const { data: statusResponse, error } = await supabase.functions.invoke('check-abacate-payment', {
         headers: {
           Authorization: `Bearer ${session.session.access_token}`
         },
         body: {
-          transactionId: paymentData.data.id
+          transactionId: paymentId
         }
       });
       console.log('DEBUG: statusResponse', statusResponse);
@@ -362,12 +382,16 @@ const PaymentPopup: React.FC<PaymentPopupProps> = ({ isOpen, onClose, onRegenera
           transition={{ duration: 0.2 }}
         >
           <DialogContent className="sm:max-w-md border-0 shadow-xl p-0 overflow-hidden">
-            {/* Cabeçalho */}
-            <div className="bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-4">
-              <div className="flex items-center justify-between">
-                <DialogTitle className="text-xl font-bold text-white">
-                  Pagamento via PIX
-                </DialogTitle>
+            <DialogHeader className="p-0">
+              {/* Cabeçalho */}
+              <div className="bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-4">
+                <div className="flex items-center justify-between">
+                  <DialogTitle className="text-xl font-bold text-white">
+                    Pagamento via PIX
+                  </DialogTitle>
+                  <DialogDescription className="sr-only">
+                    Modal de pagamento PIX com QR Code e instruções
+                  </DialogDescription>
                 <Button 
                   variant="ghost" 
                   size="sm" 
@@ -376,22 +400,23 @@ const PaymentPopup: React.FC<PaymentPopupProps> = ({ isOpen, onClose, onRegenera
                 >
                   <X className="h-4 w-4" />
                 </Button>
+                </div>
               </div>
               
               <div className="mt-2 flex items-center">
-                <div className={`flex items-center px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(paymentData?.data?.status)}`}>
-                  {getStatusIcon(paymentData?.data?.status)}
-                  {getStatusText(paymentData?.data?.status)}
+                <div className={`flex items-center px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(paymentData?.data?.status || paymentData?.status)}`}>
+                  {getStatusIcon(paymentData?.data?.status || paymentData?.status)}
+                  {getStatusText(paymentData?.data?.status || paymentData?.status)}
                 </div>
                 
-                {timeLeft && paymentData?.data?.status === 'PENDING' && (
+                {timeLeft && (paymentData?.data?.status || paymentData?.status) === 'PENDING' && (
                   <div className="ml-3 flex items-center text-white/90 text-sm">
                     <Clock className="h-3.5 w-3.5 mr-1.5" />
                     <span>Expira em {timeLeft}</span>
                   </div>
                 )}
               </div>
-            </div>
+            </DialogHeader>
             
             <div className="px-6 py-4 space-y-6 max-h-[70vh] overflow-y-auto">
               {/* Seção de Informações do Pagamento */}
@@ -410,7 +435,7 @@ const PaymentPopup: React.FC<PaymentPopupProps> = ({ isOpen, onClose, onRegenera
                   <div className="flex justify-between">
                     <span className="text-gray-500">Valor</span>
                     <span className="font-bold text-blue-700">
-                      {formatCurrency(orderTotal || paymentData?.data?.amount || 0)}
+                      {formatCurrency(orderTotal || paymentData?.data?.amount || paymentData?.amount || 0)}
                     </span>
                   </div>
                   
@@ -418,7 +443,7 @@ const PaymentPopup: React.FC<PaymentPopupProps> = ({ isOpen, onClose, onRegenera
                     <span className="text-gray-500">ID da Transação</span>
                     <div className="flex items-center">
                       <span className="font-mono text-xs bg-gray-100 px-2 py-1 rounded">
-                        {paymentData?.data?.id?.substring(0, 8) + '...' || 'N/A'}
+                        {(paymentData?.data?.id || paymentData?.id)?.substring(0, 8) + '...' || 'N/A'}
                       </span>
                     </div>
                   </div>
@@ -457,51 +482,39 @@ const PaymentPopup: React.FC<PaymentPopupProps> = ({ isOpen, onClose, onRegenera
                   Código PIX
                 </h3>
                 
-                <div className="flex flex-col items-center space-y-4">
-                  {paymentData?.data?.brCodeBase64 ? (
-                    <div className="p-3 bg-white border-2 border-blue-100 rounded-lg">
-                      <img 
-                        src={paymentData.data.brCodeBase64}
-                        alt="QR Code PIX"
-                        className="w-48 h-48"
-                      />
-                    </div>
+                <div className="mt-6 flex flex-col items-center">
+                  <h4 className="text-md font-semibold mb-2">Código PIX</h4>
+                  {paymentData?.brCodeBase64 ? (
+                    <img
+                      src={paymentData.brCodeBase64}
+                      alt="QR Code PIX"
+                      className="w-48 h-48 mb-2 border rounded shadow"
+                      onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                    />
                   ) : (
-                    <div className="w-48 h-48 bg-gray-100 rounded-lg flex items-center justify-center">
-                      <span className="text-gray-400 text-sm">QR Code não disponível</span>
+                    <div className="w-48 h-48 flex items-center justify-center bg-gray-100 text-gray-500 rounded mb-2">
+                          QR Code não disponível
+                        </div>
+                      )}
+                      {paymentData?.brCode && (
+                        <div className="flex items-center gap-2 mt-2">
+                          <Input
+                            value={paymentData.brCode}
+                            readOnly
+                            className="w-64 text-xs"
+                          />
+                          <Button variant="outline" size="sm" onClick={() => copyToClipboard(paymentData.brCode)}>
+                            <Copy className="w-4 h-4" /> Copiar
+                          </Button>
+                        </div>
+                      )}
                     </div>
-                  )}
-                  
-                  {paymentData?.data?.brCode && (
-                    <div className="w-full space-y-2">
-                      <label className="text-sm font-medium text-gray-700 block">
-                        Código PIX (Copia e Cola):
-                      </label>
-                      <div className="flex items-center gap-2">
-                        <Input 
-                          value={paymentData.data.brCode}
-                          className="text-xs font-mono h-10"
-                          readOnly
-                        />
-                        <Button 
-                          type="button" 
-                          variant="outline" 
-                          size="sm"
-                          onClick={() => copyToClipboard(paymentData.data!.brCode!)}
-                          className="h-10 w-10 p-0 flex items-center justify-center"
-                        >
-                          <Copy className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-
+                  </div>
+              
               {/* Instruções de Pagamento */}
               <div className="bg-amber-50 border border-amber-100 p-4 rounded-lg">
                 <h3 className="font-semibold text-amber-800 flex items-center gap-2 mb-3">
-                  <span className="text-amber-600">ℹ️</span>
+                  <span className="text-amber-600">💡</span>
                   Como pagar com PIX
                 </h3>
                 
@@ -516,7 +529,7 @@ const PaymentPopup: React.FC<PaymentPopupProps> = ({ isOpen, onClose, onRegenera
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="flex-shrink-0 flex items-center justify-center h-5 w-5 rounded-full bg-amber-100 text-amber-700 font-medium text-xs">3</span>
-                    <span>Confirme o valor de <span className="font-bold">{formatCurrency(orderTotal || paymentData?.data?.amount || 0)}</span></span>
+                    <span>Confirme o valor de <span className="font-bold">{formatCurrency(orderTotal || paymentData?.data?.amount || paymentData?.amount || 0)}</span></span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="flex-shrink-0 flex items-center justify-center h-5 w-5 rounded-full bg-amber-100 text-amber-700 font-medium text-xs">4</span>

@@ -21,19 +21,30 @@ serve(async (req) => {
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
     
     // Validate environment variables
-    const abacateApiKey = Deno.env.get("ABACATE_PAY_API_KEY");
+    const abacateApiKey = Deno.env.get("ABACATEPAY_API_KEY");
     if (!abacateApiKey) {
-      console.error("ABACATE_PAY_API_KEY não configurada");
+      console.error("ABACATEPAY_API_KEY não configurada");
       throw new Error("API Key do AbacatePay não configurada");
     }
     console.log("Environment variables OK");
     
-    const { orderData, total, items } = await req.json();
-    console.log("Request data received:", { 
-      hasOrderData: !!orderData, 
-      total, 
+    const requestBody = await req.json();
+    console.log("Raw request body:", JSON.stringify(requestBody, null, 2));
+    
+    // Handle different payload structures
+    const { orderData, total, items, amount, customer_data } = requestBody;
+    const finalTotal = total || amount;
+    const finalCustomerData = orderData || customer_data;
+    
+    console.log("Processed data:", { 
+      hasCustomerData: !!finalCustomerData, 
+      total: finalTotal, 
       itemsCount: items?.length 
     });
+    
+    if (!finalTotal || !finalCustomerData) {
+      throw new Error("Missing required fields: amount and customer_data");
+    }
 
     // Get user from authorization header
     const authHeader = req.headers.get('authorization');
@@ -56,8 +67,8 @@ serve(async (req) => {
       .insert({
         user_id: userId,
         status: 'pending',
-        total: total,
-        customer_data: orderData
+        total: finalTotal,
+        customer_data: finalCustomerData
       })
       .select()
       .single();
@@ -96,14 +107,14 @@ serve(async (req) => {
     // Create payment with Abacate Pay
     console.log("Creating Abacate Pay payment...");
     const abacatePayload = {
-      amount: total * 100, // Convert to cents
+      amount: finalTotal * 100, // Convert to cents
       expiresIn: 3600, // 1 hour expiration  
       description: `Pedido #${order.id} - Borboleta Eventos`,
       customer: {
-        name: `${orderData.firstName} ${orderData.lastName}`,
-        email: orderData.email || `${orderData.firstName.toLowerCase()}@borboletaeventos.com`,
-        cellphone: orderData.phone,
-        taxId: orderData.cpf
+        name: finalCustomerData.name || `${finalCustomerData.firstName || ''} ${finalCustomerData.lastName || ''}`.trim(),
+        email: finalCustomerData.email || `cliente@borboletaeventos.com`,
+        cellphone: finalCustomerData.phone || finalCustomerData.cellphone,
+        taxId: finalCustomerData.cpf || finalCustomerData.taxId
       }
     };
 
@@ -148,11 +159,21 @@ serve(async (req) => {
       .update({ payment_id: paymentInfo.id })
       .eq('id', order.id);
 
-    return new Response(JSON.stringify({
+    // Return the complete payment data including brCodeBase64 and brCode
+    const responsePayload = {
       success: true,
       orderId: order.id,
-      paymentData: paymentInfo
-    }), {
+      paymentData: {
+        ...paymentInfo,
+        // Ensure brCodeBase64 and brCode are included
+        brCodeBase64: paymentInfo.brCodeBase64,
+        brCode: paymentInfo.brCode
+      }
+    };
+
+    console.log("Final response payload:", JSON.stringify(responsePayload, null, 2));
+
+    return new Response(JSON.stringify(responsePayload), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 200,
     });

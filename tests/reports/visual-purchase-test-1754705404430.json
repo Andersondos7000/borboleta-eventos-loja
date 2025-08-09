@@ -1,0 +1,39 @@
+{
+  "timestamp": "2025-08-09T02:10:02.556Z",
+  "duration": 1873,
+  "testData": {
+    "cliente": {
+      "nome": "João Silva Teste",
+      "email": "joao.teste@email.com",
+      "telefone": "(11) 99999-9999",
+      "documento": "123.456.789-00"
+    },
+    "participantes": [
+      {
+        "nome": "Maria Santos",
+        "email": "maria@email.com",
+        "telefone": "(11) 88888-8888",
+        "documento": "987.654.321-00"
+      },
+      {
+        "nome": "Pedro Costa",
+        "email": "pedro@email.com",
+        "telefone": "(11) 77777-7777",
+        "documento": "456.789.123-00"
+      }
+    ]
+  },
+  "tests": [],
+  "errors": [
+    {
+      "timestamp": "2025-08-09T02:10:04.429Z",
+      "message": "Erro ao inicializar navegador: browserType.launch: Target page, context or browser has been closed\nBrowser logs:\n\n╔════════════════════════════════════════════════════════════════════════════════════════════════╗\n║ Looks like you launched a headed browser without having a XServer running.                     ║\n║ Set either 'headless: true' or use 'xvfb-run <your-playwright-app>' before running Playwright. ║\n║                                                                                                ║\n║ <3 Playwright Team                                                                             ║\n╚════════════════════════════════════════════════════════════════════════════════════════════════╝\nCall log:\n  - <launching> /root/.cache/ms-playwright/chromium-1181/chrome-linux/chrome --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-extensions --disable-features=AcceptCHFrame,AutoExpandDetailsElement,AvoidUnnecessaryBeforeUnloadCheckSync,CertificateTransparencyComponentUpdater,DestroyProfileOnBrowserClose,DialMediaRouteProvider,ExtensionManifestV2Disabled,GlobalMediaControls,HttpsUpgrades,ImprovedCookieControls,LazyFrameLoading,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,Translate,AutoDeElevate --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --enable-automation --no-sandbox --no-sandbox --disable-setuid-sandbox --disable-dev-shm-usage --disable-web-security --disable-features=VizDisplayCompositor --user-data-dir=/tmp/playwright_chromiumdev_profile-zULs71 --remote-debugging-pipe --no-startup-window\n  - <launched> pid=1620\n  - [pid=1620][err] [1620:1635:0809/021004.108034:ERROR:dbus/bus.cc:408] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: No such file or directory\n  - [pid=1620][err] [1620:1620:0809/021004.162588:ERROR:ui/ozone/platform/x11/ozone_platform_x11.cc:249] Missing X server or $DISPLAY\n  - [pid=1620][err] [1620:1620:0809/021004.162672:ERROR:ui/aura/env.cc:257] The platform failed to initialize.  Exiting.\n"
+    },
+    {
+      "timestamp": "2025-08-09T02:10:04.430Z",
+      "message": "❌ Erro geral no teste: Falha ao inicializar navegador"
+    }
+  ],
+  "screenshots": [],
+  "success": true
+}
