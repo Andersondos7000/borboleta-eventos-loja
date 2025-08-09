@@ -1,0 +1,171 @@
+{
+  "name": "Borboleta MCP - GitHub Deploy Workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.MCP_GATEWAY_URL }}/github/deploy",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer {{ $env.GITHUB_TOKEN }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "owner",
+              "value": "Andersondos7000"
+            },
+            {
+              "name": "repo", 
+              "value": "borboleta-eventos-loja"
+            },
+            {
+              "name": "branch",
+              "value": "main"
+            }
+          ]
+        }
+      },
+      "name": "Deploy to GitHub",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        820,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST", 
+        "url": "={{ $env.SUPABASE_URL }}/functions/v1/create-abacate-payment",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer {{ $env.SUPABASE_KEY }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "orderId",
+              "value": "test-{{ $now }}"
+            },
+            {
+              "name": "amount",
+              "value": "1000"
+            },
+            {
+              "name": "description",
+              "value": "Test payment via N8N workflow"
+            }
+          ]
+        }
+      },
+      "name": "Test Payment API",
+      "type": "n8n-nodes-base.httpRequest", 
+      "typeVersion": 4.1,
+      "position": [
+        1040,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "webhook",
+        "webhook": {
+          "httpMethod": "POST",
+          "path": "borboleta-deploy",
+          "options": {}
+        }
+      },
+      "name": "GitHub Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        600,
+        240
+      ],
+      "webhookId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+    },
+    {
+      "parameters": {
+        "content": "🚀 **Borboleta Deploy Webhook Triggered**\\n\\n**Repository:** {{ $json.repository.full_name }}\\n**Branch:** {{ $json.ref }}\\n**Commit:** {{ $json.head_commit.message }}\\n**Author:** {{ $json.head_commit.author.name }}\\n\\n**MCP Gateway Status:** {{ $node['Deploy to GitHub'].json.status }}\\n**Payment API Test:** {{ $node['Test Payment API'].json.status }}",
+        "options": {}
+      },
+      "name": "Notify Deploy Status",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 1,
+      "position": [
+        1260,
+        240
+      ]
+    }
+  ],
+  "connections": {
+    "GitHub Webhook": {
+      "main": [
+        [
+          {
+            "node": "Deploy to GitHub",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Deploy to GitHub": {
+      "main": [
+        [
+          {
+            "node": "Test Payment API", 
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Test Payment API": {
+      "main": [
+        [
+          {
+            "node": "Notify Deploy Status",
+            "type": "main", 
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "timezone": "America/Sao_Paulo"
+  },
+  "versionId": "1",
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "id": "borboleta-github-deploy",
+  "tags": ["borboleta", "github", "deploy", "mcp"]
+}

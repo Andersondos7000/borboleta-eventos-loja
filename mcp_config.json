@@ -1,0 +1,25 @@
+{
+    "servers": {
+        "MCP_DOCKER": {
+            "command": "docker",
+            "args": ["exec", "-i", "borboleta-eventos-loja-app-1", "bash", "-c", "node /app/scripts/mcp-orchestrator-simple.cjs"],
+            "env": {
+                "DOCKER_HOST": "tcp://host.docker.internal:8812",
+                "MCP_CONTEXT7_ENABLED": "true",
+                "MCP_N8N_ENABLED": "true", 
+                "MCP_GO_ENABLED": "false",
+                "MCP_SUPABASE_ENABLED": "true",
+                "MCP_GITHUB_ENABLED": "true",
+                "MCP_BROWSER_ENABLED": "true",
+                "MCP_MAGIC_ENABLED": "true",
+                "MCP_PLAYWRIGHT_ENABLED": "true",
+                "SUPABASE_URL": "https://pxcvoiffnandpdyotped.supabase.co",
+                "SUPABASE_ANON_KEY": "your_supabase_anon_key_here",
+                "SUPABASE_PROJECT_REF": "pxcvoiffnandpdyotped",
+                "SUPABASE_ACCESS_TOKEN": "your_supabase_access_token_here",
+                "GITHUB_PERSONAL_ACCESS_TOKEN": "your_github_personal_access_token_here",
+                "N8N_API_URL": "http://localhost:5678"
+            }
+        }
+    }
+}

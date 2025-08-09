@@ -1,0 +1,67 @@
+# 🐳 Docker Hub MCP Local Setup
+# Configuração simplificada para rodar Docker Hub MCP localmente
+
+version: '3.8'
+
+services:
+  # Docker Hub MCP Server - Integração oficial
+  dockerhub-mcp:
+    image: mcp/dockerhub:latest
+    container_name: dockerhub-mcp-local
+    environment:
+      - HUB_PAT_TOKEN=${HUB_PAT_TOKEN:-dckr_pat_ns89DhPsG3KBMS0rojQDJX_qm_0}
+      - DOCKER_HUB_USERNAME=${DOCKER_HUB_USERNAME:-dockerhub.andersondos7000}
+    ports:
+      - "3001:3001"
+    networks:
+      - mcp-network
+    restart: unless-stopped
+    stdin_open: true
+    tty: true
+    labels:
+      - "com.docker.mcp.type=server"
+      - "com.docker.mcp.service=docker-hub"
+    healthcheck:
+      test: ["CMD", "echo", "healthy"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # N8N para automação (opcional)
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: n8n-local
+    ports:
+      - "5678:5678"
+    environment:
+      - N8N_HOST=0.0.0.0
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=http
+      - WEBHOOK_URL=http://localhost:5678/
+      - GENERIC_TIMEZONE=America/Sao_Paulo
+      - N8N_METRICS=true
+    volumes:
+      - n8n_data:/home/node/.n8n
+    networks:
+      - mcp-network
+    restart: unless-stopped
+    labels:
+      - "com.docker.mcp.type=automation"
+      - "com.docker.mcp.service=n8n"
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:5678/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+networks:
+  mcp-network:
+    driver: bridge
+    labels:
+      - "com.docker.mcp.network=true"
+
+volumes:
+  n8n_data:
+    driver: local
+    labels:
+      - "com.docker.mcp.volume=n8n-data"

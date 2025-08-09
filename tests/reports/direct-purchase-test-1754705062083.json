@@ -1,0 +1,58 @@
+{
+  "timestamp": "2025-08-09T02:04:22.083Z",
+  "duration": "104043ms",
+  "testData": {
+    "customer": {
+      "name": "João Silva Teste",
+      "email": "joao.teste@email.com",
+      "phone": "(11) 99999-9999",
+      "document": "123.456.789-00"
+    },
+    "participants": [
+      {
+        "name": "João Silva",
+        "email": "joao@email.com",
+        "document": "123.456.789-00"
+      },
+      {
+        "name": "Maria Santos",
+        "email": "maria@email.com",
+        "document": "987.654.321-00"
+      }
+    ]
+  },
+  "errors": [
+    {
+      "type": "access_error",
+      "message": "page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3002/\nCall log:\n  - navigating to \"http://localhost:3002/\", waiting until \"networkidle\"\n",
+      "step": "test_application_access",
+      "timestamp": "2025-08-09T02:02:38.453Z"
+    },
+    {
+      "type": "navigation_error",
+      "message": "page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3002/checkout\nCall log:\n  - navigating to \"http://localhost:3002/checkout\", waiting until \"networkidle\"\n",
+      "step": "test_checkout_navigation",
+      "timestamp": "2025-08-09T02:02:40.472Z"
+    }
+  ],
+  "screenshots": [
+    {
+      "name": "03-form-elements",
+      "filepath": "tests/screenshots/1754704965595-03-form-elements.png",
+      "timestamp": "2025-08-09T02:02:45.885Z"
+    },
+    {
+      "name": "04-form-filled",
+      "filepath": "tests/screenshots/1754705057895-04-form-filled.png",
+      "timestamp": "2025-08-09T02:04:18.066Z"
+    }
+  ],
+  "summary": {
+    "totalErrors": 2,
+    "errorTypes": [
+      "access_error",
+      "navigation_error"
+    ],
+    "success": false
+  }
+}

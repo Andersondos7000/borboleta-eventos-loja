@@ -1,0 +1,78 @@
+{
+  "timestamp": "2025-08-09T02:08:48.426Z",
+  "duration": "105431ms",
+  "testData": {
+    "customer": {
+      "name": "João Silva Teste",
+      "email": "joao.teste@email.com",
+      "phone": "(11) 99999-9999",
+      "document": "123.456.789-00"
+    },
+    "participants": [
+      {
+        "name": "João Silva",
+        "email": "joao@email.com",
+        "document": "123.456.789-00"
+      },
+      {
+        "name": "Maria Santos",
+        "email": "maria@email.com",
+        "document": "987.654.321-00"
+      }
+    ]
+  },
+  "errors": [
+    {
+      "type": "network_error",
+      "url": "http://host.docker.internal:3002/",
+      "status": 403,
+      "timestamp": "2025-08-09T02:07:03.483Z"
+    },
+    {
+      "type": "console_error",
+      "message": "Failed to load resource: the server responded with a status of 403 (Forbidden)",
+      "timestamp": "2025-08-09T02:07:03.494Z"
+    },
+    {
+      "type": "network_error",
+      "url": "http://host.docker.internal:3002/checkout",
+      "status": 403,
+      "timestamp": "2025-08-09T02:07:06.312Z"
+    },
+    {
+      "type": "console_error",
+      "message": "Failed to load resource: the server responded with a status of 403 (Forbidden)",
+      "timestamp": "2025-08-09T02:07:06.322Z"
+    }
+  ],
+  "screenshots": [
+    {
+      "name": "01-app-access",
+      "filepath": "tests/screenshots/1754705224004-01-app-access.png",
+      "timestamp": "2025-08-09T02:07:04.272Z"
+    },
+    {
+      "name": "02-checkout-navigation",
+      "filepath": "tests/screenshots/1754705226826-02-checkout-navigation.png",
+      "timestamp": "2025-08-09T02:07:07.011Z"
+    },
+    {
+      "name": "03-form-elements",
+      "filepath": "tests/screenshots/1754705232053-03-form-elements.png",
+      "timestamp": "2025-08-09T02:07:12.217Z"
+    },
+    {
+      "name": "04-form-filled",
+      "filepath": "tests/screenshots/1754705324229-04-form-filled.png",
+      "timestamp": "2025-08-09T02:08:44.415Z"
+    }
+  ],
+  "summary": {
+    "totalErrors": 4,
+    "errorTypes": [
+      "network_error",
+      "console_error"
+    ],
+    "success": false
+  }
+}
