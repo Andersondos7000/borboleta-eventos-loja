@@ -52,3 +52,10 @@ verify_jwt = true
 
 [functions.abacate-webhook]
 verify_jwt = false
+
+# External OAuth providers
+[auth.external.google]
+enabled = true
+client_id = "env(SUPABASE_AUTH_GOOGLE_CLIENT_ID)"
+secret = "env(SUPABASE_AUTH_GOOGLE_SECRET)"
+redirect_uri = "http://localhost:54321/auth/v1/callback"

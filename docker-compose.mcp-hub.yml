@@ -3,50 +3,50 @@
 version: '3.8'
 
 services:
-  # MCP Gateway Service - Orquestrador oficial do Docker
-  mcp-gateway:
-    image: docker/mcp-gateway:latest
-    container_name: borboleta-mcp-gateway
-    ports:
-      - "3000:3000"
-      - "8080:8080"
-    environment:
-      - MCP_GATEWAY_PORT=3000
-      - MCP_GATEWAY_LOG_LEVEL=debug
-      - DOCKER_HOST=unix:///var/run/docker.sock
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - ./config/mcp-gateway:/config
-      - ./logs/mcp-gateway:/logs
-    networks:
-      - mcp-network
-    depends_on:
-      - mcp-hub-server
-    restart: unless-stopped
-    labels:
-      - "com.docker.mcp.type=gateway"
-      - "com.docker.mcp.project=borboleta-eventos"
+  # MCP Gateway Service - COMENTADO: imagem não existe
+  # mcp-gateway:
+  #   image: docker/mcp-gateway:latest
+  #   container_name: borboleta-mcp-gateway
+  #   ports:
+  #     - "3000:3000"
+  #     - "8080:8080"
+  #   environment:
+  #     - MCP_GATEWAY_PORT=3000
+  #     - MCP_GATEWAY_LOG_LEVEL=debug
+  #     - DOCKER_HOST=unix:///var/run/docker.sock
+  #   volumes:
+  #     - /var/run/docker.sock:/var/run/docker.sock
+  #     - ./config/mcp-gateway:/config
+  #     - ./logs/mcp-gateway:/logs
+  #   networks:
+  #     - mcp-network
+  #   depends_on:
+  #     - mcp-hub-server
+  #   restart: unless-stopped
+  #   labels:
+  #     - "com.docker.mcp.type=gateway"
+  #     - "com.docker.mcp.project=borboleta-eventos"
 
-  # Docker Hub MCP Server - Integração oficial
-  mcp-hub-server:
-    image: mcp/dockerhub:latest
-    container_name: borboleta-hub-mcp
-    environment:
-      - HUB_PAT_TOKEN=${HUB_PAT_TOKEN}
-      - DOCKER_HUB_USERNAME=${DOCKER_HUB_USERNAME}
-      - MCP_SERVER_PORT=3001
-    ports:
-      - "3001:3001"
-    volumes:
-      - ./config/hub-mcp:/config
-    networks:
-      - mcp-network
-    restart: unless-stopped
-    stdin_open: true
-    tty: true
-    labels:
-      - "com.docker.mcp.type=server"
-      - "com.docker.mcp.service=docker-hub"
+  # Docker Hub MCP Server - COMENTADO: imagem não existe
+  # mcp-hub-server:
+  #   image: mcp/dockerhub:latest
+  #   container_name: borboleta-hub-mcp
+  #   environment:
+  #     - HUB_PAT_TOKEN=${HUB_PAT_TOKEN}
+  #     - DOCKER_HUB_USERNAME=${DOCKER_HUB_USERNAME}
+  #     - MCP_SERVER_PORT=3001
+  #   ports:
+  #     - "3001:3001"
+  #   volumes:
+  #     - ./config/hub-mcp:/config
+  #   networks:
+  #     - mcp-network
+  #   restart: unless-stopped
+  #   stdin_open: true
+  #   tty: true
+  #   labels:
+  #     - "com.docker.mcp.type=server"
+  #     - "com.docker.mcp.service=docker-hub"
 
   # N8N Workflow Automation - Essential MCP Component
   n8n-mcp-server:
@@ -120,75 +120,75 @@ services:
       - "com.docker.mcp.service=supabase"
     command: ["sh", "-c", "npm install -g @modelcontextprotocol/server-supabase && sleep infinity"]
 
-  # Browser Tools MCP Server
-  browser-tools-mcp:
-    image: modelcontextprotocol/server-browser:latest
-    container_name: borboleta-browser-mcp
-    environment:
-      - MCP_SERVER_PORT=3004
-      - BROWSER_HEADLESS=true
-    ports:
-      - "3004:3004"
-    networks:
-      - mcp-network
-    restart: unless-stopped
-    labels:
-      - "com.docker.mcp.type=server"
-      - "com.docker.mcp.service=browser"
+  # Browser Tools MCP Server - COMENTADO: imagem pode não existir
+  # browser-tools-mcp:
+  #   image: modelcontextprotocol/server-browser:latest
+  #   container_name: borboleta-browser-mcp
+  #   environment:
+  #     - MCP_SERVER_PORT=3004
+  #     - BROWSER_HEADLESS=true
+  #   ports:
+  #     - "3004:3004"
+  #   networks:
+  #     - mcp-network
+  #   restart: unless-stopped
+  #   labels:
+  #     - "com.docker.mcp.type=server"
+  #     - "com.docker.mcp.service=browser"
 
-  # Playwright MCP Server
-  playwright-mcp:
-    image: modelcontextprotocol/server-playwright:latest
-    container_name: borboleta-playwright-mcp
-    environment:
-      - MCP_SERVER_PORT=3005
-      - PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
-    ports:
-      - "3005:3005"
-    networks:
-      - mcp-network
-    restart: unless-stopped
-    labels:
-      - "com.docker.mcp.type=server"
-      - "com.docker.mcp.service=playwright"
+  # Playwright MCP Server - COMENTADO: imagem pode não existir
+  # playwright-mcp:
+  #   image: modelcontextprotocol/server-playwright:latest
+  #   container_name: borboleta-playwright-mcp
+  #   environment:
+  #     - MCP_SERVER_PORT=3005
+  #     - PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
+  #   ports:
+  #     - "3005:3005"
+  #   networks:
+  #     - mcp-network
+  #   restart: unless-stopped
+  #   labels:
+  #     - "com.docker.mcp.type=server"
+  #     - "com.docker.mcp.service=playwright"
 
-  # MCP Toolkit Manager
-  mcp-toolkit:
-    image: docker/mcp-toolkit:latest
-    container_name: borboleta-mcp-toolkit
-    environment:
-      - MCP_GATEWAY_URL=http://mcp-gateway:3000
-      - TOOLKIT_MODE=production
-    volumes:
-      - ./config/mcp-toolkit:/config
-      - ./data/mcp-toolkit:/data
-    networks:
-      - mcp-network
-    depends_on:
-      - mcp-gateway
-    restart: unless-stopped
-    labels:
-      - "com.docker.mcp.type=toolkit"
-      - "com.docker.mcp.role=manager"
+  # MCP Toolkit Manager - COMENTADO: imagem não existe
+  # mcp-toolkit:
+  #   image: docker/mcp-toolkit:latest
+  #   container_name: borboleta-mcp-toolkit
+  #   environment:
+  #     - MCP_GATEWAY_URL=http://mcp-gateway:3000
+  #     - TOOLKIT_MODE=production
+  #   volumes:
+  #     - ./config/mcp-toolkit:/config
+  #     - ./data/mcp-toolkit:/data
+  #   networks:
+  #     - mcp-network
+  #   depends_on:
+  #     - mcp-gateway
+  #   restart: unless-stopped
+  #   labels:
+  #     - "com.docker.mcp.type=toolkit"
+  #     - "com.docker.mcp.role=manager"
 
-  # MCP Registry & Discovery Service
-  mcp-registry:
-    image: docker/mcp-registry:latest
-    container_name: borboleta-mcp-registry
-    environment:
-      - REGISTRY_PORT=3006
-      - REGISTRY_MODE=discovery
-    ports:
-      - "3006:3006"
-    volumes:
-      - ./config/mcp-registry:/config
-      - ./data/registry:/data
-    networks:
-      - mcp-network
-    restart: unless-stopped
-    labels:
-      - "com.docker.mcp.type=registry"
-      - "com.docker.mcp.role=discovery"
+  # MCP Registry & Discovery Service - COMENTADO: imagem não existe
+  # mcp-registry:
+  #   image: docker/mcp-registry:latest
+  #   container_name: borboleta-mcp-registry
+  #   environment:
+  #     - REGISTRY_PORT=3006
+  #     - REGISTRY_MODE=discovery
+  #   ports:
+  #     - "3006:3006"
+  #   volumes:
+  #     - ./config/mcp-registry:/config
+  #     - ./data/registry:/data
+  #   networks:
+  #     - mcp-network
+  #   restart: unless-stopped
+  #   labels:
+  #     - "com.docker.mcp.type=registry"
+  #     - "com.docker.mcp.role=discovery"
 
   # Application Server (nosso projeto)
   app:
@@ -208,9 +208,9 @@ services:
       - /app/node_modules
     networks:
       - mcp-network
-    depends_on:
-      - mcp-gateway
-      - mcp-toolkit
+    # depends_on:
+    #   - mcp-gateway
+    #   # - mcp-toolkit
     restart: unless-stopped
     labels:
       - "com.docker.mcp.type=client"
@@ -243,7 +243,6 @@ services:
     networks:
       - mcp-network
     depends_on:
-      - mcp-gateway
       - supabase-mcp-server
     restart: unless-stopped
     labels:
