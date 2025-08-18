@@ -14,7 +14,7 @@ import PaymentSection from "@/components/checkout/PaymentSection";
 import OrderSummary from "@/components/checkout/OrderSummary";
 import TermsSection from "@/components/checkout/TermsSection";
 import { useCart, isCartProduct } from "@/contexts/CartContext";
-import { supabase } from "@/lib/supabase";
+import { supabase } from "@/integrations/supabase/client";
 import { validateDocument } from "@/lib/utils";
 
 const formSchema = z.object({

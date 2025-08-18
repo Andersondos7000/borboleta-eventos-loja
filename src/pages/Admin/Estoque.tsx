@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Search, ArrowUpCircle, ArrowDownCircle, AlertTriangle } from 'lucide-react';
 import AdminSidebar from '@/components/AdminSidebar';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/integrations/supabase/client';
 import { updateProductStock } from '@/lib/updateProductStock';
 
 interface DatabaseProduct {

@@ -1,4 +1,4 @@
-import { supabase } from './supabase';
+import { supabase } from '@/integrations/supabase/client';
 
 export async function updateProductStock(productId: string, size: string, newQuantity: number) {
   const { data, error } = await supabase

@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Calendar, Shirt, ShoppingCart, Users, ArrowDown, ArrowUp, Database } from 'lucide-react';
 import AdminSidebar from '@/components/AdminSidebar';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/integrations/supabase/client';
 
 const AdminDashboard = () => {
   const [totalVendas, setTotalVendas] = useState(0);

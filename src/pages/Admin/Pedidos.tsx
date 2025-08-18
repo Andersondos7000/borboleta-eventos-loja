@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Search } from 'lucide-react';
 import { Input } from "@/components/ui/input";
 import AdminSidebar from '@/components/AdminSidebar';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/integrations/supabase/client';
 
 interface OrderItem {
   id: string;

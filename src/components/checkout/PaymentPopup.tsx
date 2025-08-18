@@ -17,7 +17,7 @@ import {
   AlertTriangle
 } from 'lucide-react';
 import { useToast } from "@/components/ui/use-toast";
-import { supabase } from "@/lib/supabase";
+import { supabase } from "@/integrations/supabase/client";
 import { useCart } from "@/contexts/CartContext";
 import { motion, AnimatePresence } from 'framer-motion';
 

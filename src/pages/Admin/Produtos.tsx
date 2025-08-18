@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Shirt, Search, PlusCircle, ImagePlus, Trash2 } from 'lucide-react';
 import AdminSidebar from '@/components/AdminSidebar';
 import { useToast } from '@/components/ui/use-toast';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/integrations/supabase/client';
 
 interface Product {
   id: string;

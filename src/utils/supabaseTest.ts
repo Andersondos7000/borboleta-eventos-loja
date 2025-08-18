@@ -1,5 +1,5 @@
 // Teste de integração do Supabase
-import { supabase } from '../lib/supabase';
+import { supabase } from '@/integrations/supabase/client';
 
 export interface TestResult {
   test: string;
