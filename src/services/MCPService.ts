@@ -163,7 +163,7 @@ export class MCPService {
           return {
             status: error ? 'error' : 'healthy',
             project: 'queren',
-            url: supabaseUrl,
+            url: 'https://fdswhhckvweghcavgdvb.supabase.co',
             edgeFunctions: 3,
             lastHealthCheck: new Date().toISOString(),
             error: error?.message
