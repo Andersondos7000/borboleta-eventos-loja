@@ -7,10 +7,10 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instanciate createClient with right options
+  // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "12.2.3 (519615d)"
+    PostgrestVersion: "13.0.4"
   }
   public: {
     Tables: {
@@ -18,44 +18,40 @@ export type Database = {
         Row: {
           created_at: string
           id: string
-          order_id: string | null
           price: number | null
           product_id: string | null
-          quantity: number
+          quantity: number | null
           size: string | null
           ticket_id: string | null
-          user_id: string
+          total_price: number | null
+          updated_at: string
+          user_id: string | null
         }
         Insert: {
           created_at?: string
           id?: string
-          order_id?: string | null
           price?: number | null
           product_id?: string | null
-          quantity?: number
+          quantity?: number | null
           size?: string | null
           ticket_id?: string | null
-          user_id: string
+          total_price?: number | null
+          updated_at?: string
+          user_id?: string | null
         }
         Update: {
           created_at?: string
           id?: string
-          order_id?: string | null
           price?: number | null
           product_id?: string | null
-          quantity?: number
+          quantity?: number | null
           size?: string | null
           ticket_id?: string | null
-          user_id?: string
+          total_price?: number | null
+          updated_at?: string
+          user_id?: string | null
         }
         Relationships: [
-          {
-            foreignKeyName: "cart_items_order_id_fkey"
-            columns: ["order_id"]
-            isOneToOne: false
-            referencedRelation: "orders"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "cart_items_product_id_fkey"
             columns: ["product_id"]
@@ -72,10 +68,34 @@ export type Database = {
           },
         ]
       }
+      categories: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          name: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          name: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          name?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       events: {
         Row: {
           available_tickets: number
-          created_at: string
+          created_at: string | null
           date: string
           description: string | null
           id: string
@@ -83,11 +103,11 @@ export type Database = {
           location: string
           name: string
           price: number
-          updated_at: string
+          updated_at: string | null
         }
         Insert: {
-          available_tickets: number
-          created_at?: string
+          available_tickets?: number
+          created_at?: string | null
           date: string
           description?: string | null
           id?: string
@@ -95,11 +115,11 @@ export type Database = {
           location: string
           name: string
           price: number
-          updated_at?: string
+          updated_at?: string | null
         }
         Update: {
           available_tickets?: number
-          created_at?: string
+          created_at?: string | null
           date?: string
           description?: string | null
           id?: string
@@ -107,43 +127,46 @@ export type Database = {
           location?: string
           name?: string
           price?: number
-          updated_at?: string
+          updated_at?: string | null
         }
         Relationships: []
       }
       order_items: {
         Row: {
-          created_at: string | null
+          created_at: string
           id: string
           name: string | null
-          order_id: string | null
-          price: number
+          order_id: string
+          price: number | null
           product_id: string | null
           quantity: number
           size: string | null
           ticket_id: string | null
+          total: number
         }
         Insert: {
-          created_at?: string | null
+          created_at?: string
           id?: string
           name?: string | null
-          order_id?: string | null
-          price: number
+          order_id: string
+          price?: number | null
           product_id?: string | null
           quantity: number
           size?: string | null
           ticket_id?: string | null
+          total: number
         }
         Update: {
-          created_at?: string | null
+          created_at?: string
           id?: string
           name?: string | null
-          order_id?: string | null
-          price?: number
+          order_id?: string
+          price?: number | null
           product_id?: string | null
           quantity?: number
           size?: string | null
           ticket_id?: string | null
+          total?: number
         }
         Relationships: [
           {
@@ -171,71 +194,77 @@ export type Database = {
       }
       orders: {
         Row: {
+          abacate_charge_id: string | null
+          amount: number
+          billing_data: Json | null
           created_at: string | null
           customer_data: Json | null
           id: string
+          items: Json | null
           payment_id: string | null
+          pix_copy_paste: string | null
+          pix_qr_code_url: string | null
           status: Database["public"]["Enums"]["order_status"]
-          total: number
           updated_at: string | null
-          user_id: string | null
+          user_id: string
         }
         Insert: {
+          abacate_charge_id?: string | null
+          amount: number
+          billing_data?: Json | null
           created_at?: string | null
           customer_data?: Json | null
           id?: string
+          items?: Json | null
           payment_id?: string | null
+          pix_copy_paste?: string | null
+          pix_qr_code_url?: string | null
           status?: Database["public"]["Enums"]["order_status"]
-          total: number
           updated_at?: string | null
-          user_id?: string | null
+          user_id: string
         }
         Update: {
+          abacate_charge_id?: string | null
+          amount?: number
+          billing_data?: Json | null
           created_at?: string | null
           customer_data?: Json | null
           id?: string
+          items?: Json | null
           payment_id?: string | null
+          pix_copy_paste?: string | null
+          pix_qr_code_url?: string | null
           status?: Database["public"]["Enums"]["order_status"]
-          total?: number
           updated_at?: string | null
-          user_id?: string | null
+          user_id?: string
         }
         Relationships: []
       }
-      product_stock: {
+      product_sizes: {
         Row: {
           created_at: string | null
           id: string
-          min_quantity: number
           product_id: string
-          quantity: number
-          reserved_quantity: number
           size: string
-          updated_at: string | null
+          stock_quantity: number | null
         }
         Insert: {
           created_at?: string | null
           id?: string
-          min_quantity?: number
           product_id: string
-          quantity?: number
-          reserved_quantity?: number
           size: string
-          updated_at?: string | null
+          stock_quantity?: number | null
         }
         Update: {
           created_at?: string | null
           id?: string
-          min_quantity?: number
           product_id?: string
-          quantity?: number
-          reserved_quantity?: number
           size?: string
-          updated_at?: string | null
+          stock_quantity?: number | null
         }
         Relationships: [
           {
-            foreignKeyName: "product_stock_product_id_fkey"
+            foreignKeyName: "fk_product_sizes_product"
             columns: ["product_id"]
             isOneToOne: false
             referencedRelation: "products"
@@ -245,70 +274,105 @@ export type Database = {
       }
       products: {
         Row: {
-          category: string
-          created_at: string
+          category: string | null
+          created_at: string | null
           description: string | null
           id: string
           image_url: string | null
-          in_stock: boolean
+          in_stock: boolean | null
           name: string
           price: number
-          sizes: string[]
-          updated_at: string
+          updated_at: string | null
         }
         Insert: {
-          category: string
-          created_at?: string
+          category?: string | null
+          created_at?: string | null
           description?: string | null
           id?: string
           image_url?: string | null
-          in_stock?: boolean
+          in_stock?: boolean | null
           name: string
           price: number
-          sizes?: string[]
-          updated_at?: string
+          updated_at?: string | null
         }
         Update: {
-          category?: string
-          created_at?: string
+          category?: string | null
+          created_at?: string | null
           description?: string | null
           id?: string
           image_url?: string | null
-          in_stock?: boolean
+          in_stock?: boolean | null
           name?: string
           price?: number
-          sizes?: string[]
-          updated_at?: string
+          updated_at?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "fk_products_category"
+            columns: ["category"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
-          created_at: string
+          avatar_url: string | null
+          created_at: string | null
+          currency: string | null
           email: string | null
+          email_notifications: boolean | null
           first_name: string | null
           id: string
+          language: string | null
           last_name: string | null
+          name: string | null
+          notifications_enabled: boolean | null
           phone: string | null
-          updated_at: string
+          preferences: Json | null
+          sms_notifications: boolean | null
+          theme: string | null
+          updated_at: string | null
+          username: string | null
         }
         Insert: {
-          created_at?: string
+          avatar_url?: string | null
+          created_at?: string | null
+          currency?: string | null
           email?: string | null
+          email_notifications?: boolean | null
           first_name?: string | null
           id: string
+          language?: string | null
           last_name?: string | null
+          name?: string | null
+          notifications_enabled?: boolean | null
           phone?: string | null
-          updated_at?: string
+          preferences?: Json | null
+          sms_notifications?: boolean | null
+          theme?: string | null
+          updated_at?: string | null
+          username?: string | null
         }
         Update: {
-          created_at?: string
+          avatar_url?: string | null
+          created_at?: string | null
+          currency?: string | null
           email?: string | null
+          email_notifications?: boolean | null
           first_name?: string | null
           id?: string
+          language?: string | null
           last_name?: string | null
+          name?: string | null
+          notifications_enabled?: boolean | null
           phone?: string | null
-          updated_at?: string
+          preferences?: Json | null
+          sms_notifications?: boolean | null
+          theme?: string | null
+          updated_at?: string | null
+          username?: string | null
         }
         Relationships: []
       }
@@ -317,27 +381,30 @@ export type Database = {
           created_at: string
           event_id: string
           id: string
-          price: number
+          price: number | null
+          quantity: number
           status: Database["public"]["Enums"]["ticket_status"]
-          updated_at: string
+          total_price: number
           user_id: string | null
         }
         Insert: {
           created_at?: string
           event_id: string
           id?: string
-          price: number
+          price?: number | null
+          quantity: number
           status?: Database["public"]["Enums"]["ticket_status"]
-          updated_at?: string
+          total_price: number
           user_id?: string | null
         }
         Update: {
           created_at?: string
           event_id?: string
           id?: string
-          price?: number
+          price?: number | null
+          quantity?: number
           status?: Database["public"]["Enums"]["ticket_status"]
-          updated_at?: string
+          total_price?: number
           user_id?: string | null
         }
         Relationships: [
@@ -350,48 +417,6 @@ export type Database = {
           },
         ]
       }
-      webhook_logs: {
-        Row: {
-          amount: number
-          created_at: string | null
-          currency: string
-          error_message: string | null
-          event_type: string
-          id: string
-          order_id: string
-          payment_id: string
-          processed_at: string | null
-          raw_payload: Json | null
-          status: string
-        }
-        Insert: {
-          amount: number
-          created_at?: string | null
-          currency?: string
-          error_message?: string | null
-          event_type: string
-          id?: string
-          order_id: string
-          payment_id: string
-          processed_at?: string | null
-          raw_payload?: Json | null
-          status: string
-        }
-        Update: {
-          amount?: number
-          created_at?: string | null
-          currency?: string
-          error_message?: string | null
-          event_type?: string
-          id?: string
-          order_id?: string
-          payment_id?: string
-          processed_at?: string | null
-          raw_payload?: Json | null
-          status?: string
-        }
-        Relationships: []
-      }
     }
     Views: {
       [_ in never]: never
@@ -400,8 +425,15 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      order_status: "pending" | "completed" | "cancelled" | "refunded"
-      ticket_status: "available" | "sold" | "reserved" | "cancelled"
+      order_status:
+        | "pending"
+        | "processing"
+        | "paid"
+        | "shipped"
+        | "delivered"
+        | "cancelled"
+        | "refunded"
+      ticket_status: "reserved" | "paid" | "cancelled" | "used"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -529,8 +561,16 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      order_status: ["pending", "completed", "cancelled", "refunded"],
-      ticket_status: ["available", "sold", "reserved", "cancelled"],
+      order_status: [
+        "pending",
+        "processing",
+        "paid",
+        "shipped",
+        "delivered",
+        "cancelled",
+        "refunded",
+      ],
+      ticket_status: ["reserved", "paid", "cancelled", "used"],
     },
   },
 } as const
