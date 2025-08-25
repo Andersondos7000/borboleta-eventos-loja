@@ -199,7 +199,9 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Save cart to local storage when items change
   useEffect(() => {
     if (!isLoading) {
+      console.log('[DEBUG] Salvando itens no localStorage:', items);
       localStorage.setItem('cart', JSON.stringify(items));
+      console.log('[DEBUG] Itens salvos no localStorage');
     }
   }, [items, isLoading]);
   

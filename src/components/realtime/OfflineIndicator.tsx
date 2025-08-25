@@ -1,0 +1,305 @@
+import React, { useState, useEffect } from 'react';
+import { useRealtimeContext } from '../../contexts/RealtimeContext';
+
+interface OfflineIndicatorProps {
+  className?: string;
+  showDetails?: boolean;
+  position?: 'top' | 'bottom' | 'inline';
+}
+
+export function OfflineIndicator({ 
+  className = '', 
+  showDetails = false, 
+  position = 'top' 
+}: OfflineIndicatorProps) {
+  const { state } = useRealtimeContext();
+  const [showBanner, setShowBanner] = useState(false);
+  const [wasOffline, setWasOffline] = useState(false);
+  
+  // Controlar exibição do banner
+  useEffect(() => {
+    if (!state.isOnline) {
+      setShowBanner(true);
+      setWasOffline(true);
+    } else if (wasOffline && state.isOnline) {
+      // Mostrar banner de reconexão por alguns segundos
+      setShowBanner(true);
+      const timer = setTimeout(() => {
+        setShowBanner(false);
+        setWasOffline(false);
+      }, 3000);
+      return () => clearTimeout(timer);
+    } else {
+      setShowBanner(false);
+    }
+  }, [state.isOnline, wasOffline]);
+  
+  if (!showBanner) {
+    return null;
+  }
+  
+  const isOffline = !state.isOnline;
+  const isReconnected = state.isOnline && wasOffline;
+  
+  // Banner inline
+  if (position === 'inline') {
+    return (
+      <div className={`flex items-center space-x-2 ${className}`}>
+        <OfflineIcon isOffline={isOffline} />
+        <span className={`text-sm font-medium ${
+          isOffline ? 'text-red-600' : 'text-green-600'
+        }`}>
+          {isOffline ? 'Modo Offline' : 'Reconectado'}
+        </span>
+        {showDetails && (
+          <OfflineDetails isOffline={isOffline} />
+        )}
+      </div>
+    );
+  }
+  
+  // Banner fixo
+  const positionClasses = {
+    top: 'fixed top-0 left-0 right-0 z-50',
+    bottom: 'fixed bottom-0 left-0 right-0 z-50'
+  };
+  
+  return (
+    <div className={`${positionClasses[position]} ${className}`}>
+      <div className={`px-4 py-2 text-center text-white ${
+        isOffline ? 'bg-red-600' : 'bg-green-600'
+      }`}>
+        <div className="flex items-center justify-center space-x-2">
+          <OfflineIcon isOffline={isOffline} />
+          <span className="text-sm font-medium">
+            {isOffline 
+              ? 'Você está offline. Suas alterações serão sincronizadas quando a conexão for restabelecida.'
+              : 'Conexão restabelecida! Sincronizando dados...'
+            }
+          </span>
+          
+          {/* Botão de fechar para banner de reconexão */}
+          {isReconnected && (
+            <button
+              onClick={() => setShowBanner(false)}
+              className="ml-2 text-white hover:text-gray-200"
+              aria-label="Fechar"
+            >
+              ✕
+            </button>
+          )}
+        </div>
+        
+        {showDetails && (
+          <div className="mt-2">
+            <OfflineDetails isOffline={isOffline} />
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// Ícone animado para status offline/online
+function OfflineIcon({ isOffline }: { isOffline: boolean }) {
+  return (
+    <div className="relative">
+      {isOffline ? (
+        <div className="flex items-center">
+          <span className="text-lg">📱</span>
+          <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full animate-pulse" />
+        </div>
+      ) : (
+        <div className="flex items-center">
+          <span className="text-lg">📶</span>
+          <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-400 rounded-full animate-pulse" />
+        </div>
+      )}
+    </div>
+  );
+}
+
+// Detalhes do status offline
+function OfflineDetails({ isOffline }: { isOffline: boolean }) {
+  const { state, totalSyncCount } = useRealtimeContext();
+  
+  if (isOffline) {
+    return (
+      <div className="text-xs opacity-90">
+        <div>• Dados locais: {totalSyncCount} itens</div>
+        <div>• Última sincronização: {state.lastSync ? formatTime(state.lastSync) : 'Nunca'}</div>
+        <div>• Alterações serão enviadas automaticamente</div>
+      </div>
+    );
+  }
+  
+  return (
+    <div className="text-xs opacity-90">
+      <div>• Sincronizando alterações pendentes...</div>
+      <div>• Status: {state.connectionStatus}</div>
+    </div>
+  );
+}
+
+// Componente para mostrar indicador de dados pendentes
+export function PendingChangesIndicator({ className = '' }: { className?: string }) {
+  const { state } = useRealtimeContext();
+  const [pendingCount, setPendingCount] = useState(0);
+  
+  // Simular contagem de alterações pendentes
+  // Em uma implementação real, isso viria do estado de sincronização
+  useEffect(() => {
+    if (!state.isOnline) {
+      // Incrementar contador quando offline (simulação)
+      const interval = setInterval(() => {
+        setPendingCount(prev => prev + Math.floor(Math.random() * 3));
+      }, 5000);
+      return () => clearInterval(interval);
+    } else {
+      // Reset quando online
+      setPendingCount(0);
+    }
+  }, [state.isOnline]);
+  
+  if (pendingCount === 0) {
+    return null;
+  }
+  
+  return (
+    <div className={`inline-flex items-center space-x-1 bg-orange-100 text-orange-800 px-2 py-1 rounded-full text-xs ${className}`}>
+      <span className="animate-pulse">⏳</span>
+      <span>{pendingCount} alterações pendentes</span>
+    </div>
+  );
+}
+
+// Hook para detectar mudanças de conectividade
+export function useConnectivityDetection() {
+  const { state, dispatch } = useRealtimeContext();
+  const [connectionQuality, setConnectionQuality] = useState<'good' | 'poor' | 'offline'>('good');
+  
+  useEffect(() => {
+    let pingInterval: NodeJS.Timeout;
+    
+    const checkConnection = async () => {
+      if (!navigator.onLine) {
+        setConnectionQuality('offline');
+        return;
+      }
+      
+      try {
+        const start = Date.now();
+        const response = await fetch('/api/ping', { 
+          method: 'HEAD',
+          cache: 'no-cache'
+        });
+        const latency = Date.now() - start;
+        
+        if (response.ok) {
+          setConnectionQuality(latency > 1000 ? 'poor' : 'good');
+        } else {
+          setConnectionQuality('poor');
+        }
+      } catch {
+        setConnectionQuality('offline');
+      }
+    };
+    
+    // Verificar conexão a cada 30 segundos
+    pingInterval = setInterval(checkConnection, 30000);
+    checkConnection(); // Verificação inicial
+    
+    return () => {
+      if (pingInterval) clearInterval(pingInterval);
+    };
+  }, []);
+  
+  return {
+    isOnline: state.isOnline,
+    connectionQuality,
+    connectionStatus: state.connectionStatus
+  };
+}
+
+// Componente de qualidade de conexão
+export function ConnectionQualityIndicator({ className = '' }: { className?: string }) {
+  const { connectionQuality } = useConnectivityDetection();
+  
+  const qualityConfig = {
+    good: { color: 'text-green-600', icon: '📶', label: 'Boa' },
+    poor: { color: 'text-yellow-600', icon: '📶', label: 'Lenta' },
+    offline: { color: 'text-red-600', icon: '📵', label: 'Offline' }
+  };
+  
+  const config = qualityConfig[connectionQuality];
+  
+  return (
+    <div className={`flex items-center space-x-1 ${className}`}>
+      <span className="text-sm">{config.icon}</span>
+      <span className={`text-xs ${config.color}`}>
+        {config.label}
+      </span>
+    </div>
+  );
+}
+
+// Componente de toast para mudanças de conectividade
+export function ConnectivityToast() {
+  const { state } = useRealtimeContext();
+  const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
+  const [toastType, setToastType] = useState<'success' | 'warning' | 'error'>('success');
+  
+  useEffect(() => {
+    if (!state.isOnline) {
+      setToastMessage('Conexão perdida. Trabalhando offline.');
+      setToastType('warning');
+      setShowToast(true);
+    } else if (state.connectionStatus === 'connected') {
+      setToastMessage('Conexão restabelecida!');
+      setToastType('success');
+      setShowToast(true);
+      
+      // Auto-hide após 3 segundos
+      const timer = setTimeout(() => setShowToast(false), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [state.isOnline, state.connectionStatus]);
+  
+  if (!showToast) {
+    return null;
+  }
+  
+  const typeConfig = {
+    success: { bg: 'bg-green-600', icon: '✅' },
+    warning: { bg: 'bg-yellow-600', icon: '⚠️' },
+    error: { bg: 'bg-red-600', icon: '❌' }
+  };
+  
+  const config = typeConfig[toastType];
+  
+  return (
+    <div className="fixed top-4 right-4 z-50 animate-slide-in-right">
+      <div className={`${config.bg} text-white px-4 py-3 rounded-lg shadow-lg flex items-center space-x-2`}>
+        <span>{config.icon}</span>
+        <span className="text-sm font-medium">{toastMessage}</span>
+        <button
+          onClick={() => setShowToast(false)}
+          className="ml-2 text-white hover:text-gray-200"
+        >
+          ✕
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// Utilitário para formatar tempo
+function formatTime(date: Date): string {
+  return date.toLocaleTimeString('pt-BR', {
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+}
+
+export default OfflineIndicator;

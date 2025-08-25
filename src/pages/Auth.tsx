@@ -14,7 +14,8 @@ import { Separator } from "@/components/ui/separator";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ButterflyLogo from "@/components/ButterflyLogo";
-import { Loader2 } from "lucide-react";
+import { Loader2, Eye, EyeOff } from "lucide-react";
+import ForgotPasswordModal from "@/components/ForgotPasswordModal";
 
 // Login form schema
 const loginSchema = z.object({
@@ -41,6 +42,10 @@ const Auth = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<string>("login");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showLoginPassword, setShowLoginPassword] = useState(false);
+  const [showSignupPassword, setShowSignupPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [showForgotPasswordModal, setShowForgotPasswordModal] = useState(false);
 
   // Login form
   const loginForm = useForm<LoginFormValues>({
@@ -165,12 +170,41 @@ const Auth = () => {
                       <FormItem>
                         <FormLabel>Senha</FormLabel>
                         <FormControl>
-                          <Input type="password" placeholder="******" {...field} />
+                          <div className="relative">
+                            <Input 
+                              type={showLoginPassword ? "text" : "password"} 
+                              placeholder="******" 
+                              className="pr-10"
+                              {...field} 
+                            />
+                            <button
+                              type="button"
+                              className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                              onClick={() => setShowLoginPassword(!showLoginPassword)}
+                            >
+                              {showLoginPassword ? (
+                                <EyeOff className="h-4 w-4 text-gray-400 hover:text-gray-600" />
+                              ) : (
+                                <Eye className="h-4 w-4 text-gray-400 hover:text-gray-600" />
+                              )}
+                            </button>
+                          </div>
                         </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
+                  
+                  <div className="text-right">
+                     <button
+                       type="button"
+                       className="text-sm text-blue-600 hover:text-blue-800 underline"
+                       onClick={() => setShowForgotPasswordModal(true)}
+                     >
+                       Esqueci minha senha
+                     </button>
+                   </div>
+                  
                   <Button 
                     type="submit" 
                     className="w-full bg-butterfly-orange hover:bg-butterfly-orange/90"
@@ -242,7 +276,25 @@ const Auth = () => {
                       <FormItem>
                         <FormLabel>Senha</FormLabel>
                         <FormControl>
-                          <Input type="password" placeholder="******" {...field} />
+                          <div className="relative">
+                            <Input 
+                              type={showSignupPassword ? "text" : "password"} 
+                              placeholder="******" 
+                              className="pr-10"
+                              {...field} 
+                            />
+                            <button
+                              type="button"
+                              className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                              onClick={() => setShowSignupPassword(!showSignupPassword)}
+                            >
+                              {showSignupPassword ? (
+                                <EyeOff className="h-4 w-4 text-gray-400 hover:text-gray-600" />
+                              ) : (
+                                <Eye className="h-4 w-4 text-gray-400 hover:text-gray-600" />
+                              )}
+                            </button>
+                          </div>
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -253,9 +305,27 @@ const Auth = () => {
                     name="confirmPassword"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Confirme sua senha</FormLabel>
+                        <FormLabel>Confirmar Senha</FormLabel>
                         <FormControl>
-                          <Input type="password" placeholder="******" {...field} />
+                          <div className="relative">
+                            <Input 
+                              type={showConfirmPassword ? "text" : "password"} 
+                              placeholder="******" 
+                              className="pr-10"
+                              {...field} 
+                            />
+                            <button
+                              type="button"
+                              className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                            >
+                              {showConfirmPassword ? (
+                                <EyeOff className="h-4 w-4 text-gray-400 hover:text-gray-600" />
+                              ) : (
+                                <Eye className="h-4 w-4 text-gray-400 hover:text-gray-600" />
+                              )}
+                            </button>
+                          </div>
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -315,8 +385,12 @@ const Auth = () => {
           </CardFooter>
         </Card>
       </div>
-
       <Footer />
+      
+      <ForgotPasswordModal
+        isOpen={showForgotPasswordModal}
+        onClose={() => setShowForgotPasswordModal(false)}
+      />
     </div>
   );
 };

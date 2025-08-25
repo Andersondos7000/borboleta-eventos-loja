@@ -4,7 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import { CartProvider, useCart, isCartProduct, isCartTicket } from '@/contexts/CartContext';
+import { useCart, isCartProduct, isCartTicket } from '@/contexts/CartContext';
 import ProductCartItem from '@/components/cart/ProductCartItem';
 import TicketCartItem from '@/components/cart/TicketCartItem';
 import { useToast } from '@/components/ui/use-toast';
@@ -95,7 +95,7 @@ const CartContent = () => {
       </div>
       
       {/* Resumo */}
-      <div className="bg-white rounded-lg shadow-sm p-6 h-fit">
+      <div className="bg-white rounded-lg shadow-sm p-6 h-fit" data-testid="order-summary">
         <h2 className="text-xl font-bold mb-4 pb-4 border-b border-gray-200">
           Resumo do Pedido
         </h2>
@@ -104,7 +104,7 @@ const CartContent = () => {
           {products.length > 0 && (
             <div className="flex justify-between">
               <span className="text-gray-600">Subtotal Produtos</span>
-              <span>{formatCurrency(products.reduce((sum, item) => sum + (item.price * item.quantity), 0))}</span>
+              <span data-testid="subtotal">{formatCurrency(products.reduce((sum, item) => sum + (item.price * item.quantity), 0))}</span>
             </div>
           )}
           
@@ -123,7 +123,7 @@ const CartContent = () => {
           <div className="border-t border-gray-200 pt-3 mt-3">
             <div className="flex justify-between font-bold text-lg">
               <span>Total</span>
-              <span className="text-butterfly-orange">{formatCurrency(total)}</span>
+              <span className="text-butterfly-orange" data-testid="total">{formatCurrency(total)}</span>
             </div>
             
             {subtotal >= 200 && (
@@ -137,6 +137,7 @@ const CartContent = () => {
         <Button 
           className="w-full mt-6 bg-butterfly-orange hover:bg-butterfly-orange/90"
           onClick={handleCheckout}
+          data-testid="checkout-button"
         >
           Finalizar Compra
         </Button>
@@ -163,9 +164,7 @@ const Carrinho = () => {
         <div className="container mx-auto px-4 py-12">
           <h1 className="font-display text-3xl font-bold mb-8">Seu Carrinho</h1>
           
-          <CartProvider>
-            <CartContent />
-          </CartProvider>
+          <CartContent />
         </div>
       </div>
       

@@ -20,6 +20,7 @@ const ProductCardContent: React.FC<{ product: ProductProps }> = ({ product }) =>
   const { addToCart } = useCart();
   const { toast } = useToast();
   const [selectedSize, setSelectedSize] = useState(product.sizes[0] || '');
+  const [isHovered, setIsHovered] = useState(false);
 
   const formattedPrice = new Intl.NumberFormat('pt-BR', {
     style: 'currency',
@@ -55,6 +56,12 @@ const ProductCardContent: React.FC<{ product: ProductProps }> = ({ product }) =>
       quantity: 1,
       productId: product.id
     });
+
+    toast({
+      title: "Produto adicionado!",
+      description: `${product.name} foi adicionado ao carrinho.`,
+      variant: "default"
+    });
   };
 
   const handleSelectSize = (size: string) => {
@@ -62,13 +69,18 @@ const ProductCardContent: React.FC<{ product: ProductProps }> = ({ product }) =>
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-md overflow-hidden transition-transform hover:translate-y-[-5px] border border-gray-200">
+    <div 
+      data-testid="product-card"
+      className="bg-white rounded-xl shadow-lg overflow-hidden transition-all duration-300 hover:shadow-xl hover:scale-105 border border-gray-100 group"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
       <ProductModal product={product} onSelectSize={handleSelectSize}>
-        <div className="relative h-64 overflow-hidden cursor-pointer">
+        <div className="relative aspect-square overflow-hidden cursor-pointer bg-gray-50">
           <img 
             src={product.image} 
             alt={product.name} 
-            className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" 
+            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" 
             onError={(e) => {
               const target = e.target as HTMLImageElement;
               target.src = 'https://images.unsplash.com/photo-1576566588028-4147f3842f27?q=80';
@@ -76,35 +88,71 @@ const ProductCardContent: React.FC<{ product: ProductProps }> = ({ product }) =>
             }}
           />
           {!product.inStock && (
-            <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-              <span className="bg-red-500 text-white px-4 py-2 rounded-full font-semibold">
+            <div className="absolute inset-0 bg-black bg-opacity-60 flex items-center justify-center">
+              <span className="bg-red-500 text-white px-6 py-3 rounded-full font-bold text-sm uppercase tracking-wide">
                 Esgotado
               </span>
             </div>
           )}
+          
+          {/* Overlay com informações adicionais */}
+          <div className={`absolute inset-0 bg-black bg-opacity-0 transition-all duration-300 flex items-end p-4 ${
+            isHovered ? 'bg-opacity-20' : ''
+          }`}>
+            <div className={`transform transition-all duration-300 ${
+              isHovered ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'
+            }`}>
+              <div className="flex gap-1">
+                {product.sizes.slice(0, 4).map((size) => (
+                  <span 
+                    key={size} 
+                    className="bg-white bg-opacity-90 text-gray-800 px-2 py-1 rounded text-xs font-medium"
+                  >
+                    {size}
+                  </span>
+                ))}
+                {product.sizes.length > 4 && (
+                  <span className="bg-white bg-opacity-90 text-gray-800 px-2 py-1 rounded text-xs font-medium">
+                    +{product.sizes.length - 4}
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
         </div>
       </ProductModal>
       
-      <div className="p-4">
-        <h3 className="font-medium text-lg">{product.name}</h3>
-        <div className="flex justify-between items-center mt-2">
-          <span className="text-butterfly-orange font-bold text-xl">{formattedPrice}</span>
+      <div className="p-5">
+        <h3 className="font-semibold text-lg text-gray-900 mb-2 line-clamp-2 leading-tight">{product.name}</h3>
+        
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex flex-col">
+            <span data-testid="product-price" className="text-2xl font-bold text-gray-900">{formattedPrice}</span>
+            <span className="text-sm text-gray-500 capitalize">{product.category}</span>
+          </div>
           
-          <div className="text-sm text-gray-500">
-            {product.sizes.slice(0, 3).join(', ')}
-            {product.sizes.length > 3 && '...'}
+          <div className="text-right">
+            <div className="text-xs text-gray-400 uppercase tracking-wide mb-1">Tamanhos</div>
+            <div className="text-sm text-gray-600 font-medium">
+              {product.sizes.slice(0, 3).join(' • ')}
+              {product.sizes.length > 3 && ' • +'}
+            </div>
           </div>
         </div>
         
         <Button 
-          variant="default" 
-          size="sm" 
-          className="w-full mt-4 flex items-center justify-center"
+          variant={product.inStock ? "default" : "secondary"}
+          size="lg" 
+          className={`w-full flex items-center justify-center font-semibold transition-all duration-200 ${
+            product.inStock 
+              ? 'bg-black hover:bg-gray-800 text-white shadow-md hover:shadow-lg' 
+              : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+          }`}
           disabled={!product.inStock}
           onClick={handleAddToCart}
         >
-          <ShoppingCart className="mr-2 h-4 w-4" /> 
-          {product.inStock ? 'Adicionar ao Carrinho' : 'Indisponível'}
+          <ShoppingCart className="mr-2 h-5 w-5" /> 
+          {product.inStock ? 'Adicionar ao Carrinho' : 'Produto Esgotado'}
         </Button>
       </div>
     </div>

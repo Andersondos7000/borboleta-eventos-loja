@@ -12,6 +12,9 @@ type AuthContextType = {
   signUp: (email: string, password: string, username: string) => Promise<void>;
   signInWithGoogle: () => Promise<void>;
   signOut: () => Promise<void>;
+  resetPassword: (email: string) => Promise<void>;
+  updatePassword: (password: string) => Promise<void>;
+  isAdmin: () => Promise<boolean>;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -129,6 +132,72 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const resetPassword = async (email: string) => {
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+      
+      if (error) throw error;
+      
+      toast({
+        title: "Email de recuperação enviado",
+        description: "Verifique sua caixa de entrada para redefinir sua senha."
+      });
+    } catch (error: any) {
+      toast({
+        title: "Erro ao enviar email de recuperação",
+        description: error.error_description || error.message || "Tente novamente mais tarde",
+        variant: "destructive"
+      });
+      throw error;
+    }
+  };
+
+  const updatePassword = async (password: string) => {
+    try {
+      const { error } = await supabase.auth.updateUser({
+        password: password
+      });
+      
+      if (error) throw error;
+      
+      toast({
+        title: "Senha atualizada com sucesso",
+        description: "Sua senha foi alterada com sucesso."
+      });
+    } catch (error: any) {
+      toast({
+        title: "Erro ao atualizar senha",
+        description: error.error_description || error.message || "Tente novamente mais tarde",
+        variant: "destructive"
+      });
+      throw error;
+    }
+  };
+
+  const isAdmin = async (): Promise<boolean> => {
+    try {
+      if (!user) return false;
+      
+      const { data: profile, error } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', user.id)
+        .single();
+      
+      if (error) {
+        console.error('Erro ao verificar role do usuário:', error);
+        return false;
+      }
+      
+      return profile?.role === 'admin' || profile?.role === 'organizer';
+    } catch (error) {
+      console.error('Erro ao verificar se usuário é admin:', error);
+      return false;
+    }
+  };
+
   const value = {
     user,
     session,
@@ -137,6 +206,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     signUp,
     signInWithGoogle,
     signOut,
+    resetPassword,
+    updatePassword,
+    isAdmin,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

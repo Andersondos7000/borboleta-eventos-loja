@@ -14,9 +14,10 @@ interface ProductCartItemProps {
   item: CartProduct;
 }
 
-const sizesMap = {
+const sizesMap: Record<string, string[]> = {
   camiseta: ['PP', 'P', 'M', 'G', 'GG', 'XGG', 'EXGG'],
-  vestido: ['PP', 'P', 'M', 'G', 'GG', 'XGG', 'EXGG']
+  vestido: ['PP', 'P', 'M', 'G', 'GG', 'XGG', 'EXGG'],
+  default: ['P', 'M', 'G'] // Fallback para categorias não mapeadas
 };
 
 const ProductCartItem: React.FC<ProductCartItemProps> = ({ item }) => {
@@ -36,7 +37,7 @@ const ProductCartItem: React.FC<ProductCartItemProps> = ({ item }) => {
   };
   
   return (
-    <div className="p-6 border-b border-gray-100 flex flex-wrap md:flex-nowrap gap-4">
+    <div className="p-6 border-b border-gray-100 flex flex-wrap md:flex-nowrap gap-4" data-testid="cart-item">
       <div className="w-24 h-24 rounded-md overflow-hidden flex-shrink-0">
         <img 
           src={item.image} 
@@ -51,7 +52,7 @@ const ProductCartItem: React.FC<ProductCartItemProps> = ({ item }) => {
       </div>
       
       <div className="flex-1">
-        <h3 className="font-medium text-lg">{item.name}</h3>
+        <h3 className="font-medium text-lg" data-testid="item-name">{item.name}</h3>
         <div className="flex flex-wrap justify-between items-center mt-2">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
             <div className="flex items-center gap-4">
@@ -63,7 +64,7 @@ const ProductCartItem: React.FC<ProductCartItemProps> = ({ item }) => {
                   <SelectValue placeholder="Tamanho" />
                 </SelectTrigger>
                 <SelectContent>
-                  {sizesMap[item.category].map((size) => (
+                  {(sizesMap[item.category] || sizesMap.default).map((size) => (
                     <SelectItem key={size} value={size}>
                       {size}
                     </SelectItem>
@@ -79,14 +80,16 @@ const ProductCartItem: React.FC<ProductCartItemProps> = ({ item }) => {
                     className="px-2 py-1 border-r border-gray-300"
                     aria-label="Diminuir quantidade"
                     disabled={item.quantity <= 1}
+                    data-testid="decrease-quantity"
                   >
                     -
                   </button>
-                  <span className="px-4 py-1">{item.quantity}</span>
+                  <span className="px-4 py-1" data-testid="item-quantity">{item.quantity}</span>
                   <button 
                     onClick={() => handleQuantityChange(item.quantity + 1)} 
                     className="px-2 py-1 border-l border-gray-300"
                     aria-label="Aumentar quantidade"
+                    data-testid="increase-quantity"
                   >
                     +
                   </button>
@@ -96,11 +99,12 @@ const ProductCartItem: React.FC<ProductCartItemProps> = ({ item }) => {
           </div>
           
           <div className="flex items-center gap-4">
-            <span className="font-bold">{formatCurrency(item.price * item.quantity)}</span>
+            <span className="font-bold" data-testid="item-price">{formatCurrency(item.price * item.quantity)}</span>
             <button 
               onClick={() => removeFromCart(item.id)} 
               className="text-red-500 hover:text-red-700"
               aria-label="Remover item"
+              data-testid="remove-item"
             >
               <Trash2 className="h-5 w-5" />
             </button>

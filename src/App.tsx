@@ -14,6 +14,8 @@ import AdminTickets from "./pages/Admin/Tickets";
 import AdminProdutos from "./pages/Admin/Produtos";
 import AdminPedidos from "./pages/Admin/Pedidos";
 import AdminEstoque from "./pages/Admin/Estoque";
+import AdminLogin from "./pages/Admin/Login";
+import ProtectedRoute from "./components/ProtectedRoute";
 import NotFound from "./pages/NotFound";
 import Ingressos from "./pages/Ingressos";
 import Terms from "./pages/Terms";
@@ -21,6 +23,7 @@ import Privacy from "./pages/Privacy";
 import Auth from "./pages/Auth";
 import AuthCallback from "./pages/Auth/Callback";
 import Profile from "./pages/Profile";
+import ResetPassword from "./pages/ResetPassword";
 import { CartProvider } from "./contexts/CartContext";
 import { AuthProvider } from "./contexts/AuthContext";
 
@@ -48,14 +51,36 @@ const App = () => (
               <Route path="/checkout" element={<Checkout />} />
               <Route path="/termos" element={<Terms />} />
               <Route path="/privacidade" element={<Privacy />} />
-              <Route path="/admin" element={<AdminDashboard />} />
-              <Route path="/admin/tickets" element={<AdminTickets />} />
-              <Route path="/admin/produtos" element={<AdminProdutos />} />
-              <Route path="/admin/pedidos" element={<AdminPedidos />} />
-              <Route path="/admin/estoque" element={<AdminEstoque />} />
+              <Route path="/admin/login" element={<AdminLogin />} />
+              <Route path="/admin" element={
+                <ProtectedRoute>
+                  <AdminDashboard />
+                </ProtectedRoute>
+              } />
+              <Route path="/admin/tickets" element={
+                <ProtectedRoute>
+                  <AdminTickets />
+                </ProtectedRoute>
+              } />
+              <Route path="/admin/produtos" element={
+                <ProtectedRoute>
+                  <AdminProdutos />
+                </ProtectedRoute>
+              } />
+              <Route path="/admin/pedidos" element={
+                <ProtectedRoute>
+                  <AdminPedidos />
+                </ProtectedRoute>
+              } />
+              <Route path="/admin/estoque" element={
+                <ProtectedRoute>
+                  <AdminEstoque />
+                </ProtectedRoute>
+              } />
               <Route path="/ingressos" element={<Ingressos />} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/auth/callback" element={<AuthCallback />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="/perfil" element={<Profile />} />
               <Route path="*" element={<NotFound />} />
             </Routes>

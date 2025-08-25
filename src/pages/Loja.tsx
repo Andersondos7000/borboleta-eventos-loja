@@ -3,17 +3,27 @@ import React, { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Badge } from '@/components/ui/badge';
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
+import { Search, Filter, Grid, List, ChevronDown, Star, Heart } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import ProductCard, { ProductProps } from '@/components/ProductCard';
 import SizeChart from '@/components/SizeChart';
 import { supabase } from '@/lib/supabase';
 import { useToast } from '@/components/ui/use-toast';
+import { Link } from 'react-router-dom';
 
 const Loja = () => {
   const [activeCategory, setActiveCategory] = useState<'all' | 'camisetas' | 'vestidos'>('all');
   const [products, setProducts] = useState<ProductProps[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [sortBy, setSortBy] = useState('name');
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [priceRange, setPriceRange] = useState<'all' | 'low' | 'medium' | 'high'>('all');
   const { toast } = useToast();
 
   useEffect(() => {
@@ -61,21 +71,87 @@ const Loja = () => {
     fetchProducts();
   }, [toast]);
 
-  const filteredProducts = activeCategory === 'all' 
-    ? products 
-    : products.filter(product => product.category === (activeCategory === 'camisetas' ? 'camiseta' : 'vestido'));
+  // Filtrar produtos por categoria, busca e preço
+  const filteredProducts = products
+    .filter(product => {
+      // Filtro por categoria
+      if (activeCategory !== 'all') {
+        const categoryMatch = product.category === (activeCategory === 'camisetas' ? 'camiseta' : 'vestido');
+        if (!categoryMatch) return false;
+      }
+      
+      // Filtro por busca
+      if (searchQuery) {
+        const searchMatch = product.name.toLowerCase().includes(searchQuery.toLowerCase());
+        if (!searchMatch) return false;
+      }
+      
+      // Filtro por preço
+      if (priceRange !== 'all') {
+        const price = product.price;
+        switch (priceRange) {
+          case 'low':
+            if (price > 50) {
+              return false;
+            }
+            break;
+          case 'medium':
+            if (price <= 50 || price > 100) {
+              return false;
+            }
+            break;
+          case 'high':
+            if (price <= 100) {
+              return false;
+            }
+            break;
+        }
+      }
+      
+      return true;
+    })
+    .sort((a, b) => {
+      switch (sortBy) {
+        case 'price-low':
+          return a.price - b.price;
+        case 'price-high':
+          return b.price - a.price;
+        case 'name':
+        default:
+          return a.name.localeCompare(b.name);
+      }
+    });
 
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
       
+      {/* Breadcrumbs */}
+      <div className="bg-gray-50 py-4">
+        <div className="container mx-auto px-4">
+          <Breadcrumb>
+            <BreadcrumbList>
+              <BreadcrumbItem>
+                <BreadcrumbLink asChild>
+                  <Link to="/">Início</Link>
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <BreadcrumbPage>Loja</BreadcrumbPage>
+              </BreadcrumbItem>
+            </BreadcrumbList>
+          </Breadcrumb>
+        </div>
+      </div>
+      
       {/* Hero Banner */}
-      <section className="bg-butterfly-black text-white py-16">
+      <section className="bg-butterfly-black text-white py-12">
         <div className="container mx-auto px-4 text-center">
-          <h1 className="font-display text-4xl md:text-5xl font-bold mb-4">
+          <h1 className="font-display text-3xl md:text-4xl font-bold mb-4">
             Loja Oficial
           </h1>
-          <p className="text-lg md:text-xl max-w-2xl mx-auto">
+          <p className="text-lg max-w-2xl mx-auto">
             Produtos exclusivos da VII Conferência de Mulheres Queren Hapuque. 
             Encontre camisetas e vestidos em diversos tamanhos.
           </p>
@@ -83,101 +159,207 @@ const Loja = () => {
       </section>
       
       {/* Products Section */}
-      <section className="bg-gray-50 py-16">
+      <section className="bg-white py-8">
         <div className="container mx-auto px-4">
-          <Tabs defaultValue="all" className="w-full">
-            <div className="flex justify-center mb-8">
-              <TabsList>
-                <TabsTrigger 
-                  value="all" 
-                  onClick={() => setActiveCategory('all')}
-                  className="px-6"
-                >
-                  Todos os Produtos
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="camisetas" 
-                  onClick={() => setActiveCategory('camisetas')}
-                  className="px-6"
-                >
-                  Camisetas
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="vestidos" 
-                  onClick={() => setActiveCategory('vestidos')}
-                  className="px-6"
-                >
-                  Vestidos
-                </TabsTrigger>
-              </TabsList>
+          {/* Filters and Search */}
+          <div className="bg-gray-50 p-6 rounded-lg mb-8">
+            <div className="flex flex-col lg:flex-row gap-4 items-center justify-between">
+              {/* Search Bar */}
+              <div className="relative flex-1 max-w-md">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                <Input
+                  placeholder="Buscar produtos..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+              
+              {/* Filters */}
+              <div className="flex flex-wrap gap-4 items-center">
+                {/* Category Filter */}
+                <Select value={activeCategory} onValueChange={(value: 'all' | 'camisetas' | 'vestidos') => setActiveCategory(value)}>
+                  <SelectTrigger className="w-[150px]">
+                    <SelectValue placeholder="Categoria" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todos</SelectItem>
+                    <SelectItem value="camisetas">Camisetas</SelectItem>
+                    <SelectItem value="vestidos">Vestidos</SelectItem>
+                  </SelectContent>
+                </Select>
+                
+                {/* Price Filter */}
+                <Select value={priceRange} onValueChange={(value: 'all' | 'low' | 'medium' | 'high') => setPriceRange(value)}>
+                  <SelectTrigger className="w-[150px]">
+                    <SelectValue placeholder="Preço" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todos os preços</SelectItem>
+                    <SelectItem value="low">Até R$ 50</SelectItem>
+                    <SelectItem value="medium">R$ 50 - R$ 100</SelectItem>
+                    <SelectItem value="high">Acima de R$ 100</SelectItem>
+                  </SelectContent>
+                </Select>
+                
+                {/* Sort Filter */}
+                <Select value={sortBy} onValueChange={setSortBy}>
+                  <SelectTrigger className="w-[150px]">
+                    <SelectValue placeholder="Ordenar" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="name">Nome A-Z</SelectItem>
+                    <SelectItem value="price-low">Menor preço</SelectItem>
+                    <SelectItem value="price-high">Maior preço</SelectItem>
+                  </SelectContent>
+                </Select>
+                
+                {/* View Mode */}
+                <div className="flex border rounded-lg">
+                  <Button
+                    variant={viewMode === 'grid' ? 'default' : 'ghost'}
+                    size="sm"
+                    onClick={() => setViewMode('grid')}
+                    className="rounded-r-none"
+                  >
+                    <Grid className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant={viewMode === 'list' ? 'default' : 'ghost'}
+                    size="sm"
+                    onClick={() => setViewMode('list')}
+                    className="rounded-l-none"
+                  >
+                    <List className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
             </div>
             
-            <TabsContent value="all" className="mt-0">
-              {isLoading ? (
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                  {[1, 2, 3].map(i => (
-                    <div key={i} className="bg-gray-200 animate-pulse h-64 rounded-lg"></div>
-                  ))}
-                </div>
-              ) : (
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                  {filteredProducts.length > 0 ? (
-                    filteredProducts.map(product => (
-                      <ProductCard key={product.id} product={product} />
-                    ))
-                  ) : (
-                    <div className="col-span-full text-center py-8 text-gray-500">
-                      Nenhum produto encontrado.
-                    </div>
-                  )}
-                </div>
-              )}
-            </TabsContent>
+            {/* Results Count */}
+            <div className="mt-4 flex items-center justify-between">
+              <p className="text-sm text-gray-600">
+                {filteredProducts.length} produto{filteredProducts.length !== 1 ? 's' : ''} encontrado{filteredProducts.length !== 1 ? 's' : ''}
+              </p>
+              
+              {/* Active Filters */}
+              <div className="flex gap-2">
+                {activeCategory !== 'all' && (
+                  <Badge variant="secondary" className="cursor-pointer" onClick={() => setActiveCategory('all')}>
+                    {activeCategory === 'camisetas' ? 'Camisetas' : 'Vestidos'} ×
+                  </Badge>
+                )}
+                {priceRange !== 'all' && (
+                  <Badge variant="secondary" className="cursor-pointer" onClick={() => setPriceRange('all')}>
+                    {priceRange === 'low' ? 'Até R$ 50' : priceRange === 'medium' ? 'R$ 50-100' : 'Acima R$ 100'} ×
+                  </Badge>
+                )}
+                {searchQuery && (
+                  <Badge variant="secondary" className="cursor-pointer" onClick={() => setSearchQuery('')}>
+                    "{searchQuery}" ×
+                  </Badge>
+                )}
+              </div>
+            </div>
+          </div>
             
-            <TabsContent value="camisetas" className="mt-0">
-              {isLoading ? (
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                  {[1, 2].map(i => (
-                    <div key={i} className="bg-gray-200 animate-pulse h-64 rounded-lg"></div>
-                  ))}
-                </div>
-              ) : (
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                  {filteredProducts.length > 0 ? (
-                    filteredProducts.map(product => (
-                      <ProductCard key={product.id} product={product} />
-                    ))
-                  ) : (
-                    <div className="col-span-full text-center py-8 text-gray-500">
-                      Nenhuma camiseta encontrada.
+            {isLoading ? (
+              <div className={viewMode === 'grid' 
+                ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+                : "space-y-4"
+              }>
+                {[...Array(8)].map((_, i) => (
+                  <div key={i} className={viewMode === 'grid'
+                    ? "bg-white rounded-lg shadow-md p-4 animate-pulse"
+                    : "bg-white rounded-lg shadow-md p-4 animate-pulse flex gap-4"
+                  }>
+                    <div className={viewMode === 'grid'
+                      ? "bg-gray-300 h-48 rounded mb-4"
+                      : "bg-gray-300 w-32 h-32 rounded flex-shrink-0"
+                    }></div>
+                    <div className="flex-1">
+                      <div className="bg-gray-300 h-4 rounded mb-2"></div>
+                      <div className="bg-gray-300 h-4 rounded w-2/3 mb-2"></div>
+                      <div className="bg-gray-300 h-4 rounded w-1/2"></div>
                     </div>
-                  )}
+                  </div>
+                ))}
+              </div>
+            ) : filteredProducts.length === 0 ? (
+              <div className="text-center py-12">
+                <div className="max-w-md mx-auto">
+                  <div className="text-gray-400 mb-4">
+                    <Search className="h-16 w-16 mx-auto" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">Nenhum produto encontrado</h3>
+                  <p className="text-gray-500 mb-4">
+                    Não encontramos produtos que correspondam aos seus critérios de busca.
+                  </p>
+                  <Button 
+                    variant="outline" 
+                    onClick={() => {
+                      setSearchQuery('');
+                      setActiveCategory('all');
+                      setPriceRange('all');
+                    }}
+                  >
+                    Limpar filtros
+                  </Button>
                 </div>
-              )}
-            </TabsContent>
-            
-            <TabsContent value="vestidos" className="mt-0">
-              {isLoading ? (
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                  {[1, 2].map(i => (
-                    <div key={i} className="bg-gray-200 animate-pulse h-64 rounded-lg"></div>
-                  ))}
-                </div>
-              ) : (
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                  {filteredProducts.length > 0 ? (
-                    filteredProducts.map(product => (
-                      <ProductCard key={product.id} product={product} />
-                    ))
+              </div>
+            ) : (
+              <div className={viewMode === 'grid' 
+                ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+                : "space-y-4"
+              }>
+                {filteredProducts.map((product) => (
+                  viewMode === 'grid' ? (
+                    <ProductCard key={product.id} product={product} />
                   ) : (
-                    <div className="col-span-full text-center py-8 text-gray-500">
-                      Nenhum vestido encontrado.
-                    </div>
-                  )}
-                </div>
-              )}
-            </TabsContent>
-          </Tabs>
+                    <div key={product.id} className="bg-white rounded-lg shadow-md p-4 flex gap-4 hover:shadow-lg transition-shadow">
+                       <div className="w-32 h-32 flex-shrink-0">
+                         <img 
+                           src={product.image} 
+                           alt={product.name}
+                           className="w-full h-full object-cover rounded-lg"
+                         />
+                       </div>
+                       <div className="flex-1 flex flex-col justify-between">
+                         <div>
+                           <h3 className="font-semibold text-lg mb-2">{product.name}</h3>
+                           <div className="flex items-center gap-2 mb-2">
+                             <div className="flex items-center">
+                               {[...Array(5)].map((_, i) => (
+                                 <Star key={i} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                               ))}
+                             </div>
+                             <span className="text-sm text-gray-500">(4.8)</span>
+                           </div>
+                         </div>
+                         <div className="flex items-center justify-between">
+                           <div className="flex items-center gap-2">
+                             <span className="text-2xl font-bold text-green-600">
+                               R$ {product.price.toFixed(2)}
+                             </span>
+                             <Badge variant="secondary" className="text-xs">
+                               {product.category}
+                             </Badge>
+                           </div>
+                           <div className="flex gap-2">
+                             <Button size="sm" variant="outline">
+                               <Heart className="h-4 w-4" />
+                             </Button>
+                             <Button size="sm">
+                               Ver Detalhes
+                             </Button>
+                           </div>
+                         </div>
+                       </div>
+                     </div>
+                  )
+                ))}
+              </div>
+            )}
         </div>
       </section>
       
@@ -312,6 +494,32 @@ const Loja = () => {
         </div>
       </section>
       
+      {/* Newsletter Section */}
+      <section className="bg-gradient-to-r from-purple-600 to-pink-600 py-16">
+        <div className="container mx-auto px-4 text-center">
+          <div className="max-w-2xl mx-auto">
+            <h2 className="text-3xl font-bold text-white mb-4">
+              Fique por dentro das novidades
+            </h2>
+            <p className="text-purple-100 mb-8">
+              Receba em primeira mão informações sobre novos produtos, promoções exclusivas e eventos da Queren Hapuque.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
+              <Input 
+                placeholder="Seu melhor e-mail"
+                className="flex-1 bg-white/10 border-white/20 text-white placeholder:text-purple-200"
+              />
+              <Button className="bg-white text-purple-600 hover:bg-purple-50">
+                Inscrever-se
+              </Button>
+            </div>
+            <p className="text-xs text-purple-200 mt-4">
+              Ao se inscrever, você concorda com nossa política de privacidade.
+            </p>
+          </div>
+        </div>
+      </section>
+      
       {/* CTA Section */}
       <section className="bg-butterfly-orange text-white py-12">
         <div className="container mx-auto px-4 text-center">
@@ -319,7 +527,7 @@ const Loja = () => {
             Não perca os produtos oficiais do evento!
           </h2>
           <p className="text-lg mb-8">
-            Garanta já suas peças exclusivas e esteja preparada para a conferência.
+            Garante já suas peças exclusivas e esteja preparada para a conferência.
           </p>
           <Button 
             variant="outline" 

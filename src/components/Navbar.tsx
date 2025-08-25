@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ShoppingCart, Calendar, Shirt, User } from 'lucide-react';
 import ButterflyLogo from './ButterflyLogo';
@@ -10,7 +10,21 @@ import MobileMenu from './MobileMenu';
 
 const Navbar: React.FC = () => {
   const { items } = useCart();
-  const { user, signOut } = useAuth();
+  const { user, signOut, isAdmin } = useAuth();
+  const [userIsAdmin, setUserIsAdmin] = useState(false);
+
+  useEffect(() => {
+    const checkAdminStatus = async () => {
+      if (user) {
+        const adminStatus = await isAdmin();
+        setUserIsAdmin(adminStatus);
+      } else {
+        setUserIsAdmin(false);
+      }
+    };
+
+    checkAdminStatus();
+  }, [user, isAdmin]);
   
   // Calculate total quantity by summing up all item quantities
   const cartItemsCount = items.reduce((total, item) => total + item.quantity, 0);
@@ -43,16 +57,18 @@ const Navbar: React.FC = () => {
             <Link to="/checkout" className="px-3 py-2 rounded-md text-sm font-medium hover:bg-butterfly-orange/10 transition-colors">
               Checkout
             </Link>
-            <Link to="/admin" className="px-3 py-2 rounded-md text-sm font-medium hover:bg-butterfly-orange/10 transition-colors">
-              Admin
-            </Link>
+            {userIsAdmin && (
+              <Link to="/admin" className="px-3 py-2 rounded-md text-sm font-medium hover:bg-butterfly-orange/10 transition-colors">
+                Admin
+              </Link>
+            )}
             <Link to="/ingressos" className="px-3 py-2 rounded-md text-sm font-medium hover:bg-butterfly-orange/10 transition-colors flex items-center">
               <Calendar className="mr-1 h-4 w-4" /> Ingressos
             </Link>
           </div>
 
           <div className="flex items-center space-x-4">
-            <Link to="/carrinho" className="relative text-butterfly-orange hover:text-butterfly-orange/80 transition-colors">
+            <Link to="/carrinho" className="relative text-butterfly-orange hover:text-butterfly-orange/80 transition-colors" data-testid="cart-icon">
               <ShoppingCart className="h-6 w-6" />
               {cartItemsCount > 0 && (
                 <span className="absolute -top-2 -right-2 bg-butterfly-orange text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
