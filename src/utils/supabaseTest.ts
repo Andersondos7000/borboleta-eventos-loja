@@ -36,7 +36,7 @@ export class SupabaseIntegrationTest {
 
   // Teste 2: Verificar tabelas principais
   async testTablesExist(): Promise<boolean> {
-    const tables = ['products', 'events', 'orders', 'cart_items', 'tickets'];
+    const tables = ['products', 'events', 'orders', 'cart_items', 'tickets'] as const;
     let allTablesExist = true;
 
     for (const table of tables) {

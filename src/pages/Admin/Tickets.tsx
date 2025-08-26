@@ -23,12 +23,10 @@ interface DatabaseTicket {
   user_id: string;
   events?: {
     name: string;
-  }[];
-  profiles?: {
-    email: string;
-    first_name: string;
-    last_name: string;
-  }[];
+    date?: string;
+    location?: string;
+  };
+  profiles?: any;
 }
 
 const AdminTickets = () => {

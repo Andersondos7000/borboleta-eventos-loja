@@ -17,10 +17,10 @@ const AdminDashboard = () => {
     const fetchVendas = async () => {
       const { data, error } = await supabase
         .from('orders')
-        .select('total')
-        .eq('status', 'completed');
+        .select('amount')
+        .eq('status', 'paid');
       if (!error && data) {
-        setTotalVendas(data.reduce((sum, o) => sum + Number(o.total), 0));
+        setTotalVendas(data.reduce((sum, o) => sum + Number(o.amount), 0));
       }
     };
     // Buscar produtos vendidos (soma de order_items)
@@ -47,7 +47,7 @@ const AdminDashboard = () => {
       const { data, error } = await supabase
         .from('tickets')
         .select('id')
-        .eq('status', 'sold');
+        .eq('status', 'paid');
       if (!error && data) {
         setIngressosVendidos(data.length);
       }

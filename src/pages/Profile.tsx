@@ -35,7 +35,7 @@ type ProfileData = {
 interface DatabaseOrder {
   id: string;
   user_id: string;
-  total: number;
+  amount: number;
   status: string;
   created_at: string;
 }
@@ -367,7 +367,7 @@ const Profile = () => {
                               </div>
                               <div>
                                 <p className="font-bold text-butterfly-orange">
-                                  {order.total.toLocaleString('pt-BR', { 
+                                  {order.amount.toLocaleString('pt-BR', { 
                                     style: 'currency', 
                                     currency: 'BRL' 
                                   })}

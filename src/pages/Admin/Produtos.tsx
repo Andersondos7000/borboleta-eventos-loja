@@ -13,7 +13,7 @@ interface Product {
   id: string;
   name: string;
   description: string;
-  category: 'camiseta' | 'vestido';
+  category: string;
   price: number;
   stock: number;
   image: string;
@@ -24,7 +24,7 @@ interface DatabaseProduct {
   id: string;
   name: string;
   description: string;
-  category: 'camiseta' | 'vestido';
+  category: string;
   price: string | number;
   stock?: number;
   in_stock?: boolean;

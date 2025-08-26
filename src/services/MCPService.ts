@@ -159,7 +159,7 @@ export class MCPService {
     switch (action) {
       case 'health':
         try {
-          const { data, error } = await supabase.from('eventos').select('count').limit(1);
+          const { data, error } = await supabase.from('events').select('count').limit(1);
           return {
             status: error ? 'error' : 'healthy',
             project: 'queren',
@@ -176,7 +176,7 @@ export class MCPService {
         }
       case 'execute-sql':
         try {
-          const { data, error } = await supabase.rpc('get_database_stats');
+          const { data, error } = await supabase.from('products').select('count').limit(1);
           return {
             success: !error,
             data: data || 'Consulta executada com sucesso',

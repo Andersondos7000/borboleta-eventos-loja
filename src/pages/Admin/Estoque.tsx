@@ -13,7 +13,7 @@ import { updateProductStock } from '@/lib/updateProductStock';
 interface DatabaseProduct {
   id: string;
   name: string;
-  category: 'camiseta' | 'vestido';
+  category: string;
   image_url?: string;
 }
 
@@ -27,7 +27,7 @@ interface DatabaseProductStock {
 interface StockItem {
   id: string;
   name: string;
-  category: 'camiseta' | 'vestido';
+  category: string;
   stock: number;
   reserved: number;
   available: number;
