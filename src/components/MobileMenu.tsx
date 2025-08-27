@@ -1,17 +1,31 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Menu, X, Calendar, Shirt, ShoppingCart, Settings, LogIn, User, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 import { Separator } from '@/components/ui/separator';
 import { useAuth } from '@/contexts/AuthContext';
 
 const MobileMenu: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const { user, signOut } = useAuth();
+  const { user, signOut, isAdmin } = useAuth();
+  const [userIsAdmin, setUserIsAdmin] = useState(false);
 
   const closeMenu = () => setIsOpen(false);
+
+  useEffect(() => {
+    const checkAdminStatus = async () => {
+      if (user) {
+        const adminStatus = await isAdmin();
+        setUserIsAdmin(adminStatus);
+      } else {
+        setUserIsAdmin(false);
+      }
+    };
+
+    checkAdminStatus();
+  }, [user, isAdmin]);
 
   const handleSignOut = async () => {
     await signOut();
@@ -27,13 +41,13 @@ const MobileMenu: React.FC = () => {
         </Button>
       </SheetTrigger>
       <SheetContent side="left" className="w-[280px]">
+        <SheetHeader>
+          <SheetTitle>Menu</SheetTitle>
+          <SheetDescription>
+            Navegue pelas páginas do site e acesse sua conta
+          </SheetDescription>
+        </SheetHeader>
         <div className="flex flex-col h-full">
-          <div className="flex items-center justify-between py-4">
-            <h2 className="text-lg font-semibold">Menu</h2>
-            <Button variant="ghost" size="icon" onClick={closeMenu}>
-              <X className="h-5 w-5" />
-            </Button>
-          </div>
 
           <Separator />
           
@@ -84,14 +98,16 @@ const MobileMenu: React.FC = () => {
             >
               <span>Checkout</span>
             </Link>
-            <Link 
-              to="/admin" 
-              className="flex items-center px-4 py-3 hover:bg-butterfly-orange/10 rounded-md transition-colors"
-              onClick={closeMenu}
-            >
-              <Settings className="mr-2 h-5 w-5" />
-              <span>Admin</span>
-            </Link>
+            {userIsAdmin && (
+              <Link 
+                to="/admin" 
+                className="flex items-center px-4 py-3 hover:bg-butterfly-orange/10 rounded-md transition-colors"
+                onClick={closeMenu}
+              >
+                <Settings className="mr-2 h-5 w-5" />
+                <span>Admin</span>
+              </Link>
+            )}
 
             <Separator className="my-2" />
             

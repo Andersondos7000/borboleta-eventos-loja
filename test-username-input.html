@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Teste Campo Username</title>
+</head>
+<body>
+    <h1>Teste do Campo Username</h1>
+    <p>Abra o DevTools (F12) e vá para a aba Console</p>
+    <p>Digite no campo abaixo e observe os logs:</p>
+    
+    <input 
+        type="text" 
+        placeholder="Digite aqui para testar"
+        style="padding: 10px; border: 1px solid #ccc; width: 300px;"
+        onkeydown="console.log('[TEST] onKeyDown:', event.key)"
+        oninput="console.log('[TEST] onInput:', event.target.value)"
+        onchange="console.log('[TEST] onChange:', event.target.value)"
+    />
+    
+    <br><br>
+    <p>Agora teste na página real: <a href="http://localhost:8081/auth" target="_blank">Abrir página de autenticação</a></p>
+    
+    <script>
+        console.log('[TEST] Página de teste carregada. Digite no campo acima.');
+    </script>
+</body>
+</html>

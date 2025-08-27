@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { Loader2 } from 'lucide-react';
@@ -6,19 +6,43 @@ import { Loader2 } from 'lucide-react';
 interface ProtectedRouteProps {
   children: ReactNode;
   requireAuth?: boolean;
+  requireAdmin?: boolean;
 }
 
-export const ProtectedRoute = ({ children, requireAuth = true }: ProtectedRouteProps) => {
-  const { user, loading } = useAuth();
+export const ProtectedRoute = ({ children, requireAuth = true, requireAdmin = false }: ProtectedRouteProps) => {
+  const { user, loading, isAdmin } = useAuth();
   const location = useLocation();
+  const [adminLoading, setAdminLoading] = useState(requireAdmin);
+  const [isUserAdmin, setIsUserAdmin] = useState(false);
 
-  // Mostrar loading enquanto verifica autenticação
-  if (loading) {
+  // Verificar se usuário é admin quando necessário
+  useEffect(() => {
+    const checkAdminStatus = async () => {
+      if (requireAdmin && user && !loading) {
+        try {
+          const adminStatus = await isAdmin();
+          setIsUserAdmin(adminStatus);
+        } catch (error) {
+          console.error('Erro ao verificar status admin:', error);
+          setIsUserAdmin(false);
+        } finally {
+          setAdminLoading(false);
+        }
+      }
+    };
+
+    checkAdminStatus();
+  }, [requireAdmin, user, loading, isAdmin]);
+
+  // Mostrar loading enquanto verifica autenticação ou permissões admin
+  if (loading || adminLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          <p className="text-muted-foreground">Verificando autenticação...</p>
+          <p className="text-muted-foreground">
+            {loading ? 'Verificando autenticação...' : 'Verificando permissões...'}
+          </p>
         </div>
       </div>
     );
@@ -37,7 +61,17 @@ export const ProtectedRoute = ({ children, requireAuth = true }: ProtectedRouteP
     );
   }
 
-  // Se não requer autenticação ou usuário está logado, renderizar children
+  // Se requer permissões admin e usuário não é admin, redirecionar para página inicial
+  if (requireAdmin && user && !isUserAdmin) {
+    return (
+      <Navigate 
+        to="/" 
+        replace 
+      />
+    );
+  }
+
+  // Se não requer autenticação ou usuário está logado (e é admin se necessário), renderizar children
   return <>{children}</>;
 };
 

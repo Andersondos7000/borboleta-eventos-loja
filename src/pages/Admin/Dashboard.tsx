@@ -2,9 +2,10 @@
 import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Calendar, Shirt, ShoppingCart, Users, ArrowDown, ArrowUp, Database } from 'lucide-react';
+import { Calendar, Shirt, ShoppingCart, Users, ArrowDown, ArrowUp, Database, Activity } from 'lucide-react';
 import AdminSidebar from '@/components/AdminSidebar';
 import { supabase } from '@/lib/supabase';
+import { RLSPerformanceDashboard } from '@/components/admin/RLSPerformanceDashboard';
 
 const AdminDashboard = () => {
   const [totalVendas, setTotalVendas] = useState(0);
@@ -131,6 +132,7 @@ const AdminDashboard = () => {
           <TabsList>
             <TabsTrigger value="sales">Vendas</TabsTrigger>
             <TabsTrigger value="inventory">Estoque</TabsTrigger>
+            <TabsTrigger value="performance">Performance RLS</TabsTrigger>
           </TabsList>
           
           <TabsContent value="sales" className="mt-6">
@@ -313,6 +315,10 @@ const AdminDashboard = () => {
                 </div>
               </CardContent>
             </Card>
+          </TabsContent>
+          
+          <TabsContent value="performance" className="mt-6">
+            <RLSPerformanceDashboard />
           </TabsContent>
         </Tabs>
       </div>

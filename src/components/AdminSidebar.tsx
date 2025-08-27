@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Calendar, ShoppingCart, Shirt, Database, ChartBar } from 'lucide-react';
+import { Calendar, ShoppingCart, Shirt, Database, ChartBar, Users } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import ButterflyLogo from './ButterflyLogo';
 
@@ -33,6 +33,11 @@ const AdminSidebar: React.FC = () => {
       name: 'Estoque',
       href: '/admin/estoque',
       icon: <Database className="h-5 w-5" />
+    },
+    {
+      name: 'Usuários',
+      href: '/admin/usuarios',
+      icon: <Users className="h-5 w-5" />
     }
   ];
 

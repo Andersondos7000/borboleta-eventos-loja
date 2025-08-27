@@ -9,11 +9,12 @@ type AuthContextType = {
   session: Session | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<void>;
-  signUp: (email: string, password: string, username: string) => Promise<void>;
-  signInWithGoogle: () => Promise<void>;
+  signUp: (email: string, password: string, username: string, role?: string) => Promise<void>;
+  signInWithGoogle: (role?: string) => Promise<void>;
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
   updatePassword: (password: string) => Promise<void>;
+  updateUserRole: (role: string) => Promise<void>;
   isAdmin: () => Promise<boolean>;
 };
 
@@ -68,7 +69,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const signUp = async (email: string, password: string, username: string) => {
+  const signUp = async (email: string, password: string, username: string, role: string = 'user') => {
     try {
       const { error } = await supabase.auth.signUp({
         email,
@@ -76,6 +77,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         options: {
           data: {
             username,
+            role,
           },
         },
       });
@@ -96,12 +98,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const signInWithGoogle = async () => {
+  const signInWithGoogle = async (role?: string) => {
     try {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
           redirectTo: window.location.origin + '/auth/callback',
+          queryParams: role ? { role } : undefined,
         },
       });
       
@@ -110,6 +113,32 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       toast({
         title: "Erro ao fazer login com Google",
         description: error.error_description || error.message || "Tente novamente mais tarde",
+        variant: "destructive"
+      });
+      throw error;
+    }
+  };
+
+  // Função para atualizar o role de um usuário existente
+  const updateUserRole = async (role: string) => {
+    if (!user) return;
+    
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ role })
+        .eq('id', user.id);
+      
+      if (error) throw error;
+      
+      toast({
+        title: "Perfil atualizado",
+        description: "Seu tipo de usuário foi definido com sucesso."
+      });
+    } catch (error: any) {
+      toast({
+        title: "Erro ao atualizar perfil",
+        description: error.message || "Tente novamente mais tarde",
         variant: "destructive"
       });
       throw error;
@@ -208,6 +237,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     signOut,
     resetPassword,
     updatePassword,
+    updateUserRole,
     isAdmin,
   };
 

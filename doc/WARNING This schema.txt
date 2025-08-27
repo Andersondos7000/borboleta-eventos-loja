@@ -1,4 +1,4 @@
--- WARNING This schema is for context only and is not meant to be run.
+-- WARNING: This schema is for context only and is not meant to be run.
 -- Table order and constraints may not be valid for execution.
 
 CREATE TABLE public.cart_items (
@@ -9,8 +9,8 @@ CREATE TABLE public.cart_items (
   quantity integer,
   size text,
   price numeric,
-  created_at timestamp with time zone NOT NULL DEFAULT timezone('utc'text, now()),
-  updated_at timestamp with time zone NOT NULL DEFAULT timezone('utc'text, now()),
+  created_at timestamp with time zone NOT NULL DEFAULT timezone('utc'::text, now()),
+  updated_at timestamp with time zone NOT NULL DEFAULT timezone('utc'::text, now()),
   total_price numeric,
   CONSTRAINT cart_items_pkey PRIMARY KEY (id),
   CONSTRAINT cart_items_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id),
@@ -26,7 +26,7 @@ CREATE TABLE public.categories (
   CONSTRAINT categories_pkey PRIMARY KEY (id)
 );
 CREATE TABLE public.events (
-  id text NOT NULL DEFAULT (gen_random_uuid())text,
+  id text NOT NULL DEFAULT (gen_random_uuid())::text,
   name text NOT NULL,
   description text,
   date timestamp with time zone NOT NULL,
@@ -48,7 +48,7 @@ CREATE TABLE public.order_items (
   price numeric,
   name text,
   total numeric NOT NULL,
-  created_at timestamp with time zone NOT NULL DEFAULT timezone('utc'text, now()),
+  created_at timestamp with time zone NOT NULL DEFAULT timezone('utc'::text, now()),
   CONSTRAINT order_items_pkey PRIMARY KEY (id),
   CONSTRAINT order_items_order_id_fkey FOREIGN KEY (order_id) REFERENCES public.orders(id),
   CONSTRAINT order_items_product_id_fkey FOREIGN KEY (product_id) REFERENCES public.products(id),
@@ -61,7 +61,7 @@ CREATE TABLE public.orders (
   customer_data jsonb,
   billing_data jsonb,
   items jsonb,
-  status USER-DEFINED NOT NULL DEFAULT 'pending'order_status,
+  status USER-DEFINED NOT NULL DEFAULT 'pending'::order_status,
   abacate_charge_id text,
   pix_qr_code_url text,
   pix_copy_paste text,
@@ -74,18 +74,19 @@ CREATE TABLE public.orders (
 CREATE TABLE public.product_sizes (
   id uuid NOT NULL DEFAULT gen_random_uuid(),
   product_id uuid NOT NULL,
-  size text NOT NULL CHECK (size = ANY (ARRAY['PP'text, 'P'text, 'M'text, 'G'text, 'GG'text, 'XG'text, 'XXG'text])),
-  stock_quantity integer DEFAULT 0 CHECK (stock_quantity = 0),
+  size text NOT NULL CHECK (size = ANY (ARRAY['PP'::text, 'P'::text, 'M'::text, 'G'::text, 'GG'::text, 'XG'::text, 'XXG'::text])),
+  stock_quantity integer DEFAULT 0 CHECK (stock_quantity >= 0),
   created_at timestamp with time zone DEFAULT now(),
+  updated_at timestamp with time zone DEFAULT now(),
   CONSTRAINT product_sizes_pkey PRIMARY KEY (id),
   CONSTRAINT fk_product_sizes_product FOREIGN KEY (product_id) REFERENCES public.products(id)
 );
 CREATE TABLE public.product_stock (
   id uuid NOT NULL DEFAULT gen_random_uuid(),
   product_id uuid NOT NULL,
-  size text NOT NULL CHECK (size = ANY (ARRAY['PP'text, 'P'text, 'M'text, 'G'text, 'GG'text, 'XG'text, 'XXG'text])),
-  quantity integer NOT NULL DEFAULT 0 CHECK (quantity = 0),
-  reserved_quantity integer NOT NULL DEFAULT 0 CHECK (reserved_quantity = 0),
+  size text NOT NULL CHECK (size = ANY (ARRAY['PP'::text, 'P'::text, 'M'::text, 'G'::text, 'GG'::text, 'XG'::text, 'XXG'::text])),
+  quantity integer NOT NULL DEFAULT 0 CHECK (quantity >= 0),
+  reserved_quantity integer NOT NULL DEFAULT 0 CHECK (reserved_quantity >= 0),
   created_at timestamp with time zone DEFAULT now(),
   updated_at timestamp with time zone DEFAULT now(),
   CONSTRAINT product_stock_pkey PRIMARY KEY (id),
@@ -116,24 +117,35 @@ CREATE TABLE public.profiles (
   last_name text,
   created_at timestamp with time zone DEFAULT now(),
   updated_at timestamp with time zone DEFAULT now(),
-  preferences jsonb DEFAULT '{theme system, currency BRL, language pt-BR, sms_notifications false, email_notifications true, notifications_enabled true}'jsonb,
-  theme text DEFAULT 'system'text CHECK (theme = ANY (ARRAY['light'text, 'dark'text, 'system'text])),
+  preferences jsonb DEFAULT '{"theme": "system", "currency": "BRL", "language": "pt-BR", "sms_notifications": false, "email_notifications": true, "notifications_enabled": true}'::jsonb,
+  theme text DEFAULT 'system'::text CHECK (theme = ANY (ARRAY['light'::text, 'dark'::text, 'system'::text])),
   notifications_enabled boolean DEFAULT true,
   email_notifications boolean DEFAULT true,
   sms_notifications boolean DEFAULT false,
-  language text DEFAULT 'pt-BR'text,
-  currency text DEFAULT 'BRL'text,
+  language text DEFAULT 'pt-BR'::text,
+  currency text DEFAULT 'BRL'::text,
+  role text DEFAULT 'user'::text CHECK (role = ANY (ARRAY['user'::text, 'admin'::text, 'organizer'::text])),
   CONSTRAINT profiles_pkey PRIMARY KEY (id),
   CONSTRAINT profiles_id_fkey FOREIGN KEY (id) REFERENCES auth.users(id)
+);
+CREATE TABLE public.rls_performance_metrics (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  table_name text NOT NULL,
+  policy_name text NOT NULL,
+  query_duration_ms numeric NOT NULL,
+  query_type text NOT NULL,
+  user_id uuid,
+  created_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT rls_performance_metrics_pkey PRIMARY KEY (id)
 );
 CREATE TABLE public.tickets (
   id uuid NOT NULL DEFAULT gen_random_uuid(),
   event_id text NOT NULL,
   total_price numeric NOT NULL,
   quantity integer NOT NULL,
-  status USER-DEFINED NOT NULL DEFAULT 'reserved'ticket_status,
+  status USER-DEFINED NOT NULL DEFAULT 'reserved'::ticket_status,
   user_id uuid,
-  created_at timestamp with time zone NOT NULL DEFAULT timezone('utc'text, now()),
+  created_at timestamp with time zone NOT NULL DEFAULT timezone('utc'::text, now()),
   price numeric,
   CONSTRAINT tickets_pkey PRIMARY KEY (id),
   CONSTRAINT tickets_event_id_fkey FOREIGN KEY (event_id) REFERENCES public.events(id),

@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useRealtimeContext } from '../../contexts/RealtimeContext';
 import useBrowserToolsMonitoring from './useBrowserToolsMonitoring';
+import { useRealtimeLatencyMonitor } from './useRealtimeLatencyMonitor';
 
 // Tipos para o sistema integrado de monitoramento
 export interface IntegratedMetrics {
@@ -15,6 +16,10 @@ export interface IntegratedMetrics {
       orders: number;
     };
     avgSyncLatency: number;
+    p95Latency: number;
+    p99Latency: number;
+    maxLatency: number;
+    minLatency: number;
   };
   browser: {
     active: boolean;
@@ -96,6 +101,10 @@ export interface UseIntegratedMonitoringReturn {
   resetMetrics: () => void;
   getHealthScore: () => number;
   
+  // Monitoramento de Latência
+  measureSyncLatency: (operation: string, metadata?: Record<string, any>) => { end: () => void } | null;
+  latencyStats: any;
+  
   // Utilitários
   takeSnapshot: () => Promise<{
     timestamp: Date;
@@ -134,6 +143,18 @@ export const useIntegratedMonitoring = ({
     enableNetworkMonitoring: config.enableBrowserTools,
     enablePerformanceTracking: config.enableBrowserTools,
     collectInterval: config.collectInterval
+  });
+
+  // Hook de monitoramento de latência
+  const { 
+    startMeasurement, 
+    endMeasurement, 
+    stats: latencyStats, 
+    isMonitoring: isLatencyMonitoring 
+  } = useRealtimeLatencyMonitor({
+    enabled: config.enableRealtime,
+    batchSize: 10,
+    flushInterval: 15000
   });
 
   // Calcular métricas integradas
@@ -185,7 +206,11 @@ export const useIntegratedMonitoring = ({
           stock: realtimeState.syncCounts.stock,
           orders: realtimeState.syncCounts.orders
         },
-        avgSyncLatency: 0 // TODO: Implementar cálculo de latência
+        avgSyncLatency: latencyStats?.avgLatency || 0,
+        p95Latency: latencyStats?.p95Latency || 0,
+        p99Latency: latencyStats?.p99Latency || 0,
+        maxLatency: latencyStats?.maxLatency || 0,
+        minLatency: latencyStats?.minLatency || 0
       },
       browser: {
         active: browserActive,
@@ -395,6 +420,24 @@ export const useIntegratedMonitoring = ({
     };
   }, [metrics, takeScreenshot]);
 
+  // Função para medir latência de sincronização
+  const measureSyncLatency = useCallback((operation: string, metadata?: Record<string, any>) => {
+    if (!config.enableRealtime || !isLatencyMonitoring) return null;
+    
+    const measurementId = startMeasurement({
+      operation,
+      metadata: {
+        timestamp: Date.now(),
+        connectionStatus: isFullyConnected ? 'connected' : 'disconnected',
+        ...metadata
+      }
+    });
+    
+    return {
+      end: () => endMeasurement(measurementId)
+    };
+  }, [startMeasurement, endMeasurement, config.enableRealtime, isLatencyMonitoring, isFullyConnected]);
+
   return {
     // Estado
     metrics,
@@ -416,6 +459,10 @@ export const useIntegratedMonitoring = ({
     exportMetrics,
     resetMetrics,
     getHealthScore,
+    
+    // Monitoramento de Latência
+    measureSyncLatency,
+    latencyStats,
     
     // Utilitários
     takeSnapshot

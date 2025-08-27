@@ -161,3 +161,30 @@ export interface NotificationOptions {
     onClick: () => void;
   };
 }
+
+// Tipos para sistema de fila offline
+export interface OfflineAction {
+  type: 'insert' | 'update' | 'delete' | 'upsert';
+  table: string;
+  data?: any;
+  filter?: Record<string, any>;
+  priority?: 'low' | 'normal' | 'high';
+}
+
+export interface QueuedAction extends OfflineAction {
+  id: string;
+  timestamp: Date;
+  retryCount: number;
+  maxRetries: number;
+  status: 'pending' | 'processing' | 'completed' | 'failed';
+  error?: string;
+  lastAttempt?: Date;
+}
+
+export interface OfflineQueueConfig {
+  autoProcess?: boolean;
+  processInterval?: number;
+  maxRetries?: number;
+  retryDelay?: number;
+  batchSize?: number;
+}

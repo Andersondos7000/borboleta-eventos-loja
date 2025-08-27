@@ -50,14 +50,14 @@ test.describe('Fluxo do Carrinho', () => {
     }
     
     // Clicar em "Adicionar ao Carrinho"
-    await page.click('[data-testid="add-to-cart-button"]');
+    await page.click('[data-testid="modal-add-to-cart"]');
     
     // Aguardar o toast de sucesso
-    await page.waitForSelector('.toast', { timeout: 5000 });
+      await page.waitForSelector('[data-state="open"]', { timeout: 5000 });
     console.log('Produto adicionado ao carrinho com sucesso');
     
     // Fechar o modal
-    await page.click('[data-testid="close-modal"]');
+    await page.keyboard.press('Escape');
     
     // Adicionar um segundo produto se disponível
     if (productCards.length > 1) {
@@ -76,11 +76,11 @@ test.describe('Fluxo do Carrinho', () => {
         await secondSizeButtons[0].click();
       }
       
-      await page.click('[data-testid="add-to-cart-button"]');
+      await page.click('[data-testid="modal-add-to-cart"]');
       await page.waitForSelector('.toast', { timeout: 5000 });
       console.log('Segundo produto adicionado ao carrinho');
       
-      await page.click('[data-testid="close-modal"]');
+      await page.keyboard.press('Escape');
     }
 
     // Navegar para o carrinho

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Copy, X, Loader2, CheckCircle } from 'lucide-react';
@@ -107,6 +107,9 @@ const PaymentPopup: React.FC<PaymentPopupProps> = ({ isOpen, onClose, paymentDat
               <CheckCircle className="h-6 w-6" />
               Pedido Confirmado!
             </DialogTitle>
+            <DialogDescription>
+              Confirmação do pedido efetuado com sucesso
+            </DialogDescription>
           </DialogHeader>
           <div className="text-center py-6">
             <h3 className="text-lg font-semibold mb-2">Seu pedido foi efetuado com sucesso!</h3>
@@ -132,6 +135,9 @@ const PaymentPopup: React.FC<PaymentPopupProps> = ({ isOpen, onClose, paymentDat
               <X className="h-4 w-4" />
             </Button>
           </DialogTitle>
+          <DialogDescription>
+            Escaneie o QR Code ou copie o código PIX para efetuar o pagamento
+          </DialogDescription>
         </DialogHeader>
         
         <div className="space-y-6">

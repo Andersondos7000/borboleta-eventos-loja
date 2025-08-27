@@ -14,6 +14,7 @@ import AdminTickets from "./pages/Admin/Tickets";
 import AdminProdutos from "./pages/Admin/Produtos";
 import AdminPedidos from "./pages/Admin/Pedidos";
 import AdminEstoque from "./pages/Admin/Estoque";
+import AdminUsuarios from "./pages/Admin/Usuarios";
 import AdminLogin from "./pages/Admin/Login";
 import ProtectedRoute from "./components/ProtectedRoute";
 import NotFound from "./pages/NotFound";
@@ -24,8 +25,10 @@ import Auth from "./pages/Auth";
 import AuthCallback from "./pages/Auth/Callback";
 import Profile from "./pages/Profile";
 import ResetPassword from "./pages/ResetPassword";
+import { CustomersPage } from "./pages/CustomersPage";
 import { CartProvider } from "./contexts/CartContext";
 import { AuthProvider } from "./contexts/AuthContext";
+import { RealtimeProvider } from "./contexts/RealtimeContext";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -39,7 +42,8 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <AuthProvider>
-        <CartProvider>
+        <RealtimeProvider>
+          <CartProvider>
           <Toaster />
           <Sonner />
           <BrowserRouter>
@@ -53,28 +57,33 @@ const App = () => (
               <Route path="/privacidade" element={<Privacy />} />
               <Route path="/admin/login" element={<AdminLogin />} />
               <Route path="/admin" element={
-                <ProtectedRoute>
+                <ProtectedRoute requireAdmin={true}>
                   <AdminDashboard />
                 </ProtectedRoute>
               } />
               <Route path="/admin/tickets" element={
-                <ProtectedRoute>
+                <ProtectedRoute requireAdmin={true}>
                   <AdminTickets />
                 </ProtectedRoute>
               } />
               <Route path="/admin/produtos" element={
-                <ProtectedRoute>
+                <ProtectedRoute requireAdmin={true}>
                   <AdminProdutos />
                 </ProtectedRoute>
               } />
               <Route path="/admin/pedidos" element={
-                <ProtectedRoute>
+                <ProtectedRoute requireAdmin={true}>
                   <AdminPedidos />
                 </ProtectedRoute>
               } />
               <Route path="/admin/estoque" element={
-                <ProtectedRoute>
+                <ProtectedRoute requireAdmin={true}>
                   <AdminEstoque />
+                </ProtectedRoute>
+              } />
+              <Route path="/admin/usuarios" element={
+                <ProtectedRoute requireAdmin={true}>
+                  <AdminUsuarios />
                 </ProtectedRoute>
               } />
               <Route path="/ingressos" element={<Ingressos />} />
@@ -82,10 +91,17 @@ const App = () => (
               <Route path="/auth/callback" element={<AuthCallback />} />
               <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="/perfil" element={<Profile />} />
+              <Route path="/customers" element={
+                <ProtectedRoute requireAdmin={true}>
+                  <CustomersPage />
+                </ProtectedRoute>
+              } />
+
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
-        </CartProvider>
+          </CartProvider>
+        </RealtimeProvider>
       </AuthProvider>
     </TooltipProvider>
   </QueryClientProvider>

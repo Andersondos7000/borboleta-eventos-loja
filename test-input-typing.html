@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste de Digitação - Input</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .test-container {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        .output {
+            background: #f5f5f5;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <h1>Teste de Digitação - Input</h1>
+    
+    <div class="test-container">
+        <h3>Teste 1: Input HTML Nativo</h3>
+        <input type="text" id="nativeInput" placeholder="Digite aqui (input nativo)">
+        <div class="output" id="nativeOutput">Valor: </div>
+    </div>
+    
+    <div class="test-container">
+        <h3>Teste 2: Input com Event Listeners</h3>
+        <input type="text" id="eventInput" placeholder="Digite aqui (com eventos)">
+        <div class="output" id="eventOutput">Valor: </div>
+    </div>
+    
+    <div class="test-container">
+        <h3>Teste 3: Input Controlado</h3>
+        <input type="text" id="controlledInput" placeholder="Digite aqui (controlado)">
+        <div class="output" id="controlledOutput">Valor: </div>
+    </div>
+
+    <script>
+        // Teste 1: Input nativo
+        const nativeInput = document.getElementById('nativeInput');
+        const nativeOutput = document.getElementById('nativeOutput');
+        
+        nativeInput.addEventListener('input', (e) => {
+            nativeOutput.textContent = 'Valor: ' + e.target.value;
+        });
+        
+        // Teste 2: Input com múltiplos eventos
+        const eventInput = document.getElementById('eventInput');
+        const eventOutput = document.getElementById('eventOutput');
+        
+        eventInput.addEventListener('input', (e) => {
+            console.log('Event input:', e.target.value);
+            eventOutput.textContent = 'Valor (input): ' + e.target.value;
+        });
+        
+        eventInput.addEventListener('change', (e) => {
+            console.log('Event change:', e.target.value);
+        });
+        
+        eventInput.addEventListener('keyup', (e) => {
+            console.log('Event keyup:', e.target.value);
+        });
+        
+        // Teste 3: Input controlado (simulando React)
+        const controlledInput = document.getElementById('controlledInput');
+        const controlledOutput = document.getElementById('controlledOutput');
+        let controlledValue = '';
+        
+        controlledInput.addEventListener('input', (e) => {
+            controlledValue = e.target.value;
+            controlledInput.value = controlledValue;
+            controlledOutput.textContent = 'Valor: ' + controlledValue;
+            console.log('Controlled value:', controlledValue);
+        });
+        
+        // Log inicial
+        console.log('Teste de digitação carregado');
+    </script>
+</body>
+</html>

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste de Input</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        input:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+        }
+        .test-info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-info">
+        <h2>Teste de Campo de Input</h2>
+        <p>Este é um teste simples para verificar se os campos de input funcionam corretamente.</p>
+    </div>
+    
+    <form>
+        <div class="form-group">
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" placeholder="seu-email@exemplo.com">
+        </div>
+        
+        <div class="form-group">
+            <label for="username">Nome de usuário:</label>
+            <input type="text" id="username" name="username" placeholder="seunome">
+        </div>
+        
+        <div class="form-group">
+            <label for="password">Senha:</label>
+            <input type="password" id="password" name="password" placeholder="******">
+        </div>
+    </form>
+    
+    <script>
+        // Log para verificar se os campos estão funcionando
+        document.getElementById('username').addEventListener('input', function(e) {
+            console.log('Username input event:', e.target.value);
+        });
+        
+        document.getElementById('username').addEventListener('change', function(e) {
+            console.log('Username change event:', e.target.value);
+        });
+        
+        // Teste de preenchimento programático
+        setTimeout(() => {
+            const usernameField = document.getElementById('username');
+            usernameField.value = 'TesteAutomatico';
+            usernameField.dispatchEvent(new Event('input', { bubbles: true }));
+            usernameField.dispatchEvent(new Event('change', { bubbles: true }));
+            console.log('Valor definido programaticamente:', usernameField.value);
+        }, 2000);
+    </script>
+</body>
+</html>

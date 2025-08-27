@@ -8,6 +8,7 @@ import { useCart } from '@/contexts/CartContext';
 import { useAuth } from '@/contexts/AuthContext';
 import MobileMenu from './MobileMenu';
 
+
 const Navbar: React.FC = () => {
   const { items } = useCart();
   const { user, signOut, isAdmin } = useAuth();
@@ -68,6 +69,7 @@ const Navbar: React.FC = () => {
           </div>
 
           <div className="flex items-center space-x-4">
+
             <Link to="/carrinho" className="relative text-butterfly-orange hover:text-butterfly-orange/80 transition-colors" data-testid="cart-icon">
               <ShoppingCart className="h-6 w-6" />
               {cartItemsCount > 0 && (
@@ -95,13 +97,7 @@ const Navbar: React.FC = () => {
               </Button>
             )}
             
-            <Button 
-              variant="default" 
-              className="hidden md:flex"
-              onClick={() => window.location.href = '/ingressos'}
-            >
-              Comprar Ingresso
-            </Button>
+
           </div>
         </div>
       </div>

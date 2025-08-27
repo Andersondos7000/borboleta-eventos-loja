@@ -1,0 +1,457 @@
+# Page snapshot
+
+```yaml
+- generic:
+  - generic:
+    - list
+    - generic:
+      - navigation:
+        - generic:
+          - generic:
+            - generic:
+              - link:
+                - /url: /
+                - generic:
+                  - img
+                - generic: Borboleta Eventos
+            - generic:
+              - link:
+                - /url: /
+                - text: Home
+              - link:
+                - /url: /evento
+                - img
+                - text: Evento
+              - link:
+                - /url: /loja
+                - img
+                - text: Loja
+              - link:
+                - /url: /checkout
+                - text: Checkout
+              - link:
+                - /url: /ingressos
+                - img
+                - text: Ingressos
+            - generic:
+              - link:
+                - /url: /carrinho
+                - img
+              - button: Entrar
+      - generic:
+        - generic:
+          - navigation:
+            - list:
+              - listitem:
+                - link:
+                  - /url: /
+                  - text: Início
+              - listitem:
+                - img
+              - listitem:
+                - link [disabled]: Loja
+      - generic:
+        - generic:
+          - heading [level=1]: Loja Oficial
+          - paragraph: Produtos exclusivos da VII Conferência de Mulheres Queren Hapuque. Encontre camisetas e vestidos em diversos tamanhos.
+      - generic:
+        - generic:
+          - generic:
+            - generic:
+              - generic:
+                - img
+                - textbox
+              - generic:
+                - combobox:
+                  - generic: Todos
+                  - img
+                - combobox:
+                  - generic: Todos os preços
+                  - img
+                - combobox:
+                  - generic: Nome A-Z
+                  - img
+                - generic:
+                  - button:
+                    - img
+                  - button:
+                    - img
+            - generic:
+              - paragraph: 9 produtos encontrados
+          - generic:
+            - generic:
+              - generic:
+                - img
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic: P
+                      - generic: M
+                      - generic: G
+              - generic:
+                - heading [level=3]: Acessório Borboleta Especial
+                - generic:
+                  - generic:
+                    - generic: R$ 89,90
+                    - generic: 368ec16b-9485-4e03-87a6-96a7c8eada9c
+                  - generic:
+                    - generic: Tamanhos
+                    - generic: P • M • G
+                - button:
+                  - img
+                  - text: Adicionar ao Carrinho
+            - generic:
+              - generic:
+                - img
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic: P
+                      - generic: M
+                      - generic: G
+              - generic:
+                - heading [level=3]: Bolsa Borboleta Elegante
+                - generic:
+                  - generic:
+                    - generic: R$ 129,90
+                    - generic: 368ec16b-9485-4e03-87a6-96a7c8eada9c
+                  - generic:
+                    - generic: Tamanhos
+                    - generic: P • M • G
+                - button:
+                  - img
+                  - text: Adicionar ao Carrinho
+            - generic:
+              - generic:
+                - img
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic: P
+                      - generic: M
+                      - generic: G
+              - generic:
+                - heading [level=3]: Camiseta Borboleta Oficial - EDITADA
+                - generic:
+                  - generic:
+                    - generic: R$ 45,00
+                    - generic: 6bf31188-1102-4b36-82ae-1084e385558a
+                  - generic:
+                    - generic: Tamanhos
+                    - generic: P • M • G
+                - button:
+                  - img
+                  - text: Adicionar ao Carrinho
+            - generic:
+              - generic:
+                - img
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic: P
+                      - generic: M
+                      - generic: G
+              - generic:
+                - heading [level=3]: Camiseta Borboleta Premium
+                - generic:
+                  - generic:
+                    - generic: R$ 65,00
+                    - generic: 6bf31188-1102-4b36-82ae-1084e385558a
+                  - generic:
+                    - generic: Tamanhos
+                    - generic: P • M • G
+                - button:
+                  - img
+                  - text: Adicionar ao Carrinho
+            - generic:
+              - generic:
+                - img
+              - generic:
+                - heading [level=3]: camiseta teste 2
+                - generic:
+                  - generic:
+                    - generic: R$ 99,99
+                    - generic: 6bf31188-1102-4b36-82ae-1084e385558a
+                  - generic:
+                    - generic: Tamanhos
+                - button:
+                  - img
+                  - text: Adicionar ao Carrinho
+            - generic:
+              - generic:
+                - img
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic: P
+                      - generic: M
+                      - generic: G
+              - generic:
+                - heading [level=3]: Caneca Borboleta Personalizada
+                - generic:
+                  - generic:
+                    - generic: R$ 35,00
+                    - generic: 368ec16b-9485-4e03-87a6-96a7c8eada9c
+                  - generic:
+                    - generic: Tamanhos
+                    - generic: P • M • G
+                - button:
+                  - img
+                  - text: Adicionar ao Carrinho
+            - generic:
+              - generic:
+                - img
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic: P
+                      - generic: M
+                      - generic: G
+              - generic:
+                - heading [level=3]: Produto Teste - Categoria Corrigida - EDITADO
+                - generic:
+                  - generic:
+                    - generic: R$ 129,90
+                    - generic: 6bf31188-1102-4b36-82ae-1084e385558a
+                  - generic:
+                    - generic: Tamanhos
+                    - generic: P • M • G
+                - button:
+                  - img
+                  - text: Adicionar ao Carrinho
+            - generic:
+              - generic:
+                - img
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic: P
+                      - generic: M
+                      - generic: G
+              - generic:
+                - heading [level=3]: Vestido Borboleta Casual
+                - generic:
+                  - generic:
+                    - generic: R$ 189,90
+                    - generic: d60ec377-97e0-484d-ab90-fa291c1aba66
+                  - generic:
+                    - generic: Tamanhos
+                    - generic: P • M • G
+                - button:
+                  - img
+                  - text: Adicionar ao Carrinho
+            - generic:
+              - generic:
+                - img
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic: P
+                      - generic: M
+                      - generic: G
+              - generic:
+                - heading [level=3]: Vestido Borboleta Elegante
+                - generic:
+                  - generic:
+                    - generic: R$ 299,90
+                    - generic: d60ec377-97e0-484d-ab90-fa291c1aba66
+                  - generic:
+                    - generic: Tamanhos
+                    - generic: P • M • G
+                - button:
+                  - img
+                  - text: Adicionar ao Carrinho
+      - generic:
+        - generic:
+          - heading [level=2]: Tabelas de Medidas
+          - generic:
+            - generic:
+              - heading [level=3]: Tabela de Medidas - Camisetas
+              - paragraph: Consulte as medidas de busto, cintura e quadril para cada tamanho de camiseta, desde o PP até o EXGG.
+              - button: Ver Tabela
+            - generic:
+              - heading [level=3]: Tabela de Medidas - Vestidos
+              - paragraph: Consulte as medidas de busto, cintura e quadril para cada tamanho de vestido, desde o tamanho 0 até o EXGG.
+              - button: Ver Tabela
+      - generic:
+        - generic:
+          - heading [level=2]: Informações de Envio e Trocas
+          - generic:
+            - generic:
+              - heading [level=3]: Envio
+              - list:
+                - listitem:
+                  - generic: •
+                  - generic: Enviamos para todo o Brasil pelos Correios
+                - listitem:
+                  - generic: •
+                  - generic: "Prazo de entrega estimado: 5-10 dias úteis"
+                - listitem:
+                  - generic: •
+                  - generic: Frete grátis para compras acima de R$ 200,00
+                - listitem:
+                  - generic: •
+                  - generic: Produtos disponíveis para retirada no dia do evento
+            - generic:
+              - heading [level=3]: Trocas e Devoluções
+              - list:
+                - listitem:
+                  - generic: •
+                  - generic: Aceitamos trocas em até 30 dias após o recebimento
+                - listitem:
+                  - generic: •
+                  - generic: O produto deve estar nas condições originais
+                - listitem:
+                  - generic: •
+                  - generic: Entre em contato com nosso suporte para solicitar a troca
+                - listitem:
+                  - generic: •
+                  - generic: O frete de devolução é de responsabilidade do cliente
+      - generic:
+        - generic:
+          - heading [level=2]: Formas de Pagamento
+          - generic:
+            - generic:
+              - generic:
+                - generic: 💳
+              - generic:
+                - generic: 💵
+              - generic:
+                - generic: 🏦
+              - generic:
+                - generic: 📱
+            - paragraph: Aceitamos cartões de crédito, débito, boleto bancário e pix. Parcelamos em até 12x no cartão de crédito.
+      - generic:
+        - generic:
+          - generic:
+            - heading [level=2]: Fique por dentro das novidades
+            - paragraph: Receba em primeira mão informações sobre novos produtos, promoções exclusivas e eventos da Queren Hapuque.
+            - generic:
+              - textbox
+              - button: Inscrever-se
+            - paragraph: Ao se inscrever, você concorda com nossa política de privacidade.
+      - generic:
+        - generic:
+          - heading [level=2]: Não perca os produtos oficiais do evento!
+          - paragraph: Garante já suas peças exclusivas e esteja preparada para a conferência.
+          - button: Ver Produtos
+      - contentinfo:
+        - generic:
+          - generic:
+            - generic:
+              - generic:
+                - generic:
+                  - img
+                - generic: Borboleta Eventos
+              - paragraph: Realizando sonhos e transformando eventos em momentos inesquecíveis.
+            - generic:
+              - heading [level=3]: Navegação
+              - list:
+                - listitem:
+                  - link:
+                    - /url: /
+                    - text: Home
+                - listitem:
+                  - link:
+                    - /url: /evento
+                    - text: Evento
+                - listitem:
+                  - link:
+                    - /url: /loja
+                    - text: Loja
+                - listitem:
+                  - link:
+                    - /url: /carrinho
+                    - text: Carrinho
+            - generic:
+              - heading [level=3]: Contato
+              - list:
+                - listitem: contato@borboletaeventos.com.br
+                - listitem: (00) 12345-6789
+                - listitem: São Paulo, SP - Brasil
+            - generic:
+              - heading [level=3]: Redes Sociais
+              - generic:
+                - link:
+                  - /url: "#"
+                  - img
+                - link:
+                  - /url: "#"
+                  - img
+                - link:
+                  - /url: "#"
+                  - img
+          - generic:
+            - paragraph: © 2025 Borboleta Eventos. Todos os direitos reservados.
+  - dialog "Acessório Borboleta Especial" [ref=e2]:
+    - generic [ref=e3]:
+      - heading "Acessório Borboleta Especial" [level=2] [ref=e4]
+      - paragraph [ref=e5]: Visualize detalhes, imagens e opções de compra do produto
+    - generic [ref=e6]:
+      - generic [ref=e7]:
+        - generic [ref=e8]:
+          - img "Acessório Borboleta Especial - Principal" [ref=e11]
+          - generic [ref=e12]:
+            - button [active] [ref=e13] [cursor=pointer]:
+              - img
+            - button [disabled]:
+              - img
+            - button [ref=e14] [cursor=pointer]:
+              - img
+            - button [ref=e15] [cursor=pointer]:
+              - img
+          - generic [ref=e17]: 1 / 4
+        - generic [ref=e18]:
+          - button "Acessório Borboleta Especial - Principal" [ref=e19] [cursor=pointer]:
+            - img "Acessório Borboleta Especial - Principal" [ref=e20] [cursor=pointer]
+          - button "Acessório Borboleta Especial - Frente" [ref=e21] [cursor=pointer]:
+            - img "Acessório Borboleta Especial - Frente" [ref=e22] [cursor=pointer]
+          - button "Acessório Borboleta Especial - Lateral" [ref=e23] [cursor=pointer]:
+            - img "Acessório Borboleta Especial - Lateral" [ref=e24] [cursor=pointer]
+          - button "Acessório Borboleta Especial - Detalhe" [ref=e25] [cursor=pointer]:
+            - img "Acessório Borboleta Especial - Detalhe" [ref=e26] [cursor=pointer]
+      - generic [ref=e27]:
+        - generic [ref=e28]:
+          - paragraph [ref=e30]: R$ 89,90
+          - generic [ref=e31]:
+            - button [ref=e32] [cursor=pointer]:
+              - img
+            - button [ref=e33] [cursor=pointer]:
+              - img
+        - generic [ref=e34]:
+          - heading "Descrição" [level=3] [ref=e35]
+          - paragraph [ref=e36]: Produto de alta qualidade com design exclusivo. Confeccionado com materiais premium para garantir durabilidade e conforto.
+        - generic [ref=e37]:
+          - heading "Tamanho" [level=3] [ref=e38]
+          - generic [ref=e39]:
+            - button "P" [ref=e40] [cursor=pointer]
+            - button "M" [ref=e41] [cursor=pointer]
+            - button "G" [ref=e42] [cursor=pointer]
+        - generic [ref=e43]:
+          - heading "Quantidade" [level=3] [ref=e44]
+          - generic [ref=e45]:
+            - button "-" [disabled]
+            - generic [ref=e46]: "1"
+            - button "+" [ref=e47] [cursor=pointer]
+        - button "Adicionar ao Carrinho" [ref=e48] [cursor=pointer]:
+          - img
+          - text: Adicionar ao Carrinho
+        - generic [ref=e49]:
+          - heading "Características" [level=3] [ref=e50]
+          - generic [ref=e51]:
+            - generic [ref=e52]:
+              - img [ref=e53]
+              - generic [ref=e55]: Qualidade Premium
+            - generic [ref=e56]:
+              - img [ref=e57]
+              - generic [ref=e59]: Entrega Rápida
+            - generic [ref=e60]:
+              - img [ref=e61]
+              - generic [ref=e63]: Garantia de 30 dias
+            - generic [ref=e64]:
+              - img [ref=e65]
+              - generic [ref=e67]: Troca Grátis
+    - button "Close" [ref=e68] [cursor=pointer]:
+      - img [ref=e69] [cursor=pointer]
+      - generic [ref=e72] [cursor=pointer]: Close
+```

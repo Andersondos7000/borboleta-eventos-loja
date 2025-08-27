@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import { Wifi, WifiOff, Clock, AlertCircle, CheckCircle } from 'lucide-react';
 import { useRealtimeContext } from '../../contexts/RealtimeContext';
+import { useNetworkStatus } from '../../hooks/useNetworkStatus';
+import { useOfflineQueue } from '../../hooks/realtime/useOfflineQueue';
 
 interface OfflineIndicatorProps {
   className?: string;
@@ -13,15 +16,25 @@ export function OfflineIndicator({
   position = 'top' 
 }: OfflineIndicatorProps) {
   const { state } = useRealtimeContext();
+  const { isOnline, connectionType, effectiveType } = useNetworkStatus();
+  const { 
+    queueSize, 
+    isProcessing, 
+    lastProcessedAt,
+    getQueuedActionsByStatus 
+  } = useOfflineQueue();
   const [showBanner, setShowBanner] = useState(false);
   const [wasOffline, setWasOffline] = useState(false);
   
+  const pendingActions = getQueuedActionsByStatus('pending').length;
+  const failedActions = getQueuedActionsByStatus('failed').length;
+  
   // Controlar exibição do banner
   useEffect(() => {
-    if (!state.isOnline) {
+    if (!isOnline) {
       setShowBanner(true);
       setWasOffline(true);
-    } else if (wasOffline && state.isOnline) {
+    } else if (wasOffline && isOnline) {
       // Mostrar banner de reconexão por alguns segundos
       setShowBanner(true);
       const timer = setTimeout(() => {
@@ -29,27 +42,55 @@ export function OfflineIndicator({
         setWasOffline(false);
       }, 3000);
       return () => clearTimeout(timer);
+    } else if (pendingActions > 0 || failedActions > 0 || isProcessing) {
+      // Mostrar quando há ações pendentes ou processando
+      setShowBanner(true);
     } else {
       setShowBanner(false);
     }
-  }, [state.isOnline, wasOffline]);
+  }, [isOnline, wasOffline, pendingActions, failedActions, isProcessing]);
   
   if (!showBanner) {
     return null;
   }
   
-  const isOffline = !state.isOnline;
-  const isReconnected = state.isOnline && wasOffline;
+  const isOffline = !isOnline;
+  const isReconnected = isOnline && wasOffline;
+  
+  const getStatusColor = () => {
+    if (isOffline) return 'bg-red-500';
+    if (pendingActions > 0) return 'bg-yellow-500';
+    if (isProcessing) return 'bg-blue-500';
+    return 'bg-green-500';
+  };
+
+  const getStatusText = () => {
+    if (isOffline) return 'Offline';
+    if (isProcessing) return 'Sincronizando...';
+    if (pendingActions > 0) return `${pendingActions} pendente${pendingActions > 1 ? 's' : ''}`;
+    if (isReconnected) return 'Reconectado';
+    return 'Online';
+  };
+
+  const getStatusIcon = () => {
+    if (isOffline) return <WifiOff className="w-4 h-4" />;
+    if (isProcessing) return <Clock className="w-4 h-4 animate-spin" />;
+    if (pendingActions > 0) return <AlertCircle className="w-4 h-4" />;
+    return <CheckCircle className="w-4 h-4" />;
+  };
   
   // Banner inline
   if (position === 'inline') {
     return (
       <div className={`flex items-center space-x-2 ${className}`}>
-        <OfflineIcon isOffline={isOffline} />
+        <div className={`w-2 h-2 rounded-full ${getStatusColor()}`} />
+        {getStatusIcon()}
         <span className={`text-sm font-medium ${
-          isOffline ? 'text-red-600' : 'text-green-600'
+          isOffline ? 'text-red-600' : 
+          pendingActions > 0 ? 'text-yellow-600' :
+          isProcessing ? 'text-blue-600' : 'text-green-600'
         }`}>
-          {isOffline ? 'Modo Offline' : 'Reconectado'}
+            {getStatusText()}
         </span>
         {showDetails && (
           <OfflineDetails isOffline={isOffline} />
@@ -64,18 +105,35 @@ export function OfflineIndicator({
     bottom: 'fixed bottom-0 left-0 right-0 z-50'
   };
   
+  const getBannerColor = () => {
+    if (isOffline) return 'bg-red-600';
+    if (pendingActions > 0) return 'bg-yellow-600';
+    if (isProcessing) return 'bg-blue-600';
+    return 'bg-green-600';
+  };
+
+  const getBannerMessage = () => {
+    if (isOffline) {
+      return pendingActions > 0 
+        ? `Você está offline. ${pendingActions} alteração${pendingActions > 1 ? 'ões' : ''} será${pendingActions > 1 ? 'ão' : ''} sincronizada${pendingActions > 1 ? 's' : ''} quando a conexão for restabelecida.`
+        : 'Você está offline. Suas alterações serão sincronizadas quando a conexão for restabelecida.';
+    }
+    if (isProcessing) {
+      return `Sincronizando ${queueSize} alteração${queueSize > 1 ? 'ões' : ''}...`;
+    }
+    if (pendingActions > 0) {
+      return `${pendingActions} alteração${pendingActions > 1 ? 'ões' : ''} pendente${pendingActions > 1 ? 's' : ''} para sincronização.`;
+    }
+    return 'Conexão restabelecida! Dados sincronizados.';
+  };
+
   return (
     <div className={`${positionClasses[position]} ${className}`}>
-      <div className={`px-4 py-2 text-center text-white ${
-        isOffline ? 'bg-red-600' : 'bg-green-600'
-      }`}>
+      <div className={`px-4 py-2 text-center text-white ${getBannerColor()}`}>
         <div className="flex items-center justify-center space-x-2">
-          <OfflineIcon isOffline={isOffline} />
+          {getStatusIcon()}
           <span className="text-sm font-medium">
-            {isOffline 
-              ? 'Você está offline. Suas alterações serão sincronizadas quando a conexão for restabelecida.'
-              : 'Conexão restabelecida! Sincronizando dados...'
-            }
+            {getBannerMessage()}
           </span>
           
           {/* Botão de fechar para banner de reconexão */}
@@ -122,21 +180,50 @@ function OfflineIcon({ isOffline }: { isOffline: boolean }) {
 // Detalhes do status offline
 function OfflineDetails({ isOffline }: { isOffline: boolean }) {
   const { state, totalSyncCount } = useRealtimeContext();
+  const { isOnline, connectionType, effectiveType } = useNetworkStatus();
+  const { 
+    queueSize, 
+    isProcessing, 
+    lastProcessedAt,
+    getQueuedActionsByStatus,
+    getProcessingStats 
+  } = useOfflineQueue();
+  
+  const pendingActions = getQueuedActionsByStatus('pending').length;
+  const failedActions = getQueuedActionsByStatus('failed').length;
+  const completedActions = getQueuedActionsByStatus('completed').length;
+  const stats = getProcessingStats();
   
   if (isOffline) {
     return (
-      <div className="text-xs opacity-90">
-        <div>• Dados locais: {totalSyncCount} itens</div>
+      <div className="text-xs opacity-90 space-y-1">
+        <div>• Fila offline: {queueSize} ações</div>
+        <div>• Pendentes: {pendingActions} | Falharam: {failedActions}</div>
         <div>• Última sincronização: {state.lastSync ? formatTime(state.lastSync) : 'Nunca'}</div>
         <div>• Alterações serão enviadas automaticamente</div>
+        {stats.totalProcessed > 0 && (
+          <div>• Taxa de sucesso: {Math.round((stats.successCount / stats.totalProcessed) * 100)}%</div>
+        )}
       </div>
     );
   }
   
   return (
-    <div className="text-xs opacity-90">
-      <div>• Sincronizando alterações pendentes...</div>
+    <div className="text-xs opacity-90 space-y-1">
+      {isProcessing && (
+        <div>• Sincronizando {queueSize} alteração{queueSize > 1 ? 'ões' : ''}...</div>
+      )}
+      {pendingActions > 0 && (
+        <div>• Pendentes: {pendingActions} | Concluídas: {completedActions}</div>
+      )}
+      <div>• Conexão: {connectionType} ({effectiveType})</div>
       <div>• Status: {state.connectionStatus}</div>
+      {lastProcessedAt && (
+        <div>• Última ação: {formatTime(lastProcessedAt)}</div>
+      )}
+      {stats.totalProcessed > 0 && (
+        <div>• Taxa de sucesso: {Math.round((stats.successCount / stats.totalProcessed) * 100)}%</div>
+      )}
     </div>
   );
 }
