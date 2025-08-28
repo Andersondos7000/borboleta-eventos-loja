@@ -146,7 +146,7 @@ CREATE TABLE public.tickets (
   status USER-DEFINED NOT NULL DEFAULT 'reserved'::ticket_status,
   user_id uuid,
   created_at timestamp with time zone NOT NULL DEFAULT timezone('utc'::text, now()),
-  price numeric,
+  unit_price numeric,
   CONSTRAINT tickets_pkey PRIMARY KEY (id),
   CONSTRAINT tickets_event_id_fkey FOREIGN KEY (event_id) REFERENCES public.events(id),
   CONSTRAINT tickets_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id)

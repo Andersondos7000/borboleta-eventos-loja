@@ -1,26 +1,14 @@
-
 // Auth.tsx - Versão com componentes completamente isolados
-// Solução para problema de interferência entre formulários
+// Esta é a solução mais robusta para evitar interferência entre formulários
 
-import React, { useState } from "react";
-import { Navigate, useNavigate } from "react-router-dom";
-import { useAuth } from "@/contexts/AuthContext";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
-import ButterflyLogo from "@/components/ButterflyLogo";
-import { Eye, EyeOff } from "lucide-react";
-import { FcGoogle } from "react-icons/fc";
-import ForgotPasswordModal from "@/components/ForgotPasswordModal";
-import RoleSelectionModal from "@/components/RoleSelectionModal";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-
-
+import React, { useState } from 'react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { FcGoogle } from 'react-icons/fc';
+import { Eye, EyeOff } from 'lucide-react';
 
 // ============================================
 // COMPONENTE DE LOGIN (ISOLADO)
@@ -32,8 +20,6 @@ const LoginForm: React.FC<{ onGoogleAuth: () => void }> = ({ onGoogleAuth }) => 
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-  const { signIn } = useAuth();
-  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -43,11 +29,20 @@ const LoginForm: React.FC<{ onGoogleAuth: () => void }> = ({ onGoogleAuth }) => 
     try {
       console.log('Login attempt:', { email });
       
-      // Chama a função de login do contexto
-      await signIn(email, password);
+      // TODO: Implementar chamada API real
+      // const response = await api.login({ email, password });
       
-      // Redireciona após sucesso
-      navigate('/');
+      // Simulação de API
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Sucesso simulado
+      if (email === 'admin@example.com' && password === 'admin123') {
+        console.log('Login bem-sucedido!');
+        // Redirecionar ou salvar token
+        window.location.href = '/dashboard';
+      } else {
+        throw new Error('Credenciais inválidas');
+      }
       
     } catch (err: any) {
       setError(err.message || 'Erro ao fazer login');
@@ -57,9 +52,21 @@ const LoginForm: React.FC<{ onGoogleAuth: () => void }> = ({ onGoogleAuth }) => 
     }
   };
 
+  // Função para limpar o formulário
+  const clearForm = () => {
+    setEmail('');
+    setPassword('');
+    setError('');
+  };
+
   return (
     <div className="space-y-4">
-
+      <div>
+        <h3 className="text-xl font-semibold mb-2">Bem-vindo de volta</h3>
+        <p className="text-sm text-gray-600">
+          Entre com seu email e senha para acessar sua conta
+        </p>
+      </div>
 
       {error && (
         <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
@@ -163,40 +170,41 @@ const LoginForm: React.FC<{ onGoogleAuth: () => void }> = ({ onGoogleAuth }) => 
 // ============================================
 // COMPONENTE DE CADASTRO (ISOLADO)
 // ============================================
-const SignupForm: React.FC<{ onGoogleAuth: () => void; onSuccess: () => void }> = ({ onGoogleAuth, onSuccess }) => {
+const SignupForm: React.FC<{ onGoogleAuth: () => void; onSuccess: () => void }> = ({ 
+  onGoogleAuth, 
+  onSuccess 
+}) => {
   // Estados exclusivos do Cadastro
   const [email, setEmail] = useState('');
-  const [username, setUsername] = useState('');
+  const [name, setName] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [role, setRole] = useState<'user' | 'admin' | 'organizer'>('user');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
-  const { signUp } = useAuth();
-  const navigate = useNavigate();
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
-  // Validação em tempo real
-  const validateForm = () => {
-    const errors: Record<string, string> = {};
-    
-    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      errors.email = 'Email inválido';
+  const validateForm = (): boolean => {
+    const newErrors: Record<string, string> = {};
+
+    if (name.length < 3) {
+      newErrors.name = 'Nome deve ter pelo menos 3 caracteres';
     }
-    if (!username || username.length < 3) {
-      errors.username = 'Nome deve ter pelo menos 3 caracteres';
+
+    if (!email.includes('@')) {
+      newErrors.email = 'Email inválido';
     }
-    if (!password || password.length < 6) {
-      errors.password = 'Senha deve ter pelo menos 6 caracteres';
+
+    if (password.length < 6) {
+      newErrors.password = 'Senha deve ter pelo menos 6 caracteres';
     }
+
     if (password !== confirmPassword) {
-      errors.confirmPassword = 'As senhas não coincidem';
+      newErrors.confirmPassword = 'As senhas não coincidem';
     }
-    
-    setValidationErrors(errors);
-    return Object.keys(errors).length === 0;
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -205,29 +213,35 @@ const SignupForm: React.FC<{ onGoogleAuth: () => void; onSuccess: () => void }> 
     if (!validateForm()) {
       return;
     }
-    
+
     setIsLoading(true);
-    setError('');
+    setErrors({});
 
     try {
-      console.log('Signup attempt:', { email, username, role });
+      console.log('Signup attempt:', { email, name });
       
-      // Chama a função de cadastro do contexto
-      await signUp(email, password, { username, role });
+      // TODO: Implementar chamada API real
+      // const response = await api.signup({ email, name, password });
       
-      // Reset form
+      // Simulação de API
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      // Sucesso simulado
+      console.log('Cadastro bem-sucedido!');
+      
+      // Limpa o formulário
       setEmail('');
-      setUsername('');
+      setName('');
       setPassword('');
       setConfirmPassword('');
-      setRole('user');
-      setValidationErrors({});
       
-      // Chamar callback de sucesso
+      // Chama callback de sucesso
       onSuccess();
       
     } catch (err: any) {
-      setError(err.message || 'Erro ao criar conta');
+      setErrors({ 
+        general: err.message || 'Erro ao cadastrar. Tente novamente.' 
+      });
       console.error('Signup error:', err);
     } finally {
       setIsLoading(false);
@@ -237,15 +251,15 @@ const SignupForm: React.FC<{ onGoogleAuth: () => void; onSuccess: () => void }> 
   return (
     <div className="space-y-4">
       <div>
-        <h3 className="text-xl font-semibold mb-2">Criar nova conta</h3>
+        <h3 className="text-xl font-semibold mb-2">Crie sua conta</h3>
         <p className="text-sm text-gray-600">
-          Preencha os dados abaixo para criar sua conta
+          Preencha as informações abaixo para se cadastrar
         </p>
       </div>
 
-      {error && (
+      {errors.general && (
         <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
-          {error}
+          {errors.general}
         </div>
       )}
 
@@ -262,44 +276,30 @@ const SignupForm: React.FC<{ onGoogleAuth: () => void; onSuccess: () => void }> 
             required
             disabled={isLoading}
             autoComplete="email"
+            className={errors.email ? 'border-red-500' : ''}
           />
-          {validationErrors.email && (
-            <p className="text-sm text-red-600">{validationErrors.email}</p>
+          {errors.email && (
+            <p className="text-red-500 text-sm">{errors.email}</p>
           )}
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="signup-username-field">Nome de usuário</Label>
+          <Label htmlFor="signup-name-field">Nome de usuário</Label>
           <Input
-            id="signup-username-field"
-            data-testid="signup-username"
+            id="signup-name-field"
+            data-testid="signup-name"
             type="text"
             placeholder="Seu nome"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
+            value={name}
+            onChange={(e) => setName(e.target.value)}
             required
             disabled={isLoading}
-            autoComplete="username"
+            autoComplete="name"
+            className={errors.name ? 'border-red-500' : ''}
           />
-          {validationErrors.username && (
-            <p className="text-sm text-red-600">{validationErrors.username}</p>
+          {errors.name && (
+            <p className="text-red-500 text-sm">{errors.name}</p>
           )}
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="signup-role-field">Tipo de usuário</Label>
-          <select
-            id="signup-role-field"
-            data-testid="signup-role"
-            value={role}
-            onChange={(e) => setRole(e.target.value as 'user' | 'admin' | 'organizer')}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
-            disabled={isLoading}
-          >
-            <option value="user">Usuário</option>
-            <option value="organizer">Organizador</option>
-            <option value="admin">Administrador</option>
-          </select>
         </div>
 
         <div className="space-y-2">
@@ -315,7 +315,7 @@ const SignupForm: React.FC<{ onGoogleAuth: () => void; onSuccess: () => void }> 
               required
               disabled={isLoading}
               autoComplete="new-password"
-              className="pr-10"
+              className={errors.password ? 'border-red-500 pr-10' : 'pr-10'}
             />
             <button
               type="button"
@@ -326,16 +326,16 @@ const SignupForm: React.FC<{ onGoogleAuth: () => void; onSuccess: () => void }> 
               {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
             </button>
           </div>
-          {validationErrors.password && (
-            <p className="text-sm text-red-600">{validationErrors.password}</p>
+          {errors.password && (
+            <p className="text-red-500 text-sm">{errors.password}</p>
           )}
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="signup-confirm-password-field">Confirmar senha</Label>
+          <Label htmlFor="signup-confirm-field">Confirme sua senha</Label>
           <div className="relative">
             <Input
-              id="signup-confirm-password-field"
+              id="signup-confirm-field"
               data-testid="signup-confirm-password"
               type={showConfirmPassword ? "text" : "password"}
               placeholder="••••••••"
@@ -344,7 +344,7 @@ const SignupForm: React.FC<{ onGoogleAuth: () => void; onSuccess: () => void }> 
               required
               disabled={isLoading}
               autoComplete="new-password"
-              className="pr-10"
+              className={errors.confirmPassword ? 'border-red-500 pr-10' : 'pr-10'}
             />
             <button
               type="button"
@@ -355,8 +355,8 @@ const SignupForm: React.FC<{ onGoogleAuth: () => void; onSuccess: () => void }> 
               {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
             </button>
           </div>
-          {validationErrors.confirmPassword && (
-            <p className="text-sm text-red-600">{validationErrors.confirmPassword}</p>
+          {errors.confirmPassword && (
+            <p className="text-red-500 text-sm">{errors.confirmPassword}</p>
           )}
         </div>
 
@@ -366,7 +366,7 @@ const SignupForm: React.FC<{ onGoogleAuth: () => void; onSuccess: () => void }> 
           disabled={isLoading}
           className="w-full bg-orange-500 hover:bg-orange-600 text-white"
         >
-          {isLoading ? 'Criando conta...' : 'Criar conta'}
+          {isLoading ? 'Cadastrando...' : 'Cadastrar'}
         </Button>
       </form>
 
@@ -394,7 +394,7 @@ const SignupForm: React.FC<{ onGoogleAuth: () => void; onSuccess: () => void }> 
       {/* Debug info - remover em produção */}
       {process.env.NODE_ENV === 'development' && (
         <div className="text-xs text-gray-400 mt-2">
-          Debug Signup: {email || '(vazio)'} | Isolado: ✅
+          Debug Signup: {email || '(vazio)'} | {name || '(vazio)'} | Isolado: ✅
         </div>
       )}
     </div>
@@ -402,136 +402,100 @@ const SignupForm: React.FC<{ onGoogleAuth: () => void; onSuccess: () => void }> 
 };
 
 // ============================================
-// COMPONENTE PRINCIPAL AUTH
+// COMPONENTE PRINCIPAL (ORQUESTRADOR)
 // ============================================
-const Auth = () => {
-  const { user, signInWithGoogle, loading } = useAuth();
-  const [activeTab, setActiveTab] = useState<string>("login");
-  const [showForgotPasswordModal, setShowForgotPasswordModal] = useState(false);
-  const [showRoleSelectionModal, setShowRoleSelectionModal] = useState(false);
-  const [pendingGoogleAuth, setPendingGoogleAuth] = useState(false);
-  const [successMessage, setSuccessMessage] = useState<string>("");
+function Auth() {
+  const [activeTab, setActiveTab] = useState<'login' | 'signup'>('login');
+  const [showSuccessMessage, setShowSuccessMessage] = useState(false);
 
-  // Handle signup success
+  // Handler compartilhado para Google Auth
+  const handleGoogleAuth = async () => {
+    const action = activeTab === 'login' ? 'Login' : 'Cadastro';
+    console.log(`${action} com Google iniciado`);
+    
+    try {
+      // TODO: Implementar OAuth real
+      // window.location.href = '/api/auth/google';
+      
+      alert(`${action} com Google (não implementado)`);
+    } catch (error) {
+      console.error('Erro no Google Auth:', error);
+    }
+  };
+
+  // Handler para sucesso no cadastro
   const handleSignupSuccess = () => {
-    setSuccessMessage("Conta criada com sucesso! Faça login para continuar.");
-    setActiveTab("login");
-    setTimeout(() => setSuccessMessage(""), 5000);
+    setShowSuccessMessage(true);
+    setActiveTab('login');
+    
+    // Remove mensagem após 5 segundos
+    setTimeout(() => {
+      setShowSuccessMessage(false);
+    }, 5000);
   };
-
-  // Handle Google login
-  const handleGoogleLogin = async () => {
-    try {
-      // Para novos usuários, mostrar modal de seleção de role
-      if (activeTab === 'signup') {
-        setShowRoleSelectionModal(true);
-        setPendingGoogleAuth(true);
-      } else {
-        // Para login, usar Google OAuth diretamente
-        await signInWithGoogle();
-      }
-    } catch (error) {
-      console.error('Erro no login com Google:', error);
-    }
-  };
-
-  const handleRoleSelection = async (role: string) => {
-    try {
-      await signInWithGoogle(role);
-      setShowRoleSelectionModal(false);
-      setPendingGoogleAuth(false);
-    } catch (error) {
-      console.error('Erro no cadastro com Google:', error);
-      setShowRoleSelectionModal(false);
-      setPendingGoogleAuth(false);
-    }
-  };
-
-  // If user is already logged in, redirect to profile
-  if (user && !loading) {
-    return <Navigate to="/perfil" />;
-  }
 
   return (
-    <div className="flex flex-col min-h-screen">
-      <Navbar />
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4">
+      <Card className="w-full max-w-md">
+        <CardHeader className="text-center">
+          <div className="flex justify-center mb-4">
+            <div className="text-orange-500 text-5xl">🍄</div>
+          </div>
+          <CardTitle className="text-2xl font-bold text-orange-500">
+            Borboleta Eventos
+          </CardTitle>
+          <CardDescription>
+            Entre ou crie uma conta para continuar
+          </CardDescription>
+        </CardHeader>
 
-      <div className="flex-1 container max-w-md py-12">
-        <div className="text-center mb-8">
-          <ButterflyLogo className="w-16 h-16 mx-auto" />
-          <h1 className="text-2xl font-bold mt-4 text-butterfly-orange">Borboleta Eventos</h1>
-          <p className="text-gray-600 mt-2">Entre ou crie uma conta para continuar</p>
-        </div>
-        
+        <CardContent>
+          {showSuccessMessage && (
+            <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded mb-4">
+              Cadastro realizado com sucesso! Faça login para continuar.
+            </div>
+          )}
 
+          <Tabs 
+            value={activeTab} 
+            onValueChange={(value) => setActiveTab(value as 'login' | 'signup')}
+            className="w-full"
+          >
+            <TabsList className="grid w-full grid-cols-2 mb-6">
+              <TabsTrigger value="login" data-testid="login-tab">
+                Login
+              </TabsTrigger>
+              <TabsTrigger value="signup" data-testid="signup-tab">
+                Cadastro
+              </TabsTrigger>
+            </TabsList>
 
-        <Card>
-          <CardHeader>
-            <Tabs 
-              value={activeTab} 
-              onValueChange={setActiveTab}
-              className="w-full"
-            >
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="login">Login</TabsTrigger>
-                <TabsTrigger value="signup">Cadastro</TabsTrigger>
-              </TabsList>
-              
-              <TabsContent value="login" className="mt-4">
-              </TabsContent>
-              
-              <TabsContent value="signup" className="mt-4">
-              </TabsContent>
-            </Tabs>
-          </CardHeader>
+            <TabsContent value="login">
+              <LoginForm onGoogleAuth={handleGoogleAuth} />
+            </TabsContent>
 
-          <CardContent>
-            {successMessage && (
-              <Alert className="mb-4">
-                <AlertDescription>{successMessage}</AlertDescription>
-              </Alert>
-            )}
-            
-            {activeTab === "login" ? (
-              <LoginForm onGoogleAuth={handleGoogleLogin} />
-            ) : (
-              <SignupForm onGoogleAuth={handleGoogleLogin} onSuccess={handleSignupSuccess} />
-            )}
-          </CardContent>
+            <TabsContent value="signup">
+              <SignupForm 
+                onGoogleAuth={handleGoogleAuth}
+                onSuccess={handleSignupSuccess}
+              />
+            </TabsContent>
+          </Tabs>
 
-          <CardFooter className="flex flex-col">
-            <Separator className="my-4" />
-            <p className="text-xs text-gray-500 text-center">
-              Ao entrar ou se cadastrar, você concorda com nossos{" "}
-              <a href="/termos" className="text-butterfly-orange hover:underline">
-                Termos de Uso
-              </a>{" "}
-              e{" "}
-              <a href="/privacidade" className="text-butterfly-orange hover:underline">
-                Política de Privacidade
-              </a>
-              .
-            </p>
-          </CardFooter>
-        </Card>
-      </div>
-      <Footer />
-      
-      <ForgotPasswordModal
-        isOpen={showForgotPasswordModal}
-        onClose={() => setShowForgotPasswordModal(false)}
-      />
-      
-      <RoleSelectionModal
-        isOpen={showRoleSelectionModal}
-        onClose={() => {
-          setShowRoleSelectionModal(false);
-          setPendingGoogleAuth(false);
-        }}
-        onRoleSelect={handleRoleSelection}
-      />
+          <div className="text-center text-xs text-gray-500 mt-6">
+            Ao entrar ou se cadastrar, você concorda com nossos{' '}
+            <a href="/termos" className="text-orange-500 hover:underline">
+              Termos de Uso
+            </a>{' '}
+            e{' '}
+            <a href="/privacidade" className="text-orange-500 hover:underline">
+              Política de Privacidade
+            </a>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
-};
+}
 
 export default Auth;

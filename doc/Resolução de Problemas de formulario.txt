@@ -1,0 +1,335 @@
+// auth.spec.ts - Exemplos de testes automatizados para diferentes frameworks
+
+// ============================================
+// CYPRESS
+// ============================================
+// cypress/e2e/auth.cy.ts
+
+describe('Autenticação', () => {
+  beforeEach(() => {
+    cy.visit('/auth');
+  });
+
+  describe('Login com data-testid', () => {
+    it('deve fazer login com credenciais válidas', () => {
+      // Usando data-testid (Solução 1)
+      cy.get('[data-testid="login-email"]').type('usuario@exemplo.com');
+      cy.get('[data-testid="login-password"]').type('senha123');
+      cy.get('[data-testid="login-submit"]').click();
+      
+      // Verificações
+      cy.url().should('include', '/dashboard');
+      cy.contains('Bem-vindo').should('be.visible');
+    });
+
+    it('deve mostrar erro com credenciais inválidas', () => {
+      cy.get('[data-testid="login-email"]').type('invalido@exemplo.com');
+      cy.get('[data-testid="login-password"]').type('senhaerrada');
+      cy.get('[data-testid="login-submit"]').click();
+      
+      cy.contains('Credenciais inválidas').should('be.visible');
+    });
+  });
+
+  describe('Cadastro com data-testid', () => {
+    it('deve cadastrar novo usuário', () => {
+      // Muda para aba de cadastro
+      cy.get('[data-testid="signup-tab"]').click();
+      
+      // Preenche formulário
+      cy.get('[data-testid="signup-name"]').type('João Silva');
+      cy.get('[data-testid="signup-email"]').type('joao@exemplo.com');
+      cy.get('[data-testid="signup-password"]').type('senha123');
+      cy.get('[data-testid="signup-confirm-password"]').type('senha123');
+      cy.get('[data-testid="signup-submit"]').click();
+      
+      // Verificações
+      cy.contains('Cadastro realizado com sucesso').should('be.visible');
+    });
+  });
+});
+
+// ============================================
+// PLAYWRIGHT
+// ============================================
+// tests/auth.spec.ts
+
+import { test, expect } from '@playwright/test';
+
+test.describe('Autenticação', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/auth');
+  });
+
+  test('Login com data-testid', async ({ page }) => {
+    // Usando data-testid (Solução 1)
+    await page.fill('[data-testid="login-email"]', 'usuario@exemplo.com');
+    await page.fill('[data-testid="login-password"]', 'senha123');
+    await page.click('[data-testid="login-submit"]');
+    
+    // Aguarda navegação
+    await page.waitForURL('**/dashboard');
+    
+    // Verificações
+    await expect(page.locator('text=Bem-vindo')).toBeVisible();
+  });
+
+  test('Login com múltiplos seletores (fallback)', async ({ page }) => {
+    // Tenta primeiro com ID, depois com data-testid como fallback
+    const emailInput = page.locator('#login-email').or(page.locator('[data-testid="login-email"]'));
+    const passwordInput = page.locator('#login-password').or(page.locator('[data-testid="login-password"]'));
+    const submitButton = page.locator('#login-submit').or(page.locator('[data-testid="login-submit"]'));
+    
+    await emailInput.fill('usuario@exemplo.com');
+    await passwordInput.fill('senha123');
+    await submitButton.click();
+    
+    await expect(page).toHaveURL(/.*dashboard/);
+  });
+
+  test('Cadastro com validação', async ({ page }) => {
+    // Navega para aba de cadastro
+    await page.click('text=Cadastro');
+    
+    // Preenche formulário
+    await page.fill('[data-testid="signup-name"]', 'Maria Santos');
+    await page.fill('[data-testid="signup-email"]', 'maria@exemplo.com');
+    await page.fill('[data-testid="signup-password"]', 'senha123');
+    await page.fill('[data-testid="signup-confirm-password"]', 'senha456'); // Senha diferente
+    
+    await page.click('[data-testid="signup-submit"]');
+    
+    // Verifica mensagem de erro
+    await expect(page.locator('text=As senhas não coincidem')).toBeVisible();
+  });
+
+  test('Screenshot em caso de falha', async ({ page }, testInfo) => {
+    try {
+      await page.fill('[data-testid="login-email"]', 'teste@exemplo.com');
+      await page.fill('[data-testid="login-password"]', 'senha123');
+      await page.click('[data-testid="login-submit"]');
+      
+      // Espera resultado
+      await page.waitForURL('**/dashboard', { timeout: 5000 });
+    } catch (error) {
+      // Captura screenshot em caso de erro
+      await testInfo.attach('screenshot', {
+        body: await page.screenshot(),
+        contentType: 'image/png'
+      });
+      throw error;
+    }
+  });
+});
+
+// ============================================
+// SELENIUM WEBDRIVER (JavaScript)
+// ============================================
+// test/auth.test.js
+
+const { Builder, By, until } = require('selenium-webdriver');
+const assert = require('assert');
+
+describe('Autenticação', function() {
+  let driver;
+  this.timeout(30000);
+
+  beforeEach(async function() {
+    driver = await new Builder().forBrowser('chrome').build();
+    await driver.get('http://localhost:8080/auth');
+  });
+
+  afterEach(async function() {
+    await driver.quit();
+  });
+
+  it('Login usando data-testid', async function() {
+    // Usando data-testid (Solução 1)
+    await driver.findElement(By.css('[data-testid="login-email"]'))
+      .sendKeys('usuario@exemplo.com');
+    
+    await driver.findElement(By.css('[data-testid="login-password"]'))
+      .sendKeys('senha123');
+    
+    await driver.findElement(By.css('[data-testid="login-submit"]'))
+      .click();
+    
+    // Aguarda redirecionamento
+    await driver.wait(until.urlContains('/dashboard'), 5000);
+    
+    // Verificação
+    const welcomeText = await driver.findElement(By.xpath('//*[contains(text(), "Bem-vindo")]'));
+    assert(await welcomeText.isDisplayed());
+  });
+
+  it('Login com seletores múltiplos (fallback)', async function() {
+    // Função helper para tentar múltiplos seletores
+    async function findWithFallback(selectors) {
+      for (const selector of selectors) {
+        try {
+          const element = await driver.findElement(By.css(selector));
+          if (await element.isDisplayed()) {
+            return element;
+          }
+        } catch (e) {
+          // Continua para próximo seletor
+        }
+      }
+      throw new Error(`Nenhum elemento encontrado com os seletores: ${selectors.join(', ')}`);
+    }
+    
+    // Tenta múltiplos seletores
+    const emailInput = await findWithFallback([
+      '#login-email',
+      '[data-testid="login-email"]',
+      '[data-stable-id="login-email"]',
+      'input[type="email"]:first-of-type'
+    ]);
+    
+    const passwordInput = await findWithFallback([
+      '#login-password',
+      '[data-testid="login-password"]',
+      '[data-stable-id="login-password"]',
+      'input[type="password"]:first-of-type'
+    ]);
+    
+    await emailInput.sendKeys('usuario@exemplo.com');
+    await passwordInput.sendKeys('senha123');
+    
+    const submitButton = await findWithFallback([
+      '#login-submit',
+      '[data-testid="login-submit"]',
+      'button[type="submit"]'
+    ]);
+    
+    await submitButton.click();
+  });
+});
+
+// ============================================
+// PUPPETEER
+// ============================================
+// test/auth.puppeteer.test.js
+
+const puppeteer = require('puppeteer');
+
+describe('Autenticação com Puppeteer', () => {
+  let browser;
+  let page;
+
+  beforeAll(async () => {
+    browser = await puppeteer.launch({
+      headless: false, // Mude para true em CI
+      slowMo: 50 // Remove em produção
+    });
+  });
+
+  beforeEach(async () => {
+    page = await browser.newPage();
+    await page.goto('http://localhost:8080/auth');
+  });
+
+  afterEach(async () => {
+    await page.close();
+  });
+
+  afterAll(async () => {
+    await browser.close();
+  });
+
+  test('Login com data-testid', async () => {
+    // Aguarda elementos carregarem
+    await page.waitForSelector('[data-testid="login-email"]');
+    
+    // Preenche formulário
+    await page.type('[data-testid="login-email"]', 'usuario@exemplo.com');
+    await page.type('[data-testid="login-password"]', 'senha123');
+    
+    // Clica e aguarda navegação
+    await Promise.all([
+      page.waitForNavigation(),
+      page.click('[data-testid="login-submit"]')
+    ]);
+    
+    // Verifica URL
+    expect(page.url()).toContain('/dashboard');
+  });
+
+  test('Cadastro com screenshot', async () => {
+    // Muda para aba de cadastro
+    await page.click('text=Cadastro');
+    await page.waitForTimeout(500); // Aguarda animação
+    
+    // Preenche formulário
+    await page.type('[data-testid="signup-name"]', 'Test User');
+    await page.type('[data-testid="signup-email"]', 'test@exemplo.com');
+    await page.type('[data-testid="signup-password"]', 'senha123');
+    await page.type('[data-testid="signup-confirm-password"]', 'senha123');
+    
+    // Tira screenshot antes de submeter
+    await page.screenshot({ 
+      path: 'test-screenshots/before-signup.png',
+      fullPage: true 
+    });
+    
+    // Submete formulário
+    await page.click('[data-testid="signup-submit"]');
+    
+    // Aguarda resposta
+    await page.waitForTimeout(1000);
+    
+    // Tira screenshot após submeter
+    await page.screenshot({ 
+      path: 'test-screenshots/after-signup.png',
+      fullPage: true 
+    });
+  });
+});
+
+// ============================================
+// CONFIGURAÇÃO RECOMENDADA
+// ============================================
+/*
+Para máxima compatibilidade, use esta estratégia em seus testes:
+
+1. Priorize data-testid como seletor principal
+2. Use IDs como fallback secundário
+3. Implemente helper functions para múltiplos seletores
+4. Adicione logs detalhados em caso de falha
+5. Capture screenshots para debugging
+
+Exemplo de helper universal:
+*/
+
+async function findElement(page, selectors) {
+  const errors = [];
+  
+  for (const selector of selectors) {
+    try {
+      const element = await page.$(selector);
+      if (element) {
+        console.log(`✅ Elemento encontrado com: ${selector}`);
+        return element;
+      }
+    } catch (error) {
+      errors.push(`${selector}: ${error.message}`);
+    }
+  }
+  
+  throw new Error(`
+    Elemento não encontrado. Tentativas:
+    ${errors.join('\n')}
+    
+    Verifique se:
+    1. A página carregou corretamente
+    2. Os data-testid foram implementados
+    3. O elemento está visível na página
+  `);
+}
+
+// Uso:
+// const emailInput = await findElement(page, [
+//   '#login-email',
+//   '[data-testid="login-email"]',
+//   '[data-stable-id="login-email"]'
+// ]);

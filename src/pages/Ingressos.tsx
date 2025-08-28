@@ -125,15 +125,17 @@ const Ingressos = () => {
       // Create a new ticket with event reference
       console.log('Creating ticket in database...');
       const { data: ticketData, error: ticketError } = await supabase
-        .from('tickets')
-        .insert({
-          event_id: selectedEvent.id,
-          price: price,
-          status: 'reserved',
-          user_id: user?.id || null // Use null instead of 'anonymous-user'
-        })
-        .select('id')
-        .single();
+          .from('tickets')
+          .insert({
+            event_id: selectedEvent.id,
+            user_id: user?.id,
+            quantity: quantity,
+            unit_price: price,
+            total_price: price * quantity,
+            status: 'reserved'
+          })
+          .select()
+          .single();
 
       if (ticketError) {
         console.error('Error creating ticket:', ticketError);

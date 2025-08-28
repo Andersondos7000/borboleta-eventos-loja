@@ -220,7 +220,8 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
             ticket_id: isCartTicket(item) ? item.ticketId : null,
             quantity: item.quantity,
             size: isCartProduct(item) ? item.size : null,
-            price: item.price
+            unit_price: item.price,
+            total_price: item.price * item.quantity
           })
           .select('id')
           .single();

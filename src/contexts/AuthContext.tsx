@@ -103,7 +103,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: window.location.origin + '/auth/callback',
+          redirectTo: 'https://ojxmfxbflbfinodkhixk.supabase.co/auth/v1/callback',
           queryParams: role ? { role } : undefined,
         },
       });

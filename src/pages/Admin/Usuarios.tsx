@@ -6,10 +6,11 @@ import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Trash2, Search, Users, UserCheck, UserX, Loader2 } from 'lucide-react';
+import { Trash2, Search, Users, UserCheck, UserX, Loader2, UserPlus } from 'lucide-react';
 import AdminSidebar from '@/components/AdminSidebar';
 import { supabase } from '@/lib/supabase';
 import { useToast } from '@/hooks/use-toast';
+import AddUserModal from '@/components/AddUserModal';
 
 interface UserProfile {
   id: string;
@@ -28,6 +29,7 @@ const AdminUsuarios = () => {
   const [roleFilter, setRoleFilter] = useState<string>('all');
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
   const [deleting, setDeleting] = useState(false);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const { toast } = useToast();
 
   // Buscar usuários
@@ -214,7 +216,7 @@ const AdminUsuarios = () => {
           </CardHeader>
           
           <CardContent>
-            {/* Filtros */}
+            {/* Filtros e Ações */}
             <div className="flex flex-col sm:flex-row gap-4 mb-6">
               <div className="flex-1">
                 <div className="relative">
@@ -239,6 +241,14 @@ const AdminUsuarios = () => {
                   <SelectItem value="organizer">Organizadores</SelectItem>
                 </SelectContent>
               </Select>
+              
+              <Button
+                onClick={() => setIsAddModalOpen(true)}
+                className="bg-butterfly-orange hover:bg-butterfly-orange/90 flex items-center gap-2"
+              >
+                <UserPlus className="h-4 w-4" />
+                Adicionar Usuário
+              </Button>
             </div>
 
             {/* Ações em lote */}
@@ -378,6 +388,12 @@ const AdminUsuarios = () => {
           </CardContent>
         </Card>
       </div>
+      
+      <AddUserModal
+        isOpen={isAddModalOpen}
+        onClose={() => setIsAddModalOpen(false)}
+        onUserAdded={fetchUsers}
+      />
     </div>
   );
 };

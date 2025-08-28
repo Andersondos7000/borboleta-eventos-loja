@@ -32,8 +32,7 @@ const AdminProdutos = () => {
     category: string;
     price: number;
     stock: number;
-    status: string;
-  }>({ name: '', description: '', category: '', price: 0, stock: 0, status: '' });
+  }>({ name: '', description: '', category: '', price: 0, stock: 0 });
   const [newStockValue, setNewStockValue] = useState<number>(0);
   const [editingStockProduct, setEditingStockProduct] = useState<Product | null>(null);
   const { toast } = useToast();
@@ -121,7 +120,7 @@ const AdminProdutos = () => {
         price: Number(product.price),
         stock: totalStock,
         image: product.image_url || '',
-        status: product.in_stock === false ? 'Esgotado' : 'Ativo',
+        status: totalStock <= 0 ? 'Esgotado' : 'Ativo',
       };
     });
     
@@ -152,15 +151,14 @@ const AdminProdutos = () => {
       description: product.description,
       category: product.category,
       price: product.price,
-      stock: product.stock,
-      status: product.status
+      stock: product.stock
     });
     setImagePreview(product.image);
   };
 
   const handleEditDialogClose = () => {
     setEditingProduct(null);
-    setEditFormData({ name: '', description: '', category: '', price: 0, stock: 0, status: '' });
+    setEditFormData({ name: '', description: '', category: '', price: 0, stock: 0 });
     setSelectedImage(null);
     setImagePreview('');
   };
@@ -168,6 +166,11 @@ const AdminProdutos = () => {
   // Função para atualizar produto
   const handleUpdateProduct = async (productId: string, updatedData: Partial<Product>) => {
     try {
+      // Mapear categoria para UUID correto do banco
+      const categoryUUID = updatedData.category === 'camiseta' 
+        ? '6bf31188-1102-4b36-82ae-1084e385558a' // ID real da categoria Camisetas
+        : 'd60ec377-97e0-484d-ab90-fa291c1aba66'; // ID real da categoria Vestidos
+
       // Atualizar no banco de dados (sem o campo stock)
       const { error } = await supabase
         .from('products')
@@ -175,7 +178,7 @@ const AdminProdutos = () => {
           name: updatedData.name,
           description: updatedData.description,
           price: updatedData.price,
-          category: updatedData.category,
+          category: categoryUUID,
           image_url: updatedData.image
         })
         .eq('id', productId);
@@ -292,7 +295,86 @@ const AdminProdutos = () => {
   // Função para remover produto
   const handleRemoveProduct = async (productId: string) => {
     try {
-      // Remover do banco de dados
+      // Primeiro, verificar se o produto ainda existe
+      const { data: existingProduct, error: checkError } = await supabase
+        .from('products')
+        .select('id, name')
+        .eq('id', productId)
+        .single();
+
+      if (checkError || !existingProduct) {
+        // Produto já foi removido, apenas atualizar o estado local
+        setProducts(prevProducts => 
+          prevProducts.filter(product => product.id !== productId)
+        );
+        
+        toast({
+          title: "Produto já removido",
+          description: "O produto já foi removido anteriormente.",
+          variant: "default"
+        });
+        
+        // Recarregar produtos para garantir sincronização
+        await fetchProducts();
+        return;
+      }
+
+      // Verificar se há itens no carrinho que referenciam este produto
+      const { data: cartItems, error: cartError } = await supabase
+        .from('cart_items')
+        .select('id')
+        .eq('product_id', productId)
+        .limit(1);
+
+      if (cartError) {
+        console.error('Erro ao verificar itens do carrinho:', cartError);
+      }
+
+      // Se há itens no carrinho, removê-los primeiro
+      if (cartItems && cartItems.length > 0) {
+        const { error: deleteCartError } = await supabase
+          .from('cart_items')
+          .delete()
+          .eq('product_id', productId);
+
+        if (deleteCartError) {
+          console.error('Erro ao remover itens do carrinho:', deleteCartError);
+          toast({
+            title: "Erro ao remover produto",
+            description: "Não foi possível remover os itens do carrinho associados ao produto.",
+            variant: "destructive"
+          });
+          return;
+        }
+      }
+
+      // Verificar e remover itens de pedidos se necessário
+      const { data: orderItems, error: orderError } = await supabase
+        .from('order_items')
+        .select('id')
+        .eq('product_id', productId)
+        .limit(1);
+
+      if (orderItems && orderItems.length > 0) {
+        toast({
+          title: "Não é possível remover produto",
+          description: "Este produto possui pedidos associados e não pode ser removido. Considere desativá-lo.",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      // Remover tamanhos do produto
+      const { error: sizesError } = await supabase
+        .from('product_sizes')
+        .delete()
+        .eq('product_id', productId);
+
+      if (sizesError) {
+        console.error('Erro ao remover tamanhos do produto:', sizesError);
+      }
+
+      // Agora remover o produto
       const { data, error } = await supabase
         .from('products')
         .delete()
@@ -360,10 +442,10 @@ const AdminProdutos = () => {
 
     setIsSaving(true);
     try {
-      // Mapear categoria para UUID
+      // Mapear categoria para UUID correto do banco
       const categoryUUID = newProduct.category === 'camiseta' 
-        ? '550e8400-e29b-41d4-a716-446655440001' 
-        : '550e8400-e29b-41d4-a716-446655440002';
+        ? '6bf31188-1102-4b36-82ae-1084e385558a' // ID real da categoria Camisetas
+        : 'd60ec377-97e0-484d-ab90-fa291c1aba66'; // ID real da categoria Vestidos
 
       const { data, error } = await supabase
         .from('products')
@@ -743,24 +825,7 @@ const AdminProdutos = () => {
                                     onChange={(e) => setEditFormData(prev => ({ ...prev, stock: Number(e.target.value) }))}
                                   />
                                 </div>
-                                <div className="grid grid-cols-4 items-center gap-4">
-                                  <label htmlFor="edit-status" className="text-right text-sm font-medium">
-                                    Status
-                                  </label>
-                                  <Select 
-                                    value={editFormData.status}
-                                    onValueChange={(value) => setEditFormData(prev => ({ ...prev, status: value }))}
-                                  >
-                                    <SelectTrigger className="col-span-3">
-                                      <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                      <SelectItem value="Ativo">Ativo</SelectItem>
-                                      <SelectItem value="Inativo">Inativo</SelectItem>
-                                      <SelectItem value="Esgotado">Esgotado</SelectItem>
-                                    </SelectContent>
-                                  </Select>
-                                </div>
+
                                 <div className="grid grid-cols-4 items-center gap-4">
                                   <label className="text-right text-sm font-medium">
                                     Imagem
@@ -806,7 +871,7 @@ const AdminProdutos = () => {
                                     price: editFormData.price,
                                     stock: editFormData.stock,
                                     category: editFormData.category as 'camiseta' | 'vestido',
-                                    status: editFormData.status as 'Ativo' | 'Inativo' | 'Esgotado',
+                                    status: editFormData.stock > 0 ? 'Ativo' : 'Esgotado',
                                     image: imagePreview || product.image
                                   })}
                                 >

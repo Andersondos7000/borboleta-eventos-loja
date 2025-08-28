@@ -1,0 +1,69 @@
+Analisando o PRD do problema com IDs dinâmicos, vejo que vocês já tentaram várias abordagens sem sucesso. O Radix UI Tabs está sobrescrevendo os IDs customizados. Vou propor soluções mais efetivas:
+
+## 🎯 Soluções Recomendadas
+
+### **Solução 1: Data Attributes (MAIS RECOMENDADA)**
+Em vez de lutar contra o Radix UI pelos IDs, use `data-testid`:### **Solução 2: Wrapper Customizado com Force ID**### **Solução 3: Hook useStableId**### **Script de Validação**### **Exemplo de Testes Automatizados**## 📊 Análise e Recomendações Finais
+
+### **Ranking das Soluções por Efetividade**
+
+1. **🏆 Solução 1: Data Attributes** (RECOMENDADA)
+   - ✅ **Prós:** Simples, confiável, não conflita com Radix UI
+   - ✅ **Implementação:** 5 minutos
+   - ✅ **Manutenção:** Mínima
+   - ✅ **Compatibilidade:** 100% com todas ferramentas de teste
+
+2. **🥈 Solução 3: Hook useStableId**
+   - ✅ **Prós:** Controle total, múltiplas estratégias de fallback
+   - ⚠️ **Contras:** Mais complexo, requer manutenção
+   - ⏱️ **Implementação:** 30 minutos
+
+3. **🥉 Solução 2: ForceIdInput Wrapper**
+   - ✅ **Prós:** Força IDs agressivamente
+   - ❌ **Contras:** Pode causar conflitos, performance
+
+### **Plano de Implementação Imediata**
+
+```bash
+# 1. Implementar Solução 1 (Data Attributes)
+# 2. Executar script de validação
+# 3. Atualizar testes automatizados
+# 4. Deploy
+```
+
+### **Por que o Radix UI sobrescreve IDs?**
+
+O Radix UI Tabs gera IDs dinâmicos para:
+- Evitar conflitos entre múltiplas instâncias
+- Garantir acessibilidade (ARIA)
+- Manter isolamento entre abas
+
+### **Checklist de Implementação**
+
+- [ ] Adicionar `data-testid` em todos os inputs
+- [ ] Atualizar seletores nos testes automatizados
+- [ ] Executar script de validação
+- [ ] Documentar novos seletores
+- [ ] Treinar equipe sobre uso de data-testid
+
+### **Código de Emergência** (Cola no Console)
+
+```javascript
+// Correção imediata para testes
+document.querySelectorAll('input').forEach((el, i) => {
+  const map = {
+    0: 'login-email',
+    1: 'login-password',
+    2: 'signup-name',
+    3: 'signup-email',
+    4: 'signup-password',
+    5: 'signup-confirm-password'
+  };
+  if(map[i]) {
+    el.setAttribute('data-testid', map[i]);
+    el.id = map[i];
+  }
+});
+```
+
+**Conclusão:** Use `data-testid` - é a solução mais simples, confiável e mantível. Não lute contra o Radix UI, trabalhe com ele! 🚀
