@@ -73,7 +73,7 @@ describe('useRealtimeOrders', () => {
           product_id: 'product-1',
           size_id: 'size-1',
           quantity: 2,
-          unit_price: 50.00,
+          price: 50.00,
           total_price: 100.00,
           products: {
             id: 'product-1',
@@ -90,7 +90,7 @@ describe('useRealtimeOrders', () => {
           product_id: 'product-2',
           size_id: 'size-2',
           quantity: 1,
-          unit_price: 50.00,
+          price: 50.00,
           total_price: 50.00,
           products: {
             id: 'product-2',
@@ -125,7 +125,7 @@ describe('useRealtimeOrders', () => {
           product_id: 'product-1',
           size_id: 'size-1',
           quantity: 1,
-          unit_price: 75.00,
+          price: 75.00,
           total_price: 75.00,
           products: {
             id: 'product-1',

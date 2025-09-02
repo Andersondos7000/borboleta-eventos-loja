@@ -4,7 +4,7 @@
 
 import React, { useState } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from "@/hooks/useAuth";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -213,7 +213,7 @@ const SignupForm: React.FC<{ onGoogleAuth: () => void; onSuccess: () => void }> 
       console.log('Signup attempt:', { email, username, role });
       
       // Chama a função de cadastro do contexto
-      await signUp(email, password, { username, role });
+      await signUp(email, password, username, role);
       
       // Reset form
       setEmail('');

@@ -14,14 +14,14 @@ const AdminDashboard = () => {
   const [ingressosVendidos, setIngressosVendidos] = useState(0);
 
   useEffect(() => {
-    // Buscar total de vendas (soma dos pedidos pagos)
+    // Buscar vendas totais (orders com status paid)
     const fetchVendas = async () => {
       const { data, error } = await supabase
         .from('orders')
-        .select('total')
-        .eq('status', 'Pago');
+        .select('amount')
+        .eq('status', 'paid');
       if (!error && data) {
-        setTotalVendas(data.reduce((sum, o) => sum + Number(o.total), 0));
+        setTotalVendas(data.reduce((sum, o) => sum + Number(o.amount), 0));
       }
     };
     // Buscar produtos vendidos (soma de order_items)
@@ -34,21 +34,21 @@ const AdminDashboard = () => {
         setProdutosVendidos(data.reduce((sum, o) => sum + Number(o.quantity), 0));
       }
     };
-    // Buscar itens em estoque (soma de product_stock)
+    // Buscar itens em estoque (soma de product_sizes)
     const fetchEstoque = async () => {
       const { data, error } = await supabase
-        .from('product_stock')
-        .select('quantity');
+        .from('product_sizes')
+        .select('stock_quantity');
       if (!error && data) {
-        setItensEstoque(data.reduce((sum, o) => sum + Number(o.quantity), 0));
+        setItensEstoque(data.reduce((sum, o) => sum + Number(o.stock_quantity), 0));
       }
     };
-    // Buscar ingressos vendidos (tickets com status Pago)
+    // Buscar ingressos vendidos (tickets com status paid)
     const fetchIngressos = async () => {
       const { data, error } = await supabase
         .from('tickets')
         .select('id')
-        .eq('status', 'Pago');
+        .eq('status', 'paid');
       if (!error && data) {
         setIngressosVendidos(data.length);
       }

@@ -58,7 +58,7 @@ const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, onClose, onUserAdde
     }
 
     if (!formData.role) {
-      newErrors.role = 'Tipo de usuário é obrigatório';
+      newErrors.role = undefined;
     }
 
     setErrors(newErrors);
@@ -75,15 +75,16 @@ const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, onClose, onUserAdde
     setIsSubmitting(true);
 
     try {
-      // Criar usuário no Supabase Auth
-      const { data: authData, error: authError } = await supabase.auth.admin.createUser({
+      // Criar usuário no Supabase Auth usando signup normal
+      const { data: authData, error: authError } = await supabase.auth.signUp({
         email: formData.email,
         password: formData.password,
-        email_confirm: true,
-        user_metadata: {
-          given_name: formData.firstName,
-          family_name: formData.lastName,
-          role: formData.role
+        options: {
+          data: {
+            given_name: formData.firstName,
+            family_name: formData.lastName,
+            role: formData.role
+          }
         }
       });
 

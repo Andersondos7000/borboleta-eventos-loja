@@ -6,19 +6,33 @@ import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Trash2, Search, Users, UserCheck, UserX, Loader2, UserPlus } from 'lucide-react';
-import AdminSidebar from '@/components/AdminSidebar';
-import { supabase } from '@/lib/supabase';
+import { toast } from 'sonner';
 import { useToast } from '@/hooks/use-toast';
+import { Trash2, Search, Users, UserCheck, UserX, Loader2, UserPlus, Edit } from 'lucide-react';
+import AdminSidebar from '@/components/AdminSidebar';
+import { supabase } from '../../lib/supabase';
 import AddUserModal from '@/components/AddUserModal';
+import UserDetailsModal from '@/components/UserDetailsModal';
+import EditUserModal from '@/components/EditUserModal';
 
 interface UserProfile {
   id: string;
   first_name: string | null;
   last_name: string | null;
   email: string;
+  phone: string | null;
   role: 'user' | 'admin' | 'organizer';
   created_at: string;
+  // Campos do checkout
+  person_type: 'fisica' | 'juridica' | null;
+  cpf: string | null;
+  country: string | null;
+  zip_code: string | null;
+  address: string | null;
+  address_number: string | null;
+  neighborhood: string | null;
+  city: string | null;
+  state: string | null;
 }
 
 const AdminUsuarios = () => {
@@ -30,12 +44,17 @@ const AdminUsuarios = () => {
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
   const [deleting, setDeleting] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [selectedUserForDetails, setSelectedUserForDetails] = useState<UserProfile | null>(null);
+  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [selectedUserForEdit, setSelectedUserForEdit] = useState<UserProfile | null>(null);
   const { toast } = useToast();
 
   // Buscar usuários
   const fetchUsers = async () => {
     try {
       setLoading(true);
+      
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
@@ -350,34 +369,59 @@ const AdminUsuarios = () => {
                           {new Date(user.created_at).toLocaleDateString('pt-BR')}
                         </TableCell>
                         <TableCell>
-                          <AlertDialog>
-                            <AlertDialogTrigger asChild>
-                              <Button variant="ghost" size="sm" className="text-red-600 hover:text-red-700">
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            </AlertDialogTrigger>
-                            <AlertDialogContent>
-                              <AlertDialogHeader>
-                                <AlertDialogTitle>Excluir Usuário</AlertDialogTitle>
-                                <AlertDialogDescription>
-                                  Tem certeza que deseja excluir o usuário <strong>{user.email}</strong>?
-                                  Esta ação não pode ser desfeita.
-                                </AlertDialogDescription>
-                              </AlertDialogHeader>
-                              <AlertDialogFooter>
-                                <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                                <AlertDialogAction 
-                                  onClick={() => {
-                                    setSelectedUsers([user.id]);
-                                    handleDeleteUsers();
-                                  }}
-                                  className="bg-red-600 hover:bg-red-700"
-                                >
-                                  Excluir
-                                </AlertDialogAction>
-                              </AlertDialogFooter>
-                            </AlertDialogContent>
-                          </AlertDialog>
+                          <div className="flex gap-2">
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              onClick={() => {
+                                setSelectedUserForDetails(user);
+                                setIsDetailsModalOpen(true);
+                              }}
+                              title="Ver detalhes"
+                            >
+                              <UserCheck className="h-4 w-4" />
+                            </Button>
+                            
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              onClick={() => {
+                                setSelectedUserForEdit(user);
+                                setIsEditModalOpen(true);
+                              }}
+                              title="Editar usuário"
+                            >
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <Button variant="ghost" size="sm" className="text-red-600 hover:text-red-700">
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>Excluir Usuário</AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    Tem certeza que deseja excluir o usuário <strong>{user.email}</strong>?
+                                    Esta ação não pode ser desfeita.
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                  <AlertDialogAction 
+                                    onClick={() => {
+                                      setSelectedUsers([user.id]);
+                                      handleDeleteUsers();
+                                    }}
+                                    className="bg-red-600 hover:bg-red-700"
+                                  >
+                                    Excluir
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+                          </div>
                         </TableCell>
                       </TableRow>
                     ))}
@@ -393,6 +437,22 @@ const AdminUsuarios = () => {
         isOpen={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
         onUserAdded={fetchUsers}
+      />
+      
+      <UserDetailsModal
+        isOpen={isDetailsModalOpen}
+        onClose={() => setIsDetailsModalOpen(false)}
+        user={selectedUserForDetails}
+      />
+      
+      <EditUserModal
+        isOpen={isEditModalOpen}
+        onClose={() => {
+          setIsEditModalOpen(false);
+          setSelectedUserForEdit(null);
+        }}
+        onUserUpdated={fetchUsers}
+        user={selectedUserForEdit}
       />
     </div>
   );

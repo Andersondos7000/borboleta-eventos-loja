@@ -1,5 +1,5 @@
-import { assertEquals, assertExists } from 'https://deno.land/std@0.208.0/assert/mod.ts'
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.38.4'
+import { assertEquals, assertExists } from 'std/testing/asserts.ts'
+import { createClient } from 'supabase'
 
 // Mock do Supabase para testes
 const mockSupabase = {

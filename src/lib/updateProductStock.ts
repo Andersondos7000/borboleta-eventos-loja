@@ -2,8 +2,8 @@ import { supabase } from './supabase';
 
 export async function updateProductStock(productId: string, size: string, newQuantity: number) {
   const { data, error } = await supabase
-    .from('product_stock')
-    .update({ quantity: newQuantity })
+    .from('product_sizes')
+    .update({ stock_quantity: newQuantity })
     .match({ product_id: productId, size });
 
   if (error) {
@@ -12,4 +12,4 @@ export async function updateProductStock(productId: string, size: string, newQua
   }
 
   return data;
-} 
+}

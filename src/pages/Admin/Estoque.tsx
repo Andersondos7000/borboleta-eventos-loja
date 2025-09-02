@@ -38,10 +38,10 @@ const AdminEstoque = () => {
       // Buscar produtos
       const { data: products } = await supabase.from('products').select('id, name, category, image_url');
       // Buscar estoque por tamanho
-      const { data: stock } = await supabase.from('product_stock').select('*');
+      const { data: stock } = await supabase.from('product_sizes').select('*');
       if (products && stock) {
         const items: StockItem[] = products.map((p: any) => {
-          const sizes = stock.filter((s: any) => s.product_id === p.id).map((s: any) => ({ size: s.size, stock: s.quantity }));
+          const sizes = stock.filter((s: any) => s.product_id === p.id).map((s: any) => ({ size: s.size, stock: s.stock_quantity }));
           const total = sizes.reduce((sum, s) => sum + s.stock, 0);
           return {
             id: p.id,
@@ -67,10 +67,10 @@ const AdminEstoque = () => {
     await updateProductStock(productId, size, newQuantity);
     // Recarregar estoque após atualização
     const { data: products } = await supabase.from('products').select('id, name, category, image_url');
-    const { data: stock } = await supabase.from('product_stock').select('*');
+    const { data: stock } = await supabase.from('product_sizes').select('*');
     if (products && stock) {
       const items: StockItem[] = products.map((p: any) => {
-        const sizes = stock.filter((s: any) => s.product_id === p.id).map((s: any) => ({ size: s.size, stock: s.quantity }));
+        const sizes = stock.filter((s: any) => s.product_id === p.id).map((s: any) => ({ size: s.size, stock: s.stock_quantity }));
         const total = sizes.reduce((sum, s) => sum + s.stock, 0);
         return {
           id: p.id,

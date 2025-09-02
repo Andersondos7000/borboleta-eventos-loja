@@ -3,7 +3,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Index from "./pages/Index";
 import Evento from "./pages/Evento";
 import Loja from "./pages/Loja";
@@ -29,6 +29,7 @@ import { CustomersPage } from "./pages/CustomersPage";
 import { CartProvider } from "./contexts/CartContext";
 import { AuthProvider } from "./contexts/AuthContext";
 import { RealtimeProvider } from "./contexts/RealtimeContext";
+import ErrorHandler from "./components/ErrorHandler";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -47,6 +48,7 @@ const App = () => (
           <Toaster />
           <Sonner />
           <BrowserRouter>
+            <ErrorHandler />
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/evento" element={<Evento />} />
@@ -91,6 +93,7 @@ const App = () => (
               <Route path="/auth/callback" element={<AuthCallback />} />
               <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="/perfil" element={<Profile />} />
+              <Route path="/user" element={<Navigate to="/perfil" replace />} />
               <Route path="/customers" element={
                 <ProtectedRoute requireAdmin={true}>
                   <CustomersPage />

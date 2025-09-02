@@ -80,12 +80,17 @@ const ProductModal: React.FC<ProductModalProps> = ({ product, children, onSelect
     }
 
     addToCart({
-      id: product.id,
+      id: '', // Will be set by CartContext
+      product_id: product.id,
       name: product.name,
       price: product.price,
       image: product.image,
-      size: selectedSize,
-      quantity: quantity
+      images: [product.image],
+      category: product.category,
+      quantity: quantity,
+      unit_price: product.price,
+      total_price: product.price * quantity,
+      metadata: { size: selectedSize }
     });
 
     toast({

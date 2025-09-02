@@ -1,5 +1,5 @@
-import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { serve } from 'std/http/server.ts'
+import { createClient } from '@supabase/supabase-js'
 import { corsHeaders, handleCors, getAllHeaders } from '../_shared/cors.ts'
 
 interface OrderSyncRequest {
@@ -265,11 +265,15 @@ async function createOrder(
       .from('orders')
       .insert({
         user_id: userId,
-        status: 'pending',
+        order_status: 'pending',
         total_amount: total,
         payment_status: 'pending',
-        ...orderInfo,
-        created_at: new Date().toISOString()
+        customer_data: orderInfo.customer_data || {},
+        billing_data: orderInfo.billing_data,
+        shipping_data: orderInfo.shipping_data,
+        payment_method: orderInfo.payment_method,
+        payment_id: orderInfo.payment_id,
+        notes: orderInfo.notes
       })
       .select()
       .single()
@@ -361,17 +365,16 @@ async function updateOrderStatus(
       'cancelled': []
     }
 
-    if (!validTransitions[order.status]?.includes(newStatus)) {
-      throw new Error(`Invalid status transition from ${order.status} to ${newStatus}`)
+    if (!validTransitions[order.order_status]?.includes(newStatus)) {
+      throw new Error(`Invalid status transition from ${order.order_status} to ${newStatus}`)
     }
 
     // Atualizar status
     const { data: updatedOrder, error: updateError } = await supabase
       .from('orders')
       .update({
-        status: newStatus,
-        updated_at: new Date().toISOString(),
-        updated_by: userId
+        order_status: newStatus,
+        updated_at: new Date().toISOString()
       })
       .eq('id', orderId)
       .select()

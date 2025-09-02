@@ -1,0 +1,477 @@
+name: Database Migration Pipeline
+
+# Pipeline CI/CD para migração automatizada de banco de dados
+# Reduz tempo de migração através de automação e paralelização
+
+on:
+  workflow_dispatch:
+    inputs:
+      migration_type:
+        description: 'Tipo de migração'
+        required: true
+        default: 'full'
+        type: choice
+        options:
+          - full
+          - schema-only
+          - data-only
+          - validation-only
+      environment:
+        description: 'Ambiente de destino'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+          - staging
+          - production
+      dry_run:
+        description: 'Executar em modo dry-run'
+        required: false
+        default: true
+        type: boolean
+      skip_backup:
+        description: 'Pular backup (apenas staging)'
+        required: false
+        default: false
+        type: boolean
+
+env:
+  NODE_VERSION: '18'
+  SUPABASE_CLI_VERSION: 'latest'
+
+jobs:
+  # Job 1: Preparação e validação
+  preparation:
+    name: 🔍 Preparação e Validação
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    
+    outputs:
+      migration-id: ${{ steps.setup.outputs.migration-id }}
+      backup-required: ${{ steps.setup.outputs.backup-required }}
+      
+    steps:
+      - name: 📥 Checkout código
+        uses: actions/checkout@v4
+        
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          
+      - name: 📦 Instalar dependências
+        run: |
+          npm ci
+          npm install -g supabase@${{ env.SUPABASE_CLI_VERSION }}
+          
+      - name: 🔐 Configurar credenciais
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_PROJECT_ID: ${{ secrets.SUPABASE_PROJECT_ID }}
+        run: |
+          supabase login --token $SUPABASE_ACCESS_TOKEN
+          supabase link --project-ref $SUPABASE_PROJECT_ID
+          
+      - name: ⚙️ Setup migração
+        id: setup
+        run: |
+          MIGRATION_ID="migration_$(date +%Y%m%d_%H%M%S)"
+          echo "migration-id=$MIGRATION_ID" >> $GITHUB_OUTPUT
+          
+          # Determinar se backup é necessário
+          if [[ "${{ inputs.environment }}" == "production" ]] || [[ "${{ inputs.skip_backup }}" == "false" ]]; then
+            echo "backup-required=true" >> $GITHUB_OUTPUT
+          else
+            echo "backup-required=false" >> $GITHUB_OUTPUT
+          fi
+          
+      - name: 🔍 Validar ambiente
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          node scripts/validate-migration.js --environment-check
+          
+      - name: 📊 Análise de impacto
+        run: |
+          echo "🔍 Analisando impacto da migração..."
+          node -e "
+            const fs = require('fs');
+            const schema = JSON.parse(fs.readFileSync('database-schema-comparison.md', 'utf8'));
+            console.log('📋 Tabelas afetadas:', Object.keys(schema.tables || {}).length);
+            console.log('⏱️ Tempo estimado:', schema.estimatedTime || 'N/A');
+          "
+
+  # Job 2: Backup (condicional)
+  backup:
+    name: 💾 Backup do Banco de Dados
+    runs-on: ubuntu-latest
+    needs: preparation
+    if: needs.preparation.outputs.backup-required == 'true'
+    timeout-minutes: 30
+    
+    steps:
+      - name: 📥 Checkout código
+        uses: actions/checkout@v4
+        
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          
+      - name: 📦 Instalar Supabase CLI
+        run: npm install -g supabase@${{ env.SUPABASE_CLI_VERSION }}
+        
+      - name: 🔐 Configurar credenciais
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_PROJECT_ID: ${{ secrets.SUPABASE_PROJECT_ID }}
+        run: |
+          supabase login --token $SUPABASE_ACCESS_TOKEN
+          supabase link --project-ref $SUPABASE_PROJECT_ID
+          
+      - name: 💾 Criar backup
+        env:
+          MIGRATION_ID: ${{ needs.preparation.outputs.migration-id }}
+        run: |
+          mkdir -p backups
+          supabase db dump > "backups/backup_${MIGRATION_ID}.sql"
+          
+          # Verificar se backup foi criado com sucesso
+          if [[ ! -s "backups/backup_${MIGRATION_ID}.sql" ]]; then
+            echo "❌ Backup falhou ou está vazio"
+            exit 1
+          fi
+          
+          echo "✅ Backup criado: backup_${MIGRATION_ID}.sql"
+          ls -lh "backups/backup_${MIGRATION_ID}.sql"
+          
+      - name: 📤 Upload backup
+        uses: actions/upload-artifact@v4
+        with:
+          name: database-backup-${{ needs.preparation.outputs.migration-id }}
+          path: backups/
+          retention-days: 30
+
+  # Job 3: Geração de scripts (paralelo ao backup)
+  generate-scripts:
+    name: 📝 Gerar Scripts de Migração
+    runs-on: ubuntu-latest
+    needs: preparation
+    timeout-minutes: 15
+    
+    steps:
+      - name: 📥 Checkout código
+        uses: actions/checkout@v4
+        
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          
+      - name: 📦 Instalar dependências
+        run: npm ci
+        
+      - name: 📝 Gerar scripts SQL
+        env:
+          MIGRATION_ID: ${{ needs.preparation.outputs.migration-id }}
+        run: |
+          node scripts/generate-migration-sql.js
+          
+          echo "✅ Scripts gerados:"
+          ls -la supabase/migrations/
+          
+      - name: 📤 Upload scripts
+        uses: actions/upload-artifact@v4
+        with:
+          name: migration-scripts-${{ needs.preparation.outputs.migration-id }}
+          path: supabase/migrations/
+          retention-days: 7
+
+  # Job 4: Migração de Schema (paralela)
+  schema-migration:
+    name: 🗄️ Migração de Schema
+    runs-on: ubuntu-latest
+    needs: [preparation, backup, generate-scripts]
+    if: always() && (needs.backup.result == 'success' || needs.backup.result == 'skipped') && needs.generate-scripts.result == 'success'
+    timeout-minutes: 180
+    
+    strategy:
+      matrix:
+        table: [cart_items, customers, orders, order_items, tickets, profiles, rls_performance_metrics]
+      fail-fast: false
+      max-parallel: 3
+      
+    steps:
+      - name: 📥 Checkout código
+        uses: actions/checkout@v4
+        
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          
+      - name: 📦 Instalar dependências
+        run: |
+          npm ci
+          npm install -g supabase@${{ env.SUPABASE_CLI_VERSION }}
+          
+      - name: 📥 Download scripts
+        uses: actions/download-artifact@v4
+        with:
+          name: migration-scripts-${{ needs.preparation.outputs.migration-id }}
+          path: supabase/migrations/
+          
+      - name: 🔐 Configurar credenciais
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_PROJECT_ID: ${{ secrets.SUPABASE_PROJECT_ID }}
+        run: |
+          supabase login --token $SUPABASE_ACCESS_TOKEN
+          supabase link --project-ref $SUPABASE_PROJECT_ID
+          
+      - name: 🗄️ Migrar tabela ${{ matrix.table }}
+        env:
+          TABLE: ${{ matrix.table }}
+          DRY_RUN: ${{ inputs.dry_run }}
+        run: |
+          if [[ "$DRY_RUN" == "true" ]]; then
+            echo "🔍 [DRY RUN] Migrando tabela: $TABLE"
+            cat "supabase/migrations/migrate_${TABLE}.sql"
+          else
+            echo "🔄 Migrando tabela: $TABLE"
+            supabase db reset --file "supabase/migrations/migrate_${TABLE}.sql"
+          fi
+          
+      - name: ✅ Verificar migração
+        env:
+          TABLE: ${{ matrix.table }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          node -e "
+            const { createClient } = require('@supabase/supabase-js');
+            const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
+            
+            async function verify() {
+              try {
+                const { data, error } = await supabase.rpc('execute_sql', {
+                  query: \`SELECT COUNT(*) as count FROM information_schema.tables WHERE table_name = '${process.env.TABLE}'\`
+                });
+                
+                if (error) throw error;
+                
+                const exists = data[0]?.count > 0;
+                console.log(\`✅ Tabela ${process.env.TABLE}: \${exists ? 'EXISTE' : 'NÃO ENCONTRADA'}\`);
+                
+                if (!exists) process.exit(1);
+              } catch (error) {
+                console.error('❌ Erro na verificação:', error.message);
+                process.exit(1);
+              }
+            }
+            
+            verify();
+          "
+
+  # Job 5: Validação (após migração de schema)
+  validation:
+    name: 🧪 Validação e Testes
+    runs-on: ubuntu-latest
+    needs: [preparation, schema-migration]
+    if: always() && needs.schema-migration.result == 'success'
+    timeout-minutes: 60
+    
+    steps:
+      - name: 📥 Checkout código
+        uses: actions/checkout@v4
+        
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          
+      - name: 📦 Instalar dependências
+        run: npm ci
+        
+      - name: 🧪 Executar testes de integridade
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          node scripts/validate-migration.js
+          
+      - name: 📊 Gerar relatório de validação
+        if: always()
+        run: |
+          echo "📋 Relatório de Validação" > validation-report.md
+          echo "========================" >> validation-report.md
+          echo "" >> validation-report.md
+          
+          if [[ -f "reports/validation_*.json" ]]; then
+            node -e "
+              const fs = require('fs');
+              const files = fs.readdirSync('reports').filter(f => f.startsWith('validation_'));
+              const latest = files.sort().pop();
+              const report = JSON.parse(fs.readFileSync(\`reports/\${latest}\`, 'utf8'));
+              
+              console.log(\`✅ Testes aprovados: \${report.summary.passed}\`);
+              console.log(\`❌ Testes falharam: \${report.summary.failed}\`);
+              console.log(\`🚨 Falhas críticas: \${report.summary.critical_failures}\`);
+            " >> validation-report.md
+          fi
+          
+      - name: 📤 Upload relatório
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: validation-report-${{ needs.preparation.outputs.migration-id }}
+          path: |
+            validation-report.md
+            reports/
+          retention-days: 30
+
+  # Job 6: Deploy (apenas se validação passou)
+  deploy:
+    name: 🚀 Deploy e Finalização
+    runs-on: ubuntu-latest
+    needs: [preparation, validation]
+    if: needs.validation.result == 'success' && inputs.dry_run == false
+    timeout-minutes: 30
+    
+    environment:
+      name: ${{ inputs.environment }}
+      
+    steps:
+      - name: 📥 Checkout código
+        uses: actions/checkout@v4
+        
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          
+      - name: 📦 Instalar dependências
+        run: |
+          npm ci
+          npm install -g supabase@${{ env.SUPABASE_CLI_VERSION }}
+          
+      - name: 🔐 Configurar credenciais
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_PROJECT_ID: ${{ secrets.SUPABASE_PROJECT_ID }}
+        run: |
+          supabase login --token $SUPABASE_ACCESS_TOKEN
+          supabase link --project-ref $SUPABASE_PROJECT_ID
+          
+      - name: 🚀 Deploy Edge Functions
+        run: |
+          supabase functions deploy --project-ref ${{ secrets.SUPABASE_PROJECT_ID }}
+          
+      - name: 📊 Configurar monitoramento
+        run: |
+          echo "🔍 Configurando alertas de monitoramento..."
+          # Implementar configuração de alertas
+          
+      - name: 📢 Notificar conclusão
+        env:
+          MIGRATION_ID: ${{ needs.preparation.outputs.migration-id }}
+          WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: |
+          if [[ -n "$WEBHOOK_URL" ]]; then
+            curl -X POST "$WEBHOOK_URL" \
+              -H 'Content-type: application/json' \
+              --data '{
+                "text": "✅ Migração de banco de dados concluída com sucesso!",
+                "blocks": [
+                  {
+                    "type": "section",
+                    "text": {
+                      "type": "mrkdwn",
+                      "text": "*Migração de Banco de Dados Concluída* ✅\n\n*ID:* '"$MIGRATION_ID"'\n*Ambiente:* '"${{ inputs.environment }}"'\n*Tipo:* '"${{ inputs.migration_type }}"'"
+                    }
+                  }
+                ]
+              }'
+          fi
+
+  # Job 7: Rollback (manual, apenas em caso de falha)
+  rollback:
+    name: 🔄 Rollback (Manual)
+    runs-on: ubuntu-latest
+    needs: [preparation, backup]
+    if: failure() && needs.backup.result == 'success'
+    when: manual
+    timeout-minutes: 60
+    
+    steps:
+      - name: 📥 Checkout código
+        uses: actions/checkout@v4
+        
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          
+      - name: 📦 Instalar Supabase CLI
+        run: npm install -g supabase@${{ env.SUPABASE_CLI_VERSION }}
+        
+      - name: 📥 Download backup
+        uses: actions/download-artifact@v4
+        with:
+          name: database-backup-${{ needs.preparation.outputs.migration-id }}
+          path: backups/
+          
+      - name: 🔐 Configurar credenciais
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_PROJECT_ID: ${{ secrets.SUPABASE_PROJECT_ID }}
+        run: |
+          supabase login --token $SUPABASE_ACCESS_TOKEN
+          supabase link --project-ref $SUPABASE_PROJECT_ID
+          
+      - name: 🔄 Executar rollback
+        env:
+          MIGRATION_ID: ${{ needs.preparation.outputs.migration-id }}
+        run: |
+          echo "🔄 Executando rollback..."
+          
+          BACKUP_FILE="backups/backup_${MIGRATION_ID}.sql"
+          
+          if [[ ! -f "$BACKUP_FILE" ]]; then
+            echo "❌ Arquivo de backup não encontrado: $BACKUP_FILE"
+            exit 1
+          fi
+          
+          # Restaurar backup
+          supabase db reset --file "$BACKUP_FILE"
+          
+          echo "✅ Rollback concluído"
+          
+      - name: 📢 Notificar rollback
+        env:
+          WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          MIGRATION_ID: ${{ needs.preparation.outputs.migration-id }}
+        run: |
+          if [[ -n "$WEBHOOK_URL" ]]; then
+            curl -X POST "$WEBHOOK_URL" \
+              -H 'Content-type: application/json' \
+              --data '{
+                "text": "🔄 Rollback de migração executado",
+                "blocks": [
+                  {
+                    "type": "section",
+                    "text": {
+                      "type": "mrkdwn",
+                      "text": "*Rollback Executado* 🔄\n\n*ID:* '"$MIGRATION_ID"'\n*Ambiente:* '"${{ inputs.environment }}"'\n*Motivo:* Falha na migração"
+                    }
+                  }
+                ]
+              }'
+          fi

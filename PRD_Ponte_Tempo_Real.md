@@ -7,7 +7,7 @@
 
 **Escopo**: Sistema de sincronização bidirecional que mantém dados consistentes entre frontend, backend e serviços externos sem necessidade de Docker ou infraestrutura adicional.
 
-**Contexto Atualizado**: A aplicação "Borboleta Eventos Loja" utiliza o projeto Supabase "boboleta" (ojxmfxbflbfinodkhixk) como ambiente principal, com necessidade de hooks reutilizáveis e estado global sincronizado.
+**Contexto Atualizado**: A aplicação "Borboleta Eventos Loja" utiliza o projeto Supabase "querenrapuque" (fdswhhckvweghcavgdvb) como ambiente principal, com necessidade de hooks reutilizáveis e estado global sincronizado.
 
 ### 🎯 Objetivos de Negócio
 
@@ -116,8 +116,8 @@ useConflictResolution<T>(strategy: 'client-wins' | 'server-wins' | 'merge')
 #### 2. Camada de Backend (Supabase) - Projeto boboleta
 
 **Configuração do Projeto**
-- **Project ID**: ojxmfxbflbfinodkhixk
-- **URL**: https://ojxmfxbflbfinodkhixk.supabase.co
+- **Project ID**: fdswhhckvweghcavgdvb
+- **URL**: https://fdswhhckvweghcavgdvb.supabase.co
 - **Region**: sa-east-1 (São Paulo)
 - **Database Version**: PostgreSQL 17.4.1.069
 

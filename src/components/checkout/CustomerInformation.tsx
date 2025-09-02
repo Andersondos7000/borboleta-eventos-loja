@@ -13,6 +13,7 @@ import { z } from "zod";
 const formSchema = z.object({
   firstName: z.string().min(2, { message: "Nome deve ter pelo menos 2 caracteres" }),
   lastName: z.string().min(2, { message: "Sobrenome deve ter pelo menos 2 caracteres" }),
+  email: z.string().email({ message: "Email inválido" }),
   personType: z.enum(["fisica", "juridica"]),
   cpf: z.string().min(11, { message: "CPF deve ter pelo menos 11 caracteres" }),
   country: z.string().min(2, { message: "País é obrigatório" }),
@@ -63,6 +64,20 @@ const CustomerInformation: React.FC<CustomerInformationProps> = ({ form }) => {
                 <FormLabel>Sobrenome*</FormLabel>
                 <FormControl>
                   <Input placeholder="Digite seu sobrenome" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="email"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Email*</FormLabel>
+                <FormControl>
+                  <Input type="email" placeholder="Digite seu email" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>

@@ -6,33 +6,44 @@ import { useToast } from '@/components/ui/use-toast';
 // Define the cart item types
 export type CartProduct = {
   id: string;
+  product_id: string;
   name: string;
   price: number;
   image: string;
-  category: 'camiseta' | 'vestido';
-  size: string;
+  images: string[];
+  category: string;
+  size?: string; // Optional size property
   quantity: number;
-  productId: string;
+  unit_price: number;
+  total_price: number;
+  metadata: Record<string, any>;
 };
 
 export type CartTicket = {
   id: string;
-  name: string;
-  price: number;
+  ticket_id: string;
+  event_id: string;
+  event_name: string;
+  event_title: string;
+  event_date: string;
+  ticket_price: number;
+  price: number; // Alias for ticket_price for consistency with CartProduct
+  name: string; // Alias for event_name for consistency with CartProduct
   quantity: number;
-  ticketId: string;
+  unit_price: number;
+  total_price: number;
 };
 
 export type CartItem = CartProduct | CartTicket;
 
 // Helper function to check if item is a product
 export const isCartProduct = (item: CartItem): item is CartProduct => {
-  return 'category' in item && 'size' in item;
+  return 'product_id' in item && 'category' in item;
 };
 
 // Helper function to check if item is a ticket
 export const isCartTicket = (item: CartItem): item is CartTicket => {
-  return !('category' in item) && !('size' in item);
+  return 'ticket_id' in item && 'event_id' in item;
 };
 
 interface CartContextType {
@@ -51,20 +62,29 @@ interface CartContextType {
 // Define the structure of the data returned from Supabase
 interface CartItemFromSupabase {
   id: string;
+  user_id: string;
+  product_id?: string;
+  ticket_id?: string;
   quantity: number;
-  size: string | null;
+  unit_price: number;
+  total_price: number;
+  metadata?: Record<string, any>;
   products?: {
     id: string;
     name: string;
     price: number;
-    image_url: string;
+    images?: string[];
     category: string;
   };
   tickets?: {
     id: string;
+    event_id: string;
     events?: {
+      id: string;
+      title: string;
       name: string;
-      price: number;
+      start_date: string;
+      ticket_price: number;
     };
   };
 }
@@ -77,7 +97,14 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const { toast } = useToast();
   
   // Calculate subtotal, shipping, and total
-  const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const subtotal = items.reduce((sum, item) => {
+    if (isCartProduct(item)) {
+      return sum + item.total_price;
+    } else if (isCartTicket(item)) {
+      return sum + item.total_price;
+    }
+    return sum;
+  }, 0);
   const shipping = subtotal > 200 ? 0 : 18.90;
   const total = subtotal + shipping;
   
@@ -90,25 +117,26 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const { data: sessionData } = await supabase.auth.getSession();
         
         if (sessionData.session) {
-          // User is logged in, fetch items from DB
+          // User is logged in, fetch items from DB with proper joins
           const { data, error } = await supabase
             .from('cart_items')
             .select(`
-              id,
-              quantity,
-              size,
+              *,
               products (
                 id,
                 name,
                 price,
-                image_url,
+                images,
                 category
               ),
               tickets (
                 id,
+                event_id,
                 events (
-                  name,
-                  price
+                  id,
+                  title,
+                  start_date,
+                  ticket_price
                 )
               )
             `)
@@ -132,30 +160,47 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
             // Check if this item has products data
             if (item.products) {
               const product = item.products;
+              const imageUrl = Array.isArray(product.images) && product.images.length > 0 
+                ? product.images[0] 
+                : '/placeholder-image.jpg';
               
-              cartItems.push({
+              const cartProduct: CartProduct = {
                 id: item.id,
+                product_id: item.product_id!,
                 name: product.name,
-                price: product.price,
-                image: product.image_url,
-                category: product.category as 'camiseta' | 'vestido',
-                size: item.size || '',
+                price: Number(product.price),
+                image: imageUrl,
+                images: product.images || [],
+                category: product.category,
                 quantity: item.quantity,
-                productId: product.id
-              } as CartProduct);
+                unit_price: item.unit_price,
+                total_price: item.total_price,
+                metadata: item.metadata || {},
+              };
+              
+              cartItems.push(cartProduct);
             } 
             // Check if this item has tickets data with events
             else if (item.tickets && item.tickets.events) {
               const ticket = item.tickets;
               const event = ticket.events;
               
-              cartItems.push({
+              const cartTicket: CartTicket = {
                 id: item.id,
-                name: event.name,
-                price: event.price,
+                ticket_id: item.ticket_id!,
+                event_id: ticket.event_id,
+                event_name: event.name,
+                event_title: event.title,
+                event_date: event.start_date,
+                ticket_price: event.ticket_price,
+                price: event.ticket_price, // Same as ticket_price for consistency
+                name: event.title, // Alias for event_title for consistency
                 quantity: item.quantity,
-                ticketId: ticket.id
-              } as CartTicket);
+                unit_price: item.unit_price,
+                total_price: item.total_price,
+              };
+              
+              cartItems.push(cartTicket);
             }
           }
           
@@ -211,33 +256,36 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const { data: sessionData } = await supabase.auth.getSession();
       
       if (sessionData.session) {
-        // User is logged in, save to DB
-        const { error, data } = await supabase
-          .from('cart_items')
-          .insert({
-            user_id: sessionData.session.user.id,
-            product_id: isCartProduct(item) ? item.productId : null,
-            ticket_id: isCartTicket(item) ? item.ticketId : null,
-            quantity: item.quantity,
-            size: isCartProduct(item) ? item.size : null,
-            unit_price: item.price,
-            total_price: item.price * item.quantity
-          })
-          .select('id')
-          .single();
-          
+        // User is logged in, use Edge Function
+        const requestBody = {
+          product_id: isCartProduct(item) ? item.product_id : null,
+          ticket_id: isCartTicket(item) ? item.ticket_id : null,
+          quantity: item.quantity,
+          metadata: isCartProduct(item) ? item.metadata : null,
+          unit_price: isCartProduct(item) ? item.unit_price : (isCartTicket(item) ? item.ticket_price : item.price)
+        };
+        
+        console.log('Sending to Edge Function:', requestBody);
+        console.log('Item details:', item);
+        
+        const { data, error } = await supabase.functions.invoke('add-to-cart', {
+          body: requestBody
+        });
+        
         if (error) throw error;
+        if (!data.success) throw new Error(data.error);
         
         // Update local state with the DB-assigned ID
-        setItems(prev => [...prev, { ...item, id: data.id }]);
+        setItems(prev => [...prev, { ...item, id: data.data.id }]);
       } else {
         // User is not logged in, use local storage
         setItems(prev => [...prev, { ...item, id: crypto.randomUUID() }]);
       }
       
+      const itemName = isCartProduct(item) ? item.name : item.event_title;
       toast({
         title: "Adicionado ao carrinho",
-        description: `${item.name} foi adicionado ao seu carrinho.`
+        description: `${itemName} foi adicionado ao seu carrinho.`
       });
     } catch (error) {
       console.error('Error adding to cart:', error);
@@ -323,19 +371,23 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       if (sessionData.session) {
         // User is logged in, update in DB
-        const { error } = await supabase
-          .from('cart_items')
-          .update({ size })
-          .eq('id', itemId);
-          
-        if (error) throw error;
+        const item = items.find(i => i.id === itemId);
+        if (item && isCartProduct(item)) {
+          const updatedMetadata = { ...item.metadata, size };
+          const { error } = await supabase
+            .from('cart_items')
+            .update({ metadata: updatedMetadata })
+            .eq('id', itemId);
+            
+          if (error) throw error;
+        }
       }
       
       // Update local state
       setItems(prev => 
         prev.map(item => 
           item.id === itemId && isCartProduct(item)
-            ? { ...item, size } 
+            ? { ...item, metadata: { ...item.metadata, size } } 
             : item
         )
       );

@@ -1,10 +1,7 @@
-import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { corsHeaders } from "../_shared/cors.ts";
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
-
+// Payment status check function for testing
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
@@ -12,48 +9,57 @@ serve(async (req) => {
   }
 
   try {
-    const { transactionId } = await req.json();
+    const requestBody = await req.json();
+    const { transactionId } = requestBody;
     
+    // Validate required fields
     if (!transactionId) {
-      throw new Error("Transaction ID is required");
+      throw new Error("Missing required field: transactionId");
     }
 
-    console.log("Checking payment status for transaction:", transactionId);
+    // Mock payment status response
+    const isTestTransaction = transactionId.startsWith('test-') || transactionId.startsWith('bill_test');
+    
+    const mockStatusResponse = {
+      success: true,
+      data: {
+        id: transactionId,
+        status: "PENDING", // Could be PENDING, APPROVED, EXPIRED, FAILED
+        amount: 2990, // R$ 29,90 in cents
+        expiresAt: new Date(Date.now() + 25 * 60 * 1000).toISOString(), // 25 minutes remaining
+        testMode: isTestTransaction
+      }
+    };
 
-    // Check payment status with Abacate Pay
-    const abacateResponse = await fetch(`https://api.abacatepay.com/v1/pixQrCode/check?transactionId=${transactionId}`, {
-      method: "GET",
-      headers: {
-        "Authorization": `Bearer ${Deno.env.get("ABACATE_PAY_API_KEY")}`,
-        "Content-Type": "application/json",
-      },
+    // Simulate different statuses based on transaction ID for testing
+    if (transactionId.includes('paid')) {
+      mockStatusResponse.data.status = "APPROVED";
+      mockStatusResponse.data.paidAt = new Date().toISOString();
+    } else if (transactionId.includes('expired')) {
+      mockStatusResponse.data.status = "EXPIRED";
+    } else if (transactionId.includes('failed')) {
+      mockStatusResponse.data.status = "FAILED";
+    }
+
+    console.log("Payment status checked:", {
+      transactionId,
+      status: mockStatusResponse.data.status,
+      testMode: isTestTransaction
     });
 
-    if (!abacateResponse.ok) {
-      const errorText = await abacateResponse.text();
-      console.error("Abacate Pay API error:", errorText);
-      throw new Error(`Abacate Pay API error: ${abacateResponse.status}`);
-    }
-
-    const paymentStatus = await abacateResponse.json();
-    console.log("Payment status response:", paymentStatus);
-
-    return new Response(JSON.stringify({
-      success: true,
-      data: paymentStatus.data
-    }), {
+    return new Response(JSON.stringify(mockStatusResponse), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 200,
     });
-
   } catch (error) {
-    console.error("Error checking payment status:", error);
+    console.error("Error in check-abacate-payment:", error);
+    
     return new Response(JSON.stringify({ 
-      error: error.message,
-      success: false 
+      success: false,
+      error: error instanceof Error ? error.message : "Unknown error"
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
-      status: 500,
+      status: 400,
     });
   }
 });

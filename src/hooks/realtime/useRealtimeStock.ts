@@ -6,11 +6,8 @@ import { supabase } from '../../lib/supabase';
 export interface ProductStock {
   id: string;
   product_id: string;
-  size_id: string;
-  quantity: number;
-  reserved_quantity: number;
-  available_quantity: number;
-  low_stock_threshold: number;
+  size: string;
+  stock_quantity: number;
   updated_at: string;
   created_at: string;
   // Dados relacionados via join
@@ -19,11 +16,6 @@ export interface ProductStock {
     name: string;
     price: number;
     category_id: string;
-  };
-  product_sizes?: {
-    id: string;
-    size: string;
-    display_order: number;
   };
 }
 
@@ -155,7 +147,7 @@ export function useRealtimeStock(options: UseRealtimeStockOptions = {}): UseReal
 
   // Configuração do hook de sincronização
   const realtimeOptions: RealtimeSyncOptions<ProductStock> = {
-    table: 'product_stock',
+    table: 'product_sizes',
     filter: buildFilter(),
     select: buildSelect(),
     orderBy: 'updated_at desc',
@@ -306,12 +298,11 @@ export function useRealtimeStock(options: UseRealtimeStockOptions = {}): UseReal
       }, 5000);
 
       try {
-        // Atualização no banco
+        // Atualização no banco - reduz stock_quantity
         const { error } = await supabase
-          .from('product_stock')
+          .from('product_sizes')
           .update({
-            reserved_quantity: stockItem.reserved_quantity + quantity,
-            available_quantity: stockItem.available_quantity - quantity
+            stock_quantity: Math.max(0, stockItem.stock_quantity - quantity)
           })
           .eq('id', stockItem.id);
 
@@ -363,10 +354,9 @@ export function useRealtimeStock(options: UseRealtimeStockOptions = {}): UseReal
       try {
         // Atualização no banco
         const { error } = await supabase
-          .from('product_stock')
+          .from('product_sizes')
           .update({
-            reserved_quantity: Math.max(0, stockItem.reserved_quantity - quantity),
-            available_quantity: stockItem.available_quantity + quantity
+            stock_quantity: stockItem.stock_quantity + quantity
           })
           .eq('id', stockItem.id);
 
@@ -421,10 +411,9 @@ export function useRealtimeStock(options: UseRealtimeStockOptions = {}): UseReal
       try {
         // Atualização no banco
         const { error } = await supabase
-          .from('product_stock')
+          .from('product_sizes')
           .update({
-            quantity: newQuantity,
-            available_quantity: newAvailableQuantity
+            stock_quantity: newQuantity
           })
           .eq('id', stockItem.id);
 

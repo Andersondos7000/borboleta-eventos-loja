@@ -49,7 +49,7 @@ describe('Realtime System E2E Tests', () => {
       }));
 
       const { result: stockHook } = renderHook(() => useOfflineFirst({
-        table: 'product_stock',
+        table: 'product_sizes',
         primaryKey: 'product_id'
       }));
 

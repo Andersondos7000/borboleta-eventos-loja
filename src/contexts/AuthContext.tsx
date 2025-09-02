@@ -18,7 +18,7 @@ type AuthContextType = {
   isAdmin: () => Promise<boolean>;
 };
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
@@ -29,22 +29,127 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
+      async (event, session) => {
+        console.log('Auth state change:', event, session);
+        
+        // Handle refresh token errors
+        if (event === 'TOKEN_REFRESHED' && !session) {
+          console.warn('Token refresh failed, clearing session');
+          await clearAuthSession();
+          return;
+        }
+        
+        // Handle signed out event
+        if (event === 'SIGNED_OUT') {
+          await clearAuthSession();
+          return;
+        }
+        
+        // Handle authentication errors
+        if ((event === 'TOKEN_REFRESHED' && !session)) {
+          await clearAuthSession();
+          return;
+        }
+        
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
       }
     );
 
-    // Check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      setLoading(false);
-    });
+    // Check for existing session with enhanced error handling
+    const initializeAuth = async () => {
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error('Error getting session:', error);
+          
+          // Handle specific refresh token errors
+          if (error.message.includes('refresh_token_not_found') || 
+              error.message.includes('Invalid Refresh Token') ||
+              error.message.includes('Refresh Token Not Found') ||
+              error.name === 'AuthApiError') {
+            console.warn('Refresh token invalid, clearing session and redirecting to login');
+            await clearAuthSession();
+            return;
+          }
+        }
+        
+        // Validate session before setting
+        if (session && session.access_token) {
+          setSession(session);
+          setUser(session.user);
+        } else {
+          await clearAuthSession();
+        }
+      } catch (error: any) {
+        console.error('Failed to initialize auth:', error);
+        
+        // Handle any authentication-related errors
+        if (error.message?.includes('refresh_token') || 
+            error.message?.includes('Invalid Refresh Token') ||
+            error.name === 'AuthApiError') {
+          await clearAuthSession();
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    initializeAuth();
 
     return () => subscription.unsubscribe();
   }, []);
+
+  // Enhanced function to clear auth session and localStorage
+  const clearAuthSession = async () => {
+    try {
+      // Preserve cart data before clearing
+      const cartData = localStorage.getItem('cart-items');
+      
+      // Clear Supabase auth data from localStorage
+      const keys = Object.keys(localStorage);
+      keys.forEach(key => {
+        if (key.startsWith('sb-') || 
+            key.includes('supabase') || 
+            key === 'supabase.auth.token') {
+          localStorage.removeItem(key);
+        }
+      });
+      
+      // Restore cart data after clearing auth data
+      if (cartData) {
+        localStorage.setItem('cart-items', cartData);
+      }
+      
+      // Clear sessionStorage as well
+      const sessionKeys = Object.keys(sessionStorage);
+      sessionKeys.forEach(key => {
+        if (key.startsWith('sb-') || 
+            key.includes('supabase') || 
+            key === 'supabase.auth.token') {
+          sessionStorage.removeItem(key);
+        }
+      });
+      
+      // Reset state
+      setSession(null);
+      setUser(null);
+      
+      console.log('Auth session and storage cleared completely');
+      
+      // Show user-friendly message
+      toast({
+        title: "Sessão expirada",
+        description: "Sua sessão expirou. Faça login novamente.",
+        variant: "default"
+      });
+      
+    } catch (error) {
+      console.error('Error clearing auth session:', error);
+    }
+  };
 
   const signIn = async (email: string, password: string) => {
     try {
@@ -103,7 +208,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: 'https://ojxmfxbflbfinodkhixk.supabase.co/auth/v1/callback',
+          redirectTo: `${window.location.origin}/auth/callback`,
           queryParams: role ? { role } : undefined,
         },
       });
@@ -127,7 +232,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const { error } = await supabase
         .from('profiles')
         .update({ role })
-        .eq('id', user.id);
+        .eq('user_id', user.id);
       
       if (error) throw error;
       
@@ -147,16 +252,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signOut = async () => {
     try {
+      // First try to sign out properly
       await supabase.auth.signOut();
+      
+      // Then clear all auth data
+      await clearAuthSession();
+      
       toast({
         title: "Logout realizado",
         description: "Você foi desconectado com sucesso."
       });
     } catch (error: any) {
+      console.error('Error during signOut:', error);
+      
+      // Even if signOut fails, clear local session
+      await clearAuthSession();
+      
       toast({
-        title: "Erro ao fazer logout",
-        description: error.message || "Tente novamente mais tarde",
-        variant: "destructive"
+        title: "Logout realizado",
+        description: "Você foi desconectado com sucesso."
       });
     }
   };
@@ -212,7 +326,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const { data: profile, error } = await supabase
         .from('profiles')
         .select('role')
-        .eq('id', user.id)
+        .eq('user_id', user.id)
         .single();
       
       if (error) {
@@ -244,10 +358,4 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
-export function useAuth() {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
-}
+// Hook useAuth movido para src/hooks/useAuth.ts para compatibilidade com Fast Refresh

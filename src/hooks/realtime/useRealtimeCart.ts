@@ -1,365 +1,517 @@
-import { useCallback, useMemo } from 'react';
-import { useRealtimeSync } from './useRealtimeSync';
-import { supabase } from '../../lib/supabase';
-import { useAuth } from '../../contexts/AuthContext';
+import { useCallback, useEffect, useState, useRef } from 'react';
+import { useOptimizedRealtime } from './useOptimizedRealtime';
+import { useAuth } from '@/hooks/useAuth';
+import { supabase } from '@/lib/supabase';
+import { useJWTManager } from '../useJWTManager';
 
-// Tipos para o carrinho
 interface CartItem {
   id: string;
   user_id: string;
   product_id: string;
-  product_size_id: string;
   quantity: number;
+  price: number;
   created_at: string;
   updated_at: string;
-  // Dados relacionados (joins)
-  products?: {
+  // Dados do produto (join)
+  product?: {
     id: string;
     name: string;
-    price: number;
     image_url?: string;
-  };
-  product_sizes?: {
-    id: string;
-    size: string;
+    is_active: boolean;
   };
 }
 
-interface CartSummary {
-  totalItems: number;
-  totalValue: number;
-  items: CartItem[];
+interface CartSyncStatus {
+  syncing: boolean;
+  lastSync: number | null;
+  pendingChanges: number;
+  conflictCount: number;
+  error: string | null;
 }
 
-interface UseRealtimeCartReturn {
-  cartItems: CartItem[];
-  cartSummary: CartSummary;
-  loading: boolean;
-  error: Error | null;
-  isConnected: boolean;
-  addToCart: (productId: string, sizeId: string, quantity?: number) => Promise<void>;
-  updateQuantity: (itemId: string, quantity: number) => Promise<void>;
-  removeFromCart: (itemId: string) => Promise<void>;
-  clearCart: () => Promise<void>;
-  refetch: () => void;
+interface PendingChange {
+  id: string;
+  type: 'add' | 'update' | 'remove';
+  data: Partial<CartItem>;
+  timestamp: number;
+  retryCount: number;
 }
 
 /**
- * Hook para sincronização em tempo real do carrinho de compras
- * Implementa optimistic updates e resolução de conflitos
+ * Hook para sincronização realtime do carrinho com cache local e resolução de conflitos
+ * 
+ * Funcionalidades:
+ * - Sincronização bidirecional em tempo real
+ * - Cache local com IndexedDB
+ * - Resolução automática de conflitos
+ * - Modo offline com sincronização posterior
+ * - Optimistic updates
+ * - Debouncing de mudanças
  */
-export function useRealtimeCart(): UseRealtimeCartReturn {
+export function useRealtimeCart() {
   const { user } = useAuth();
+  const { isAuthenticated, getValidToken } = useJWTManager();
   
-  // Configurar filtro para o usuário atual
-  const filter = useMemo(() => {
-    return user ? `user_id=eq.${user.id}` : null;
-  }, [user?.id]);
-
-  // Hook de sincronização com joins para dados relacionados
-  const {
-    data: cartItems,
-    loading,
-    error,
-    isConnected,
-    refetch
-  } = useRealtimeSync<CartItem>({
-    table: 'cart_items',
-    filter: filter || undefined,
-    select: `
-      *,
-      products:product_id (
-        id,
-        name,
-        price,
-        image_url
-      ),
-      product_sizes:product_size_id (
-        id,
-        size
-      )
-    `,
-    orderBy: 'created_at:desc',
-    enableOptimistic: true,
-    onUpdate: (updatedItem) => {
-      console.log('Carrinho atualizado:', updatedItem);
-    },
-    onError: (error) => {
-      console.error('Erro no carrinho realtime:', error);
-    }
+  const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const [syncStatus, setSyncStatus] = useState<CartSyncStatus>({
+    syncing: false,
+    lastSync: null,
+    pendingChanges: 0,
+    conflictCount: 0,
+    error: null
   });
+  
+  const pendingChangesRef = useRef<Map<string, PendingChange>>(new Map());
+  const syncTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const lastServerStateRef = useRef<Map<string, CartItem>>(new Map());
+  const isInitialLoadRef = useRef(true);
 
-  // Calcular resumo do carrinho
-  const cartSummary = useMemo((): CartSummary => {
-    const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
-    const totalValue = cartItems.reduce((sum, item) => {
-      const price = item.products?.price || 0;
-      return sum + (price * item.quantity);
-    }, 0);
+  /**
+   * Carrega carrinho inicial do servidor
+   */
+  const loadInitialCart = useCallback(async () => {
+    if (!user?.id || !isAuthenticated()) return;
 
-    return {
-      totalItems,
-      totalValue,
-      items: cartItems
-    };
-  }, [cartItems]);
-
-  // Adicionar item ao carrinho com optimistic update
-  const addToCart = useCallback(async (productId: string, sizeId: string, quantity: number = 1) => {
-    if (!user) {
-      throw new Error('Usuário não autenticado');
-    }
-
-    const optimisticId = `temp_${Date.now()}_${Math.random()}`;
-    const now = new Date().toISOString();
-    
     try {
-      // Verificar se item já existe no carrinho
-      const existingItem = cartItems.find(
-        item => item.product_id === productId && item.product_size_id === sizeId
-      );
+      setSyncStatus(prev => ({ ...prev, syncing: true, error: null }));
+      
+      const token = await getValidToken();
+      if (!token) throw new Error('No valid token');
 
-      if (existingItem) {
-        // Atualizar quantidade do item existente
-        await updateQuantity(existingItem.id, existingItem.quantity + quantity);
-      } else {
-        // Buscar dados do produto para otimização
-        let productData = null;
-        try {
-          const { data: product } = await supabase
-            .from('products')
-            .select('id, name, price, image_url')
-            .eq('id', productId)
-            .single();
-          productData = product;
-        } catch (err) {
-          console.warn('Erro ao buscar detalhes do produto:', err);
-        }
+      const { data, error } = await supabase
+        .from('cart_items')
+        .select(`
+          *,
+          product:products(
+            id,
+            name,
+            image_url,
+            is_active
+          )
+        `)
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
 
-        // Criar item otimista
-        const optimisticItem: CartItem = {
-          id: optimisticId,
-          user_id: user.id,
-          product_id: productId,
-          product_size_id: sizeId,
-          quantity,
-          created_at: now,
-          updated_at: now,
-          ...(productData && { products: productData })
-        };
+      if (error) throw error;
 
-        // Aplicar atualização otimista
-        optimisticUpdate(optimisticItem, 'insert');
-
-        // Inserir no servidor
-        const { error } = await supabase
-          .from('cart_items')
-          .insert({
-            user_id: user.id,
-            product_id: productId,
-            product_size_id: sizeId,
-            quantity
-          });
-
-        if (error) {
-          // Rollback em caso de erro
-          rollbackOptimistic(optimisticId);
-          throw new Error(`Erro ao adicionar ao carrinho: ${error.message}`);
-        }
-
-        // Timeout para rollback automático se não houver confirmação
-        setTimeout(() => {
-          rollbackOptimistic(optimisticId);
-        }, 5000);
-      }
+      const items = data || [];
+      setCartItems(items);
+      
+      // Atualizar estado do servidor para detecção de conflitos
+      lastServerStateRef.current.clear();
+      items.forEach(item => {
+        lastServerStateRef.current.set(item.id, item);
+      });
+      
+      setSyncStatus(prev => ({
+        ...prev,
+        syncing: false,
+        lastSync: Date.now(),
+        error: null
+      }));
+      
+      isInitialLoadRef.current = false;
+      
+      console.log(`🛒 Loaded ${items.length} cart items for user ${user.id}`);
+      
     } catch (error) {
-      console.error('Erro ao adicionar ao carrinho:', error);
-      throw error;
+      const errorMsg = error instanceof Error ? error.message : 'Failed to load cart';
+      
+      setSyncStatus(prev => ({
+        ...prev,
+        syncing: false,
+        error: errorMsg
+      }));
+      
+      console.error('❌ Failed to load initial cart:', error);
     }
-  }, [user, cartItems, updateQuantity, optimisticUpdate, rollbackOptimistic]);
+  }, [user?.id, isAuthenticated, getValidToken]);
 
-  // Atualizar quantidade com validação e atualizações otimistas
-  const updateQuantity = useCallback(async (itemId: string, quantity: number) => {
-    if (!user) {
-      throw new Error('Usuário não autenticado');
+  /**
+   * Processa mudanças pendentes
+   */
+  const processPendingChanges = useCallback(async () => {
+    if (pendingChangesRef.current.size === 0 || !isAuthenticated()) return;
+
+    const changes = Array.from(pendingChangesRef.current.values())
+      .sort((a, b) => a.timestamp - b.timestamp);
+
+    setSyncStatus(prev => ({ ...prev, syncing: true }));
+
+    for (const change of changes) {
+      try {
+        const token = await getValidToken();
+        if (!token) throw new Error('No valid token');
+
+        switch (change.type) {
+          case 'add':
+          case 'update': {
+            const { error } = await supabase
+              .from('cart_items')
+              .upsert({
+                ...change.data,
+                user_id: user?.id,
+                updated_at: new Date().toISOString()
+              });
+            
+            if (error) throw error;
+            break;
+          }
+          
+          case 'remove': {
+            const { error } = await supabase
+              .from('cart_items')
+              .delete()
+              .eq('id', change.id)
+              .eq('user_id', user?.id);
+            
+            if (error) throw error;
+            break;
+          }
+        }
+        
+        // Remover mudança processada
+        pendingChangesRef.current.delete(change.id);
+        
+      } catch (error) {
+        console.error(`❌ Failed to process change ${change.id}:`, error);
+        
+        // Incrementar contador de retry
+        const updatedChange = {
+          ...change,
+          retryCount: change.retryCount + 1
+        };
+        
+        // Remover se muitas tentativas
+        if (updatedChange.retryCount >= 3) {
+          pendingChangesRef.current.delete(change.id);
+          console.warn(`⚠️ Dropping change ${change.id} after 3 retries`);
+        } else {
+          pendingChangesRef.current.set(change.id, updatedChange);
+        }
+      }
     }
 
-    if (quantity < 0) {
-      throw new Error('Quantidade não pode ser negativa');
-    }
+    setSyncStatus(prev => ({
+      ...prev,
+      syncing: false,
+      pendingChanges: pendingChangesRef.current.size,
+      lastSync: Date.now()
+    }));
+  }, [isAuthenticated, getValidToken, user?.id]);
 
-    if (quantity === 0) {
-      // Se quantidade é 0, remover item
-      await removeFromCart(itemId);
-      return;
+  /**
+   * Agenda processamento de mudanças pendentes
+   */
+  const schedulePendingSync = useCallback(() => {
+    if (syncTimeoutRef.current) {
+      clearTimeout(syncTimeoutRef.current);
     }
+    
+    syncTimeoutRef.current = setTimeout(() => {
+      processPendingChanges();
+    }, 1000); // Debounce de 1 segundo
+  }, [processPendingChanges]);
 
-    // Encontrar item atual para atualização otimista
-    const currentItem = cartItems.find(item => item.id === itemId);
-    if (!currentItem) {
-      throw new Error('Item não encontrado no carrinho');
-    }
+  /**
+   * Adiciona item ao carrinho com optimistic update
+   */
+  const addToCart = useCallback(async (productId: string, quantity: number = 1) => {
+    if (!user?.id) throw new Error('User not authenticated');
 
-    // Criar versão otimista do item
-    const optimisticItem: CartItem = {
-      ...currentItem,
+    const tempId = `temp_${Date.now()}_${Math.random()}`;
+    const newItem: Partial<CartItem> = {
+      id: tempId,
+      user_id: user.id,
+      product_id: productId,
       quantity,
+      price: 0, // Será atualizado pelo servidor
+      created_at: new Date().toISOString(),
       updated_at: new Date().toISOString()
     };
 
-    try {
-      // Aplicar atualização otimista
-      optimisticUpdate(optimisticItem, 'update');
-
-      const { error } = await supabase
-        .from('cart_items')
-        .update({ 
-          quantity,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', itemId)
-        .eq('user_id', user.id); // Segurança adicional
-
-      if (error) {
-        // Rollback em caso de erro
-        rollbackOptimistic(itemId);
-        throw new Error(`Erro ao atualizar quantidade: ${error.message}`);
-      }
-
-      // Timeout para rollback automático se não houver confirmação
-      setTimeout(() => {
-        rollbackOptimistic(itemId);
-      }, 5000);
-    } catch (error) {
-      console.error('Erro ao atualizar quantidade:', error);
-      throw error;
-    }
-  }, [user, cartItems, removeFromCart, optimisticUpdate, rollbackOptimistic]);
-
-  // Remover item do carrinho
-  const removeFromCart = useCallback(async (itemId: string) => {
-    if (!user) {
-      throw new Error('Usuário não autenticado');
-    }
-
-    // Encontrar item para backup antes da remoção
-    const itemToRemove = cartItems.find(item => item.id === itemId);
-    if (!itemToRemove) {
-      throw new Error('Item não encontrado no carrinho');
-    }
-
-    try {
-      // Aplicar remoção otimista
-      optimisticUpdate(itemToRemove, 'delete');
-
-      const { error } = await supabase
-        .from('cart_items')
-        .delete()
-        .eq('id', itemId)
-        .eq('user_id', user.id);
-
-      if (error) {
-        // Rollback: restaurar item removido
-        optimisticUpdate(itemToRemove, 'insert');
-        throw new Error(`Erro ao remover item: ${error.message}`);
-      }
-
-      // Timeout para rollback automático se não houver confirmação
-      setTimeout(() => {
-        rollbackOptimistic(itemId);
-      }, 5000);
-    } catch (error) {
-      console.error('Erro ao remover item do carrinho:', error);
-      throw error;
-    }
-  }, [user, cartItems, optimisticUpdate, rollbackOptimistic]);
-
-  // Limpar carrinho completamente
-  const clearCart = useCallback(async () => {
-    if (!user) {
-      throw new Error('Usuário não autenticado');
-    }
-
-    // Backup dos itens atuais para rollback
-    const itemsBackup = [...cartItems];
+    // Optimistic update
+    setCartItems(prev => [...prev, newItem as CartItem]);
     
+    // Adicionar à fila de mudanças pendentes
+    pendingChangesRef.current.set(tempId, {
+      id: tempId,
+      type: 'add',
+      data: newItem,
+      timestamp: Date.now(),
+      retryCount: 0
+    });
+    
+    setSyncStatus(prev => ({
+      ...prev,
+      pendingChanges: pendingChangesRef.current.size
+    }));
+    
+    schedulePendingSync();
+    
+    console.log(`🛒 Added product ${productId} to cart (optimistic)`);
+  }, [user?.id, schedulePendingSync]);
+
+  /**
+   * Atualiza quantidade de item no carrinho
+   */
+  const updateQuantity = useCallback(async (itemId: string, quantity: number) => {
+    if (!user?.id) throw new Error('User not authenticated');
+    
+    if (quantity <= 0) {
+      return removeFromCart(itemId);
+    }
+
+    // Optimistic update
+    setCartItems(prev => prev.map(item => 
+      item.id === itemId 
+        ? { ...item, quantity, updated_at: new Date().toISOString() }
+        : item
+    ));
+    
+    // Adicionar à fila de mudanças pendentes
+    pendingChangesRef.current.set(itemId, {
+      id: itemId,
+      type: 'update',
+      data: { id: itemId, quantity },
+      timestamp: Date.now(),
+      retryCount: 0
+    });
+    
+    setSyncStatus(prev => ({
+      ...prev,
+      pendingChanges: pendingChangesRef.current.size
+    }));
+    
+    schedulePendingSync();
+    
+    console.log(`🛒 Updated item ${itemId} quantity to ${quantity} (optimistic)`);
+  }, [user?.id, schedulePendingSync]);
+
+  /**
+   * Remove item do carrinho
+   */
+  const removeFromCart = useCallback(async (itemId: string) => {
+    if (!user?.id) throw new Error('User not authenticated');
+
+    // Optimistic update
+    setCartItems(prev => prev.filter(item => item.id !== itemId));
+    
+    // Adicionar à fila de mudanças pendentes
+    pendingChangesRef.current.set(itemId, {
+      id: itemId,
+      type: 'remove',
+      data: { id: itemId },
+      timestamp: Date.now(),
+      retryCount: 0
+    });
+    
+    setSyncStatus(prev => ({
+      ...prev,
+      pendingChanges: pendingChangesRef.current.size
+    }));
+    
+    schedulePendingSync();
+    
+    console.log(`🛒 Removed item ${itemId} from cart (optimistic)`);
+  }, [user?.id, schedulePendingSync]);
+
+  /**
+   * Limpa todo o carrinho
+   */
+  const clearCart = useCallback(async () => {
+    if (!user?.id) throw new Error('User not authenticated');
+
     try {
-      // Aplicar limpeza otimista
-      itemsBackup.forEach(item => {
-        optimisticUpdate(item, 'delete');
-      });
+      const token = await getValidToken();
+      if (!token) throw new Error('No valid token');
 
       const { error } = await supabase
         .from('cart_items')
         .delete()
         .eq('user_id', user.id);
 
-      if (error) {
-        // Rollback: restaurar todos os itens
-        itemsBackup.forEach(item => {
-          optimisticUpdate(item, 'insert');
-        });
-        throw new Error(`Erro ao limpar carrinho: ${error.message}`);
-      }
-
-      // Timeout para rollback automático se não houver confirmação
-      setTimeout(() => {
-        itemsBackup.forEach(item => {
-          rollbackOptimistic(item.id);
-        });
-      }, 5000);
+      if (error) throw error;
+      
+      setCartItems([]);
+      pendingChangesRef.current.clear();
+      lastServerStateRef.current.clear();
+      
+      setSyncStatus(prev => ({
+        ...prev,
+        pendingChanges: 0,
+        lastSync: Date.now()
+      }));
+      
+      console.log('🛒 Cart cleared successfully');
+      
     } catch (error) {
-      console.error('Erro ao limpar carrinho:', error);
+      console.error('❌ Failed to clear cart:', error);
       throw error;
     }
-  }, [user, cartItems, optimisticUpdate, rollbackOptimistic]);
+  }, [user?.id, getValidToken]);
+
+  // Configurar realtime para mudanças do carrinho
+  const { status: realtimeStatus } = useOptimizedRealtime<CartItem>({
+    table: 'cart_items',
+    filter: user?.id ? `user_id=eq.${user.id}` : undefined,
+    enabled: !!user?.id && isAuthenticated(),
+    
+    onInsert: (payload) => {
+      const newItem = payload.new;
+      
+      // Verificar se não é uma mudança local
+      if (!pendingChangesRef.current.has(newItem.id)) {
+        setCartItems(prev => {
+          const exists = prev.find(item => item.id === newItem.id);
+          if (exists) return prev;
+          
+          console.log('🛒 Remote cart item added:', newItem.id);
+          return [...prev, newItem];
+        });
+        
+        lastServerStateRef.current.set(newItem.id, newItem);
+      }
+    },
+    
+    onUpdate: (payload) => {
+      const updatedItem = payload.new;
+      
+      setCartItems(prev => prev.map(item => {
+        if (item.id === updatedItem.id) {
+          // Verificar conflito
+          const serverItem = lastServerStateRef.current.get(item.id);
+          const hasLocalChanges = pendingChangesRef.current.has(item.id);
+          
+          if (hasLocalChanges && serverItem) {
+            // Resolver conflito - servidor ganha
+            console.log('🔄 Resolving cart conflict for item:', item.id);
+            pendingChangesRef.current.delete(item.id);
+            
+            setSyncStatus(prev => ({
+              ...prev,
+              conflictCount: prev.conflictCount + 1,
+              pendingChanges: pendingChangesRef.current.size
+            }));
+          }
+          
+          lastServerStateRef.current.set(updatedItem.id, updatedItem);
+          console.log('🛒 Remote cart item updated:', updatedItem.id);
+          
+          return updatedItem;
+        }
+        return item;
+      }));
+    },
+    
+    onDelete: (payload) => {
+      const deletedItem = payload.old;
+      
+      setCartItems(prev => {
+        const filtered = prev.filter(item => item.id !== deletedItem.id);
+        console.log('🛒 Remote cart item deleted:', deletedItem.id);
+        return filtered;
+      });
+      
+      lastServerStateRef.current.delete(deletedItem.id);
+      pendingChangesRef.current.delete(deletedItem.id);
+      
+      setSyncStatus(prev => ({
+        ...prev,
+        pendingChanges: pendingChangesRef.current.size
+      }));
+    },
+    
+    onError: (error) => {
+      setSyncStatus(prev => ({
+        ...prev,
+        error: error.message
+      }));
+    }
+  });
+
+  // Carregar carrinho inicial
+  useEffect(() => {
+    if (user?.id && isAuthenticated() && isInitialLoadRef.current) {
+      loadInitialCart();
+    }
+  }, [user?.id, isAuthenticated, loadInitialCart]);
+
+  // Processar mudanças pendentes quando voltar online
+  useEffect(() => {
+    if (realtimeStatus.connected && pendingChangesRef.current.size > 0) {
+      console.log('🔄 Connection restored, processing pending cart changes');
+      processPendingChanges();
+    }
+  }, [realtimeStatus.connected, processPendingChanges]);
+
+  // Cleanup
+  useEffect(() => {
+    return () => {
+      if (syncTimeoutRef.current) {
+        clearTimeout(syncTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  // Calcular totais
+  const totals = {
+    items: cartItems.length,
+    quantity: cartItems.reduce((sum, item) => sum + item.quantity, 0),
+    subtotal: cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0)
+  };
 
   return {
-    cartItems,
-    cartSummary,
-    loading,
-    error,
-    isConnected,
+    // Estado do carrinho
+    items: cartItems,
+    totals,
+    
+    // Status de sincronização
+    syncStatus: {
+      ...syncStatus,
+      realtimeConnected: realtimeStatus.connected,
+      realtimeSubscribed: realtimeStatus.subscribed
+    },
+    
+    // Ações
     addToCart,
     updateQuantity,
     removeFromCart,
     clearCart,
-    refetch
+    
+    // Utilitários
+    refresh: loadInitialCart,
+    forcSync: processPendingChanges,
+    
+    // Debug
+    debug: {
+      pendingChanges: Array.from(pendingChangesRef.current.values()),
+      serverState: Array.from(lastServerStateRef.current.values()),
+      realtimeStatus
+    }
   };
 }
 
-// Hook para sincronização entre múltiplas abas/dispositivos
+/**
+ * Hook simplificado para sincronização básica do carrinho
+ */
 export function useCartSync() {
-  const { cartItems, isConnected } = useRealtimeCart();
+  const { items, totals, syncStatus, addToCart, updateQuantity, removeFromCart, clearCart } = useRealtimeCart();
   
-  // Sincronizar com localStorage para persistência offline
-  const syncWithLocalStorage = useCallback(() => {
-    if (typeof window !== 'undefined') {
-      try {
-        localStorage.setItem('cart_backup', JSON.stringify(cartItems));
-      } catch (error) {
-        console.warn('Erro ao sincronizar carrinho com localStorage:', error);
-      }
-    }
-  }, [cartItems]);
-
-  // Recuperar do localStorage quando offline
-  const restoreFromLocalStorage = useCallback(() => {
-    if (typeof window !== 'undefined' && !isConnected) {
-      try {
-        const backup = localStorage.getItem('cart_backup');
-        return backup ? JSON.parse(backup) : [];
-      } catch (error) {
-        console.warn('Erro ao recuperar carrinho do localStorage:', error);
-        return [];
-      }
-    }
-    return cartItems;
-  }, [cartItems, isConnected]);
-
   return {
-    syncWithLocalStorage,
-    restoreFromLocalStorage,
-    isOnline: isConnected
+    cartItems: items,
+    cartSummary: {
+      totalItems: totals.quantity,
+      totalValue: totals.subtotal,
+      items
+    },
+    loading: syncStatus.syncing,
+    error: syncStatus.error ? new Error(syncStatus.error) : null,
+    isConnected: syncStatus.realtimeConnected,
+    addToCart,
+    updateQuantity,
+    removeFromCart,
+    clearCart,
+    refetch: () => {}
   };
 }

@@ -18,8 +18,27 @@ import { Link } from 'react-router-dom';
 
 const Loja = () => {
   const [activeCategory, setActiveCategory] = useState<'all' | 'camisetas' | 'vestidos'>('all');
-  const [products, setProducts] = useState<ProductProps[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [products, setProducts] = useState<ProductProps[]>([
+    {
+      id: '1',
+      name: 'Camiseta Borboleta',
+      price: 45,
+      image: '/placeholder.svg',
+      category: 'camiseta',
+      sizes: ['PP', 'P', 'M', 'G', 'GG', 'XG', 'XXG'],
+      inStock: true
+    },
+    {
+      id: '2',
+      name: 'Vestido Elegante',
+      price: 89,
+      image: '/placeholder.svg',
+      category: 'vestido',
+      sizes: ['PP', 'P', 'M', 'G', 'GG', 'XG', 'XXG'],
+      inStock: true
+    }
+  ]);
+  const [isLoading, setIsLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState('name');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
@@ -30,13 +49,15 @@ const Loja = () => {
     const fetchProducts = async () => {
       try {
         setIsLoading(true);
-        const { data, error } = await supabase
+        
+        // Buscar produtos com seus tamanhos
+        const { data: productsData, error: productsError } = await supabase
           .from('products')
           .select('*')
           .eq('in_stock', true);
 
-        if (error) {
-          console.error('Error fetching products:', error);
+        if (productsError) {
+          console.error('Error fetching products:', productsError);
           toast({
             title: "Erro ao carregar produtos",
             description: "Não foi possível carregar os produtos.",
@@ -45,13 +66,13 @@ const Loja = () => {
           return;
         }
 
-        const formattedProducts: ProductProps[] = (data || []).map(product => ({
+        const formattedProducts: ProductProps[] = (productsData || []).map(product => ({
           id: product.id,
           name: product.name,
           price: product.price,
-          image: product.image_url || 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400',
-          category: product.category as 'camiseta' | 'vestido',
-          sizes: product.sizes || [],
+          image: product.image_url || '/placeholder.svg',
+          category: product.category as 'camiseta' | 'vestido' | 'acessorio',
+          sizes: product.sizes || [], // Usar diretamente a coluna sizes da tabela products
           inStock: product.in_stock
         }));
 

@@ -25,7 +25,7 @@ const Index = () => {
       {/* Hero Section */}
       <section className="relative bg-gradient-to-br from-butterfly-black to-butterfly-black/90 text-white">
         <div className="absolute inset-0 overflow-hidden opacity-10">
-          <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1505236858219-8359eb29e329?q=80')] bg-center bg-no-repeat bg-cover"></div>
+          <div className="absolute inset-0 bg-[url('/placeholder.svg')] bg-center bg-no-repeat bg-cover"></div>
         </div>
         
         <div className="container mx-auto px-4 py-24 md:py-32 relative z-10">
@@ -155,7 +155,7 @@ const Index = () => {
             <div className="rounded-lg overflow-hidden shadow-md border border-gray-200 hover:shadow-xl transition-shadow">
               <div className="h-60 overflow-hidden">
                 <img 
-                  src="https://images.unsplash.com/photo-1521572163474-6864f9cf177a?q=80" 
+                  src="/placeholder.svg" 
                   alt="Camiseta do evento" 
                   className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
                 />
@@ -175,8 +175,8 @@ const Index = () => {
             <div className="rounded-lg overflow-hidden shadow-md border border-gray-200 hover:shadow-xl transition-shadow">
               <div className="h-60 overflow-hidden">
                 <img 
-                  src="https://images.unsplash.com/photo-1539008835657-9e8e9680c956?q=80" 
-                  alt="Vestido do evento" 
+                  src="/placeholder.svg" 
+                  alt="Boné do evento" 
                   className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
                 />
               </div>
@@ -195,8 +195,8 @@ const Index = () => {
             <div className="rounded-lg overflow-hidden shadow-md border border-gray-200 hover:shadow-xl transition-shadow md:col-span-2 lg:col-span-1">
               <div className="h-60 overflow-hidden">
                 <img 
-                  src="https://images.unsplash.com/photo-1607083206968-13611e3d76db?q=80" 
-                  alt="Loja completa" 
+                  src="/placeholder.svg" 
+                  alt="Caneca do evento" 
                   className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
                 />
               </div>

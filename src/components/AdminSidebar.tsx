@@ -42,7 +42,7 @@ const AdminSidebar: React.FC = () => {
   ];
 
   return (
-    <div className="bg-butterfly-black min-h-screen w-64 text-white">
+    <div className="bg-butterfly-black min-h-screen w-64 text-white relative z-0">
       <div className="p-4 flex items-center space-x-2 border-b border-butterfly-orange/20">
         <ButterflyLogo className="w-8 h-8" />
         <span className="font-display text-xl font-bold text-butterfly-orange">Admin</span>

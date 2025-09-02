@@ -2,11 +2,15 @@ import { useState, useEffect } from 'react';
 
 export interface NetworkStatus {
   isOnline: boolean;
+  isOffline: boolean;
   connectionType: string;
   effectiveType: string;
   downlink?: number;
   rtt?: number;
   saveData?: boolean;
+  lastOfflineAt?: Date | null;
+  offlineDuration?: number;
+  reconnectAttempts?: number;
 }
 
 export function useNetworkStatus(): NetworkStatus {
@@ -17,11 +21,15 @@ export function useNetworkStatus(): NetworkStatus {
     
     return {
       isOnline,
+      isOffline: !isOnline,
       connectionType: connection?.type || 'unknown',
       effectiveType: connection?.effectiveType || '4g',
       downlink: connection?.downlink,
       rtt: connection?.rtt,
-      saveData: connection?.saveData
+      saveData: connection?.saveData,
+      lastOfflineAt: null,
+      offlineDuration: 0,
+      reconnectAttempts: 0
     };
   });
 
@@ -30,13 +38,48 @@ export function useNetworkStatus(): NetworkStatus {
       const isOnline = navigator.onLine;
       const connection = (navigator as any)?.connection || (navigator as any)?.mozConnection || (navigator as any)?.webkitConnection;
       
-      setNetworkStatus({
-        isOnline,
-        connectionType: connection?.type || 'unknown',
-        effectiveType: connection?.effectiveType || '4g',
-        downlink: connection?.downlink,
-        rtt: connection?.rtt,
-        saveData: connection?.saveData
+      setNetworkStatus(prev => {
+        const now = new Date();
+        let lastOfflineAt = prev.lastOfflineAt;
+        let offlineDuration = prev.offlineDuration || 0;
+        let reconnectAttempts = prev.reconnectAttempts || 0;
+        
+        // Se estava offline e agora está online
+        if (!prev.isOnline && isOnline) {
+          if (lastOfflineAt) {
+            offlineDuration = now.getTime() - lastOfflineAt.getTime();
+          }
+          reconnectAttempts += 1;
+        }
+        
+        // Se ficou offline agora
+        if (prev.isOnline && !isOnline) {
+          lastOfflineAt = now;
+        }
+        
+        // Se voltou online, limpar lastOfflineAt após um tempo
+        if (isOnline) {
+          setTimeout(() => {
+            setNetworkStatus(current => ({
+              ...current,
+              lastOfflineAt: null,
+              offlineDuration: 0
+            }));
+          }, 5000); // Limpar após 5 segundos
+        }
+        
+        return {
+          isOnline,
+          isOffline: !isOnline,
+          connectionType: connection?.type || 'unknown',
+          effectiveType: connection?.effectiveType || '4g',
+          downlink: connection?.downlink,
+          rtt: connection?.rtt,
+          saveData: connection?.saveData,
+          lastOfflineAt,
+          offlineDuration,
+          reconnectAttempts
+        };
       });
     };
 

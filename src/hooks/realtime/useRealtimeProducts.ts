@@ -13,9 +13,8 @@ interface ProductSize {
 interface ProductStock {
   id: string;
   product_id: string;
-  product_size_id: string;
-  quantity: number;
-  reserved_quantity: number;
+  size: string;
+  stock_quantity: number;
   created_at: string;
   updated_at: string;
 }
@@ -37,10 +36,11 @@ interface Product {
   is_active: boolean;
   created_at: string;
   updated_at: string;
+
+  size?: 'PP' | 'P' | 'M' | 'G' | 'GG' | 'XG' | 'XXG'; // tamanho do produto
   // Dados relacionados (joins)
   categories?: Category;
-  product_sizes?: ProductSize[];
-  product_stock?: ProductStock[];
+  product_sizes?: ProductStock[]; // Usando ProductStock que agora representa product_sizes
 }
 
 interface ProductFilters {
@@ -114,7 +114,7 @@ export function useRealtimeProducts(filters?: ProductFilters): UseRealtimeProduc
         product_id,
         size
       ),
-      product_stock (
+      product_sizes (
         id,
         product_id,
         product_size_id,
@@ -149,8 +149,8 @@ export function useRealtimeProducts(filters?: ProductFilters): UseRealtimeProduc
     if (!filters?.inStock) return filteredProducts;
     
     return filteredProducts.filter(product => {
-      const totalStock = product.product_stock?.reduce((sum, stock) => {
-        return sum + (stock.quantity - stock.reserved_quantity);
+      const totalStock = product.product_sizes?.reduce((sum, size) => {
+        return sum + size.stock_quantity;
       }, 0) || 0;
       return totalStock > 0;
     });
@@ -164,14 +164,14 @@ export function useRealtimeProducts(filters?: ProductFilters): UseRealtimeProduc
   // Obter estoque disponível de um produto
   const getProductStock = useCallback((productId: string, sizeId?: string): number => {
     const product = getProductById(productId);
-    if (!product?.product_stock) return 0;
+    if (!product?.product_sizes) return 0;
 
     const stockItems = sizeId 
-      ? product.product_stock.filter(stock => stock.product_size_id === sizeId)
-      : product.product_stock;
+      ? product.product_sizes.filter(size => size.id === sizeId)
+      : product.product_sizes;
 
-    return stockItems.reduce((sum, stock) => {
-      return sum + (stock.quantity - stock.reserved_quantity);
+    return stockItems.reduce((sum, size) => {
+      return sum + size.stock_quantity;
     }, 0);
   }, [getProductById]);
 
@@ -185,16 +185,15 @@ export function useRealtimeProducts(filters?: ProductFilters): UseRealtimeProduc
   }, [getProductById, getProductStock]);
 
   // Obter tamanhos disponíveis de um produto
-  const getAvailableSizes = useCallback((productId: string): ProductSize[] => {
+  const getAvailableSizes = useCallback((productId: string): ProductStock[] => {
     const product = getProductById(productId);
     if (!product?.product_sizes) return [];
 
     // Filtrar apenas tamanhos com estoque disponível
     return product.product_sizes.filter(size => {
-      const stock = getProductStock(productId, size.id);
-      return stock > 0;
+      return size.stock_quantity > 0;
     });
-  }, [getProductById, getProductStock]);
+  }, [getProductById]);
 
   return {
     products: finalProducts,
@@ -225,17 +224,13 @@ export function useRealtimeStock(productId?: string) {
     isConnected,
     refetch
   } = useRealtimeSync<ProductStock>({
-    table: 'product_stock',
+    table: 'product_sizes',
     filter,
     select: `
       *,
       products:product_id (
         id,
         name
-      ),
-      product_sizes:product_size_id (
-        id,
-        size
       )
     `,
     orderBy: 'updated_at:desc',
@@ -249,9 +244,9 @@ export function useRealtimeStock(productId?: string) {
   const updateStock = useCallback(async (stockId: string, quantity: number) => {
     try {
       const { error } = await supabase
-        .from('product_stock')
+        .from('product_sizes')
         .update({ 
-          quantity,
+          stock_quantity: quantity,
           updated_at: new Date().toISOString()
         })
         .eq('id', stockId);
@@ -265,7 +260,7 @@ export function useRealtimeStock(productId?: string) {
     }
   }, []);
 
-  // Reservar estoque (para carrinho/pedidos)
+  // Reservar estoque (para carrinho/pedidos) - reduz stock_quantity
   const reserveStock = useCallback(async (stockId: string, quantity: number) => {
     try {
       const stockItem = stockItems.find(item => item.id === stockId);
@@ -273,17 +268,16 @@ export function useRealtimeStock(productId?: string) {
         throw new Error('Item de estoque não encontrado');
       }
 
-      const newReservedQuantity = stockItem.reserved_quantity + quantity;
-      const availableQuantity = stockItem.quantity - newReservedQuantity;
-
-      if (availableQuantity < 0) {
+      if (stockItem.stock_quantity < quantity) {
         throw new Error('Estoque insuficiente para reserva');
       }
 
+      const newQuantity = stockItem.stock_quantity - quantity;
+
       const { error } = await supabase
-        .from('product_stock')
+        .from('product_sizes')
         .update({ 
-          reserved_quantity: newReservedQuantity,
+          stock_quantity: newQuantity,
           updated_at: new Date().toISOString()
         })
         .eq('id', stockId);
@@ -297,7 +291,7 @@ export function useRealtimeStock(productId?: string) {
     }
   }, [stockItems]);
 
-  // Liberar estoque reservado
+  // Liberar estoque reservado - aumenta stock_quantity
   const releaseStock = useCallback(async (stockId: string, quantity: number) => {
     try {
       const stockItem = stockItems.find(item => item.id === stockId);
@@ -305,12 +299,12 @@ export function useRealtimeStock(productId?: string) {
         throw new Error('Item de estoque não encontrado');
       }
 
-      const newReservedQuantity = Math.max(0, stockItem.reserved_quantity - quantity);
+      const newQuantity = stockItem.stock_quantity + quantity;
 
       const { error } = await supabase
-        .from('product_stock')
+        .from('product_sizes')
         .update({ 
-          reserved_quantity: newReservedQuantity,
+          stock_quantity: newQuantity,
           updated_at: new Date().toISOString()
         })
         .eq('id', stockId);

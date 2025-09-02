@@ -5,7 +5,7 @@ import { ShoppingCart, Calendar, Shirt, User } from 'lucide-react';
 import ButterflyLogo from './ButterflyLogo';
 import { Button } from '@/components/ui/button';
 import { useCart } from '@/contexts/CartContext';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/hooks/useAuth';
 import MobileMenu from './MobileMenu';
 
 
@@ -46,29 +46,39 @@ const Navbar: React.FC = () => {
           </div>
 
           <div className="hidden md:flex items-center space-x-1">
-            <Link to="/" className="px-3 py-2 rounded-md text-sm font-medium hover:bg-butterfly-orange/10 transition-colors">
+            <Link to="/" className="px-3 py-2 rounded-md text-base font-medium hover:bg-butterfly-orange/10 transition-colors">
               Home
             </Link>
-            <Link to="/evento" className="px-3 py-2 rounded-md text-sm font-medium hover:bg-butterfly-orange/10 transition-colors flex items-center">
+            <Link to="/evento" className="px-3 py-2 rounded-md text-base font-medium hover:bg-butterfly-orange/10 transition-colors flex items-center">
               <Calendar className="mr-1 h-4 w-4" /> Evento
             </Link>
-            <Link to="/loja" className="px-3 py-2 rounded-md text-sm font-medium hover:bg-butterfly-orange/10 transition-colors flex items-center">
+            <Link to="/loja" className="px-3 py-2 rounded-md text-base font-medium hover:bg-butterfly-orange/10 transition-colors flex items-center">
               <Shirt className="mr-1 h-4 w-4" /> Loja
             </Link>
-            <Link to="/checkout" className="px-3 py-2 rounded-md text-sm font-medium hover:bg-butterfly-orange/10 transition-colors">
+            <Link to="/checkout" className="px-3 py-2 rounded-md text-base font-medium hover:bg-butterfly-orange/10 transition-colors">
               Checkout
             </Link>
             {userIsAdmin && (
-              <Link to="/admin" className="px-3 py-2 rounded-md text-sm font-medium hover:bg-butterfly-orange/10 transition-colors">
+              <Link to="/admin" className="px-3 py-2 rounded-md text-base font-medium hover:bg-butterfly-orange/10 transition-colors">
                 Admin
               </Link>
             )}
-            <Link to="/ingressos" className="px-3 py-2 rounded-md text-sm font-medium hover:bg-butterfly-orange/10 transition-colors flex items-center">
+            <Link to="/ingressos" className="px-3 py-2 rounded-md text-base font-medium hover:bg-butterfly-orange/10 transition-colors flex items-center">
               <Calendar className="mr-1 h-4 w-4" /> Ingressos
             </Link>
           </div>
 
           <div className="flex items-center space-x-4">
+            {/* Ícone de login para mobile */}
+            {!user && (
+              <Link 
+                to="/auth" 
+                className="md:hidden text-butterfly-orange hover:text-butterfly-orange/80 transition-colors"
+                title="Entrar"
+              >
+                <User className="h-6 w-6" />
+              </Link>
+            )}
 
             <Link to="/carrinho" className="relative text-butterfly-orange hover:text-butterfly-orange/80 transition-colors" data-testid="cart-icon">
               <ShoppingCart className="h-6 w-6" />

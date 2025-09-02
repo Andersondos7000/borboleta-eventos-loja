@@ -5,8 +5,8 @@
  * fornecendo utilitários comuns e configurações de teste.
  */
 
-import { assertEquals, assertExists, assertRejects } from 'https://deno.land/std@0.208.0/assert/mod.ts'
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.38.4'
+import { assertEquals, assertExists, assertRejects } from 'std/testing/asserts.ts'
+import { createClient } from 'supabase'
 
 // Exportar todos os testes
 export * from './sync-cart.test.ts'
@@ -16,29 +16,29 @@ export * from './sync-events.test.ts'
 
 // Tipos para mocks e testes
 export interface MockSupabaseClient {
-  from: (table: string) => MockQueryBuilder
+  from: (_table: string) => MockQueryBuilder
   auth: {
     getUser: () => Promise<{ data: { user: any }, error: any }>
   }
 }
 
 export interface MockQueryBuilder {
-  select: (columns?: string) => MockQueryBuilder
+  select: (_columns?: string) => MockQueryBuilder
   insert: (data: any) => Promise<{ data: any[], error: any }>
   update: (data: any) => MockQueryBuilder
   upsert: (data: any) => Promise<{ data: any[], error: any }>
   delete: () => MockQueryBuilder
-  eq: (column: string, value: any) => MockQueryBuilder
-  neq: (column: string, value: any) => MockQueryBuilder
-  gt: (column: string, value: any) => MockQueryBuilder
-  gte: (column: string, value: any) => MockQueryBuilder
-  lt: (column: string, value: any) => MockQueryBuilder
-  lte: (column: string, value: any) => MockQueryBuilder
-  like: (column: string, pattern: string) => MockQueryBuilder
-  ilike: (column: string, pattern: string) => MockQueryBuilder
-  in: (column: string, values: any[]) => MockQueryBuilder
-  order: (column: string, options?: { ascending?: boolean }) => MockQueryBuilder
-  limit: (count: number) => Promise<{ data: any[], error: any }>
+  eq: (_column: string, _value: any) => MockQueryBuilder
+  neq: (_column: string, _value: any) => MockQueryBuilder
+  gt: (_column: string, _value: any) => MockQueryBuilder
+  gte: (_column: string, _value: any) => MockQueryBuilder
+  lt: (_column: string, _value: any) => MockQueryBuilder
+  lte: (_column: string, _value: any) => MockQueryBuilder
+  like: (_column: string, _pattern: string) => MockQueryBuilder
+  ilike: (_column: string, _pattern: string) => MockQueryBuilder
+  in: (_column: string, _values: any[]) => MockQueryBuilder
+  order: (_column: string, _options?: { ascending?: boolean }) => MockQueryBuilder
+  limit: (_count: number) => Promise<{ data: any[], error: any }>
   single: () => Promise<{ data: any, error: any }>
 }
 
@@ -74,23 +74,23 @@ export class TestUtils {
     const responses = { ...defaultResponses, ...customResponses }
 
     return {
-      from: (table: string) => ({
-        select: (columns?: string) => ({
-          eq: (column: string, value: any) => ({
+      from: (_table: string) => ({
+        select: (_columns?: string) => ({
+          eq: (_column: string, _value: any) => ({
             single: () => Promise.resolve(responses.select),
-            limit: (count: number) => Promise.resolve(responses.select)
+            limit: (_count: number) => Promise.resolve(responses.select)
           }),
-          gte: (column: string, value: any) => ({
-            limit: (count: number) => Promise.resolve(responses.select)
+          gte: (_column: string, _value: any) => ({
+            limit: (_count: number) => Promise.resolve(responses.select)
           }),
-          order: (column: string) => Promise.resolve(responses.select)
+          order: (_column: string) => Promise.resolve(responses.select)
         }),
         insert: (data: any) => Promise.resolve({
           ...responses.insert,
           data: Array.isArray(data) ? data : [data]
         }),
         update: (data: any) => ({
-          eq: (column: string, value: any) => Promise.resolve({
+          eq: (_column: string, value: any) => Promise.resolve({
             ...responses.update,
             data: [{ ...data, id: value }]
           })
@@ -100,7 +100,7 @@ export class TestUtils {
           data: Array.isArray(data) ? data : [data]
         }),
         delete: () => ({
-          eq: (column: string, value: any) => Promise.resolve(responses.delete)
+          eq: (_column: string, _value: any) => Promise.resolve(responses.delete)
         })
       }),
       auth: {
@@ -336,20 +336,21 @@ export const TEST_CONSTANTS = {
 // Configuração global de testes
 export const setupTests = () => {
   // Configurar timeouts
-  globalThis.setTimeout = globalThis.setTimeout || ((fn: Function, ms: number) => {
-    return Number(setInterval(() => {
+  globalThis.setTimeout = globalThis.setTimeout || ((fn: () => void, ms: number) => {
+    const intervalId = setInterval(() => {
       fn()
-      clearInterval(Number(arguments[0]))
-    }, ms))
+      clearInterval(intervalId)
+    }, ms)
+    return Number(intervalId)
   })
 
   // Configurar console para testes
   const originalConsole = globalThis.console
   globalThis.console = {
     ...originalConsole,
-    log: (...args: any[]) => {
+    log: (..._args: any[]) => {
       if (Deno.env.get('TEST_VERBOSE') === 'true') {
-        originalConsole.log(...args)
+        originalConsole.log(..._args)
       }
     },
     error: originalConsole.error,

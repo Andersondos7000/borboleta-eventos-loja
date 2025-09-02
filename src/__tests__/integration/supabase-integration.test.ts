@@ -218,7 +218,7 @@ describe('Supabase Integration Tests', () => {
 
     it('should call stock-monitor edge function for stock updates', async () => {
       const { result } = renderHook(() => useOfflineFirst({
-        table: 'product_stock',
+        table: 'product_sizes',
         primaryKey: 'product_id',
         edgeFunction: 'stock-monitor'
       }));
@@ -414,7 +414,7 @@ describe('Supabase Integration Tests', () => {
       }));
 
       const { result: stockHook } = renderHook(() => useOfflineFirst({
-        table: 'product_stock',
+        table: 'product_sizes',
         primaryKey: 'product_id',
         enableRealtime: true
       }));
@@ -451,7 +451,7 @@ describe('Supabase Integration Tests', () => {
           old: { product_id: 'product-1', quantity: 10 },
           new: {},
           schema: 'public',
-          table: 'product_stock'
+          table: 'product_sizes'
         });
       });
 

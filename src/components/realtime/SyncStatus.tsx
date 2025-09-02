@@ -1,230 +1,268 @@
 import React from 'react';
-import { useRealtimeContext } from '../../contexts/RealtimeContext';
-import { ConnectionStatus } from '../../hooks/realtime';
+import { AlertCircle, CheckCircle, Clock, Wifi, WifiOff, RefreshCw } from 'lucide-react';
+import { useJWTManager } from '../../hooks/useJWTManager';
 
 interface SyncStatusProps {
+  status: {
+    syncing: boolean;
+    lastSync: number | null;
+    pendingChanges: number;
+    conflictCount: number;
+    error: string | null;
+    realtimeConnected: boolean;
+    realtimeSubscribed: boolean;
+  };
   className?: string;
   showDetails?: boolean;
-  compact?: boolean;
 }
 
-const connectionStatusConfig = {
-  connecting: {
-    color: 'text-yellow-600',
-    bgColor: 'bg-yellow-100',
-    icon: '🔄',
-    label: 'Conectando',
-    description: 'Estabelecendo conexão com o servidor'
-  },
-  connected: {
-    color: 'text-green-600',
-    bgColor: 'bg-green-100',
-    icon: '✅',
-    label: 'Conectado',
-    description: 'Sincronização ativa'
-  },
-  reconnecting: {
-    color: 'text-orange-600',
-    bgColor: 'bg-orange-100',
-    icon: '🔄',
-    label: 'Reconectando',
-    description: 'Tentando restabelecer conexão'
-  },
-  disconnected: {
-    color: 'text-red-600',
-    bgColor: 'bg-red-100',
-    icon: '❌',
-    label: 'Desconectado',
-    description: 'Sem conexão com o servidor'
-  },
-  error: {
-    color: 'text-red-600',
-    bgColor: 'bg-red-100',
-    icon: '⚠️',
-    label: 'Erro',
-    description: 'Erro na conexão'
-  }
-};
+/**
+ * Componente para exibir status de sincronização em tempo real
+ * 
+ * Funcionalidades:
+ * - Status visual da conexão
+ * - Indicador de mudanças pendentes
+ * - Alertas de erro
+ * - Informações de última sincronização
+ * - Contador de conflitos resolvidos
+ */
 
-export function SyncStatus({ className = '', showDetails = false, compact = false }: SyncStatusProps) {
-  const { state, hasUnresolvedConflicts, isFullyConnected, totalSyncCount } = useRealtimeContext();
-  
-  const config = connectionStatusConfig[state.connectionStatus];
-  const hasConflicts = hasUnresolvedConflicts;
-  
-  // Formato compacto - apenas ícone
-  if (compact) {
+export function SyncStatus({ status, className = '', showDetails = false }: SyncStatusProps) {
+  const {
+    syncing,
+    lastSync,
+    pendingChanges,
+    conflictCount,
+    error,
+    realtimeConnected,
+    realtimeSubscribed
+  } = status;
+
+  // Determinar estado geral
+  const getOverallStatus = () => {
+    if (error) return 'error';
+    if (!realtimeConnected) return 'disconnected';
+    if (syncing || pendingChanges > 0) return 'syncing';
+    if (realtimeConnected && realtimeSubscribed) return 'connected';
+    return 'unknown';
+  };
+
+  const overallStatus = getOverallStatus();
+
+  // Configurações visuais por status
+  const statusConfig = {
+    connected: {
+      icon: CheckCircle,
+      color: 'text-green-500',
+      bgColor: 'bg-green-50',
+      borderColor: 'border-green-200',
+      message: 'Sincronizado'
+    },
+    syncing: {
+      icon: RefreshCw,
+      color: 'text-blue-500',
+      bgColor: 'bg-blue-50',
+      borderColor: 'border-blue-200',
+      message: 'Sincronizando...'
+    },
+    disconnected: {
+      icon: WifiOff,
+      color: 'text-orange-500',
+      bgColor: 'bg-orange-50',
+      borderColor: 'border-orange-200',
+      message: 'Desconectado'
+    },
+    error: {
+      icon: AlertCircle,
+      color: 'text-red-500',
+      bgColor: 'bg-red-50',
+      borderColor: 'border-red-200',
+      message: 'Erro de sincronização'
+    },
+    unknown: {
+      icon: Clock,
+      color: 'text-gray-500',
+      bgColor: 'bg-gray-50',
+      borderColor: 'border-gray-200',
+      message: 'Conectando...'
+    }
+  };
+
+  const config = statusConfig[overallStatus];
+  const Icon = config.icon;
+
+  // Formatar tempo da última sincronização
+  const formatLastSync = (timestamp: number | null) => {
+    if (!timestamp) return 'Nunca';
+    
+    const now = Date.now();
+    const diff = now - timestamp;
+    
+    if (diff < 60000) return 'Agora mesmo';
+    if (diff < 3600000) return `${Math.floor(diff / 60000)}m atrás`;
+    if (diff < 86400000) return `${Math.floor(diff / 3600000)}h atrás`;
+    
+    return new Date(timestamp).toLocaleDateString('pt-BR', {
+      day: '2-digit',
+      month: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
+  // Versão compacta (padrão)
+  if (!showDetails) {
     return (
-      <div 
-        className={`inline-flex items-center justify-center w-6 h-6 rounded-full ${config.bgColor} ${className}`}
-        title={`${config.label} - ${config.description}${hasConflicts ? ' (Conflitos detectados)' : ''}`}
-      >
-        <span className="text-xs">
-          {hasConflicts ? '⚠️' : config.icon}
+      <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full border ${config.bgColor} ${config.borderColor} ${className}`}>
+        <Icon 
+          className={`w-4 h-4 ${config.color} ${syncing ? 'animate-spin' : ''}`} 
+        />
+        <span className={`text-sm font-medium ${config.color}`}>
+          {config.message}
         </span>
+        
+        {pendingChanges > 0 && (
+          <span className="inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-blue-500 rounded-full">
+            {pendingChanges}
+          </span>
+        )}
+        
+        {error && (
+          <span className="text-xs text-red-600 truncate max-w-32" title={error}>
+            {error}
+          </span>
+        )}
       </div>
     );
   }
-  
-  // Formato normal
+
+  // Versão detalhada
   return (
-    <div className={`flex items-center space-x-2 ${className}`}>
-      {/* Indicador principal */}
-      <div className={`flex items-center space-x-2 px-3 py-1 rounded-full ${config.bgColor}`}>
-        <span className="text-sm">{config.icon}</span>
-        <span className={`text-sm font-medium ${config.color}`}>
-          {config.label}
-        </span>
+    <div className={`p-4 rounded-lg border ${config.bgColor} ${config.borderColor} ${className}`}>
+      {/* Header */}
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center gap-2">
+          <Icon 
+            className={`w-5 h-5 ${config.color} ${syncing ? 'animate-spin' : ''}`} 
+          />
+          <h3 className={`font-semibold ${config.color}`}>
+            {config.message}
+          </h3>
+        </div>
         
-        {/* Indicador de conflitos */}
-        {hasConflicts && (
-          <span className="text-xs bg-red-500 text-white px-1 rounded-full" title="Conflitos detectados">
-            {state.conflicts.filter(c => !c.resolved).length}
+        {/* Status da conexão */}
+        <div className="flex items-center gap-1">
+          <Wifi className={`w-4 h-4 ${realtimeConnected ? 'text-green-500' : 'text-gray-400'}`} />
+          <span className="text-xs text-gray-600">
+            {realtimeConnected ? 'Online' : 'Offline'}
           </span>
-        )}
-        
-        {/* Indicador offline */}
-        {!state.isOnline && (
-          <span className="text-xs bg-gray-500 text-white px-1 rounded-full" title="Modo offline">
-            📱
-          </span>
-        )}
+        </div>
       </div>
+
+      {/* Detalhes */}
+      <div className="space-y-2 text-sm text-gray-600">
+        {/* Última sincronização */}
+        <div className="flex justify-between">
+          <span>Última sincronização:</span>
+          <span className="font-medium">{formatLastSync(lastSync)}</span>
+        </div>
+        
+        {/* Mudanças pendentes */}
+        {pendingChanges > 0 && (
+          <div className="flex justify-between">
+            <span>Mudanças pendentes:</span>
+            <span className="font-medium text-blue-600">{pendingChanges}</span>
+          </div>
+        )}
+        
+        {/* Conflitos resolvidos */}
+        {conflictCount > 0 && (
+          <div className="flex justify-between">
+            <span>Conflitos resolvidos:</span>
+            <span className="font-medium text-orange-600">{conflictCount}</span>
+          </div>
+        )}
+        
+        {/* Status da subscrição */}
+        <div className="flex justify-between">
+          <span>Realtime ativo:</span>
+          <span className={`font-medium ${realtimeSubscribed ? 'text-green-600' : 'text-gray-400'}`}>
+            {realtimeSubscribed ? 'Sim' : 'Não'}
+          </span>
+        </div>
+      </div>
+
+      {/* Erro detalhado */}
+      {error && (
+        <div className="mt-3 p-2 bg-red-100 border border-red-200 rounded text-sm text-red-700">
+          <strong>Erro:</strong> {error}
+        </div>
+      )}
       
-      {/* Detalhes expandidos */}
-      {showDetails && (
-        <div className="text-xs text-gray-600 space-y-1">
-          <div>Última sync: {state.lastSync ? formatRelativeTime(state.lastSync) : 'Nunca'}</div>
-          <div>Total de atualizações: {totalSyncCount}</div>
-          {state.metrics.averageLatency > 0 && (
-            <div>Latência média: {Math.round(state.metrics.averageLatency)}ms</div>
-          )}
-          {state.metrics.errorCount > 0 && (
-            <div className="text-red-600">Erros: {state.metrics.errorCount}</div>
-          )}
+      {/* Dicas baseadas no status */}
+      {overallStatus === 'disconnected' && (
+        <div className="mt-3 p-2 bg-orange-100 border border-orange-200 rounded text-sm text-orange-700">
+          <strong>Dica:</strong> Verifique sua conexão com a internet. Os dados serão sincronizados quando a conexão for restaurada.
+        </div>
+      )}
+      
+      {pendingChanges > 5 && (
+        <div className="mt-3 p-2 bg-blue-100 border border-blue-200 rounded text-sm text-blue-700">
+          <strong>Info:</strong> Muitas mudanças pendentes. A sincronização pode demorar um pouco mais.
         </div>
       )}
     </div>
   );
+  
 }
 
-// Componente para mostrar detalhes de sincronização por domínio
-export function SyncDetails({ className = '' }: { className?: string }) {
-  const { state } = useRealtimeContext();
-  
-  const domains = [
-    { key: 'cart', label: 'Carrinho', icon: '🛒' },
-    { key: 'products', label: 'Produtos', icon: '📦' },
-    { key: 'orders', label: 'Pedidos', icon: '📋' },
-    { key: 'events', label: 'Eventos', icon: '🎫' },
-    { key: 'stock', label: 'Estoque', icon: '📊' }
-  ] as const;
+/**
+ * Hook para usar o SyncStatus com dados do carrinho
+ */
+export function useSyncStatusData() {
+  // Este hook pode ser expandido para agregar dados de múltiplas fontes
+  return {
+    // Placeholder - será implementado conforme necessário
+    aggregatedStatus: {
+      syncing: false,
+      lastSync: Date.now(),
+      pendingChanges: 0,
+      conflictCount: 0,
+      error: null,
+      realtimeConnected: true,
+      realtimeSubscribed: true
+    }
+  };
+}
+
+/**
+ * Componente de status global para header/navbar
+ */
+export function GlobalSyncStatus() {
+  const { aggregatedStatus } = useSyncStatusData();
   
   return (
-    <div className={`bg-white rounded-lg shadow-sm border p-4 ${className}`}>
-      <h3 className="text-sm font-medium text-gray-900 mb-3">Status de Sincronização</h3>
-      
-      <div className="space-y-2">
-        {domains.map(domain => (
-          <div key={domain.key} className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <span className="text-sm">{domain.icon}</span>
-              <span className="text-sm text-gray-700">{domain.label}</span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <span className="text-xs text-gray-500">
-                {state.syncCounts[domain.key]} itens
-              </span>
-              <div className="w-2 h-2 bg-green-400 rounded-full" title="Sincronizado" />
-            </div>
-          </div>
-        ))}
-      </div>
-      
-      {/* Métricas gerais */}
-      <div className="mt-4 pt-3 border-t border-gray-200">
-        <div className="grid grid-cols-2 gap-4 text-xs">
-          <div>
-            <span className="text-gray-500">Reconexões:</span>
-            <span className="ml-1 font-medium">{state.metrics.reconnectCount}</span>
-          </div>
-          <div>
-            <span className="text-gray-500">Erros:</span>
-            <span className="ml-1 font-medium text-red-600">{state.metrics.errorCount}</span>
-          </div>
-          <div>
-            <span className="text-gray-500">Latência:</span>
-            <span className="ml-1 font-medium">
-              {state.metrics.averageLatency > 0 ? `${Math.round(state.metrics.averageLatency)}ms` : '-'}
-            </span>
-          </div>
-          <div>
-            <span className="text-gray-500">Atualizações:</span>
-            <span className="ml-1 font-medium">{state.metrics.totalUpdates}</span>
-          </div>
-        </div>
-      </div>
-    </div>
+    <SyncStatus 
+      status={aggregatedStatus}
+      className="ml-auto"
+      showDetails={false}
+    />
   );
 }
 
-// Componente de indicador de status na barra superior
-export function TopBarSyncIndicator({ className = '' }: { className?: string }) {
-  const { state, hasUnresolvedConflicts } = useRealtimeContext();
-  
-  const isHealthy = state.isOnline && state.connectionStatus === 'connected' && !hasUnresolvedConflicts;
+/**
+ * Componente de status detalhado para páginas específicas
+ */
+export function DetailedSyncStatus({ className }: { className?: string }) {
+  const { aggregatedStatus } = useSyncStatusData();
   
   return (
-    <div className={`flex items-center space-x-1 ${className}`}>
-      {/* Indicador principal */}
-      <div className={`w-2 h-2 rounded-full ${
-        isHealthy ? 'bg-green-400' : 
-        state.connectionStatus === 'connecting' || state.connectionStatus === 'reconnecting' ? 'bg-yellow-400' :
-        'bg-red-400'
-      }`} />
-      
-      {/* Texto de status */}
-      <span className="text-xs text-gray-600">
-        {isHealthy ? 'Sincronizado' :
-         state.connectionStatus === 'connecting' ? 'Conectando...' :
-         state.connectionStatus === 'reconnecting' ? 'Reconectando...' :
-         !state.isOnline ? 'Offline' :
-         hasUnresolvedConflicts ? 'Conflitos' :
-         'Erro'}
-      </span>
-      
-      {/* Indicador de conflitos */}
-      {hasUnresolvedConflicts && (
-        <span className="text-xs bg-red-500 text-white px-1 rounded-full">
-          {state.conflicts.filter(c => !c.resolved).length}
-        </span>
-      )}
-    </div>
+    <SyncStatus 
+      status={aggregatedStatus}
+      className={className}
+      showDetails={true}
+    />
   );
-}
-
-// Utilitário para formatar tempo relativo
-function formatRelativeTime(date: Date): string {
-  const now = new Date();
-  const diffMs = now.getTime() - date.getTime();
-  const diffSeconds = Math.floor(diffMs / 1000);
-  const diffMinutes = Math.floor(diffSeconds / 60);
-  const diffHours = Math.floor(diffMinutes / 60);
-  
-  if (diffSeconds < 60) {
-    return 'agora mesmo';
-  } else if (diffMinutes < 60) {
-    return `${diffMinutes}m atrás`;
-  } else if (diffHours < 24) {
-    return `${diffHours}h atrás`;
-  } else {
-    return date.toLocaleDateString('pt-BR', { 
-      day: '2-digit', 
-      month: '2-digit', 
-      hour: '2-digit', 
-      minute: '2-digit' 
-    });
-  }
 }
 
 export default SyncStatus;

@@ -93,27 +93,27 @@ describe('useRealtimeProducts', () => {
           display_order: 3
         }
       ],
-      product_stock: [
+      product_sizes: [
         {
-          id: 'stock-1',
+          id: 'size-1',
           product_id: 'product-1',
-          size_id: 'size-1',
-          quantity: 50,
-          available_quantity: 45
+          size: 'P',
+          stock_quantity: 50,
+          display_order: 1
         },
         {
-          id: 'stock-2',
+          id: 'size-2',
           product_id: 'product-1',
-          size_id: 'size-2',
-          quantity: 100,
-          available_quantity: 90
+          size: 'M',
+          stock_quantity: 100,
+          display_order: 2
         },
         {
-          id: 'stock-3',
+          id: 'size-3',
           product_id: 'product-1',
-          size_id: 'size-3',
-          quantity: 75,
-          available_quantity: 70
+          size: 'G',
+          stock_quantity: 75,
+          display_order: 3
         }
       ]
     },
@@ -141,13 +141,13 @@ describe('useRealtimeProducts', () => {
           display_order: 1
         }
       ],
-      product_stock: [
+      product_sizes: [
         {
-          id: 'stock-4',
+          id: 'size-4',
           product_id: 'product-2',
-          size_id: 'size-4',
-          quantity: 200,
-          available_quantity: 180
+          size: 'Único',
+          stock_quantity: 200,
+          display_order: 1
         }
       ]
     },
@@ -168,7 +168,7 @@ describe('useRealtimeProducts', () => {
         slug: 'vestuario'
       },
       product_sizes: [],
-      product_stock: []
+      product_sizes: []
     }
   ];
 
@@ -438,7 +438,7 @@ describe('useRealtimeProducts', () => {
       const lowStockData = [
         {
           ...mockProductsData[0],
-          product_stock: [
+          product_sizes: [
             {
               id: 'stock-1',
               product_id: 'product-1',

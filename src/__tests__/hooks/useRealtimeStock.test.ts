@@ -135,7 +135,7 @@ describe('useRealtimeStock', () => {
 
       expect(mockUseRealtimeSync).toHaveBeenCalledWith(
         expect.objectContaining({
-          table: 'product_stock',
+          table: 'product_sizes',
           filter: 'product_id.eq.product-1'
         })
       );

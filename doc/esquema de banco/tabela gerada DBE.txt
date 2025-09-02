@@ -1,0 +1,464 @@
+Project "Supabase E-commerce and Monitoring" {
+Note: '''
+Design de banco de dados para uma aplicação Supabase, incluindo perfis de usuário,
+produtos, eventos, pedidos e monitoramento de latência e RLS.
+'''
+}
+
+// Enums
+enum profile_role {
+user [note: 'Usuário padrão']
+admin [note: 'Administrador do sistema']
+organizer [note: 'Organizador de eventos']
+}
+
+enum person_type {
+fisica [note: 'Pessoa física']
+juridica [note: 'Pessoa jurídica']
+}
+
+enum product_category {
+camiseta [note: 'Categoria Camiseta']
+vestido [note: 'Categoria Vestido']
+acessorio [note: 'Categoria Acessório']
+}
+
+enum product_single_size {
+P [note: 'Tamanho Pequeno']
+M [note: 'Tamanho Médio']
+G [note: 'Tamanho Grande']
+GG [note: 'Tamanho Extra Grande']
+EXG [note: 'Tamanho Extra Extra Grande']
+}
+
+enum product_size_enum {
+PP [note: 'Tamanho Pequeno Pequeno']
+P [note: 'Tamanho Pequeno']
+M [note: 'Tamanho Médio']
+G [note: 'Tamanho Grande']
+GG [note: 'Tamanho Extra Grande']
+XG [note: 'Tamanho Extra Grande']
+XXG [note: 'Tamanho Extra Extra Grande']
+}
+
+enum document_type {
+cpf [note: 'Cadastro de Pessoa Física']
+cnpj [note: 'Cadastro Nacional de Pessoa Jurídica']
+passport [note: 'Passaporte']
+other [note: 'Outro tipo de documento']
+}
+
+enum customer_status {
+active [note: 'Cliente ativo']
+inactive [note: 'Cliente inativo']
+suspended [note: 'Cliente suspenso']
+}
+
+enum customer_type_enum {
+individual [note: 'Cliente individual']
+business [note: 'Cliente empresarial']
+}
+
+enum sync_status {
+synced [note: 'Sincronizado com sucesso']
+pending [note: 'Sincronização pendente']
+error [note: 'Erro na sincronização']
+}
+
+enum event_status {
+active [note: 'Evento ativo']
+inactive [note: 'Evento inativo']
+cancelled [note: 'Evento cancelado']
+}
+
+enum ticket_status {
+pending [note: 'Ingresso pendente de confirmação']
+confirmed [note: 'Ingresso confirmado']
+cancelled [note: 'Ingresso cancelado']
+used [note: 'Ingresso utilizado']
+available [note: 'Ingresso disponível para venda']
+sold [note: 'Ingresso vendido']
+reserved [note: 'Ingresso reservado']
+}
+
+enum metric_type {
+views [note: 'Número de visualizações']
+tickets_sold [note: 'Número de ingressos vendidos']
+revenue [note: 'Receita gerada']
+conversion_rate [note: 'Taxa de conversão']
+attendance [note: 'Comparecimento']
+}
+
+enum payment_method {
+pix [note: 'Pagamento via Pix']
+credit_card [note: 'Cartão de crédito']
+debit_card [note: 'Cartão de débito']
+boleto [note: 'Boleto bancário']
+cash [note: 'Dinheiro em espécie']
+transfer [note: 'Transferência bancária']
+}
+
+enum payment_status {
+pending [note: 'Pagamento pendente']
+processing [note: 'Pagamento em processamento']
+paid [note: 'Pagamento efetuado']
+failed [note: 'Pagamento falhou']
+cancelled [note: 'Pagamento cancelado']
+refunded [note: 'Pagamento reembolsado']
+}
+
+enum order_status {
+pending [note: 'Pedido pendente']
+confirmed [note: 'Pedido confirmado']
+processing [note: 'Pedido em processamento']
+shipped [note: 'Pedido enviado']
+delivered [note: 'Pedido entregue']
+cancelled [note: 'Pedido cancelado']
+returned [note: 'Pedido devolvido']
+}
+
+enum reservation_status {
+active [note: 'Reserva ativa']
+expired [note: 'Reserva expirada']
+confirmed [note: 'Reserva confirmada']
+cancelled [note: 'Reserva cancelada']
+}
+
+enum stock_alert_type {
+low_stock [note: 'Estoque baixo']
+out_of_stock [note: 'Sem estoque']
+critical [note: 'Estoque crítico']
+}
+
+enum alert_status {
+active [note: 'Alerta ativo']
+resolved [note: 'Alerta resolvido']
+}
+
+enum operation_type {
+SELECT [note: 'Operação de seleção']
+INSERT [note: 'Operação de inserção']
+UPDATE [note: 'Operação de atualização']
+DELETE [note: 'Operação de exclusão']
+SUBSCRIBE [note: 'Operação de subscrição']
+}
+
+enum latency_alert_type {
+HIGH_LATENCY [note: 'Latência alta']
+CRITICAL_LATENCY [note: 'Latência crítica']
+TIMEOUT [note: 'Tempo limite excedido']
+ERROR_RATE [note: 'Taxa de erro']
+}
+
+enum email_alert_frequency {
+IMMEDIATE [note: 'Alerta imediato']
+HOURLY [note: 'Alerta por hora']
+DAILY [note: 'Alerta diário']
+DISABLED [note: 'Alertas desabilitados']
+}
+
+enum rls_query_type {
+SELECT [note: 'Consulta de seleção']
+INSERT [note: 'Consulta de inserção']
+UPDATE [note: 'Consulta de atualização']
+DELETE [note: 'Consulta de exclusão']
+}
+
+// External Supabase Auth Table
+Table auth.users {
+id uuid [pk, note: 'ID do usuário do Supabase Auth']
+created_at timestamptz [default: `now()`, note: 'Data de criação do usuário']
+updated_at timestamptz [default: `now()`, note: 'Data da última atualização do usuário']
+
+Note: 'Tabela de usuários gerada pelo Supabase Auth.'
+}
+
+// Public Schema Tables
+Table public.profiles {
+id uuid [pk, default: `gen_random_uuid()`]
+user_id uuid [not null, unique, ref: > auth.users.id, note: 'ID do usuário vinculado ao Supabase Auth']
+email text [not null, unique, note: 'Email do usuário']
+name text [note: 'Nome completo do usuário']
+phone text [note: 'Número de telefone do usuário']
+username text [unique, note: 'Nome de usuário único']
+avatar_url text [note: 'URL da imagem do avatar do usuário']
+created_at timestamptz [default: `now()`]
+updated_at timestamptz [default: `now()`]
+role profile_role [default: 'user', note: 'Papel do usuário (user, admin, organizer)']
+person_type person_type [note: 'Tipo de pessoa (fisica, juridica)']
+cpf text [note: 'CPF da pessoa física']
+country text [default: 'Brasil', note: 'País de residência']
+zip_code text [note: 'CEP']
+address text [note: 'Endereço']
+address_number text [note: 'Número do endereço']
+neighborhood text [note: 'Bairro']
+city text [note: 'Cidade']
+state text [note: 'Estado']
+
+Note: 'Armazena perfis de usuário, estendendo a tabela auth.users.'
+}
+
+Table public.categories {
+id uuid [pk, default: `gen_random_uuid()`]
+name text [not null, unique, note: 'Nome da categoria']
+description text [note: 'Descrição da categoria']
+created_at timestamptz [default: `now()`]
+updated_at timestamptz [default: `now()`]
+
+Note: 'Armazena as categorias de produtos.'
+}
+
+Table public.products {
+id uuid [pk, default: `gen_random_uuid()`]
+name text [not null, note: 'Nome do produto']
+description text [note: 'Descrição detalhada do produto']
+price numeric [not null, note: 'Preço base do produto']
+image_url text [note: 'URL da imagem principal do produto']
+category product_category [note: 'Categoria do produto (camiseta, vestido, acessorio)']
+sizes text[] [default: `ARRAY[]::text[]`, note: 'Lista de tamanhos disponíveis para o produto']
+in_stock boolean [default: true, note: 'Indica se o produto está atualmente em estoque']
+width numeric [note: 'Largura do produto em unidades de medida']
+length numeric [note: 'Comprimento do produto em unidades de medida']
+height numeric [note: 'Altura do produto em unidades de medida']
+weight numeric [note: 'Peso do produto em unidades de medida']
+size product_single_size [note: 'Tamanho único do produto (P, M, G, GG, EXG), se aplicável']
+created_at timestamptz [default: `now()`]
+updated_at timestamptz [default: `now()`]
+
+Note: 'Armazena informações sobre os produtos disponíveis para venda.'
+}
+
+Table public.product_sizes {
+id uuid [pk, default: `gen_random_uuid()`]
+product_id uuid [not null, ref: > public.products.id, note: 'ID do produto ao qual este tamanho pertence']
+size product_size_enum [not null, note: 'Tamanho específico do produto (PP, P, M, G, GG, XG, XXG)']
+quantity integer [not null, default: 0, note: 'Quantidade em estoque para este tamanho específico do produto']
+price_modifier numeric [default: 0.00, note: 'Modificador de preço aplicado a este tamanho (ex: +5.00 para GG)']
+created_at timestamptz [default: `now()`]
+updated_at timestamptz [default: `now()`]
+
+Note: 'Gerencia o estoque e modificadores de preço por tamanho de produto.'
+}
+
+Table public.customers {
+id uuid [pk, default: `gen_random_uuid()`]
+user_id uuid [null, ref: > auth.users.id, note: 'ID do usuário Supabase associado a este cliente (opcional)']
+name text [not null, note: 'Nome completo do cliente']
+email text [not null, unique, note: 'Endereço de email do cliente']
+phone text [note: 'Número de telefone do cliente']
+document_type document_type [note: 'Tipo de documento do cliente (CPF, CNPJ, Passaporte, Outro)']
+document_number text [note: 'Número do documento do cliente']
+birth_date date [note: 'Data de nascimento do cliente']
+address jsonb [note: 'Endereço completo do cliente em formato JSONB']
+status customer_status [default: 'active', note: 'Status atual do cliente (ativo, inativo, suspenso)']
+customer_type customer_type_enum [default: 'individual', note: 'Tipo de cliente (individual ou empresarial)']
+notes text [note: 'Notas adicionais sobre o cliente']
+tags text[] [note: 'Tags associadas ao cliente para categorização']
+created_at timestamptz [default: `now()`]
+updated_at timestamptz [default: `now()`]
+created_by uuid [null, ref: > auth.users.id, note: 'ID do usuário que criou este registro de cliente']
+updated_by uuid [null, ref: > auth.users.id, note: 'ID do usuário que atualizou este registro de cliente pela última vez']
+version integer [default: 1, note: 'Número da versão do registro do cliente']
+last_sync_at timestamptz [default: `now()`, note: 'Data e hora da última sincronização do registro']
+sync_status sync_status [default: 'synced', note: 'Status da sincronização do registro (sincronizado, pendente, erro)']
+
+Note: 'Armazena informações detalhadas sobre os clientes.'
+}
+
+Table public.events {
+id uuid [pk, default: `gen_random_uuid()`]
+name text [not null, note: 'Nome do evento']
+description text [note: 'Descrição detalhada do evento']
+date timestamptz [not null, note: 'Data e hora de início do evento']
+location text [not null, note: 'Local físico ou virtual do evento']
+price numeric [not null, note: 'Preço base para participação no evento']
+available_tickets integer [not null, default: 0, note: 'Número de ingressos ainda disponíveis para o evento']
+image_url text [note: 'URL da imagem promocional do evento']
+status event_status [default: 'active', note: 'Status atual do evento (ativo, inativo, cancelado)']
+created_at timestamptz [default: `now()`]
+updated_at timestamptz [default: `now()`]
+
+Note: 'Armazena informações sobre os eventos disponíveis.'
+}
+
+Table public.tickets {
+id uuid [pk, default: `gen_random_uuid()`]
+event_id uuid [not null, ref: > public.events.id, note: 'ID do evento ao qual este ingresso pertence']
+user_id uuid [not null, ref: > auth.users.id, note: 'ID do usuário que comprou ou possui este ingresso']
+customer_id uuid [null, ref: > public.customers.id, note: 'ID do cliente associado a este ingresso (se não for um usuário logado)']
+ticket_type text [not null, note: 'Tipo de ingresso (ex: VIP, Pista, Meia Entrada)']
+quantity integer [not null, default: 1, note: 'Quantidade de ingressos comprados']
+unit_price numeric [not null, note: 'Preço unitário do ingresso no momento da compra']
+total_price numeric [not null, note: 'Preço total pago pelos ingressos (unit_price * quantity)']
+status ticket_status [not null, default: 'pending', note: 'Status atual do ingresso (pendente, confirmado, cancelado, usado, etc.)']
+qr_code text [note: 'Código QR único para validação do ingresso']
+seat_number text [note: 'Número do assento, se aplicável']
+purchase_date timestamptz [default: `now()`, note: 'Data e hora da compra do ingresso']
+created_at timestamptz [default: `now()`]
+updated_at timestamptz [default: `now()`]
+
+Note: 'Armazena informações sobre os ingressos comprados para eventos.'
+}
+
+Table public.event_analytics {
+id uuid [pk, default: `gen_random_uuid()`]
+event_id uuid [not null, ref: > public.events.id, note: 'ID do evento para o qual a métrica foi coletada']
+metric_type metric_type [not null, note: 'Tipo de métrica (visualizações, ingressos vendidos, receita, etc.)']
+metric_value numeric [not null, note: 'Valor numérico da métrica']
+period_start timestamptz [not null, note: 'Início do período de coleta da métrica']
+period_end timestamptz [not null, note: 'Fim do período de coleta da métrica']
+created_at timestamptz [default: `now()`]
+updated_at timestamptz [default: `now()`]
+
+Note: 'Armazena dados analíticos e métricas de desempenho para eventos.'
+}
+
+Table public.cart_items {
+id uuid [pk, default: `gen_random_uuid()`]
+user_id uuid [not null, ref: > auth.users.id, note: 'ID do usuário proprietário do carrinho de compras']
+product_id uuid [null, ref: > public.products.id, note: 'ID do produto adicionado ao carrinho']
+ticket_id uuid [null, ref: > public.tickets.id, note: 'ID do ingresso adicionado ao carrinho']
+quantity integer [not null, note: 'Quantidade do item no carrinho']
+size text [note: 'Tamanho do produto, se aplicável']
+unit_price numeric [not null, note: 'Preço unitário do item no momento da adição ao carrinho']
+total_price numeric [note: 'Preço total do item (quantidade * preço_unitário)']
+created_at timestamptz [default: `now()`]
+updated_at timestamptz [default: `now()`]
+
+Note: 'Armazena os itens que um usuário adicionou ao seu carrinho de compras.'
+}
+
+Table public.orders {
+id uuid [pk, default: `gen_random_uuid()`]
+user_id uuid [not null, ref: > auth.users.id, note: 'ID do usuário que realizou o pedido']
+total_amount numeric [not null, note: 'Valor total do pedido, incluindo impostos e frete']
+customer_data jsonb [not null, default: `{}`, note: 'Dados do cliente no momento do pedido (snapshot)']
+billing_data jsonb [note: 'Dados de faturamento do pedido']
+shipping_data jsonb [note: 'Dados de envio do pedido']
+payment_method payment_method [note: 'Método de pagamento utilizado (Pix, Cartão de Crédito, Boleto, etc.)']
+payment_status payment_status [not null, default: 'pending', note: 'Status do pagamento (pendente, pago, falhou, etc.)']
+order_status order_status [not null, default: 'pending', note: 'Status atual do pedido (pendente, confirmado, enviado, entregue, etc.)']
+notes text [note: 'Notas adicionais sobre o pedido']
+created_at timestamptz [default: `now()`]
+updated_at timestamptz [default: `now()`]
+
+Note: 'Armazena informações sobre os pedidos realizados pelos usuários.'
+}
+
+Table public.order_items {
+id uuid [pk, default: `gen_random_uuid()`]
+order_id uuid [not null, ref: > public.orders.id, note: 'ID do pedido ao qual este item pertence']
+product_id uuid [null, ref: > public.products.id, note: 'ID do produto incluído neste item do pedido']
+ticket_id uuid [null, ref: > public.tickets.id, note: 'ID do ingresso incluído neste item do pedido']
+quantity integer [not null, note: 'Quantidade do item específico no pedido']
+unit_price numeric [not null, note: 'Preço unitário do item no momento da compra']
+total_price numeric [not null, note: 'Preço total do item (quantidade * preço_unitário)']
+size text [note: 'Tamanho do produto, se aplicável']
+created_at timestamptz [default: `now()`]
+updated_at timestamptz [default: `now()`]
+
+Note: 'Detalha os itens individuais que compõem um pedido.'
+}
+
+Table public.stock_reservations {
+id uuid [pk, default: `gen_random_uuid()`]
+product_id uuid [not null, ref: > public.products.id, note: 'ID do produto reservado']
+size_id uuid [null, ref: > public.product_sizes.id, note: 'ID do tamanho específico do produto reservado']
+quantity integer [not null, note: 'Quantidade do produto reservada']
+user_id uuid [not null, ref: > auth.users.id, note: 'ID do usuário que fez a reserva']
+expires_at timestamptz [not null, note: 'Data e hora de expiração da reserva']
+status reservation_status [not null, default: 'active', note: 'Status da reserva (ativa, expirada, confirmada, cancelada)']
+created_at timestamptz [default: `now()`]
+updated_at timestamptz [default: `now()`]
+
+Note: 'Gerencia reservas temporárias de estoque para produtos.'
+}
+
+Table public.stock_alerts {
+id uuid [pk, default: `gen_random_uuid()`]
+product_id uuid [not null, ref: > public.products.id, note: 'ID do produto associado ao alerta de estoque']
+size_id uuid [null, ref: > public.product_sizes.id, note: 'ID do tamanho específico do produto associado ao alerta']
+current_stock integer [not null, note: 'Nível de estoque atual no momento do alerta']
+threshold integer [not null, note: 'Limite de estoque que disparou o alerta']
+alert_type stock_alert_type [not null, note: 'Tipo de alerta (estoque baixo, sem estoque, crítico)']
+created_at timestamptz [default: `now()`]
+resolved_at timestamptz [null, note: 'Data e hora em que o alerta foi resolvido']
+status alert_status [default: 'active', note: 'Status do alerta (ativo, resolvido)']
+
+Note: 'Armazena alertas gerados por condições de estoque (baixo, esgotado, crítico).'
+}
+
+Table public.realtime_latency_metrics {
+id text [pk, note: 'ID único da métrica de latência']
+user_id uuid [null, ref: > auth.users.id, note: 'ID do usuário que realizou a operação']
+table_name text [not null, note: 'Nome da tabela envolvida na operação']
+operation_type operation_type [not null, note: 'Tipo de operação (SELECT, INSERT, UPDATE, DELETE, SUBSCRIBE)']
+start_time timestamptz [not null, note: 'Data e hora de início da operação']
+end_time timestamptz [not null, note: 'Data e hora de término da operação']
+latency_ms numeric [not null, note: 'Latência da operação em milissegundos']
+success boolean [default: true, note: 'Indica se a operação foi bem-sucedida']
+error_message text [note: 'Mensagem de erro, se a operação falhou']
+timestamp timestamptz [default: `now()`, note: 'Timestamp de registro da métrica']
+created_at timestamptz [default: `now()`]
+
+Note: 'Armazena métricas de latência em tempo real para operações de banco de dados.'
+}
+
+Table public.realtime_latency_alerts {
+id uuid [pk, default: `gen_random_uuid()`]
+user_id uuid [null, ref: > auth.users.id, note: 'ID do usuário associado ao alerta']
+metric_id text [null, ref: > public.realtime_latency_metrics.id, note: 'ID da métrica que disparou o alerta']
+alert_type latency_alert_type [not null, note: 'Tipo de alerta de latência (alta, crítica, timeout, taxa de erro)']
+table_name text [not null, note: 'Nome da tabela envolvida no alerta']
+operation_type text [not null, note: 'Tipo de operação que disparou o alerta']
+latency_ms numeric [not null, note: 'Latência registrada que excedeu o limite']
+threshold_ms numeric [not null, note: 'Limite de latência configurado para o alerta']
+message text [not null, note: 'Mensagem descritiva do alerta']
+acknowledged boolean [default: false, note: 'Indica se o alerta foi reconhecido']
+acknowledged_at timestamptz [null, note: 'Data e hora em que o alerta foi reconhecido']
+acknowledged_by uuid [null, ref: > auth.users.id, note: 'ID do usuário que reconheceu o alerta']
+created_at timestamptz [default: `now()`]
+
+Note: 'Armazena alertas gerados por métricas de latência que excedem os limites configurados.'
+}
+
+Table public.realtime_latency_config {
+user_id uuid [pk, ref: > auth.users.id, note: 'ID do usuário para o qual esta configuração se aplica']
+enabled boolean [default: true, note: 'Indica se o monitoramento de latência está ativado para o usuário']
+batch_size integer [default: 20, note: 'Número de métricas a serem agrupadas antes do envio']
+flush_interval_ms integer [default: 10000, note: 'Intervalo em milissegundos para o envio de lotes de métricas']
+retention_period_hours integer [default: 168, note: 'Período de retenção das métricas em horas']
+alert_threshold_ms numeric [default: 1000, note: 'Limite de latência em ms para disparar um alerta normal']
+critical_threshold_ms numeric [default: 5000, note: 'Limite de latência em ms para disparar um alerta crítico']
+enable_supabase_mcp boolean [default: true, note: 'Habilita a integração com o Supabase Managed Cloud Platform']
+enable_email_alerts boolean [default: false, note: 'Habilita o envio de alertas por email']
+email_alert_frequency email_alert_frequency [not null, default: 'IMMEDIATE', note: 'Frequência de envio dos alertas por email']
+created_at timestamptz [default: `now()`]
+updated_at timestamptz [default: `now()`]
+
+Note: 'Armazena as configurações de monitoramento de latência em tempo real por usuário.'
+}
+
+Table public.rls_performance_metrics {
+id uuid [pk, default: `gen_random_uuid()`]
+table_name text [not null, note: 'Nome da tabela onde a política RLS foi aplicada']
+policy_name text [not null, note: 'Nome da política RLS avaliada']
+query_duration_ms numeric [not null, note: 'Duração da execução da consulta com RLS em milissegundos']
+query_type rls_query_type [not null, note: 'Tipo de consulta (SELECT, INSERT, UPDATE, DELETE)']
+user_id uuid [null, ref: > auth.users.id, note: 'ID do usuário que executou a consulta']
+query_plan jsonb [note: 'Plano de execução da consulta em formato JSONB']
+row_count integer [note: 'Número de linhas afetadas pela consulta']
+cache_hit boolean [default: false, note: 'Indica se a consulta resultou em um acerto de cache']
+created_at timestamptz [default: `now()`]
+
+Note: 'Armazena métricas de desempenho para políticas de Row Level Security (RLS).'
+}
+
+Table public.test_mcp_migration {
+id uuid [pk, default: `gen_random_uuid()`]
+name text [note: 'Nome do item de teste']
+created_at timestamptz [default: `now()`]
+updated_at timestamptz [default: `now()`]
+
+Note: 'Tabela de teste opcional para migrações do MCP.'
+}

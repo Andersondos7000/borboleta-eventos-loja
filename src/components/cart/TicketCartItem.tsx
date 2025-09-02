@@ -55,7 +55,7 @@ const TicketCartItem: React.FC<TicketCartItemProps> = ({ item }) => {
           </div>
         </div>
         
-        <span className="font-bold">{formatCurrency(item.price * item.quantity)}</span>
+        <span className="font-bold">{formatCurrency(item.total_price)}</span>
         <button 
           onClick={() => removeFromCart(item.id)} 
           className="text-red-500 hover:text-red-700"

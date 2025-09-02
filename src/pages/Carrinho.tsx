@@ -104,14 +104,18 @@ const CartContent = () => {
           {products.length > 0 && (
             <div className="flex justify-between">
               <span className="text-gray-600">Subtotal Produtos</span>
-              <span data-testid="subtotal">{formatCurrency(products.reduce((sum, item) => sum + (item.price * item.quantity), 0))}</span>
+              <span data-testid="subtotal">{formatCurrency(products.reduce((sum, item) => {
+                return sum + item.total_price;
+              }, 0))}</span>
             </div>
           )}
           
           {tickets.length > 0 && (
             <div className="flex justify-between">
               <span className="text-gray-600">Subtotal Ingressos</span>
-              <span>{formatCurrency(tickets.reduce((sum, item) => sum + (item.price * item.quantity), 0))}</span>
+              <span>{formatCurrency(tickets.reduce((sum, item) => {
+                return sum + item.total_price;
+              }, 0))}</span>
             </div>
           )}
           

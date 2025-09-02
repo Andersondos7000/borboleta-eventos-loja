@@ -1,0 +1,21 @@
+{
+  "mcpServers": {
+    "supabase": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@supabase/mcp-server-supabase@latest",
+        "--access-token",
+        "sbp_9902f52723d5c4b797961fd65062cce59373ca36"
+      ]
+    },
+    "ecommerce": {
+      "command": "npx",
+      "args": ["tsx", "ecommerce-supabase-mcp.ts"],
+      "env": {
+        "SUPABASE_URL": "https://ojxmfxbflbfinodkhixk.supabase.co",
+        "SUPABASE_SERVICE_ROLE_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9qeG1meGJmbGJmaW5vZGtoaXhrIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1NDkyNTA4MCwiZXhwIjoyMDcwNTAxMDgwfQ.otn_yr7CqJpg9B_z9XaONVxqHSlNsCro67bVstt5JmQ"
+      }
+    }
+  }
+}

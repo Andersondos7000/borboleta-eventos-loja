@@ -13,11 +13,12 @@ interface Product {
   id: string;
   name: string;
   description: string;
-  category: 'camiseta' | 'vestido';
+  category: string;
   price: number;
   stock: number;
   image: string;
-  status: 'Ativo' | 'Inativo' | 'Esgotado';
+  status: 'Ativo' | 'Esgotado';
+  sizes?: ('PP' | 'P' | 'M' | 'G' | 'GG' | 'XG' | 'XXG')[]; // tamanhos do produto
 }
 
 const AdminProdutos = () => {
@@ -25,14 +26,16 @@ const AdminProdutos = () => {
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>('');
+  const [editSelectedImage, setEditSelectedImage] = useState<File | null>(null);
+  const [editImagePreview, setEditImagePreview] = useState<string>('');
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [editFormData, setEditFormData] = useState<{
     name: string;
     description: string;
     category: string;
     price: number;
-    stock: number;
-  }>({ name: '', description: '', category: '', price: 0, stock: 0 });
+    sizes?: ('PP' | 'P' | 'M' | 'G' | 'GG' | 'XG' | 'XXG')[];
+  }>({ name: '', description: '', category: '', price: 0, sizes: [] });
   const [newStockValue, setNewStockValue] = useState<number>(0);
   const [editingStockProduct, setEditingStockProduct] = useState<Product | null>(null);
   const { toast } = useToast();
@@ -46,14 +49,16 @@ const AdminProdutos = () => {
     name: '',
     description: '',
     category: '',
-    price: '',
-    stock: '',
-    image_url: ''
+    price: 0,
+    stock: 0,
+    image_url: '',
+    sizes: [] as ('PP' | 'P' | 'M' | 'G' | 'GG' | 'XG' | 'XXG')[]
   });
   const [isSaving, setIsSaving] = useState(false);
 
   // Função para buscar produtos (reutilizável)
   const fetchProducts = async () => {
+    console.log('[DEBUG] fetchProducts chamada');
     setIsLoading(true);
     
     // Buscar categorias primeiro
@@ -90,10 +95,11 @@ const AdminProdutos = () => {
         in_stock,
         created_at,
         updated_at,
-        product_sizes(
-          stock_quantity
-        )
-      `);
+        sizes,
+         product_sizes(
+           stock_quantity
+         )
+       `);
        
     if (error) {
       toast({
@@ -105,12 +111,16 @@ const AdminProdutos = () => {
       return;
     }
     
+    console.log('[DEBUG] Dados retornados do Supabase:', data);
+    
     const formattedProducts: Product[] = (data || []).map((product: any) => {
       const categoryName = categoryMap.get(product.category) || '';
       // Calcular estoque total somando todas as quantidades dos tamanhos
       const totalStock = product.product_sizes?.reduce((total: number, size: any) => {
         return total + (size.stock_quantity || 0);
       }, 0) || 0;
+      
+      console.log(`[DEBUG] Produto ${product.id}: nome="${product.name}"`);
       
       return {
         id: product.id,
@@ -121,6 +131,7 @@ const AdminProdutos = () => {
         stock: totalStock,
         image: product.image_url || '',
         status: totalStock <= 0 ? 'Esgotado' : 'Ativo',
+        sizes: product.sizes || [],
       };
     });
     
@@ -133,15 +144,45 @@ const AdminProdutos = () => {
   }, [toast]);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    console.log('[DEBUG] handleImageChange chamada para CRIAÇÃO');
     const file = e.target.files?.[0];
+    console.log('[DEBUG] Arquivo selecionado:', file);
     if (file) {
+      console.log('[DEBUG] Definindo selectedImage:', file.name);
       setSelectedImage(file);
       const reader = new FileReader();
       reader.onloadend = () => {
+        console.log('[DEBUG] FileReader resultado:', reader.result);
         setImagePreview(reader.result as string);
+        setNewProduct(prev => ({ ...prev, image_url: reader.result as string }));
+        console.log('[DEBUG] imagePreview definido');
+      };
+      reader.readAsDataURL(file);
+      
+      // Limpar o valor do input para permitir seleção do mesmo arquivo novamente
+      e.target.value = '';
+    }
+  };
+
+  const handleEditImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    console.log('[DEBUG] handleEditImageChange chamada para EDIÇÃO');
+    const file = e.target.files?.[0];
+    console.log('[DEBUG] Arquivo selecionado para edição:', file);
+    if (file) {
+      setEditSelectedImage(file);
+      console.log('[DEBUG] editSelectedImage definido:', file.name);
+      
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const result = reader.result as string;
+        console.log('[DEBUG] FileReader resultado para edição:', result ? 'URL gerada' : 'Falha');
+        setEditImagePreview(result);
+        console.log('[DEBUG] editImagePreview definido para edição');
       };
       reader.readAsDataURL(file);
     }
+    // Limpar o valor do input para permitir selecionar o mesmo arquivo novamente
+    e.target.value = '';
   };
 
   const handleEditClick = (product: Product) => {
@@ -151,37 +192,91 @@ const AdminProdutos = () => {
       description: product.description,
       category: product.category,
       price: product.price,
-      stock: product.stock
+      sizes: product.sizes || [],
     });
     setImagePreview(product.image);
   };
 
   const handleEditDialogClose = () => {
     setEditingProduct(null);
-    setEditFormData({ name: '', description: '', category: '', price: 0, stock: 0 });
+    setEditFormData({ name: '', description: '', category: '', price: 0, sizes: [] });
     setSelectedImage(null);
     setImagePreview('');
+    setEditSelectedImage(null);
+    setEditImagePreview('');
   };
 
   // Função para atualizar produto
   const handleUpdateProduct = async (productId: string, updatedData: Partial<Product>) => {
     try {
-      // Mapear categoria para UUID correto do banco
-      const categoryUUID = updatedData.category === 'camiseta' 
-        ? '6bf31188-1102-4b36-82ae-1084e385558a' // ID real da categoria Camisetas
-        : 'd60ec377-97e0-484d-ab90-fa291c1aba66'; // ID real da categoria Vestidos
+      console.log('[DEBUG] handleUpdateProduct chamada com:', {
+        productId,
+        updatedData
+      });
 
-      // Atualizar no banco de dados (sem o campo stock)
-      const { error } = await supabase
+      let imageUrl = updatedData.image;
+
+      // Se há uma nova imagem selecionada (editSelectedImage), fazer upload
+      if (editSelectedImage) {
+        try {
+          // Gerar nome único para o arquivo
+          const fileExtension = editSelectedImage.name.split('.').pop();
+          const fileName = `product-${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExtension}`;
+          
+          // Upload da imagem para o Supabase Storage
+          const { data: uploadData, error: uploadError } = await supabase.storage
+            .from('product-images')
+            .upload(fileName, editSelectedImage);
+
+          if (uploadError) {
+            console.error('Erro no upload da imagem:', uploadError);
+            toast({
+              title: "Erro no upload da imagem",
+              description: uploadError.message,
+              variant: "destructive"
+            });
+            return;
+          }
+
+          // Obter URL pública da imagem
+          const { data: urlData } = supabase.storage
+            .from('product-images')
+            .getPublicUrl(fileName);
+
+          imageUrl = urlData.publicUrl;
+          console.log('[DEBUG] Nova imagem carregada:', imageUrl);
+        } catch (error) {
+          console.error('Erro no processo de upload:', error);
+          toast({
+            title: "Erro no upload da imagem",
+            description: "Falha ao processar a imagem",
+            variant: "destructive"
+          });
+          return;
+        }
+      }
+
+      // O campo category no banco é TEXT, não UUID - usar string diretamente
+      const updatePayload = {
+        name: updatedData.name,
+        description: updatedData.description,
+        price: updatedData.price,
+        category: updatedData.category?.toLowerCase(), // Garantir minúsculas
+        image_url: imageUrl,
+        sizes: updatedData.sizes || []
+      };
+
+      console.log('[DEBUG] Payload para Supabase:', updatePayload);
+
+      // Atualizar no banco de dados (incluindo campos de medidas)
+      const { data, error } = await supabase
         .from('products')
-        .update({
-          name: updatedData.name,
-          description: updatedData.description,
-          price: updatedData.price,
-          category: categoryUUID,
-          image_url: updatedData.image
-        })
-        .eq('id', productId);
+        .update(updatePayload)
+        .eq('id', productId)
+        .select();
+
+      console.log('[DEBUG] Resposta do Supabase:', { data, error });
+      console.log('[DEBUG] Linhas afetadas:', data?.length || 0);
 
       if (error) {
         toast({
@@ -192,22 +287,55 @@ const AdminProdutos = () => {
         return;
       }
 
-      // Se houver alteração no estoque, atualizar na tabela product_sizes
-        if (updatedData.stock !== undefined) {
-          const { error: stockError } = await supabase
-            .from('product_sizes')
-            .upsert({
-              product_id: productId,
-              size: 'M',
-              stock_quantity: updatedData.stock
-            }, {
-              onConflict: 'product_id,size'
-            });
+      if (!data || data.length === 0) {
+        console.error('[DEBUG] Nenhuma linha foi atualizada - possível problema de permissão RLS');
+        toast({
+          title: "Erro ao atualizar produto",
+          description: "Nenhuma linha foi atualizada. Verifique as permissões.",
+          variant: "destructive"
+        });
+        return;
+      }
 
-          if (stockError) {
-            console.error('Erro ao atualizar estoque:', stockError);
+      // Se houver alteração nos tamanhos, atualizar na tabela product_sizes
+      if (updatedData.sizes !== undefined) {
+        // Primeiro, remover todas as entradas existentes para este produto
+        const { error: deleteError } = await supabase
+          .from('product_sizes')
+          .delete()
+          .eq('product_id', productId);
+
+        if (deleteError) {
+          console.error('Erro ao remover entradas antigas de estoque:', deleteError);
+        }
+
+        // Depois, criar novas entradas para cada tamanho selecionado
+        if (updatedData.sizes && updatedData.sizes.length > 0 && updatedData.stock !== undefined && updatedData.stock > 0) {
+          const stockEntries = updatedData.sizes.map(size => ({
+            product_id: productId,
+            size: size,
+            stock_quantity: updatedData.stock || 0
+          }));
+
+          const { error: insertError } = await supabase
+            .from('product_sizes')
+            .insert(stockEntries);
+
+          if (insertError) {
+            console.error('Erro ao criar novas entradas de estoque:', insertError);
           }
         }
+      } else if (updatedData.stock !== undefined) {
+        // Se apenas o estoque foi alterado (sem mudança nos tamanhos), atualizar todas as entradas existentes
+        const { error: updateStockError } = await supabase
+          .from('product_sizes')
+          .update({ stock_quantity: updatedData.stock })
+          .eq('product_id', productId);
+
+        if (updateStockError) {
+          console.error('Erro ao atualizar estoque:', updateStockError);
+        }
+      }
 
       // Atualizar estado local
       setProducts(prevProducts => 
@@ -222,6 +350,10 @@ const AdminProdutos = () => {
         title: "Produto atualizado",
         description: "As alterações foram salvas com sucesso.",
       });
+      
+      // Limpar estados de imagem após atualização bem-sucedida
+      setEditSelectedImage(null);
+      setEditImagePreview('');
       
       handleEditDialogClose();
       fetchProducts(); // Recarregar produtos para garantir sincronização
@@ -253,7 +385,7 @@ const AdminProdutos = () => {
           .upsert({
             product_id: productId,
             size: 'M',
-            stock_quantity: newStockValue
+            stock_quantity: newStock
           }, {
             onConflict: 'product_id,size'
           });
@@ -440,22 +572,65 @@ const AdminProdutos = () => {
       return;
     }
 
+    if (!newProduct.sizes || newProduct.sizes.length === 0) {
+      toast({
+        title: "Tamanhos obrigatórios",
+        description: "Selecione pelo menos um tamanho para o produto.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     setIsSaving(true);
     try {
-      // Mapear categoria para UUID correto do banco
-      const categoryUUID = newProduct.category === 'camiseta' 
-        ? '6bf31188-1102-4b36-82ae-1084e385558a' // ID real da categoria Camisetas
-        : 'd60ec377-97e0-484d-ab90-fa291c1aba66'; // ID real da categoria Vestidos
+      let imageUrl = null;
+      
+      // Upload da imagem para o Supabase Storage se uma imagem foi selecionada
+      if (selectedImage) {
+        console.log('[DEBUG] Fazendo upload da imagem:', selectedImage.name);
+        const fileExt = selectedImage.name.split('.').pop();
+        const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+        const filePath = `products/${fileName}`;
+
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from('product-images')
+          .upload(filePath, selectedImage, {
+            cacheControl: '3600',
+            upsert: false
+          });
+
+        if (uploadError) {
+          console.error('[DEBUG] Erro no upload:', uploadError);
+          toast({
+            title: "Erro no upload da imagem",
+            description: uploadError.message,
+            variant: "destructive"
+          });
+          return;
+        }
+
+        // Obter URL pública da imagem
+        const { data: { publicUrl } } = supabase.storage
+          .from('product-images')
+          .getPublicUrl(filePath);
+        
+        imageUrl = publicUrl;
+        console.log('[DEBUG] URL da imagem:', imageUrl);
+      }
+
+      // Garantir que a categoria esteja em minúsculas conforme constraint do banco
+      const categoryValue = newProduct.category.toLowerCase();
 
       const { data, error } = await supabase
         .from('products')
         .insert({
           name: newProduct.name,
           description: newProduct.description,
-          category: categoryUUID,
-          price: Number(newProduct.price),
-          image_url: newProduct.image_url || null,
-          in_stock: Number(newProduct.stock) > 0
+          category: categoryValue, // Usar valor em minúsculas
+          price: newProduct.price,
+          image_url: imageUrl,
+          in_stock: newProduct.stock > 0,
+          sizes: newProduct.sizes || []
         })
         .select()
         .single();
@@ -469,29 +644,32 @@ const AdminProdutos = () => {
         return;
       }
 
-      // Se há estoque inicial, criar entrada na tabela product_sizes
-        if (Number(newProduct.stock) > 0) {
-          const { error: stockError } = await supabase
-            .from('product_sizes')
-            .upsert({
-              product_id: data.id,
-              size: 'M',
-              stock_quantity: Number(newProduct.stock)
-            }, {
-              onConflict: 'product_id,size'
-            });
+      // Criar entradas na tabela product_sizes para cada tamanho selecionado
+      if (newProduct.sizes && newProduct.sizes.length > 0 && newProduct.stock > 0) {
+        const stockEntries = newProduct.sizes.map(size => ({
+          product_id: data.id,
+          size: size,
+          quantity: newProduct.stock
+        }));
 
-          if (stockError) {
-            console.error('Erro ao criar estoque inicial:', stockError);
-          }
+        const { error: stockError } = await supabase
+          .from('product_sizes')
+          .insert(stockEntries);
+
+        if (stockError) {
+          console.error('Erro ao criar estoque inicial:', stockError);
         }
+      }
 
       toast({
         title: "Produto criado",
         description: "O produto foi criado com sucesso.",
       });
       
-      setNewProduct({ name: '', description: '', category: '', price: '', stock: '', image_url: '' });
+      // Limpar estados
+      setNewProduct({ name: '', description: '', category: '', price: 0, stock: 0, image_url: '', sizes: [] });
+      setSelectedImage(null);
+      setImagePreview('');
       fetchProducts();
     } catch (error) {
       toast({
@@ -535,7 +713,7 @@ const AdminProdutos = () => {
                 <PlusCircle className="mr-2 h-4 w-4" /> Adicionar Produto
               </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[550px]">
+            <DialogContent className="w-[95vw] max-w-[550px] max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>Adicionar Novo Produto</DialogTitle>
                 <DialogDescription>
@@ -543,34 +721,34 @@ const AdminProdutos = () => {
                 </DialogDescription>
               </DialogHeader>
               <div className="grid gap-4 py-4">
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <label htmlFor="name" className="text-right text-sm font-medium">
+                <div className="grid grid-cols-1 sm:grid-cols-4 items-start sm:items-center gap-2 sm:gap-4">
+                  <label htmlFor="name" className="text-left sm:text-right text-sm font-medium">
                     Nome
                   </label>
                   <Input 
                     id="name" 
-                    className="col-span-3" 
+                    className="sm:col-span-3" 
                     value={newProduct.name}
                     onChange={(e) => setNewProduct({...newProduct, name: e.target.value})}
                   />
                 </div>
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <label htmlFor="description" className="text-right text-sm font-medium">
+                <div className="grid grid-cols-1 sm:grid-cols-4 items-start sm:items-center gap-2 sm:gap-4">
+                  <label htmlFor="description" className="text-left sm:text-right text-sm font-medium">
                     Descrição
                   </label>
                   <Input 
                     id="description" 
-                    className="col-span-3" 
+                    className="sm:col-span-3" 
                     value={newProduct.description}
                     onChange={(e) => setNewProduct({...newProduct, description: e.target.value})}
                   />
                 </div>
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <label htmlFor="category" className="text-right text-sm font-medium">
+                <div className="grid grid-cols-1 sm:grid-cols-4 items-start sm:items-center gap-2 sm:gap-4">
+                  <label htmlFor="category" className="text-left sm:text-right text-sm font-medium">
                     Categoria
                   </label>
                   <Select value={newProduct.category} onValueChange={(value) => setNewProduct({...newProduct, category: value})}>
-                    <SelectTrigger className="col-span-3">
+                    <SelectTrigger className="sm:col-span-3">
                       <SelectValue placeholder="Selecione" />
                     </SelectTrigger>
                     <SelectContent>
@@ -579,50 +757,96 @@ const AdminProdutos = () => {
                     </SelectContent>
                   </Select>
                 </div>
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <label htmlFor="price" className="text-right text-sm font-medium">
+                <div className="grid grid-cols-1 sm:grid-cols-4 items-start sm:items-center gap-2 sm:gap-4">
+                  <label htmlFor="price" className="text-left sm:text-right text-sm font-medium">
                     Preço (R$)
                   </label>
                   <Input 
                     id="price" 
-                    className="col-span-3" 
+                    className="sm:col-span-3" 
                     type="number" 
                     step="0.01"
                     value={newProduct.price}
-                    onChange={(e) => setNewProduct({...newProduct, price: e.target.value})}
+                    onChange={(e) => setNewProduct({...newProduct, price: Number(e.target.value) || 0})}
                   />
                 </div>
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <label htmlFor="stock" className="text-right text-sm font-medium">
+                <div className="grid grid-cols-1 sm:grid-cols-4 items-start sm:items-center gap-2 sm:gap-4">
+                  <label htmlFor="stock" className="text-left sm:text-right text-sm font-medium">
                     Estoque
                   </label>
                   <Input 
                     id="stock" 
-                    className="col-span-3" 
-                    type="number" 
+                    className="sm:col-span-3" 
+                    type="number"
                     value={newProduct.stock}
-                    onChange={(e) => setNewProduct({...newProduct, stock: e.target.value})}
+                    onChange={(e) => setNewProduct({...newProduct, stock: Number(e.target.value) || 0})}
                   />
                 </div>
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <label className="text-right text-sm font-medium">
+
+
+
+
+                {/* Campo de Tamanhos Múltiplos */}
+                <div className="grid grid-cols-1 sm:grid-cols-4 items-start gap-2 sm:gap-4">
+                  <label className="text-left sm:text-right text-sm font-medium">
+                    Tamanhos
+                  </label>
+                  <div className="sm:col-span-3 space-y-2">
+                    <div className="flex flex-wrap gap-3">
+                      {['PP', 'P', 'M', 'G', 'GG', 'XG', 'XXG'].map((size) => (
+                        <label key={size} className="flex items-center space-x-2 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={newProduct.sizes?.includes(size as 'PP' | 'P' | 'M' | 'G' | 'GG' | 'XG' | 'XXG') || false}
+                            onChange={(e) => {
+                              const currentSizes = newProduct.sizes || [];
+                              if (e.target.checked) {
+                                setNewProduct(prev => ({
+                                  ...prev,
+                                  sizes: [...currentSizes, size as 'PP' | 'P' | 'M' | 'G' | 'GG' | 'XG' | 'XXG']
+                                }));
+                              } else {
+                                setNewProduct(prev => ({
+                                  ...prev,
+                                  sizes: currentSizes.filter(s => s !== size)
+                                }));
+                              }
+                            }}
+                            className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                          />
+                          <span className="text-sm font-medium">{size}</span>
+                        </label>
+                      ))}
+                    </div>
+                    <p className="text-xs text-gray-500">
+                      Selecione os tamanhos disponíveis para este produto
+                    </p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-4 items-start sm:items-center gap-2 sm:gap-4">
+                  <label htmlFor="image" className="text-left sm:text-right text-sm font-medium">
                     Imagem
                   </label>
-                  <div className="col-span-3">
-                    <Input 
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        if (file) {
-                          const reader = new FileReader();
-                          reader.onload = (event) => {
-                            setNewProduct({ ...newProduct, image_url: event.target?.result as string });
-                          };
-                          reader.readAsDataURL(file);
-                        }
-                      }}
-                    />
+                  <div className="sm:col-span-3 space-y-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => document.getElementById('create-image-upload')?.click()}
+                      className="w-full"
+                    >
+                      <ImagePlus className="mr-2 h-4 w-4" />
+                      Selecionar Imagem
+                    </Button>
+                    {imagePreview && (
+                      <div className="relative w-full h-40 rounded-md overflow-hidden border">
+                        <img
+                          src={imagePreview}
+                          alt="Preview"
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    )}
                   </div>
                 </div>
                 {newProduct.image_url && (
@@ -754,7 +978,7 @@ const AdminProdutos = () => {
                                 Editar
                               </Button>
                             </DialogTrigger>
-                            <DialogContent className="sm:max-w-[550px]">
+                            <DialogContent className="w-[95vw] max-w-[550px] max-h-[90vh] overflow-y-auto">
                               <DialogHeader>
                                 <DialogTitle>Editar Produto</DialogTitle>
                                 <DialogDescription>
@@ -762,37 +986,37 @@ const AdminProdutos = () => {
                                 </DialogDescription>
                               </DialogHeader>
                               <div className="grid gap-4 py-4">
-                                <div className="grid grid-cols-4 items-center gap-4">
-                                  <label htmlFor="edit-name" className="text-right text-sm font-medium">
+                                <div className="grid grid-cols-1 sm:grid-cols-4 items-start sm:items-center gap-2 sm:gap-4">
+                                  <label htmlFor="edit-name" className="text-left sm:text-right text-sm font-medium">
                                     Nome
                                   </label>
                                   <Input 
                                     id="edit-name" 
-                                    className="col-span-3" 
+                                    className="sm:col-span-3" 
                                     value={editFormData.name}
                                     onChange={(e) => setEditFormData(prev => ({ ...prev, name: e.target.value }))}
                                   />
                                 </div>
-                                <div className="grid grid-cols-4 items-center gap-4">
-                                  <label htmlFor="edit-description" className="text-right text-sm font-medium">
+                                <div className="grid grid-cols-1 sm:grid-cols-4 items-start sm:items-center gap-2 sm:gap-4">
+                                  <label htmlFor="edit-description" className="text-left sm:text-right text-sm font-medium">
                                     Descrição
                                   </label>
                                   <Input 
                                     id="edit-description" 
-                                    className="col-span-3" 
+                                    className="sm:col-span-3" 
                                     value={editFormData.description}
                                     onChange={(e) => setEditFormData(prev => ({ ...prev, description: e.target.value }))}
                                   />
                                 </div>
-                                <div className="grid grid-cols-4 items-center gap-4">
-                                  <label htmlFor="edit-category" className="text-right text-sm font-medium">
+                                <div className="grid grid-cols-1 sm:grid-cols-4 items-start sm:items-center gap-2 sm:gap-4">
+                                  <label htmlFor="edit-category" className="text-left sm:text-right text-sm font-medium">
                                     Categoria
                                   </label>
                                   <Select 
                                     value={editFormData.category}
                                     onValueChange={(value) => setEditFormData(prev => ({ ...prev, category: value }))}
                                   >
-                                    <SelectTrigger className="col-span-3">
+                                    <SelectTrigger className="sm:col-span-3">
                                       <SelectValue />
                                     </SelectTrigger>
                                     <SelectContent>
@@ -801,33 +1025,62 @@ const AdminProdutos = () => {
                                     </SelectContent>
                                   </Select>
                                 </div>
-                                <div className="grid grid-cols-4 items-center gap-4">
-                                  <label htmlFor="edit-price" className="text-right text-sm font-medium">
+                                <div className="grid grid-cols-1 sm:grid-cols-4 items-start sm:items-center gap-2 sm:gap-4">
+                                  <label htmlFor="edit-price" className="text-left sm:text-right text-sm font-medium">
                                     Preço (R$)
                                   </label>
                                   <Input 
                                     id="edit-price" 
-                                    className="col-span-3" 
+                                    className="sm:col-span-3" 
                                     type="number" 
                                     value={editFormData.price}
                                     onChange={(e) => setEditFormData(prev => ({ ...prev, price: Number(e.target.value) }))}
                                   />
                                 </div>
-                                <div className="grid grid-cols-4 items-center gap-4">
-                                  <label htmlFor="edit-stock" className="text-right text-sm font-medium">
-                                    Estoque
+
+
+
+
+                                {/* Campo de Tamanhos Múltiplos */}
+                                <div className="grid grid-cols-1 sm:grid-cols-4 items-start gap-2 sm:gap-4">
+                                  <label className="text-left sm:text-right text-sm font-medium">
+                                    Tamanhos
                                   </label>
-                                  <Input 
-                                    id="edit-stock" 
-                                    className="col-span-3" 
-                                    type="number" 
-                                    value={editFormData.stock}
-                                    onChange={(e) => setEditFormData(prev => ({ ...prev, stock: Number(e.target.value) }))}
-                                  />
+                                  <div className="sm:col-span-3 space-y-2">
+                                    <div className="flex flex-wrap gap-3">
+                                      {['PP', 'P', 'M', 'G', 'GG', 'XG', 'XXG'].map((size) => (
+                                        <label key={size} className="flex items-center space-x-2 cursor-pointer">
+                                          <input
+                                            type="checkbox"
+                                            checked={editFormData.sizes?.includes(size as 'PP' | 'P' | 'M' | 'G' | 'GG' | 'XG' | 'XXG') || false}
+                                            onChange={(e) => {
+                                              const currentSizes = editFormData.sizes || [];
+                                              if (e.target.checked) {
+                                                setEditFormData(prev => ({
+                                                  ...prev,
+                                                  sizes: [...currentSizes, size as 'PP' | 'P' | 'M' | 'G' | 'GG' | 'XG' | 'XXG']
+                                                }));
+                                              } else {
+                                                setEditFormData(prev => ({
+                                                  ...prev,
+                                                  sizes: currentSizes.filter(s => s !== size)
+                                                }));
+                                              }
+                                            }}
+                                            className="rounded border-gray-300 text-butterfly-orange focus:ring-butterfly-orange"
+                                          />
+                                          <span className="text-sm font-medium">{size}</span>
+                                        </label>
+                                      ))}
+                                    </div>
+                                    <p className="text-xs text-gray-500">
+                                      Selecione um ou mais tamanhos disponíveis para este produto
+                                    </p>
+                                  </div>
                                 </div>
 
-                                <div className="grid grid-cols-4 items-center gap-4">
-                                  <label className="text-right text-sm font-medium">
+                                <div className="grid grid-cols-1 sm:grid-cols-4 items-start sm:items-center gap-2 sm:gap-4">
+                                  <label className="text-left sm:text-right text-sm font-medium">
                                     Imagem
                                   </label>
                                   <div className="col-span-3 space-y-4">
@@ -835,23 +1088,16 @@ const AdminProdutos = () => {
                                       <Button
                                         type="button"
                                         variant="outline"
-                                        onClick={() => document.getElementById(`edit-image-upload-${product.id}`)?.click()}
+                                        onClick={() => document.getElementById('edit-image-upload')?.click()}
                                         className="w-full"
                                       >
                                         <ImagePlus className="mr-2 h-4 w-4" />
                                         Alterar Imagem
                                       </Button>
-                                      <input
-                                        type="file"
-                                        id={`edit-image-upload-${product.id}`}
-                                        accept="image/*"
-                                        className="hidden"
-                                        onChange={handleImageChange}
-                                      />
                                     </div>
-                                    <div className="relative w-full h-40 rounded-md overflow-hidden border">
+                                    <div className="relative w-full h-40 rounded-md overflow-hidden">
                                       <img
-                                        src={product.image}
+                                        src={editImagePreview || product.image}
                                         alt={product.name}
                                         className="w-full h-full object-cover"
                                       />
@@ -869,10 +1115,11 @@ const AdminProdutos = () => {
                                     name: editFormData.name,
                                     description: editFormData.description,
                                     price: editFormData.price,
-                                    stock: editFormData.stock,
                                     category: editFormData.category as 'camiseta' | 'vestido',
-                                    status: editFormData.stock > 0 ? 'Ativo' : 'Esgotado',
-                                    image: imagePreview || product.image
+                                    image: imagePreview || product.image,
+                                    // Campos de medidas
+
+                                    sizes: editFormData.sizes
                                   })}
                                 >
                                   Salvar Alterações
@@ -985,6 +1232,22 @@ const AdminProdutos = () => {
           </CardContent>
         </Card>
       </div>
+      
+      {/* Inputs de arquivo separados para upload de imagens */}
+      <input
+        type="file"
+        id="create-image-upload"
+        accept="image/*"
+        className="hidden"
+        onChange={handleImageChange}
+      />
+      <input
+        type="file"
+        id="edit-image-upload"
+        accept="image/*"
+        className="hidden"
+        onChange={handleEditImageChange}
+      />
     </div>
   );
 };

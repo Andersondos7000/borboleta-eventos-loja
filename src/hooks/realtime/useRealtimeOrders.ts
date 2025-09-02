@@ -1,7 +1,7 @@
 import { useCallback, useMemo } from 'react';
 import { useRealtimeSync } from './useRealtimeSync';
 import { supabase } from '../../lib/supabase';
-import { useAuth } from '../../contexts/AuthContext';
+import { useAuth } from '../useAuth';
 
 // Tipos para pedidos
 interface OrderItem {
@@ -10,7 +10,7 @@ interface OrderItem {
   product_id: string;
   product_size_id: string;
   quantity: number;
-  unit_price: number;
+  price: number;
   total_price: number;
   created_at: string;
   // Dados relacionados
@@ -128,7 +128,7 @@ export function useRealtimeOrders(filters?: OrderFilters): UseRealtimeOrdersRetu
         product_id,
         product_size_id,
         quantity,
-        unit_price,
+        price,
         total_price,
         created_at,
         products:product_id (
@@ -193,7 +193,10 @@ export function useRealtimeOrders(filters?: OrderFilters): UseRealtimeOrdersRetu
       };
 
       // Aplicar atualização otimista
-      const { applyOptimisticUpdate, rollbackOptimisticUpdate } = useRealtimeSync.getActions();
+      const { getActions } = useRealtimeSync<Order>({
+        table: 'orders',
+        enableOptimistic: true
+      });
       applyOptimisticUpdate(optimisticOrder);
 
       // Preparar dados para atualização

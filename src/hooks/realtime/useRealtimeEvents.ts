@@ -1,7 +1,7 @@
 import { useCallback, useMemo } from 'react';
 import { useRealtimeSync } from './useRealtimeSync';
 import { supabase } from '../../lib/supabase';
-import { useAuth } from '../../contexts/AuthContext';
+import { useAuth } from '../useAuth';
 
 // Tipos para eventos e ingressos
 interface Ticket {

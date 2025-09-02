@@ -11,7 +11,7 @@ export interface ProductProps {
   name: string;
   price: number;
   image: string;
-  category: 'camiseta' | 'vestido';
+  category: 'camiseta' | 'vestido' | 'acessorio';
   sizes: string[];
   inStock: boolean;
 }
@@ -48,13 +48,16 @@ const ProductCardContent: React.FC<{ product: ProductProps }> = ({ product }) =>
 
     addToCart({
       id: '', // Will be set by CartContext
+      product_id: product.id,
       name: product.name,
       price: product.price,
       image: product.image,
+      images: [product.image],
       category: product.category,
-      size: selectedSize,
       quantity: 1,
-      productId: product.id
+      unit_price: product.price,
+      total_price: product.price,
+      metadata: { size: selectedSize }
     });
 
     toast({
@@ -83,7 +86,7 @@ const ProductCardContent: React.FC<{ product: ProductProps }> = ({ product }) =>
             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" 
             onError={(e) => {
               const target = e.target as HTMLImageElement;
-              target.src = 'https://images.unsplash.com/photo-1576566588028-4147f3842f27?q=80';
+              target.src = '/placeholder.svg';
               target.onerror = null;
             }}
           />

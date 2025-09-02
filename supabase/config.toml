@@ -1,4 +1,4 @@
-project_id = "ojxmfxbflbfinodkhixk"
+project_id = "fdswhhckvweghcavgdvb"
 
 [api]
 enabled = true
@@ -53,8 +53,5 @@ double_confirm_changes = true
 enable_confirmations = false
 max_frequency = 3600
 
-[functions.create-abacate-payment]
+[functions.abacatepay-manager]
 verify_jwt = true
-
-[functions.abacate-webhook]
-verify_jwt = false

@@ -15,9 +15,9 @@ interface ProductCartItemProps {
 }
 
 const sizesMap: Record<string, string[]> = {
-  camiseta: ['PP', 'P', 'M', 'G', 'GG', 'XGG', 'EXGG'],
-  vestido: ['PP', 'P', 'M', 'G', 'GG', 'XGG', 'EXGG'],
-  default: ['P', 'M', 'G'] // Fallback para categorias não mapeadas
+  camiseta: ['PP', 'P', 'M', 'G', 'GG', 'XG', 'XXG'],
+  vestido: ['PP', 'P', 'M', 'G', 'GG', 'XG', 'XXG'],
+  default: ['PP', 'P', 'M', 'G', 'GG', 'XG', 'XXG'] // Fallback para categorias não mapeadas
 };
 
 const ProductCartItem: React.FC<ProductCartItemProps> = ({ item }) => {
@@ -45,7 +45,7 @@ const ProductCartItem: React.FC<ProductCartItemProps> = ({ item }) => {
           className="w-full h-full object-cover" 
           onError={(e) => {
             const target = e.target as HTMLImageElement;
-            target.src = 'https://images.unsplash.com/photo-1576566588028-4147f3842f27?q=80';
+            target.src = '/placeholder.svg';
             target.onerror = null; // Prevent infinite loops
           }}
         />
@@ -57,7 +57,7 @@ const ProductCartItem: React.FC<ProductCartItemProps> = ({ item }) => {
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
             <div className="flex items-center gap-4">
               <Select
-                value={item.size}
+                value={item.size || ''}
                 onValueChange={(value) => updateSize(item.id, value)}
               >
                 <SelectTrigger className="w-24">
@@ -99,7 +99,7 @@ const ProductCartItem: React.FC<ProductCartItemProps> = ({ item }) => {
           </div>
           
           <div className="flex items-center gap-4">
-            <span className="font-bold" data-testid="item-price">{formatCurrency(item.price * item.quantity)}</span>
+            <span className="font-bold" data-testid="item-price">{formatCurrency(item.total_price)}</span>
             <button 
               onClick={() => removeFromCart(item.id)} 
               className="text-red-500 hover:text-red-700"

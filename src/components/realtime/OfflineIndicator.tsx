@@ -1,158 +1,185 @@
 import React, { useState, useEffect } from 'react';
-import { Wifi, WifiOff, Clock, AlertCircle, CheckCircle } from 'lucide-react';
+import { WifiOff, AlertTriangle, RefreshCw } from 'lucide-react';
+import { useJWTManager } from '../../hooks/useJWTManager';
+import { useConnectivityDetection } from '../../hooks/realtime/useConnectivityDetection';
 import { useRealtimeContext } from '../../contexts/RealtimeContext';
-import { useNetworkStatus } from '../../hooks/useNetworkStatus';
-import { useOfflineQueue } from '../../hooks/realtime/useOfflineQueue';
 
 interface OfflineIndicatorProps {
   className?: string;
-  showDetails?: boolean;
-  position?: 'top' | 'bottom' | 'inline';
+  showRetryButton?: boolean;
+  onRetry?: () => void;
 }
 
+/**
+ * Componente para indicar quando o usuário está offline
+ * 
+ * Funcionalidades:
+ * - Detecção automática de status offline
+ * - Botão de retry para tentar reconectar
+ * - Informações sobre dados em cache
+ * - Alertas sobre limitações offline
+ */
 export function OfflineIndicator({ 
   className = '', 
-  showDetails = false, 
-  position = 'top' 
+  showRetryButton = true, 
+  onRetry 
 }: OfflineIndicatorProps) {
-  const { state } = useRealtimeContext();
-  const { isOnline, connectionType, effectiveType } = useNetworkStatus();
-  const { 
-    queueSize, 
-    isProcessing, 
-    lastProcessedAt,
-    getQueuedActionsByStatus 
-  } = useOfflineQueue();
-  const [showBanner, setShowBanner] = useState(false);
-  const [wasOffline, setWasOffline] = useState(false);
-  
-  const pendingActions = getQueuedActionsByStatus('pending').length;
-  const failedActions = getQueuedActionsByStatus('failed').length;
-  
-  // Controlar exibição do banner
-  useEffect(() => {
-    if (!isOnline) {
-      setShowBanner(true);
-      setWasOffline(true);
-    } else if (wasOffline && isOnline) {
-      // Mostrar banner de reconexão por alguns segundos
-      setShowBanner(true);
-      const timer = setTimeout(() => {
-        setShowBanner(false);
-        setWasOffline(false);
-      }, 3000);
-      return () => clearTimeout(timer);
-    } else if (pendingActions > 0 || failedActions > 0 || isProcessing) {
-      // Mostrar quando há ações pendentes ou processando
-      setShowBanner(true);
-    } else {
-      setShowBanner(false);
+  const { isAuthenticated, tokenStatus } = useJWTManager();
+  const [isOnline, setIsOnline] = React.useState(navigator.onLine);
+  const [retrying, setRetrying] = React.useState(false);
+
+  // Monitorar status de conexão
+  React.useEffect(() => {
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
+
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
+
+  // Função de retry
+  const handleRetry = async () => {
+    if (retrying) return;
+    
+    setRetrying(true);
+    
+    try {
+      // Tentar fazer uma requisição simples para verificar conectividade
+      const response = await fetch('/api/health', {
+        method: 'HEAD',
+        cache: 'no-cache'
+      });
+      
+      if (response.ok) {
+        setIsOnline(true);
+        onRetry?.();
+      }
+    } catch (error) {
+      console.warn('Retry failed:', error);
+    } finally {
+      setRetrying(false);
     }
-  }, [isOnline, wasOffline, pendingActions, failedActions, isProcessing]);
-  
-  if (!showBanner) {
+  };
+
+  // Determinar se deve mostrar o indicador
+  const shouldShow = !isOnline || tokenStatus === 'expired' || !isAuthenticated;
+
+  if (!shouldShow) {
     return null;
   }
-  
-  const isOffline = !isOnline;
-  const isReconnected = isOnline && wasOffline;
-  
-  const getStatusColor = () => {
-    if (isOffline) return 'bg-red-500';
-    if (pendingActions > 0) return 'bg-yellow-500';
-    if (isProcessing) return 'bg-blue-500';
-    return 'bg-green-500';
+
+  // Determinar tipo de problema
+  const getIssueType = () => {
+    if (!isOnline) return 'offline';
+    if (tokenStatus === 'expired') return 'token_expired';
+    if (!isAuthenticated) return 'not_authenticated';
+    return 'unknown';
   };
 
-  const getStatusText = () => {
-    if (isOffline) return 'Offline';
-    if (isProcessing) return 'Sincronizando...';
-    if (pendingActions > 0) return `${pendingActions} pendente${pendingActions > 1 ? 's' : ''}`;
-    if (isReconnected) return 'Reconectado';
-    return 'Online';
+  const issueType = getIssueType();
+
+  // Configurações por tipo de problema
+  const issueConfig = {
+    offline: {
+      icon: WifiOff,
+      title: 'Você está offline',
+      description: 'Verifique sua conexão com a internet',
+      bgColor: 'bg-orange-50',
+      borderColor: 'border-orange-200',
+      textColor: 'text-orange-800',
+      iconColor: 'text-orange-600'
+    },
+    token_expired: {
+      icon: AlertTriangle,
+      title: 'Sessão expirada',
+      description: 'Sua sessão expirou. Faça login novamente.',
+      bgColor: 'bg-red-50',
+      borderColor: 'border-red-200',
+      textColor: 'text-red-800',
+      iconColor: 'text-red-600'
+    },
+    not_authenticated: {
+      icon: AlertTriangle,
+      title: 'Não autenticado',
+      description: 'Você precisa fazer login para continuar.',
+      bgColor: 'bg-yellow-50',
+      borderColor: 'border-yellow-200',
+      textColor: 'text-yellow-800',
+      iconColor: 'text-yellow-600'
+    },
+    unknown: {
+      icon: AlertTriangle,
+      title: 'Problema de conexão',
+      description: 'Ocorreu um problema inesperado.',
+      bgColor: 'bg-gray-50',
+      borderColor: 'border-gray-200',
+      textColor: 'text-gray-800',
+      iconColor: 'text-gray-600'
+    }
   };
 
-  const getStatusIcon = () => {
-    if (isOffline) return <WifiOff className="w-4 h-4" />;
-    if (isProcessing) return <Clock className="w-4 h-4 animate-spin" />;
-    if (pendingActions > 0) return <AlertCircle className="w-4 h-4" />;
-    return <CheckCircle className="w-4 h-4" />;
-  };
-  
-  // Banner inline
-  if (position === 'inline') {
-    return (
-      <div className={`flex items-center space-x-2 ${className}`}>
-        <div className={`w-2 h-2 rounded-full ${getStatusColor()}`} />
-        {getStatusIcon()}
-        <span className={`text-sm font-medium ${
-          isOffline ? 'text-red-600' : 
-          pendingActions > 0 ? 'text-yellow-600' :
-          isProcessing ? 'text-blue-600' : 'text-green-600'
-        }`}>
-            {getStatusText()}
-        </span>
-        {showDetails && (
-          <OfflineDetails isOffline={isOffline} />
-        )}
-      </div>
-    );
-  }
-  
-  // Banner fixo
-  const positionClasses = {
-    top: 'fixed top-0 left-0 right-0 z-50',
-    bottom: 'fixed bottom-0 left-0 right-0 z-50'
-  };
-  
-  const getBannerColor = () => {
-    if (isOffline) return 'bg-red-600';
-    if (pendingActions > 0) return 'bg-yellow-600';
-    if (isProcessing) return 'bg-blue-600';
-    return 'bg-green-600';
-  };
-
-  const getBannerMessage = () => {
-    if (isOffline) {
-      return pendingActions > 0 
-        ? `Você está offline. ${pendingActions} alteração${pendingActions > 1 ? 'ões' : ''} será${pendingActions > 1 ? 'ão' : ''} sincronizada${pendingActions > 1 ? 's' : ''} quando a conexão for restabelecida.`
-        : 'Você está offline. Suas alterações serão sincronizadas quando a conexão for restabelecida.';
-    }
-    if (isProcessing) {
-      return `Sincronizando ${queueSize} alteração${queueSize > 1 ? 'ões' : ''}...`;
-    }
-    if (pendingActions > 0) {
-      return `${pendingActions} alteração${pendingActions > 1 ? 'ões' : ''} pendente${pendingActions > 1 ? 's' : ''} para sincronização.`;
-    }
-    return 'Conexão restabelecida! Dados sincronizados.';
-  };
+  const config = issueConfig[issueType];
+  const Icon = config.icon;
 
   return (
-    <div className={`${positionClasses[position]} ${className}`}>
-      <div className={`px-4 py-2 text-center text-white ${getBannerColor()}`}>
-        <div className="flex items-center justify-center space-x-2">
-          {getStatusIcon()}
-          <span className="text-sm font-medium">
-            {getBannerMessage()}
-          </span>
+    <div className={`fixed top-4 right-4 z-50 max-w-sm ${className}`}>
+      <div className={`p-4 rounded-lg border shadow-lg ${config.bgColor} ${config.borderColor}`}>
+        <div className="flex items-start gap-3">
+          <Icon className={`w-5 h-5 mt-0.5 ${config.iconColor}`} />
           
-          {/* Botão de fechar para banner de reconexão */}
-          {isReconnected && (
-            <button
-              onClick={() => setShowBanner(false)}
-              className="ml-2 text-white hover:text-gray-200"
-              aria-label="Fechar"
-            >
-              ✕
-            </button>
-          )}
-        </div>
-        
-        {showDetails && (
-          <div className="mt-2">
-            <OfflineDetails isOffline={isOffline} />
+          <div className="flex-1 min-w-0">
+            <h3 className={`font-semibold text-sm ${config.textColor}`}>
+              {config.title}
+            </h3>
+            <p className={`text-sm mt-1 ${config.textColor} opacity-90`}>
+              {config.description}
+            </p>
+            
+            {/* Informações adicionais para modo offline */}
+            {issueType === 'offline' && (
+              <div className="mt-2 text-xs text-orange-700 space-y-1">
+                <p>• Suas alterações serão salvas localmente</p>
+                <p>• Os dados serão sincronizados quando voltar online</p>
+              </div>
+            )}
+            
+            {/* Botão de retry */}
+            {showRetryButton && issueType === 'offline' && (
+              <button
+                onClick={handleRetry}
+                disabled={retrying}
+                className="mt-3 inline-flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-orange-800 bg-orange-100 border border-orange-300 rounded hover:bg-orange-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                <RefreshCw className={`w-3 h-3 ${retrying ? 'animate-spin' : ''}`} />
+                {retrying ? 'Tentando...' : 'Tentar novamente'}
+              </button>
+            )}
+            
+            {/* Botão de login para problemas de autenticação */}
+            {(issueType === 'token_expired' || issueType === 'not_authenticated') && (
+              <button
+                onClick={() => window.location.href = '/auth/login'}
+                className="mt-3 inline-flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-white bg-blue-600 border border-blue-600 rounded hover:bg-blue-700 transition-colors"
+              >
+                Fazer Login
+              </button>
+            )}
           </div>
-        )}
+          
+          {/* Botão de fechar */}
+          <button
+            onClick={() => setIsOnline(true)} // Temporariamente esconder
+            className={`text-lg leading-none ${config.textColor} opacity-60 hover:opacity-100 transition-opacity`}
+            title="Fechar"
+          >
+            ×
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -260,53 +287,7 @@ export function PendingChangesIndicator({ className = '' }: { className?: string
   );
 }
 
-// Hook para detectar mudanças de conectividade
-export function useConnectivityDetection() {
-  const { state, dispatch } = useRealtimeContext();
-  const [connectionQuality, setConnectionQuality] = useState<'good' | 'poor' | 'offline'>('good');
-  
-  useEffect(() => {
-    let pingInterval: NodeJS.Timeout;
-    
-    const checkConnection = async () => {
-      if (!navigator.onLine) {
-        setConnectionQuality('offline');
-        return;
-      }
-      
-      try {
-        const start = Date.now();
-        const response = await fetch('/api/ping', { 
-          method: 'HEAD',
-          cache: 'no-cache'
-        });
-        const latency = Date.now() - start;
-        
-        if (response.ok) {
-          setConnectionQuality(latency > 1000 ? 'poor' : 'good');
-        } else {
-          setConnectionQuality('poor');
-        }
-      } catch {
-        setConnectionQuality('offline');
-      }
-    };
-    
-    // Verificar conexão a cada 30 segundos
-    pingInterval = setInterval(checkConnection, 30000);
-    checkConnection(); // Verificação inicial
-    
-    return () => {
-      if (pingInterval) clearInterval(pingInterval);
-    };
-  }, []);
-  
-  return {
-    isOnline: state.isOnline,
-    connectionQuality,
-    connectionStatus: state.connectionStatus
-  };
-}
+
 
 // Componente de qualidade de conexão
 export function ConnectionQualityIndicator({ className = '' }: { className?: string }) {

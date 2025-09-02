@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../../contexts/AuthContext';
+import { useAuth } from '@/hooks/useAuth';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
 import { Alert, AlertDescription } from '../../components/ui/alert';
 import { Loader2, Shield, AlertCircle, Eye, EyeOff } from 'lucide-react';
+import { FcGoogle } from 'react-icons/fc';
 import { toast } from '../../hooks/use-toast';
 import ForgotPasswordModal from '../../components/ForgotPasswordModal';
 
@@ -18,7 +19,7 @@ const AdminLogin = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showForgotPasswordModal, setShowForgotPasswordModal] = useState(false);
   
-  const { signIn } = useAuth();
+  const { signIn, signInWithGoogle } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   
@@ -40,6 +41,31 @@ const AdminLogin = () => {
     } catch (error: any) {
       console.error('Erro no login admin:', error);
       const errorMessage = error.message || 'Erro ao fazer login';
+      setError(errorMessage);
+      toast({
+        title: 'Erro no login',
+        description: errorMessage,
+        variant: 'destructive',
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    setError('');
+    setIsLoading(true);
+
+    try {
+      await signInWithGoogle('admin');
+      toast({
+        title: 'Login realizado com sucesso',
+        description: 'Bem-vindo ao painel administrativo!',
+      });
+      navigate(from, { replace: true });
+    } catch (error: any) {
+      console.error('Erro no login com Google:', error);
+      const errorMessage = error.message || 'Erro ao fazer login com Google';
       setError(errorMessage);
       toast({
         title: 'Erro no login',
@@ -139,6 +165,26 @@ const AdminLogin = () => {
               )}
             </Button>
           </form>
+
+          <div className="relative my-4">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-white px-2 text-muted-foreground">ou</span>
+            </div>
+          </div>
+
+          <Button
+            type="button"
+            variant="outline"
+            onClick={handleGoogleLogin}
+            disabled={isLoading}
+            className="w-full"
+          >
+            <FcGoogle className="mr-2 h-4 w-4" />
+            Entrar com Google
+          </Button>
           
           <div className="mt-6 text-center text-sm text-muted-foreground">
             <p>Acesso restrito a administradores</p>

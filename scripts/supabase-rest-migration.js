@@ -7,7 +7,7 @@
  * Documentação: https://supabase.com/docs/reference/api/rest
  */
 
-const SUPABASE_URL = 'https://ojxmfxbflbfinodkhixk.supabase.co';
+const SUPABASE_URL = 'https://fdswhhckvweghcavgdvb.supabase.co';
 const SERVICE_ROLE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9qeG1meGJmbGJmaW5vZGtoaXhrIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1NDkyNTA4MCwiZXhwIjoyMDcwNTAxMDgwfQ.otn_yr7CqJpg9B_z9XaONVxqHSlNsCro67bVstt5JmQ';
 
 // SQL da migração - função delete_user_cascade

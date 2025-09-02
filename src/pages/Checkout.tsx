@@ -19,6 +19,7 @@ import { supabase } from "@/lib/supabase";
 const formSchema = z.object({
   firstName: z.string().min(2, { message: "Nome deve ter pelo menos 2 caracteres" }),
   lastName: z.string().min(2, { message: "Sobrenome deve ter pelo menos 2 caracteres" }),
+  email: z.string().email({ message: "Email inválido" }),
   personType: z.enum(["fisica", "juridica"]),
   cpf: z.string().min(11, { message: "CPF deve ter pelo menos 11 caracteres" }),
   country: z.string().min(2, { message: "País é obrigatório" }),
@@ -53,7 +54,6 @@ const Checkout = () => {
   
   useEffect(() => {
     console.log("Checkout page loaded with cart items:", items);
-    // Redirect to cart if the cart is empty
     if (items.length === 0) {
       navigate('/carrinho');
       toast({
@@ -69,7 +69,10 @@ const Checkout = () => {
     name: item.name,
     price: item.price,
     quantity: item.quantity,
-    ...(isCartProduct(item) ? { category: item.category, size: item.size } : {})
+    ...(isCartProduct(item) ? { 
+      category: item.category as 'camiseta' | 'vestido' | undefined, 
+      size: item.size 
+    } : {})
   }));
 
   const form = useForm<FormValues>({
@@ -77,6 +80,7 @@ const Checkout = () => {
     defaultValues: {
       firstName: "",
       lastName: "",
+      email: "",
       personType: "fisica",
       cpf: "",
       country: "Brasil",
@@ -100,26 +104,25 @@ const Checkout = () => {
     setIsProcessingPayment(true);
     
     try {
-      // Get current session
+      // Get current session (optional for guest checkout)
       const { data: session } = await supabase.auth.getSession();
       
-      if (!session.session) {
-        toast({
-          title: "Erro de autenticação",
-          description: "Você precisa estar logado para finalizar o pedido.",
-          variant: "destructive"
-        });
-        return;
-      }
+      // Allow guest checkout - no authentication required
+      console.log('Processing checkout for:', session.session ? 'authenticated user' : 'guest user');
+
+      // Calcular total dos itens de teste
+      const testTotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
       // Call Abacate Pay edge function
-      const { data: paymentResponse, error } = await supabase.functions.invoke('create-abacate-payment', {
-        headers: {
-          Authorization: `Bearer ${session.session.access_token}`
-        },
+      const invokeHeaders = session.session ? {
+        Authorization: `Bearer ${session.session.access_token}`
+      } : {};
+      
+      const { data: paymentResponse, error } = await supabase.functions.invoke('abacatepay-manager', {
+        headers: invokeHeaders,
         body: {
           orderData: data,
-          total: total,
+          total: items.length === 0 ? testTotal : total,
           items: items.map(item => ({
             productId: isCartProduct(item) ? item.productId : null,
             ticketId: !isCartProduct(item) ? item.ticketId : null,
@@ -127,7 +130,8 @@ const Checkout = () => {
             quantity: item.quantity,
             size: isCartProduct(item) ? item.size : null,
             name: item.name
-          }))
+          })),
+          isTestUser: isTestUser
         }
       });
 
@@ -202,8 +206,9 @@ const Checkout = () => {
                     onRemoveParticipant={removeParticipant}
                   />
                   <PaymentSection 
-                    paymentData={paymentData} 
+                    paymentData={paymentData}
                     isLoading={isProcessingPayment}
+                    // Removed duplicate isLoading prop
                   />
                   <TermsSection 
                     form={form} 

@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Teste Carrinho Vazio</title>
+</head>
+<body>
+    <h1>Teste de Redirecionamento</h1>
+    <p>Este teste verifica se o usuário é redirecionado quando acessa checkout com carrinho vazio.</p>
+    
+    <script>
+        // Limpar localStorage
+        localStorage.removeItem('cart');
+        console.log('localStorage limpo');
+        
+        // Redirecionar para checkout
+        setTimeout(() => {
+            window.location.href = 'http://localhost:8083/checkout';
+        }, 2000);
+    </script>
+</body>
+</html>

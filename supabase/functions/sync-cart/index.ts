@@ -1,5 +1,5 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { serve } from 'std/http/server.ts'
+import { createClient } from '@supabase/supabase-js'
 import { corsHeaders } from '../_shared/cors.ts'
 
 // Tipos para sincronização do carrinho
@@ -14,9 +14,12 @@ interface CartSyncRequest {
 interface CartItem {
   id: string;
   user_id: string;
-  product_id: string;
-  product_size_id: string;
+  product_id?: string;
+  ticket_id?: string;
   quantity: number;
+  size?: string;
+  unit_price: number;
+  total_price?: number;
   created_at: string;
   updated_at: string;
 }
