@@ -103,7 +103,7 @@ const MIGRATION_PHASES = [
     parallel: true,
     steps: [
       'update_sync_functions',
-      'update_abacatepay_manager',
+      // 'update_payment_gateway', // Removido
       'update_monitoring_functions'
     ]
   },
@@ -367,7 +367,7 @@ class AutomatedMigration {
           break;
           
         case 'update_sync_functions':
-        case 'update_abacatepay_manager':
+        // case 'update_abacatepay_manager': // Removido
         case 'update_monitoring_functions':
           await this.updateEdgeFunctions(step);
           break;
@@ -509,7 +509,7 @@ class AutomatedMigration {
     this.log('Validando Edge Functions...', 'progress');
     
     // Testar se as funções estão respondendo
-    const functions = ['sync-cart', 'sync-orders', 'abacatepay-manager'];
+    const functions = ['sync-cart', 'sync-orders']; // Gateway de pagamento removido
     
     for (const func of functions) {
       try {

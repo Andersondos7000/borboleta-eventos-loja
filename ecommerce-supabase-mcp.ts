@@ -54,7 +54,7 @@ const OrderSchema = z.object({
   user_id: z.string().uuid().optional(),
   status: z.enum(['pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled', 'refunded']).default('pending'),
   payment_method: z.enum(['pix', 'credit_card', 'debit_card', 'bank_slip', 'cash']).optional(),
-  payment_provider: z.string().default('abacatepay'),
+  payment_provider: z.string().optional(),
   subtotal: z.number().nonnegative().default(0),
   discount_amount: z.number().nonnegative().default(0),
   tax_amount: z.number().nonnegative().default(0),

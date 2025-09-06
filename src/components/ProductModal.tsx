@@ -160,6 +160,16 @@ const ProductModal: React.FC<ProductModalProps> = ({ product, children, onSelect
       setQuantity(newQuantity);
     }
   };
+  
+  // Função para lidar com o evento de roda do mouse para zoom
+  const handleMouseWheel = (e: React.WheelEvent) => {
+    e.preventDefault();
+    if (e.deltaY < 0 && zoomLevel < 3) {
+      setZoomLevel(prev => Math.min(prev + 0.5, 3));
+    } else if (e.deltaY > 0 && zoomLevel > 1) {
+      setZoomLevel(prev => Math.max(prev - 0.5, 1));
+    }
+  };
 
   const getImageLabel = (index: number) => {
     const labels = ['Principal', 'Frente', 'Lateral', 'Detalhe'];
@@ -189,6 +199,7 @@ const ProductModal: React.FC<ProductModalProps> = ({ product, children, onSelect
                   alt={`${product.name} - ${getImageLabel(currentImage)}`}
                   className="w-full h-full object-cover transition-transform duration-300 cursor-zoom-in"
                   style={{ transform: `scale(${zoomLevel})` }}
+                  onWheel={handleMouseWheel}
                 />
               </AspectRatio>
               
@@ -334,6 +345,7 @@ const ProductModal: React.FC<ProductModalProps> = ({ product, children, onSelect
                   onClick={() => handleQuantityChange(-1)}
                   disabled={quantity <= 1}
                   className="h-10 w-10"
+                  data-testid="decrease-quantity"
                 >
                   -
                 </Button>
@@ -344,6 +356,7 @@ const ProductModal: React.FC<ProductModalProps> = ({ product, children, onSelect
                   onClick={() => handleQuantityChange(1)}
                   disabled={quantity >= product.stock}
                   className="h-10 w-10"
+                  data-testid="increase-quantity"
                 >
                   +
                 </Button>

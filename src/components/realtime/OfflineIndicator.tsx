@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { WifiOff, AlertTriangle, RefreshCw } from 'lucide-react';
+import { WifiOff, AlertTriangle, RefreshCw, Brain } from 'lucide-react';
 import { useJWTManager } from '../../hooks/useJWTManager';
 import { useConnectivityDetection } from '../../hooks/realtime/useConnectivityDetection';
 import { useRealtimeContext } from '../../contexts/RealtimeContext';
+import { usePiecesMCP } from '../../hooks/mcp/usePiecesMCP';
 
 interface OfflineIndicatorProps {
   className?: string;
@@ -27,26 +28,64 @@ export function OfflineIndicator({
   const { isAuthenticated, tokenStatus } = useJWTManager();
   const [isOnline, setIsOnline] = React.useState(navigator.onLine);
   const [retrying, setRetrying] = React.useState(false);
+  const [showTips, setShowTips] = useState(false);
+  const [troubleshootingTips, setTroubleshootingTips] = useState<string[]>([]);
+  const { connectionQuality } = useConnectivityDetection();
+  const { logConnectivityEvent, getConnectivityTroubleshooting } = usePiecesMCP();
 
   // Monitorar status de conexão
   React.useEffect(() => {
-    const handleOnline = () => setIsOnline(true);
-    const handleOffline = () => setIsOnline(false);
+    const handleOnline = () => {
+      setIsOnline(true);
+      // Registrar evento de conexão no Pieces MCP
+      logConnectivityEvent({
+        type: 'online',
+        details: { timestamp: new Date().toISOString() }
+      });
+    };
+    
+    const handleOffline = () => {
+      setIsOnline(false);
+      // Registrar evento de desconexão no Pieces MCP
+      logConnectivityEvent({
+        type: 'offline',
+        details: { timestamp: new Date().toISOString() }
+      });
+      
+      // Carregar dicas de solução de problemas do Pieces MCP
+      getConnectivityTroubleshooting('offline')
+        .then(tips => {
+          setTroubleshootingTips(tips);
+          setShowTips(true);
+        })
+        .catch(err => console.error('Erro ao obter dicas:', err));
+    };
 
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
+
+    // Verificar status inicial
+    if (!navigator.onLine) {
+      handleOffline();
+    }
 
     return () => {
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
     };
-  }, []);
+  }, [logConnectivityEvent, getConnectivityTroubleshooting]);
 
   // Função de retry
   const handleRetry = async () => {
     if (retrying) return;
     
     setRetrying(true);
+    
+    // Registrar tentativa de reconexão no Pieces MCP
+    logConnectivityEvent({
+      type: 'reconnect_attempt',
+      details: { timestamp: new Date().toISOString() }
+    });
     
     try {
       // Tentar fazer uma requisição simples para verificar conectividade
@@ -58,9 +97,35 @@ export function OfflineIndicator({
       if (response.ok) {
         setIsOnline(true);
         onRetry?.();
+        
+        // Registrar reconexão bem-sucedida no Pieces MCP
+        logConnectivityEvent({
+          type: 'reconnect_success',
+          details: { timestamp: new Date().toISOString() }
+        });
+        
+        // Esconder dicas após reconexão bem-sucedida
+        setShowTips(false);
       }
     } catch (error) {
       console.warn('Retry failed:', error);
+      
+      // Registrar falha de reconexão no Pieces MCP
+      logConnectivityEvent({
+        type: 'reconnect_failure',
+        details: { 
+          timestamp: new Date().toISOString(),
+          error: error instanceof Error ? error.message : 'Erro desconhecido'
+        }
+      });
+      
+      // Carregar novas dicas de solução de problemas após falha
+      getConnectivityTroubleshooting('reconnect_failure')
+        .then(tips => {
+          setTroubleshootingTips(tips);
+          setShowTips(true);
+        })
+        .catch(err => console.error('Erro ao obter dicas:', err));
     } finally {
       setRetrying(false);
     }
@@ -145,6 +210,30 @@ export function OfflineIndicator({
               <div className="mt-2 text-xs text-orange-700 space-y-1">
                 <p>• Suas alterações serão salvas localmente</p>
                 <p>• Os dados serão sincronizados quando voltar online</p>
+                
+                {/* Botão para mostrar/esconder dicas inteligentes do Pieces MCP */}
+                <button 
+                  onClick={() => setShowTips(!showTips)}
+                  className="flex items-center gap-1 mt-1 text-orange-800 hover:text-orange-900 transition-colors"
+                >
+                  <Brain size={12} />
+                  <span>{showTips ? 'Esconder dicas' : 'Mostrar dicas inteligentes'}</span>
+                </button>
+                
+                {/* Dicas inteligentes do Pieces MCP */}
+                {showTips && troubleshootingTips.length > 0 && (
+                  <div className="mt-2 p-2 bg-orange-100 rounded border border-orange-200">
+                    <h4 className="font-medium text-orange-800 flex items-center gap-1">
+                      <Brain size={12} />
+                      <span>Dicas inteligentes:</span>
+                    </h4>
+                    <ul className="mt-1 space-y-1 list-disc list-inside">
+                      {troubleshootingTips.map((tip, index) => (
+                        <li key={index} className="text-orange-700">{tip}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
               </div>
             )}
             

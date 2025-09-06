@@ -8,12 +8,10 @@ import EventCountdown from '@/components/EventCountdown';
 import { Link } from 'react-router-dom';
 
 const Evento = () => {
-  // Data do evento: 12 de Abril de 2025
-  const eventDate = new Date('2025-04-12T09:00:00');
   
   const eventSchedule = [
     {
-      day: 'Dia 1 - 12 de Abril',
+      day: 'Dia 1 - 17 de Abril',
       activities: [
         { time: '08:00 - 09:00', title: 'Credenciamento e Welcome Coffee' },
         { time: '09:00 - 10:30', title: 'Abertura Oficial e Palestra Principal' },
@@ -27,7 +25,7 @@ const Evento = () => {
       ]
     },
     {
-      day: 'Dia 2 - 13 de Abril',
+      day: 'Dia 2 - 18 de Abril',
       activities: [
         { time: '08:30 - 09:00', title: 'Abertura do Segundo Dia' },
         { time: '09:00 - 10:30', title: 'Palestra: Superando Desafios' },
@@ -41,6 +39,8 @@ const Evento = () => {
       ]
     }
   ];
+  
+
 
 
 
@@ -51,7 +51,7 @@ const Evento = () => {
       {/* Hero Section */}
       <section className="relative bg-butterfly-black text-white py-24">
         <div className="absolute inset-0 overflow-hidden opacity-20">
-          <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1529156069898-49953e39b3ac?q=80')] bg-center bg-no-repeat bg-cover"></div>
+          <div className="absolute inset-0 bg-[url('/02.jpg')] bg-center bg-no-repeat bg-cover"></div>
         </div>
         
         <div className="container mx-auto px-4 relative z-10">
@@ -69,7 +69,7 @@ const Evento = () => {
             <div className="flex flex-wrap gap-6 mb-8">
               <div className="flex items-center">
                 <Calendar className="text-butterfly-orange mr-2 h-5 w-5" />
-                <span>12 e 13 de Abril de 2025</span>
+                <span>17 e 18 de Abril de 2026</span>
               </div>
               
               <div className="flex items-center">
@@ -89,10 +89,11 @@ const Evento = () => {
             </div>
             
             <Button
+              asChild
               size="lg"
               className="bg-butterfly-orange hover:bg-butterfly-orange/90"
             >
-              Comprar Ingressos
+              <Link to="/ingressos">Comprar Ingressos</Link>
             </Button>
           </div>
         </div>
@@ -104,7 +105,7 @@ const Evento = () => {
           <div className="text-center mb-6">
             <h2 className="font-display text-2xl font-bold">O Evento Começa Em</h2>
           </div>
-          <EventCountdown targetDate={eventDate} />
+          <EventCountdown />
         </div>
       </section>
       
@@ -147,29 +148,29 @@ const Evento = () => {
             <div className="grid grid-cols-2 gap-4">
               <div className="aspect-w-1 aspect-h-1 rounded-lg overflow-hidden">
                 <img 
-                  src="https://images.unsplash.com/photo-1573164713988-8665fc963095?q=80" 
-                  alt="Mulheres em conferência" 
+                  src="/01.jpg" 
+                  alt="Momento especial da conferência" 
                   className="w-full h-full object-cover"
                 />
               </div>
               <div className="aspect-w-1 aspect-h-1 rounded-lg overflow-hidden mt-8">
                 <img 
-                  src="https://images.unsplash.com/photo-1511988617509-a57c8a288659?q=80" 
-                  alt="Ambiente de conferência" 
+                  src="/02.jpg" 
+                  alt="Participantes do evento" 
                   className="w-full h-full object-cover"
                 />
               </div>
               <div className="aspect-w-1 aspect-h-1 rounded-lg overflow-hidden">
                 <img 
-                  src="https://images.unsplash.com/photo-1568992687947-868a62a9f521?q=80" 
-                  alt="Workshop prático" 
+                  src="/03.jpg" 
+                  alt="Workshop interativo" 
                   className="w-full h-full object-cover"
                 />
               </div>
               <div className="aspect-w-1 aspect-h-1 rounded-lg overflow-hidden mt-8">
                 <img 
-                  src="https://images.unsplash.com/photo-1515187029135-18ee286d815b?q=80" 
-                  alt="Participantes em atividade" 
+                  src="/04.jpg" 
+                  alt="Palestrante inspiradora" 
                   className="w-full h-full object-cover"
                 />
               </div>
@@ -261,6 +262,59 @@ const Evento = () => {
                 ou transporte público, pois o local é bem servido por linhas de ônibus e metrô.
               </p>
             </div>
+          </div>
+        </div>
+      </section>
+      
+      {/* Instagram Section */}
+      <section className="bg-gray-50 py-16">
+        <div className="container mx-auto px-4">
+          <h2 className="font-display text-3xl font-bold mb-10 text-center">Momentos no Instagram</h2>
+          
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="aspect-square rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+              <img 
+                src="/doc/img/instagram/01.jpg" 
+                alt="Momento da conferência no Instagram" 
+                className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+              />
+            </div>
+            <div className="aspect-square rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+              <img 
+                src="/doc/img/instagram/02.jpg" 
+                alt="Participantes da conferência no Instagram" 
+                className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+              />
+            </div>
+            <div className="aspect-square rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+              <img 
+                src="/doc/img/instagram/03.jpg" 
+                alt="Palestrante da conferência no Instagram" 
+                className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+              />
+            </div>
+            <div className="aspect-square rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+              <img 
+                src="/doc/img/instagram/04.jpg" 
+                alt="Momento especial da conferência no Instagram" 
+                className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+              />
+            </div>
+          </div>
+          
+          <div className="mt-8 text-center">
+            <p className="text-gray-600 mb-4">
+              Acompanhe mais momentos e novidades em nosso Instagram
+            </p>
+            <Button
+              asChild
+              variant="outline"
+              className="border-butterfly-orange text-butterfly-orange hover:bg-butterfly-orange hover:text-white"
+            >
+              <a href="https://instagram.com/querenhapuque" target="_blank" rel="noopener noreferrer">
+                Seguir @querenhapuque
+              </a>
+            </Button>
           </div>
         </div>
       </section>

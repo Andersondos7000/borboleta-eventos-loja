@@ -15,6 +15,7 @@ export interface ProductProps {
   category: 'camiseta' | 'vestido' | 'acessorio';
   sizes: string[];
   inStock: boolean;
+  stock?: number;
 }
 
 const ProductCardContent: React.FC<{ product: ProductProps }> = ({ product }) => {
@@ -37,7 +38,7 @@ const ProductCardContent: React.FC<{ product: ProductProps }> = ({ product }) =>
           .from('product_images')
           .select('image_url')
           .eq('product_id', product.id)
-          .order('order_index', { ascending: true })
+          .order('id', { ascending: true })
         
         if (error) {
           console.error('Erro ao carregar imagens do produto:', error)

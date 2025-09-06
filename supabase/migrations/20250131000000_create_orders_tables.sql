@@ -1,4 +1,4 @@
--- Criação das tabelas para sistema de pedidos AbacatePay
+-- Criação das tabelas para sistema de pedidos
 -- Data: 31/01/2025
 -- Autor: Sistema
 
@@ -93,7 +93,7 @@ COMMENT ON COLUMN orders.id IS 'ID único do pedido';
 COMMENT ON COLUMN orders.user_id IS 'ID do usuário que fez o pedido';
 COMMENT ON COLUMN orders.total_amount IS 'Valor total do pedido em reais';
 COMMENT ON COLUMN orders.status IS 'Status do pedido: pending, confirmed, awaiting_payment, paid, cancelled';
-COMMENT ON COLUMN orders.payment_id IS 'ID do pagamento no gateway (AbacatePay)';
+COMMENT ON COLUMN orders.payment_id IS 'ID do pagamento no gateway';
 
 COMMENT ON TABLE order_items IS 'Itens dos pedidos';
 COMMENT ON COLUMN order_items.order_id IS 'ID do pedido ao qual o item pertence';

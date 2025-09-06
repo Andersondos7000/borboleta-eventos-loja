@@ -11,6 +11,7 @@ import { Search, Filter, Grid, List, ChevronDown, Star, Heart } from 'lucide-rea
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import ProductCard, { ProductProps } from '@/components/ProductCard';
+import ProductModal from '@/components/ProductModal';
 import SizeChart from '@/components/SizeChart';
 import { supabase } from '@/lib/supabase';
 import { useToast } from '@/components/ui/use-toast';
@@ -20,22 +21,24 @@ const Loja = () => {
   const [activeCategory, setActiveCategory] = useState<'all' | 'camisetas' | 'vestidos'>('all');
   const [products, setProducts] = useState<ProductProps[]>([
     {
-      id: '1',
+      id: '00000000-0000-0000-0000-000000000001',
       name: 'Camiseta Borboleta',
       price: 45,
       image: '/placeholder.svg',
       category: 'camiseta',
       sizes: ['PP', 'P', 'M', 'G', 'GG', 'XG', 'XXG'],
-      inStock: true
+      inStock: true,
+      stock: 10
     },
     {
-      id: '2',
+      id: '00000000-0000-0000-0000-000000000002',
       name: 'Vestido Elegante',
       price: 89,
       image: '/placeholder.svg',
       category: 'vestido',
       sizes: ['PP', 'P', 'M', 'G', 'GG', 'XG', 'XXG'],
-      inStock: true
+      inStock: true,
+      stock: 5
     }
   ]);
   const [isLoading, setIsLoading] = useState(false);
@@ -338,13 +341,15 @@ const Loja = () => {
                     <ProductCard key={product.id} product={product} />
                   ) : (
                     <div key={product.id} className="bg-white rounded-lg shadow-md p-4 flex gap-4 hover:shadow-lg transition-shadow">
-                       <div className="w-32 h-32 flex-shrink-0">
-                         <img 
-                           src={product.image} 
-                           alt={product.name}
-                           className="w-full h-full object-cover rounded-lg"
-                         />
-                       </div>
+                       <ProductModal product={product} onSelectSize={() => {}}>
+                         <div className="w-32 h-32 flex-shrink-0 cursor-pointer">
+                           <img 
+                             src={product.image} 
+                             alt={product.name}
+                             className="w-full h-full object-cover rounded-lg"
+                           />
+                         </div>
+                       </ProductModal>
                        <div className="flex-1 flex flex-col justify-between">
                          <div>
                            <h3 className="font-semibold text-lg mb-2">{product.name}</h3>
@@ -358,22 +363,35 @@ const Loja = () => {
                            </div>
                          </div>
                          <div className="flex items-center justify-between">
-                           <div className="flex items-center gap-2">
-                             <span className="text-2xl font-bold text-green-600">
-                               R$ {product.price.toFixed(2)}
-                             </span>
-                             <Badge variant="secondary" className="text-xs">
-                               {product.category}
-                             </Badge>
-                           </div>
-                           <div className="flex gap-2">
-                             <Button size="sm" variant="outline">
-                               <Heart className="h-4 w-4" />
-                             </Button>
-                             <Button size="sm">
-                               Ver Detalhes
-                             </Button>
-                           </div>
+                             <div className="flex items-center gap-2">
+                               <span className="text-2xl font-bold text-butterfly-orange">
+                                 R$ {product.price.toFixed(2)}
+                               </span>
+                               <Badge variant="secondary" className="text-xs">
+                                 {product.category}
+                               </Badge>
+                             </div>
+                             <div className="flex gap-2">
+                               <Button 
+                                 size="sm" 
+                                 variant="outline"
+                                 onClick={(e) => {
+                                   e.stopPropagation();
+                                   // Implementar lógica de favoritar
+                                   toast({
+                                     title: "Produto favoritado",
+                                     description: `${product.name} foi adicionado aos favoritos.`
+                                   });
+                                 }}
+                               >
+                                 <Heart className="h-4 w-4" />
+                               </Button>
+                               <ProductModal product={product} onSelectSize={() => {}}>
+                                 <Button size="sm">
+                                   Ver Detalhes
+                                 </Button>
+                               </ProductModal>
+                             </div>
                          </div>
                        </div>
                      </div>

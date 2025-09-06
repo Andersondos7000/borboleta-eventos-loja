@@ -31,8 +31,8 @@ Este documento detalha todas as atualizações realizadas nas Edge Functions do 
 - Adicionados: `customer_data`, `billing_data`, `shipping_data`, `payment_method`, `payment_id`, `notes`
 - Removido: `updated_by`
 
-### 3. abacatepay-manager (✅ Atualizada)
-**Arquivo:** `supabase/functions/abacatepay-manager/index.ts`
+### 3. [Removida] Edge Function de Pagamento
+**Arquivo:** `[Removido]`
 
 **Mudanças realizadas:**
 - Função `createPayment`: Atualizada para usar `customer_data`, `payment_id`, `payment_method`
@@ -106,7 +106,7 @@ Este documento detalha todas as atualizações realizadas nas Edge Functions do 
 
 ### Próximos Passos
 1. **Testar as funções atualizadas** em ambiente de desenvolvimento
-2. **Validar integração** com a API do AbacatePay
+2. **Validar integração** com a API de pagamento
 3. **Verificar webhooks** estão funcionando corretamente
 4. **Monitorar logs** para identificar possíveis problemas
 5. **Deploy em produção** após validação completa
@@ -118,10 +118,10 @@ Este documento detalha todas as atualizações realizadas nas Edge Functions do 
 - Verificar se o frontend está enviando os dados no formato correto
 - Atualizar interfaces TypeScript se necessário
 
-### Integração AbacatePay
-- Função `abacatepay-manager` foi atualizada para usar novos campos
+### Integração de Pagamento
+- Função de pagamento foi removida
 - Webhooks agora atualizam `order_status` e `payment_status` separadamente
-- Mapeamento de status mantém compatibilidade com API do AbacatePay
+- Sistema preparado para integração com diferentes gateways de pagamento
 
 ### Performance
 - Uso de campos JSON (`customer_data`, `billing_data`, `shipping_data`) pode impactar consultas

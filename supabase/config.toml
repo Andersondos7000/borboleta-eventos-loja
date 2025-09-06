@@ -53,5 +53,4 @@ double_confirm_changes = true
 enable_confirmations = false
 max_frequency = 3600
 
-[functions.abacatepay-manager]
-verify_jwt = true
+# Configuração de Edge Function removida

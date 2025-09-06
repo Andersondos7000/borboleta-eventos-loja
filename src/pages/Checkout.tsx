@@ -1,234 +1,161 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Form } from "@/components/ui/form";
-import { useToast } from "@/components/ui/use-toast";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
-import CustomerInformation from "@/components/checkout/CustomerInformation";
-import AdditionalNotes from "@/components/checkout/AdditionalNotes";
-import ParticipantsList from "@/components/checkout/ParticipantsList";
-import PaymentSection from "@/components/checkout/PaymentSection";
-import OrderSummary from "@/components/checkout/OrderSummary";
-import TermsSection from "@/components/checkout/TermsSection";
-import { useCart, isCartProduct } from "@/contexts/CartContext";
-import { supabase } from "@/lib/supabase";
-
-const formSchema = z.object({
-  firstName: z.string().min(2, { message: "Nome deve ter pelo menos 2 caracteres" }),
-  lastName: z.string().min(2, { message: "Sobrenome deve ter pelo menos 2 caracteres" }),
-  email: z.string().email({ message: "Email inválido" }),
-  personType: z.enum(["fisica", "juridica"]),
-  cpf: z.string().min(11, { message: "CPF deve ter pelo menos 11 caracteres" }),
-  country: z.string().min(2, { message: "País é obrigatório" }),
-  zipCode: z.string().min(8, { message: "CEP deve ter pelo menos 8 caracteres" }),
-  address: z.string().min(5, { message: "Endereço deve ter pelo menos 5 caracteres" }),
-  number: z.string().min(1, { message: "Número é obrigatório" }),
-  neighborhood: z.string().optional(),
-  city: z.string().min(2, { message: "Cidade é obrigatória" }),
-  state: z.string().min(2, { message: "Estado é obrigatório" }),
-  phone: z.string().min(10, { message: "Celular deve ter pelo menos 10 caracteres" }),
-  additionalNotes: z.string().optional(),
-  participants: z.array(
-    z.object({
-      name: z.string().optional(),
-      cpf: z.string().optional(),
-      tshirt: z.string().optional(),
-      dress: z.string().optional(),
-    })
-  ),
-  terms: z.boolean().refine(val => val === true, { message: "Você deve aceitar os termos" }),
-});
-
-type FormValues = z.infer<typeof formSchema>;
+import { useToast } from '@/components/ui/use-toast';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
+import { useCart } from '@/contexts/CartContext';
+import { useAuth } from '@/hooks/useAuth';
 
 const Checkout = () => {
-  const { toast } = useToast();
+  const { cart, clearCart } = useCart();
+  const { user } = useAuth();
   const navigate = useNavigate();
-  const { items, subtotal, shipping, total, clearCart } = useCart();
-  const [participantCount, setParticipantCount] = useState(1);
-  const [paymentData, setPaymentData] = useState(null);
-  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
-  
+  const { toast } = useToast();
+  const [isProcessing, setIsProcessing] = useState(false);
+
   useEffect(() => {
-    console.log("Checkout page loaded with cart items:", items);
-    if (items.length === 0) {
+    if (cart.items.length === 0) {
       navigate('/carrinho');
-      toast({
-        title: "Carrinho vazio",
-        description: "Adicione itens ao carrinho antes de prosseguir para o checkout.",
-      });
     }
-  }, [items, navigate, toast]);
+  }, [cart, navigate]);
 
-  // Convert cart items to match the OrderSummary component's expected format
-  const formattedCartItems = items.map(item => ({
-    id: item.id,
-    name: item.name,
-    price: item.price,
-    quantity: item.quantity,
-    ...(isCartProduct(item) ? { 
-      category: item.category as 'camiseta' | 'vestido' | undefined, 
-      size: item.size 
-    } : {})
-  }));
-
-  const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      firstName: "",
-      lastName: "",
-      email: "",
-      personType: "fisica",
-      cpf: "",
-      country: "Brasil",
-      zipCode: "",
-      address: "",
-      number: "",
-      neighborhood: "",
-      city: "",
-      state: "",
-      phone: "",
-      additionalNotes: "",
-      participants: Array(1).fill({ name: "", cpf: "", tshirt: "", dress: "" }),
-      terms: false,
-    },
-  });
-
-  const onSubmit = async (data: FormValues) => {
-    console.log("Form submitted with data:", data);
-    console.log('Items being purchased:', items);
-    
-    setIsProcessingPayment(true);
+  const handleCheckout = async () => {
+    setIsProcessing(true);
     
     try {
-      // Get current session (optional for guest checkout)
-      const { data: session } = await supabase.auth.getSession();
+      // Simulação de processamento de pagamento
+      await new Promise(resolve => setTimeout(resolve, 2000));
       
-      // Allow guest checkout - no authentication required
-      console.log('Processing checkout for:', session.session ? 'authenticated user' : 'guest user');
-
-      // Calcular total dos itens de teste
-      const testTotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-
-      // Call Abacate Pay edge function
-      const invokeHeaders = session.session ? {
-        Authorization: `Bearer ${session.session.access_token}`
-      } : {};
-      
-      const { data: paymentResponse, error } = await supabase.functions.invoke('abacatepay-manager', {
-        headers: invokeHeaders,
-        body: {
-          orderData: data,
-          total: items.length === 0 ? testTotal : total,
-          items: items.map(item => ({
-            productId: isCartProduct(item) ? item.productId : null,
-            ticketId: !isCartProduct(item) ? item.ticketId : null,
-            price: item.price,
-            quantity: item.quantity,
-            size: isCartProduct(item) ? item.size : null,
-            name: item.name
-          })),
-          isTestUser: isTestUser
-        }
-      });
-
-      if (error) {
-        throw error;
-      }
-
-      if (paymentResponse.success) {
-        setPaymentData(paymentResponse.paymentData);
-        
-        // Clear cart after successful order creation
-        await clearCart();
-        
-        toast({
-          title: "Pedido criado com sucesso!",
-          description: "Escaneie o QR Code ou copie o código PIX para pagar.",
-        });
-      } else {
-        throw new Error(paymentResponse.error || 'Erro ao processar pagamento');
-      }
-    } catch (error) {
-      console.error('Error creating order:', error);
       toast({
-        title: "Erro ao processar pedido",
-        description: "Tente novamente em alguns minutos.",
-        variant: "destructive"
+        title: 'Pedido realizado com sucesso!',
+        description: 'Você receberá um email com os detalhes do seu pedido.',
+      });
+      
+      clearCart();
+      navigate('/ingressos');
+    } catch (error) {
+      toast({
+        variant: 'destructive',
+        title: 'Erro ao processar pagamento',
+        description: 'Ocorreu um erro ao processar seu pagamento. Tente novamente.',
       });
     } finally {
-      setIsProcessingPayment(false);
+      setIsProcessing(false);
     }
   };
 
-  const addParticipant = () => {
-    setParticipantCount(prev => prev + 1);
-    const currentParticipants = form.getValues().participants || [];
-    form.setValue('participants', [...currentParticipants, { name: "", cpf: "", tshirt: "", dress: "" }]);
+  const calculateTotal = () => {
+    return cart.items.reduce((total, item) => total + (item.price * item.quantity), 0);
   };
 
-  const removeParticipant = (index: number) => {
-    if (participantCount <= 1) return;
-    setParticipantCount(prev => prev - 1);
-    const currentParticipants = form.getValues().participants || [];
-    currentParticipants.splice(index, 1);
-    form.setValue('participants', [...currentParticipants]);
-  };
+  if (cart.items.length === 0) {
+    return null;
+  }
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50">
-      <Navbar />
-
-      <div className="flex-grow container mx-auto px-4 py-8 md:py-12">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-8 md:mb-12">
-            <h1 className="text-3xl md:text-4xl font-bold text-butterfly-orange mb-2">
-              Ordem de Pagamento
-            </h1>
-            <p className="text-gray-500 max-w-2xl mx-auto">
-              Chegamos até aqui, vamos concluir o cadastro referente ao seu pedido, vamos.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div className="lg:col-span-2 space-y-8">
-              <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-                  <CustomerInformation form={form} />
-                  <AdditionalNotes form={form} />
-                  <ParticipantsList 
-                    form={form}
-                    participantCount={participantCount}
-                    onAddParticipant={addParticipant}
-                    onRemoveParticipant={removeParticipant}
-                  />
-                  <PaymentSection 
-                    paymentData={paymentData}
-                    isLoading={isProcessingPayment}
-                    // Removed duplicate isLoading prop
-                  />
-                  <TermsSection 
-                    form={form} 
-                    total={total} 
-                    isProcessing={isProcessingPayment}
-                  />
-                </form>
-              </Form>
-            </div>
-            
-            <OrderSummary 
-              cartItems={formattedCartItems}
-              subtotal={subtotal}
-              total={total}
-            />
-          </div>
+    <div className="container mx-auto py-10 px-4 md:px-6">
+      <h1 className="text-3xl font-bold mb-6">Checkout</h1>
+      
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="md:col-span-2">
+          <Card>
+            <CardHeader>
+              <CardTitle>Informações de Pagamento</CardTitle>
+              <CardDescription>Preencha os dados para finalizar sua compra</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Nome no Cartão</label>
+                    <input 
+                      type="text" 
+                      className="w-full p-2 border rounded-md" 
+                      placeholder="Nome como aparece no cartão"
+                      value={user?.user_metadata?.full_name || ''}
+                      readOnly
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Número do Cartão</label>
+                    <input 
+                      type="text" 
+                      className="w-full p-2 border rounded-md" 
+                      placeholder="**** **** **** ****"
+                      disabled={isProcessing}
+                    />
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Mês de Expiração</label>
+                    <input 
+                      type="text" 
+                      className="w-full p-2 border rounded-md" 
+                      placeholder="MM"
+                      disabled={isProcessing}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Ano de Expiração</label>
+                    <input 
+                      type="text" 
+                      className="w-full p-2 border rounded-md" 
+                      placeholder="AA"
+                      disabled={isProcessing}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">CVV</label>
+                    <input 
+                      type="text" 
+                      className="w-full p-2 border rounded-md" 
+                      placeholder="123"
+                      disabled={isProcessing}
+                    />
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+        
+        <div>
+          <Card>
+            <CardHeader>
+              <CardTitle>Resumo do Pedido</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {cart.items.map((item) => (
+                  <div key={item.id} className="flex justify-between">
+                    <span>{item.name} x {item.quantity}</span>
+                    <span>R$ {(item.price * item.quantity).toFixed(2)}</span>
+                  </div>
+                ))}
+                
+                <Separator />
+                
+                <div className="flex justify-between font-bold">
+                  <span>Total</span>
+                  <span>R$ {calculateTotal().toFixed(2)}</span>
+                </div>
+              </div>
+            </CardContent>
+            <CardFooter>
+              <Button 
+                className="w-full" 
+                onClick={handleCheckout}
+                disabled={isProcessing}
+              >
+                {isProcessing ? 'Processando...' : 'Finalizar Compra'}
+              </Button>
+            </CardFooter>
+          </Card>
         </div>
       </div>
-
-      <Footer />
     </div>
   );
 };
