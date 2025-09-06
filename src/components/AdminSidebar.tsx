@@ -45,7 +45,7 @@ const AdminSidebar: React.FC = () => {
     <div className="bg-butterfly-black min-h-screen w-64 text-white relative z-0">
       <div className="p-4 flex items-center space-x-2 border-b border-butterfly-orange/20">
         <ButterflyLogo className="w-8 h-8" />
-        <span className="font-display text-xl font-bold text-butterfly-orange">Admin</span>
+        <div className="font-display text-xl font-bold text-butterfly-orange">Admin</div>
       </div>
       
       <nav className="mt-8 px-4">
@@ -62,7 +62,7 @@ const AdminSidebar: React.FC = () => {
                 )}
               >
                 {item.icon}
-                <span>{item.name}</span>
+                <div>{item.name}</div>
               </Link>
             </li>
           ))}
@@ -74,7 +74,7 @@ const AdminSidebar: React.FC = () => {
           to="/"
           className="flex items-center space-x-2 px-4 py-2 text-sm rounded-lg hover:bg-white/10 transition-colors"
         >
-          <span>← Voltar ao site</span>
+          <div>← Voltar ao site</div>
         </Link>
       </div>
     </div>

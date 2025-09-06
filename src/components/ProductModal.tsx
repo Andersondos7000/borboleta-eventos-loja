@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Button } from "@/components/ui/button";
@@ -8,6 +8,7 @@ import { ArrowLeft, ArrowRight, ZoomIn, ZoomOut, ShoppingCart, Heart, Share2, St
 import { ProductProps } from './ProductCard';
 import { useCart } from '@/contexts/CartContext';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/lib/supabase';
 
 interface ProductModalProps {
   product: ProductProps;
@@ -24,13 +25,43 @@ const ProductModal: React.FC<ProductModalProps> = ({ product, children, onSelect
   const { addToCart } = useCart();
   const { toast } = useToast();
 
-  // Mock multiple images (in a real app, these would come from the product data)
-  const images = [
-    product.image,
-    product.image.replace('?q=80', '?q=80&flip=horizontal'), // Front view
-    product.image.replace('?q=80', '?q=80&rotate=90'), // Side view
-    product.image.replace('?q=80', '?q=80&grayscale') // Detail view
-  ];
+  // Estado para múltiplas imagens
+  const [productImages, setProductImages] = useState<string[]>([product.image]);
+  const [isLoadingImages, setIsLoadingImages] = useState(false);
+
+  // Carregar imagens do produto do banco de dados
+  useEffect(() => {
+    const loadProductImages = async () => {
+      setIsLoadingImages(true);
+      try {
+        const { data: images, error } = await supabase
+          .from('product_images')
+          .select('image_url')
+          .eq('product_id', product.id)
+          .order('display_order');
+
+        if (error) {
+          console.error('Erro ao carregar imagens:', error);
+          // Fallback para imagem única
+          setProductImages([product.image]);
+        } else if (images && images.length > 0) {
+          setProductImages(images.map(img => img.image_url));
+        } else {
+          // Se não há imagens na tabela, usar a imagem principal
+          setProductImages([product.image]);
+        }
+      } catch (error) {
+        console.error('Erro ao buscar imagens:', error);
+        setProductImages([product.image]);
+      } finally {
+        setIsLoadingImages(false);
+      }
+    };
+
+    loadProductImages();
+  }, [product.id, product.image]);
+
+  const images = productImages;
 
   const formattedPrice = new Intl.NumberFormat('pt-BR', {
     style: 'currency',

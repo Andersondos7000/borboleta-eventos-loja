@@ -1,0 +1,69 @@
+name: 🤖 Supabase Deploy
+
+on:
+  push:
+    branches: [main, staging]
+    paths: ['supabase/migrations/**']
+  pull_request:
+    branches: [main]
+
+env:
+  SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+
+jobs:
+  validate:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Cache Supabase CLI
+        uses: actions/cache@v4
+        with:
+          path: ~/.local/bin/supabase
+          key: ${{ runner.os }}-supabase-cli
+      
+      - name: Install CLI
+        run: |
+          [ ! -f ~/.local/bin/supabase ] && curl -fsSL https://cli.supabase.com/install.sh | sh
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+      
+      - name: Validar migrações
+        env:
+          PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF_STAGING }}
+        run: |
+          chmod +x scripts/validate.sh
+          scripts/validate.sh
+
+  deploy-staging:
+    if: github.ref == 'refs/heads/staging'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install CLI
+        run: curl -fsSL https://cli.supabase.com/install.sh | sh
+      
+      - name: Deploy
+        env:
+          PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF_STAGING }}
+          ENVIRONMENT: staging
+        run: |
+          chmod +x scripts/deploy.sh
+          scripts/deploy.sh
+
+  deploy-production:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install CLI
+        run: curl -fsSL https://cli.supabase.com/install.sh | sh
+      
+      - name: Deploy
+        env:
+          PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF_PRODUCTION }}
+          ENVIRONMENT: production
+        run: |
+          chmod +x scripts/deploy.sh
+          scripts/deploy.sh

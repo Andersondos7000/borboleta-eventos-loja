@@ -1,5 +1,6 @@
-import { serve } from "std/http/server.ts";
-import { createClient, SupabaseClient } from "@supabase/supabase-js";
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { corsHeaders } from "../_shared/cors.ts";
 
 // Types
 interface User {
@@ -29,31 +30,49 @@ interface WebhookData {
   [key: string]: unknown;
 }
 
-interface Product {
-  id: string;
-}
-
-interface Ticket {
-  id: string;
-}
-
 interface PaymentStatusResponse {
   success: boolean;
   data: unknown;
 }
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
+interface AbacatePayResponse {
+  id: string;
+  url: string;
+  status: string;
+  amount: number;
+  customer: {
+    name: string;
+    email: string;
+    taxId: string;
+    cellphone: string;
+  };
+  expiresAt: string;
+  qrCode?: string;
+}
 
 // Utility functions
 const normalizeString = (str: string): string => str?.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
 
 const isTestUser = (orderData: OrderData, isTestFlag: boolean): boolean => {
-  return isTestFlag && 
-    normalizeString(orderData?.firstName) === normalizeString("João Silva") && 
-    normalizeString(orderData?.lastName) === normalizeString("Santos");
+  return isTestFlag || 
+    (normalizeString(orderData?.firstName) === normalizeString("João") && 
+     normalizeString(orderData?.lastName) === normalizeString("Silva"));
+};
+
+const isDevelopmentMode = (): boolean => {
+  return Deno.env.get('ENVIRONMENT') !== 'production' || 
+         Deno.env.get('SUPABASE_URL')?.includes('localhost') ||
+         Deno.env.get('SUPABASE_URL')?.includes('supabase.co');
+};
+
+const formatPhoneNumber = (phone: string): string => {
+  if (!phone) return '(11) 99999-9999';
+  const cleaned = phone.replace(/[^0-9]/g, '');
+  return cleaned.replace(/^(\d{2})(\d{4,5})(\d{4})$/, '($1) $2-$3');
+};
+
+const formatCPF = (cpf: string): string => {
+  return cpf.replace(/[^0-9]/g, '');
 };
 
 const createSupabaseClients = (): { supabaseClient: SupabaseClient; supabaseService: SupabaseClient } => {
@@ -73,11 +92,11 @@ const createSupabaseClients = (): { supabaseClient: SupabaseClient; supabaseServ
 
 // Authentication handler
 const authenticateUser = async (req: Request, orderData: OrderData, isTestFlag: boolean): Promise<User> => {
-  // Para testes, sempre retornar usuário de teste
-  if (isTestFlag) {
+  // Para testes ou modo desenvolvimento, sempre retornar usuário de teste
+  if (isTestFlag || isDevelopmentMode()) {
     return {
       id: "test-user-id",
-      email: "teste.pix@exemplo.com"
+      email: orderData.email || "teste.pix@exemplo.com"
     };
   }
   
@@ -110,15 +129,17 @@ const authenticateUser = async (req: Request, orderData: OrderData, isTestFlag: 
 };
 
 // Payment creation handler
-const createPayment = async (orderData: OrderData, total: number, items: OrderItem[], user: User, isTestFlag: boolean) => {
-  console.log('=== createPayment DEBUG START ===');
-  console.log('orderData:', JSON.stringify(orderData, null, 2));
-  console.log('total:', total);
-  console.log('items:', JSON.stringify(items, null, 2));
-  console.log('user:', JSON.stringify(user, null, 2));
-  console.log('isTestFlag:', isTestFlag);
-  
+const createPayment = async (orderData: OrderData, total: number, items: OrderItem[], user: User, isTestFlag: boolean, req?: Request) => {
   const { supabaseService } = createSupabaseClients();
+  
+  // Get API key from environment or header
+  let apiKey = Deno.env.get('ABACATEPAY_API_KEY');
+  if (!apiKey && req) {
+    apiKey = req.headers.get('ABACATEPAY_API_KEY');
+  }
+  if (!apiKey) {
+    throw new Error('ABACATEPAY_API_KEY not configured in environment or headers');
+  }
   
   // Create order in database
   let order;
@@ -129,28 +150,31 @@ const createPayment = async (orderData: OrderData, total: number, items: OrderIt
       total: total,
       status: "pending"
     };
-    console.log("Using mock order (test mode):", order);
   } else {
-    const { data: orderData, error: orderError } = await supabaseService
+    const { data: newOrder, error: orderError } = await supabaseService
       .from("orders")
       .insert({
         user_id: user.id,
         total_amount: total,
-        order_status: "pending",
+        status: "pending",
         payment_status: "pending",
-        customer_data: {
-          firstName: orderData.firstName,
-          lastName: orderData.lastName,
-          email: orderData.email,
-          cpf: orderData.cpf,
-          phone: orderData.phone
+        order_number: `ORD-${Date.now()}`,
+        subtotal: total,
+        metadata: {
+          customer: {
+            firstName: orderData.firstName,
+            lastName: orderData.lastName,
+            email: orderData.email,
+            cpf: orderData.cpf,
+            phone: orderData.phone
+          }
         }
       })
       .select()
       .single();
 
     if (orderError) throw orderError;
-    order = orderData;
+    order = newOrder;
     
     // Validate and insert order items
     await validateAndInsertOrderItems(supabaseService, items, order.id);
@@ -166,7 +190,7 @@ const createPayment = async (orderData: OrderData, total: number, items: OrderIt
         name: `Pedido #${order.id}`,
         description: `Pedido realizado em ${new Date().toLocaleDateString('pt-BR')}`,
         quantity: 1,
-        price: total * 100 // Convert to cents
+        price: total * 100
       }
     ],
     returnUrl: "https://queren.vercel.app/checkout",
@@ -174,33 +198,23 @@ const createPayment = async (orderData: OrderData, total: number, items: OrderIt
     customer: {
       name: `${orderData.firstName} ${orderData.lastName}`,
       email: orderData.email || user.email,
-      taxId: orderData.cpf.replace(/[^0-9]/g, ''), // Remove formatting from CPF
-      cellphone: orderData.phone || '11999999999' // Required field
-    }
+      taxId: orderData.cpf.replace(/[^0-9]/g, ''),
+      cellphone: orderData.phone ? orderData.phone.replace(/[^0-9]/g, '').replace(/^(\d{2})(\d{4,5})(\d{4})$/, '($1) $2-$3') : '(11) 99999-9999'
+    },
+    allowCoupons: false
   };
-
-  console.log('Abacate Pay payload:', JSON.stringify(abacatePayload, null, 2));
 
   const abacateResponse = await fetch("https://api.abacatepay.com/v1/billing/create", {
     method: "POST",
     headers: {
-      "Authorization": `Bearer abc_dev_LsWsb5rG4YSsKL2KCyP3Hm4n`,
+      "Authorization": `Bearer ${apiKey}`,
       "Content-Type": "application/json",
     },
     body: JSON.stringify(abacatePayload),
   });
 
-  console.log('Abacate Pay response status:', abacateResponse.status);
-  console.log('Abacate Pay response headers:', Object.fromEntries(abacateResponse.headers.entries()));
-
   if (!abacateResponse.ok) {
     const errorText = await abacateResponse.text();
-    console.error("Abacate Pay API error details:", {
-      status: abacateResponse.status,
-      statusText: abacateResponse.statusText,
-      errorBody: errorText,
-      sentPayload: abacatePayload
-    });
     throw new Error(`Abacate Pay API error: ${abacateResponse.status} - ${errorText}`);
   }
 
@@ -268,11 +282,12 @@ const validateAndInsertOrderItems = async (supabaseService: SupabaseClient, item
   // Insert order items
   const orderItems = items.map((item: OrderItem) => ({
     order_id: orderId,
-    product_id: item.productId || null,
+    product_id: item.productId || 'b140f554-6145-4935-828c-7162d4d05140', // Produto Teste
     ticket_id: item.ticketId || null,
-    price: item.price,
+    product_name: `Produto ${item.productId || 'Test'}`,
+    unit_price: item.price,
     quantity: item.quantity,
-    size: item.size || null
+    product_size: item.size || null
   }));
 
   const { error: itemsError } = await supabaseService
@@ -283,23 +298,22 @@ const validateAndInsertOrderItems = async (supabaseService: SupabaseClient, item
 };
 
 // Check payment status
-const checkPaymentStatus = async (transactionId: string, isTestMode: boolean = false): Promise<PaymentStatusResponse> => {
+const checkPaymentStatus = async (transactionId: string, isTestMode: boolean = false, req?: Request): Promise<PaymentStatusResponse> => {
   if (!transactionId) {
     throw new Error("Transaction ID is required");
   }
-
-  console.log("Checking payment status for transaction:", transactionId);
-  console.log("Test mode:", isTestMode);
-
-  // Verificar se estamos em modo de desenvolvimento
-  const isDevelopmentMode = Deno.env.get('ENVIRONMENT') !== 'production' || 
-                           Deno.env.get('SUPABASE_URL')?.includes('localhost') ||
-                           Deno.env.get('SUPABASE_URL')?.includes('supabase.co');
   
+  // Get API key from environment or header
+  let apiKey = Deno.env.get('ABACATEPAY_API_KEY');
+  if (!apiKey && req) {
+    apiKey = req.headers.get('ABACATEPAY_API_KEY');
+  }
+  if (!apiKey) {
+    throw new Error('ABACATEPAY_API_KEY not configured in environment or headers');
+  }
+
   // Se for modo de teste, desenvolvimento, ou ID de teste, retornar dados mock
-  if (isTestMode || isDevelopmentMode || transactionId.startsWith('test-') || transactionId.startsWith('bill_test')) {
-    console.log("Using mock payment status (development/test mode)");
-    console.log("Reasons: isTestMode=", isTestMode, ", isDevelopmentMode=", isDevelopmentMode);
+  if (isTestMode || isDevelopmentMode() || transactionId.startsWith('test-') || transactionId.startsWith('bill_test')) {
     return {
       success: true,
       data: {
@@ -316,7 +330,7 @@ const checkPaymentStatus = async (transactionId: string, isTestMode: boolean = f
         },
         pix: {
           qr_code: "00020126580014BR.GOV.BCB.PIX0136123e4567-e12b-12d1-a456-426614174000520400005303986540510.005802BR5913TESTE EMPRESA6009SAO PAULO62070503***6304ABCD",
-          expires_at: new Date(Date.now() + 3600000).toISOString() // 1 hora
+          expires_at: new Date(Date.now() + 3600000).toISOString()
         },
         devMode: true
       }
@@ -326,22 +340,17 @@ const checkPaymentStatus = async (transactionId: string, isTestMode: boolean = f
   const abacateResponse = await fetch(`https://api.abacatepay.com/v1/billing/${transactionId}`, {
     method: "GET",
     headers: {
-      "Authorization": `Bearer ${Deno.env.get('ABACATEPAY_API_KEY')}`,
+      "Authorization": `Bearer ${apiKey}`,
       "Content-Type": "application/json",
     },
   });
 
-  console.log("Abacate Pay check response status:", abacateResponse.status);
-  console.log("Abacate Pay check response headers:", Object.fromEntries(abacateResponse.headers.entries()));
-
   if (!abacateResponse.ok) {
     const errorText = await abacateResponse.text();
-    console.error("Abacate Pay API error:", abacateResponse.status, errorText);
     throw new Error(`Abacate Pay API error: ${abacateResponse.status} - ${errorText}`);
   }
 
   const paymentStatus = await abacateResponse.json();
-  console.log("Payment status response:", paymentStatus);
   
   return {
     success: true,
@@ -389,11 +398,8 @@ const processWebhook = async (webhookData: WebhookData): Promise<{ success: bool
     .eq("id", external_reference);
 
   if (error) {
-    console.error("Error updating order:", error);
     throw error;
   }
-
-  console.log(`Order ${external_reference} updated to status: ${orderStatus}`);
   
   return { 
     success: true, 
@@ -405,99 +411,50 @@ const processWebhook = async (webhookData: WebhookData): Promise<{ success: bool
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
+    return new Response("ok", { headers: corsHeaders });
   }
 
   try {
-    // Para testes, vamos pular a autenticação por enquanto
-    console.log('Processing request without authentication for testing');
+    const { action, orderData, items, transactionId, webhookData, forceTestMode } = await req.json();
     
-    const requestBody = await req.json();
-    const action = requestBody.action || "create";
-
+    // Determine if we're in test mode
+    const isTestFlag = forceTestMode === true || isTestUser(orderData, forceTestMode === true);
+    
+    // Authenticate user (handles test mode internally)
+    const user = await authenticateUser(req, orderData, isTestFlag);
+    
+    let result;
+    
     switch (action) {
       case "create":
-      case "create_payment": {
-        // Handle both old format and new test format
-        let orderData, total, items, isTestFlag;
+        case "create_payment":
+          result = await createPayment(orderData, totalAmount, items, user, isTestFlag, req);
+          break;
         
-        if (requestBody.orderData) {
-          // Old format
-          ({ orderData, total, items, isTestUser: isTestFlag } = requestBody);
-        } else {
-          // New test format from script
-          orderData = {
-            firstName: "João",
-            lastName: "Silva",
-            email: "teste.pix@exemplo.com",
-            cpf: "11144477735", // CPF válido para testes
-            phone: "11999999999"
-          };
-          total = requestBody.total_amount || 100;
-          items = requestBody.items || [{
-            productId: requestBody.product_id || "test_product",
-            price: requestBody.price || 1.00,
-            quantity: 1,
-            size: requestBody.size || "M"
-          }];
-          isTestFlag = true;
-        }
-        
-        const user = await authenticateUser(req, orderData, isTestFlag);
-        const result = await createPayment(orderData, total, items, user, isTestFlag);
-        
-        return new Response(JSON.stringify(result), {
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-          status: 200,
-        });
-      }
+        case "check":
+        case "check_payment_status":
+          result = await checkPaymentStatus(transactionId, isTestFlag, req);
+          break;
       
-      case "check":
-      case "check_payment_status": {
-        const transactionId = requestBody.transactionId || requestBody.transaction_id;
-        // Detectar se é modo de teste baseado no ID ou flag explícita
-        const isTestMode = requestBody.isTestMode || transactionId?.startsWith('test-') || transactionId?.startsWith('bill_test');
-        const result = await checkPaymentStatus(transactionId, isTestMode);
-        
-        return new Response(JSON.stringify(result), {
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-          status: 200,
-        });
-      }
-      
-      case "webhook": {
-        const webhookData = await req.json();
-        console.log("Received Abacate Pay webhook:", webhookData);
-        const result = await processWebhook(webhookData);
-        
-        return new Response(JSON.stringify(result), {
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-          status: 200,
-        });
-      }
+      case "webhook":
+        result = await processWebhook(webhookData);
+        break;
       
       default:
-        throw new Error(`Unknown action: ${action}`);
+        return new Response(JSON.stringify({ error: "Invalid action" }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
     }
-
-  } catch (error) {
-    console.error("Error in AbacatePay manager:", error);
-    console.error("Error stack:", error instanceof Error ? error.stack : 'No stack trace');
-    console.error("Error type:", typeof error);
-    console.error("Error constructor:", error?.constructor?.name);
     
-    const errorMessage = error instanceof Error ? error.message : `Unknown error: ${JSON.stringify(error)}`;
-    return new Response(JSON.stringify({ 
-      error: errorMessage,
-      success: false,
-      debug: {
-        errorType: typeof error,
-        errorConstructor: error?.constructor?.name,
-        errorString: String(error)
-      }
-    }), {
+    return new Response(JSON.stringify(result), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+    
+  } catch (error) {
+    return new Response(JSON.stringify({ error: error.message }), {
       status: 500,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
 });

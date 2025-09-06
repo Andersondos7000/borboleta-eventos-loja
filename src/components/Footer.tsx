@@ -9,9 +9,8 @@ const Footer: React.FC = () => {
       <div className="container mx-auto px-6 py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="space-y-4">
-            <div className="flex items-center space-x-2">
-              <ButterflyLogo className="w-8 h-8" />
-              <span className="font-display text-xl font-bold text-butterfly-orange">Borboleta Eventos</span>
+            <div className="flex items-center">
+              <ButterflyLogo className="w-12 h-12" />
             </div>
             <p className="text-sm text-gray-300">
               Realizando sonhos e transformando eventos em momentos inesquecíveis.
@@ -47,7 +46,7 @@ const Footer: React.FC = () => {
           <div>
             <h3 className="text-butterfly-orange font-medium mb-4">Contato</h3>
             <ul className="space-y-2 text-sm">
-              <li>contato@borboletaeventos.com.br</li>
+              <li>contato@queren.com.br</li>
               <li>(00) 12345-6789</li>
               <li>São Paulo, SP - Brasil</li>
             </ul>
@@ -76,7 +75,7 @@ const Footer: React.FC = () => {
         </div>
         
         <div className="border-t border-gray-800 mt-8 pt-8 text-sm text-center text-gray-400">
-          <p>© {new Date().getFullYear()} Borboleta Eventos. Todos os direitos reservados.</p>
+          <p>© {new Date().getFullYear()} Queren. Todos os direitos reservados.</p>
         </div>
       </div>
     </footer>

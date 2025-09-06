@@ -23,26 +23,26 @@ const Index = () => {
       <Navbar />
       
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-butterfly-black to-butterfly-black/90 text-white">
-        <div className="absolute inset-0 overflow-hidden opacity-10">
-          <div className="absolute inset-0 bg-[url('/placeholder.svg')] bg-center bg-no-repeat bg-cover"></div>
+      <section className="relative text-white">
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute inset-0 bg-[url('/capa-home.webp')] bg-center bg-no-repeat bg-cover"></div>
         </div>
         
         <div className="container mx-auto px-4 py-24 md:py-32 relative z-10">
           <div className="flex flex-col items-center text-center max-w-3xl mx-auto">
-            <ButterflyLogo className="w-20 h-20 mb-6 animate-butterfly-fly" />
+            <ButterflyLogo className="w-24 h-24 mb-6 animate-butterfly-fly" />
             
-            <h1 className="font-display text-4xl md:text-6xl font-bold mb-4">
-              VII Conferência de Mulheres<br />
-              <span className="text-butterfly-orange">Queren Hapuque</span>
+            <h1 className="font-display text-4xl md:text-6xl font-bold mb-4 drop-shadow-xl">
+              <div className="text-black">Queren Hapuque</div>
+              <div className="text-butterfly-orange">VII Conferência de Mulheres</div>
             </h1>
             
-            <p className="text-lg md:text-xl mb-8">
+            <p className="text-lg md:text-xl mb-8 text-black">
               Dias 12 e 13 de Abril de 2025 • Uma jornada de transformação e renovo
             </p>
             
             <div className="flex flex-col md:flex-row gap-4 mb-12">
-              <Button asChild size="lg" className="bg-butterfly-orange hover:bg-butterfly-orange/90">
+              <Button asChild size="lg" className="bg-butterfly-orange hover:bg-butterfly-orange/90 shadow-none">
                 <Link to="/evento">
                   <Calendar className="mr-2 h-5 w-5" /> Sobre o Evento
                 </Link>
@@ -61,7 +61,7 @@ const Index = () => {
       </section>
       
       {/* Countdown Section */}
-      <section className="bg-white py-16">
+      <section className="bg-white py-24 mt-8">
         <div className="container mx-auto px-4">
           <div className="text-center mb-10">
             <h2 className="font-display text-3xl font-bold mb-2">Contagem Regressiva</h2>
@@ -103,32 +103,32 @@ const Index = () => {
               </p>
               <div className="space-y-4">
                 <div className="flex items-start mb-4">
-                  <span className="bg-butterfly-orange text-white p-2 rounded mr-3">
+                  <div className="bg-butterfly-orange text-white p-2 rounded mr-3">
                     <Calendar className="h-5 w-5" />
-                  </span>
+                  </div>
                   <div>
                     <h3 className="font-medium">Data e Horário</h3>
                     <p className="text-gray-600">12 e 13 de Abril de 2025, das 9h às 18h</p>
                   </div>
                 </div>
                 <div className="flex items-start mb-4">
-                  <span className="bg-butterfly-orange text-white p-2 rounded mr-3">
+                  <div className="bg-butterfly-orange text-white p-2 rounded mr-3">
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                     </svg>
-                  </span>
+                  </div>
                   <div>
                     <h3 className="font-medium">Local</h3>
                     <p className="text-gray-600">Centro de Convenções ExpoCenter, São Paulo - SP</p>
                   </div>
                 </div>
                 <div className="flex items-start mb-4">
-                  <span className="bg-butterfly-orange text-white p-2 rounded mr-3">
+                  <div className="bg-butterfly-orange text-white p-2 rounded mr-3">
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
                     </svg>
-                  </span>
+                  </div>
                   <div>
                     <h3 className="font-medium">Ingressos</h3>
                     <p className="text-gray-600">R$ 83,00 por pessoa • 1300 lugares disponíveis</p>
@@ -155,7 +155,7 @@ const Index = () => {
             <div className="rounded-lg overflow-hidden shadow-md border border-gray-200 hover:shadow-xl transition-shadow">
               <div className="h-60 overflow-hidden">
                 <img 
-                  src="/placeholder.svg" 
+                  src="/yupp-generated-image-543555.webp" 
                   alt="Camiseta do evento" 
                   className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
                 />
@@ -164,7 +164,7 @@ const Index = () => {
                 <h3 className="font-medium text-xl mb-2">Camiseta Oficial</h3>
                 <p className="text-gray-600 mb-4">Camisetas exclusivas em diversos tamanhos.</p>
                 <div className="flex justify-between items-center">
-                  <span className="text-butterfly-orange font-bold text-xl">R$ 60,00</span>
+                  <div className="text-butterfly-orange font-bold text-xl">R$ 60,00</div>
                   <Button variant="outline" className="border-butterfly-orange text-butterfly-orange hover:bg-butterfly-orange hover:text-white">
                     <Link to="/loja" className="text-inherit">Ver Detalhes</Link>
                   </Button>
@@ -175,8 +175,8 @@ const Index = () => {
             <div className="rounded-lg overflow-hidden shadow-md border border-gray-200 hover:shadow-xl transition-shadow">
               <div className="h-60 overflow-hidden">
                 <img 
-                  src="/placeholder.svg" 
-                  alt="Boné do evento" 
+                  src="/yupp-generated-image-679235.webp" 
+                  alt="Vestido exclusivo" 
                   className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
                 />
               </div>
@@ -184,7 +184,7 @@ const Index = () => {
                 <h3 className="font-medium text-xl mb-2">Vestido Exclusivo</h3>
                 <p className="text-gray-600 mb-4">Vestidos elegantes para ocasiões especiais.</p>
                 <div className="flex justify-between items-center">
-                  <span className="text-butterfly-orange font-bold text-xl">R$ 140,00</span>
+                  <div className="text-butterfly-orange font-bold text-xl">R$ 140,00</div>
                   <Button variant="outline" className="border-butterfly-orange text-butterfly-orange hover:bg-butterfly-orange hover:text-white">
                     <Link to="/loja" className="text-inherit">Ver Detalhes</Link>
                   </Button>
@@ -195,8 +195,8 @@ const Index = () => {
             <div className="rounded-lg overflow-hidden shadow-md border border-gray-200 hover:shadow-xl transition-shadow md:col-span-2 lg:col-span-1">
               <div className="h-60 overflow-hidden">
                 <img 
-                  src="/placeholder.svg" 
-                  alt="Caneca do evento" 
+                  src="/yupp-generated-image-871271.webp" 
+                  alt="Produtos do evento" 
                   className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
                 />
               </div>
@@ -208,6 +208,60 @@ const Index = () => {
                 </Button>
               </div>
             </div>
+          </div>
+        </div>
+      </section>
+      
+      {/* Instagram Gallery Section */}
+      <section className="bg-gray-50 py-16">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="font-display text-3xl font-bold mb-2">Nos Siga no Instagram</h2>
+            <p className="text-gray-600">Acompanhe as novidades e bastidores do evento</p>
+          </div>
+          
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="overflow-hidden rounded-lg">
+              <img 
+                src="/doc/img/evento/01.jpg" 
+                alt="Momento especial da conferência" 
+                className="w-full h-64 object-cover hover:scale-105 transition-transform duration-300"
+              />
+            </div>
+            <div className="overflow-hidden rounded-lg">
+              <img 
+                src="/doc/img/evento/02.jpg" 
+                alt="Participantes do evento" 
+                className="w-full h-64 object-cover hover:scale-105 transition-transform duration-300"
+              />
+            </div>
+            <div className="overflow-hidden rounded-lg">
+              <img 
+                src="/doc/img/evento/03.jpg" 
+                alt="Workshop interativo" 
+                className="w-full h-64 object-cover hover:scale-105 transition-transform duration-300"
+              />
+            </div>
+            <div className="overflow-hidden rounded-lg">
+              <img 
+                src="/doc/img/evento/04.jpg" 
+                alt="Palestrante inspiradora" 
+                className="w-full h-64 object-cover hover:scale-105 transition-transform duration-300"
+              />
+            </div>
+          </div>
+          
+          <div className="text-center mt-8">
+            <Button asChild variant="outline" className="border-butterfly-orange text-butterfly-orange hover:bg-butterfly-orange hover:text-white">
+              <a href="https://www.instagram.com/" target="_blank" rel="noopener noreferrer" className="flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2">
+                  <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                  <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                  <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+                </svg>
+                Seguir no Instagram
+              </a>
+            </Button>
           </div>
         </div>
       </section>

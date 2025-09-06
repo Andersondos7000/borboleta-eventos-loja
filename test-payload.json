@@ -1,0 +1,22 @@
+{
+  "frequency": "ONE_TIME",
+  "methods": ["PIX"],
+  "products": [
+    {
+      "externalId": "test-123",
+      "name": "Produto Teste",
+      "description": "Teste de integração",
+      "quantity": 1,
+      "price": 5000
+    }
+  ],
+  "returnUrl": "https://exemplo.com/retorno",
+  "completionUrl": "https://exemplo.com/sucesso",
+  "customer": {
+    "name": "João Silva",
+    "email": "joao@teste.com",
+    "taxId": "12345678901",
+    "cellphone": "11999999999"
+  },
+  "allowCoupons": false
+}

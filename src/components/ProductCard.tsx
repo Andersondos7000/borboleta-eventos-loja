@@ -1,10 +1,11 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { ShoppingCart } from 'lucide-react';
+import { ShoppingCart, ChevronLeft, ChevronRight } from 'lucide-react';
 import ProductModal from './ProductModal';
 import { useCart } from '@/contexts/CartContext';
 import { useToast } from '@/components/ui/use-toast';
+import { supabase } from '@/lib/supabase';
 
 export interface ProductProps {
   id: string;
@@ -21,6 +22,43 @@ const ProductCardContent: React.FC<{ product: ProductProps }> = ({ product }) =>
   const { toast } = useToast();
   const [selectedSize, setSelectedSize] = useState(product.sizes[0] || '');
   const [isHovered, setIsHovered] = useState(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [productImages, setProductImages] = useState<string[]>([product.image]);
+  const [isLoadingImages, setIsLoadingImages] = useState(false);
+  
+  // Carregar imagens do produto do banco de dados
+  useEffect(() => {
+    const loadProductImages = async () => {
+      if (!product.id) return
+      
+      setIsLoadingImages(true)
+      try {
+        const { data: images, error } = await supabase
+          .from('product_images')
+          .select('image_url')
+          .eq('product_id', product.id)
+          .order('order_index', { ascending: true })
+        
+        if (error) {
+          console.error('Erro ao carregar imagens do produto:', error)
+          return
+        }
+        
+        if (images && images.length > 0) {
+          const imageUrls = images.map(img => img.image_url)
+          setProductImages(imageUrls)
+        }
+      } catch (error) {
+        console.error('Erro ao carregar imagens:', error)
+      } finally {
+        setIsLoadingImages(false)
+      }
+    }
+    
+    loadProductImages()
+  }, [product.id])
+  
+  const relatedImages = productImages;
 
   const formattedPrice = new Intl.NumberFormat('pt-BR', {
     style: 'currency',
@@ -52,7 +90,7 @@ const ProductCardContent: React.FC<{ product: ProductProps }> = ({ product }) =>
       name: product.name,
       price: product.price,
       image: product.image,
-      images: [product.image],
+      images: relatedImages, // Adicionando todas as imagens relacionadas
       category: product.category,
       quantity: 1,
       unit_price: product.price,
@@ -70,6 +108,18 @@ const ProductCardContent: React.FC<{ product: ProductProps }> = ({ product }) =>
   const handleSelectSize = (size: string) => {
     setSelectedSize(size);
   };
+  
+  const nextImage = () => {
+    setCurrentImageIndex((prevIndex) => 
+      prevIndex === relatedImages.length - 1 ? 0 : prevIndex + 1
+    );
+  };
+  
+  const prevImage = () => {
+    setCurrentImageIndex((prevIndex) => 
+      prevIndex === 0 ? relatedImages.length - 1 : prevIndex - 1
+    );
+  };
 
   return (
     <div 
@@ -78,10 +128,10 @@ const ProductCardContent: React.FC<{ product: ProductProps }> = ({ product }) =>
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <ProductModal product={product} onSelectSize={handleSelectSize}>
+      <ProductModal product={{...product, image: relatedImages[currentImageIndex]}} onSelectSize={handleSelectSize}>
         <div className="relative aspect-square overflow-hidden cursor-pointer bg-gray-50">
           <img 
-            src={product.image} 
+            src={relatedImages[currentImageIndex]} 
             alt={product.name} 
             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" 
             onError={(e) => {
@@ -98,30 +148,37 @@ const ProductCardContent: React.FC<{ product: ProductProps }> = ({ product }) =>
             </div>
           )}
           
-          {/* Overlay com informações adicionais */}
-          <div className={`absolute inset-0 bg-black bg-opacity-0 transition-all duration-300 flex items-end p-4 ${
-            isHovered ? 'bg-opacity-20' : ''
-          }`}>
-            <div className={`transform transition-all duration-300 ${
-              isHovered ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'
-            }`}>
-              <div className="flex gap-1">
-                {product.sizes.slice(0, 4).map((size) => (
-                  <span 
-                    key={size} 
-                    className="bg-white bg-opacity-90 text-gray-800 px-2 py-1 rounded text-xs font-medium"
-                  >
-                    {size}
-                  </span>
+          {/* Navegação de imagens */}
+          {isHovered && relatedImages.length > 1 && (
+            <>
+              <button 
+                onClick={(e) => { e.stopPropagation(); prevImage(); }} 
+                className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 rounded-full p-1 shadow-md hover:bg-white"
+                aria-label="Imagem anterior"
+              >
+                <ChevronLeft className="h-5 w-5 text-gray-700" />
+              </button>
+              <button 
+                onClick={(e) => { e.stopPropagation(); nextImage(); }} 
+                className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 rounded-full p-1 shadow-md hover:bg-white"
+                aria-label="Próxima imagem"
+              >
+                <ChevronRight className="h-5 w-5 text-gray-700" />
+              </button>
+              
+              {/* Indicadores de imagem */}
+              <div className="absolute bottom-2 left-0 right-0 flex justify-center gap-1">
+                {relatedImages.map((_, index) => (
+                  <button 
+                    key={index}
+                    onClick={(e) => { e.stopPropagation(); setCurrentImageIndex(index); }}
+                    className={`h-2 w-2 rounded-full ${currentImageIndex === index ? 'bg-butterfly-orange' : 'bg-gray-300'}`}
+                    aria-label={`Ver imagem ${index + 1}`}
+                  />
                 ))}
-                {product.sizes.length > 4 && (
-                  <span className="bg-white bg-opacity-90 text-gray-800 px-2 py-1 rounded text-xs font-medium">
-                    +{product.sizes.length - 4}
-                  </span>
-                )}
               </div>
-            </div>
-          </div>
+            </>
+          )}
         </div>
       </ProductModal>
       

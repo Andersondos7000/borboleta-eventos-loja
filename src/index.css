@@ -99,6 +99,10 @@
     @apply text-2xl md:text-3xl font-bold text-butterfly-orange;
   }
   
+  .text-shadow {
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8), 0 4px 8px rgba(0, 0, 0, 0.6);
+  }
+  
   .section-title {
     @apply text-xl font-semibold mb-4;
   }

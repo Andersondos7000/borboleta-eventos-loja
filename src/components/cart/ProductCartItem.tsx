@@ -99,7 +99,7 @@ const ProductCartItem: React.FC<ProductCartItemProps> = ({ item }) => {
           </div>
           
           <div className="flex items-center gap-4">
-            <span className="font-bold" data-testid="item-price">{formatCurrency(item.total_price)}</span>
+            <div className="font-bold" data-testid="item-price">{formatCurrency(item.total_price)}</div>
             <button 
               onClick={() => removeFromCart(item.id)} 
               className="text-red-500 hover:text-red-700"

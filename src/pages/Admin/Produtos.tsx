@@ -9,6 +9,15 @@ import AdminSidebar from '@/components/AdminSidebar';
 import { useToast } from '@/components/ui/use-toast';
 import { supabase } from '@/lib/supabase';
 
+interface ProductImage {
+  id: string;
+  product_id: string;
+  image_url: string;
+  alt_text?: string;
+  display_order: number;
+  is_primary: boolean;
+}
+
 interface Product {
   id: string;
   name: string;
@@ -19,15 +28,18 @@ interface Product {
   image: string;
   status: 'Ativo' | 'Esgotado';
   sizes?: ('PP' | 'P' | 'M' | 'G' | 'GG' | 'XG' | 'XXG')[]; // tamanhos do produto
+  images?: ProductImage[];
 }
 
 const AdminProdutos = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('all');
-  const [selectedImage, setSelectedImage] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string>('');
-  const [editSelectedImage, setEditSelectedImage] = useState<File | null>(null);
-  const [editImagePreview, setEditImagePreview] = useState<string>('');
+  const [selectedImages, setSelectedImages] = useState<File[]>([]);
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+  const [currentImageIndex, setCurrentImageIndex] = useState<number>(0);
+  const [editSelectedImages, setEditSelectedImages] = useState<File[]>([]);
+  const [editImagePreviews, setEditImagePreviews] = useState<string[]>([]);
+  const [currentProductImages, setCurrentProductImages] = useState<ProductImage[]>([]);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [editFormData, setEditFormData] = useState<{
     name: string;
@@ -145,19 +157,32 @@ const AdminProdutos = () => {
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     console.log('[DEBUG] handleImageChange chamada para CRIAÇÃO');
-    const file = e.target.files?.[0];
-    console.log('[DEBUG] Arquivo selecionado:', file);
-    if (file) {
-      console.log('[DEBUG] Definindo selectedImage:', file.name);
-      setSelectedImage(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        console.log('[DEBUG] FileReader resultado:', reader.result);
-        setImagePreview(reader.result as string);
-        setNewProduct(prev => ({ ...prev, image_url: reader.result as string }));
-        console.log('[DEBUG] imagePreview definido');
-      };
-      reader.readAsDataURL(file);
+    const files = Array.from(e.target.files || []);
+    console.log('[DEBUG] Arquivos selecionados:', files.length);
+    
+    if (files.length > 0) {
+      setSelectedImages(files);
+      setCurrentImageIndex(0);
+      
+      // Processar todas as imagens
+      const previews: string[] = [];
+      let processedCount = 0;
+      
+      files.forEach((file, index) => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          previews[index] = reader.result as string;
+          processedCount++;
+          
+          if (processedCount === files.length) {
+            setImagePreviews(previews);
+            // Usar a primeira imagem como principal
+            setNewProduct(prev => ({ ...prev, image_url: previews[0] }));
+            console.log('[DEBUG] Todas as imagens processadas:', previews.length);
+          }
+        };
+        reader.readAsDataURL(file);
+      });
       
       // Limpar o valor do input para permitir seleção do mesmo arquivo novamente
       e.target.value = '';
@@ -165,27 +190,37 @@ const AdminProdutos = () => {
   };
 
   const handleEditImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    console.log('[DEBUG] handleEditImageChange chamada para EDIÇÃO');
-    const file = e.target.files?.[0];
-    console.log('[DEBUG] Arquivo selecionado para edição:', file);
-    if (file) {
-      setEditSelectedImage(file);
-      console.log('[DEBUG] editSelectedImage definido:', file.name);
+    console.log('[DEBUG] handleEditImageChange chamada para EDIÇÃO - múltiplas imagens');
+    const files = Array.from(e.target.files || []);
+    console.log('[DEBUG] Arquivos selecionados para edição:', files.length);
+    
+    if (files.length > 0) {
+      setEditSelectedImages(files);
+      console.log('[DEBUG] editSelectedImages definido:', files.map(f => f.name));
       
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const result = reader.result as string;
-        console.log('[DEBUG] FileReader resultado para edição:', result ? 'URL gerada' : 'Falha');
-        setEditImagePreview(result);
-        console.log('[DEBUG] editImagePreview definido para edição');
-      };
-      reader.readAsDataURL(file);
+      const previews: string[] = [];
+      let processedCount = 0;
+      
+      files.forEach((file, index) => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          const result = reader.result as string;
+          previews[index] = result;
+          processedCount++;
+          
+          if (processedCount === files.length) {
+            setEditImagePreviews(previews);
+            console.log('[DEBUG] Todas as imagens de edição processadas:', previews.length);
+          }
+        };
+        reader.readAsDataURL(file);
+      });
     }
     // Limpar o valor do input para permitir selecionar o mesmo arquivo novamente
     e.target.value = '';
   };
 
-  const handleEditClick = (product: Product) => {
+  const handleEditClick = async (product: Product) => {
     setEditingProduct(product);
     setEditFormData({
       name: product.name,
@@ -194,16 +229,87 @@ const AdminProdutos = () => {
       price: product.price,
       sizes: product.sizes || [],
     });
-    setImagePreview(product.image);
+    
+    // Carregar imagens existentes do produto
+    try {
+      const { data: images, error } = await supabase
+        .from('product_images')
+        .select('*')
+        .eq('product_id', product.id)
+        .order('display_order');
+      
+      if (error) {
+        console.error('Erro ao carregar imagens:', error);
+        // Fallback para imagem única
+        setCurrentProductImages([]);
+        setEditImagePreviews(product.image ? [product.image] : []);
+      } else {
+        setCurrentProductImages(images || []);
+        setEditImagePreviews(images?.map(img => img.image_url) || []);
+      }
+    } catch (error) {
+      console.error('Erro ao buscar imagens:', error);
+      setCurrentProductImages([]);
+      setEditImagePreviews(product.image ? [product.image] : []);
+    }
   };
 
   const handleEditDialogClose = () => {
     setEditingProduct(null);
     setEditFormData({ name: '', description: '', category: '', price: 0, sizes: [] });
-    setSelectedImage(null);
-    setImagePreview('');
-    setEditSelectedImage(null);
-    setEditImagePreview('');
+    setEditSelectedImages([]);
+    setEditImagePreviews([]);
+    setCurrentProductImages([]);
+  };
+
+  // Função para fazer upload de múltiplas imagens
+  const uploadMultipleImages = async (files: File[], productId: string): Promise<string[]> => {
+    const uploadPromises = files.map(async (file, index) => {
+      const fileExtension = file.name.split('.').pop();
+      const fileName = `product-${productId}-${Date.now()}-${index}.${fileExtension}`;
+      
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('product-images')
+        .upload(fileName, file);
+
+      if (uploadError) {
+        throw new Error(`Erro no upload da imagem ${file.name}: ${uploadError.message}`);
+      }
+
+      const { data: urlData } = supabase.storage
+        .from('product-images')
+        .getPublicUrl(fileName);
+
+      return urlData.publicUrl;
+    });
+
+    return Promise.all(uploadPromises);
+  };
+
+  // Função para salvar imagens na tabela product_images
+  const saveProductImages = async (productId: string, imageUrls: string[]) => {
+    // Primeiro, remover imagens existentes
+    await supabase
+      .from('product_images')
+      .delete()
+      .eq('product_id', productId);
+
+    // Inserir novas imagens
+    const imageRecords = imageUrls.map((url, index) => ({
+      product_id: productId,
+      image_url: url,
+      display_order: index,
+      is_primary: index === 0, // Primeira imagem é a principal
+      alt_text: `Imagem ${index + 1}`
+    }));
+
+    const { error } = await supabase
+      .from('product_images')
+      .insert(imageRecords);
+
+    if (error) {
+      throw new Error(`Erro ao salvar imagens: ${error.message}`);
+    }
   };
 
   // Função para atualizar produto
@@ -214,42 +320,28 @@ const AdminProdutos = () => {
         updatedData
       });
 
-      let imageUrl = updatedData.image;
+      let primaryImageUrl = updatedData.image;
 
-      // Se há uma nova imagem selecionada (editSelectedImage), fazer upload
-      if (editSelectedImage) {
+      // Se há novas imagens selecionadas, fazer upload
+      if (editSelectedImages.length > 0) {
         try {
-          // Gerar nome único para o arquivo
-          const fileExtension = editSelectedImage.name.split('.').pop();
-          const fileName = `product-${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExtension}`;
+          console.log('[DEBUG] Fazendo upload de', editSelectedImages.length, 'imagens');
           
-          // Upload da imagem para o Supabase Storage
-          const { data: uploadData, error: uploadError } = await supabase.storage
-            .from('product-images')
-            .upload(fileName, editSelectedImage);
-
-          if (uploadError) {
-            console.error('Erro no upload da imagem:', uploadError);
-            toast({
-              title: "Erro no upload da imagem",
-              description: uploadError.message,
-              variant: "destructive"
-            });
-            return;
-          }
-
-          // Obter URL pública da imagem
-          const { data: urlData } = supabase.storage
-            .from('product-images')
-            .getPublicUrl(fileName);
-
-          imageUrl = urlData.publicUrl;
-          console.log('[DEBUG] Nova imagem carregada:', imageUrl);
+          // Upload das múltiplas imagens
+          const imageUrls = await uploadMultipleImages(editSelectedImages, productId);
+          
+          // Salvar imagens na tabela product_images
+          await saveProductImages(productId, imageUrls);
+          
+          // A primeira imagem se torna a imagem principal
+          primaryImageUrl = imageUrls[0];
+          
+          console.log('[DEBUG] Imagens carregadas:', imageUrls);
         } catch (error) {
           console.error('Erro no processo de upload:', error);
           toast({
-            title: "Erro no upload da imagem",
-            description: "Falha ao processar a imagem",
+            title: "Erro no upload das imagens",
+            description: error instanceof Error ? error.message : "Falha ao processar as imagens",
             variant: "destructive"
           });
           return;
@@ -262,7 +354,7 @@ const AdminProdutos = () => {
         description: updatedData.description,
         price: updatedData.price,
         category: updatedData.category?.toLowerCase(), // Garantir minúsculas
-        image_url: imageUrl,
+        image_url: primaryImageUrl,
         sizes: updatedData.sizes || []
       };
 
@@ -352,8 +444,8 @@ const AdminProdutos = () => {
       });
       
       // Limpar estados de imagem após atualização bem-sucedida
-      setEditSelectedImage(null);
-      setEditImagePreview('');
+      setEditSelectedImages([]);
+      setEditImagePreviews([]);
       
       handleEditDialogClose();
       fetchProducts(); // Recarregar produtos para garantir sincronização
@@ -585,16 +677,19 @@ const AdminProdutos = () => {
     try {
       let imageUrl = null;
       
-      // Upload da imagem para o Supabase Storage se uma imagem foi selecionada
-      if (selectedImage) {
-        console.log('[DEBUG] Fazendo upload da imagem:', selectedImage.name);
-        const fileExt = selectedImage.name.split('.').pop();
+      // Upload das imagens para o Supabase Storage se imagens foram selecionadas
+      if (selectedImages.length > 0) {
+        console.log('[DEBUG] Fazendo upload de', selectedImages.length, 'imagens');
+        
+        // Upload da primeira imagem como imagem principal
+        const mainImage = selectedImages[0];
+        const fileExt = mainImage.name.split('.').pop();
         const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
         const filePath = `products/${fileName}`;
 
         const { data: uploadData, error: uploadError } = await supabase.storage
           .from('product-images')
-          .upload(filePath, selectedImage, {
+          .upload(filePath, mainImage, {
             cacheControl: '3600',
             upsert: false
           });
@@ -609,13 +704,13 @@ const AdminProdutos = () => {
           return;
         }
 
-        // Obter URL pública da imagem
+        // Obter URL pública da imagem principal
         const { data: { publicUrl } } = supabase.storage
           .from('product-images')
           .getPublicUrl(filePath);
         
         imageUrl = publicUrl;
-        console.log('[DEBUG] URL da imagem:', imageUrl);
+        console.log('[DEBUG] URL da imagem principal:', imageUrl);
       }
 
       // Garantir que a categoria esteja em minúsculas conforme constraint do banco
@@ -649,7 +744,7 @@ const AdminProdutos = () => {
         const stockEntries = newProduct.sizes.map(size => ({
           product_id: data.id,
           size: size,
-          quantity: newProduct.stock
+          stock_quantity: newProduct.stock
         }));
 
         const { error: stockError } = await supabase
@@ -668,8 +763,9 @@ const AdminProdutos = () => {
       
       // Limpar estados
       setNewProduct({ name: '', description: '', category: '', price: 0, stock: 0, image_url: '', sizes: [] });
-      setSelectedImage(null);
-      setImagePreview('');
+      setSelectedImages([]);
+      setImagePreviews([]);
+      setCurrentImageIndex(0);
       fetchProducts();
     } catch (error) {
       toast({
@@ -826,7 +922,7 @@ const AdminProdutos = () => {
 
                 <div className="grid grid-cols-1 sm:grid-cols-4 items-start sm:items-center gap-2 sm:gap-4">
                   <label htmlFor="image" className="text-left sm:text-right text-sm font-medium">
-                    Imagem
+                    Imagens
                   </label>
                   <div className="sm:col-span-3 space-y-2">
                     <Button
@@ -836,15 +932,60 @@ const AdminProdutos = () => {
                       className="w-full"
                     >
                       <ImagePlus className="mr-2 h-4 w-4" />
-                      Selecionar Imagem
+                      Selecionar Imagens
                     </Button>
-                    {imagePreview && (
-                      <div className="relative w-full h-40 rounded-md overflow-hidden border">
-                        <img
-                          src={imagePreview}
-                          alt="Preview"
-                          className="w-full h-full object-cover"
-                        />
+                    {imagePreviews.length > 0 && (
+                      <div className="space-y-2">
+                        <div className="relative w-full h-40 rounded-md overflow-hidden border">
+                          <img
+                            src={imagePreviews[currentImageIndex]}
+                            alt={`Preview ${currentImageIndex + 1}`}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <div className="flex gap-2">
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={() => setCurrentImageIndex(prev => Math.max(0, prev - 1))}
+                              disabled={currentImageIndex === 0}
+                            >
+                              ← Anterior
+                            </Button>
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={() => setCurrentImageIndex(prev => Math.min(imagePreviews.length - 1, prev + 1))}
+                              disabled={currentImageIndex === imagePreviews.length - 1}
+                            >
+                              Próxima →
+                            </Button>
+                          </div>
+                          <span className="text-sm text-gray-500">
+                            {currentImageIndex + 1} de {imagePreviews.length}
+                          </span>
+                        </div>
+                        <div className="flex gap-1 overflow-x-auto">
+                          {imagePreviews.map((preview, index) => (
+                            <button
+                              key={index}
+                              type="button"
+                              onClick={() => setCurrentImageIndex(index)}
+                              className={`flex-shrink-0 w-12 h-12 rounded border-2 overflow-hidden ${
+                                index === currentImageIndex ? 'border-blue-500' : 'border-gray-200'
+                              }`}
+                            >
+                              <img
+                                src={preview}
+                                alt={`Miniatura ${index + 1}`}
+                                className="w-full h-full object-cover"
+                              />
+                            </button>
+                          ))}
+                        </div>
                       </div>
                     )}
                   </div>
@@ -1081,7 +1222,7 @@ const AdminProdutos = () => {
 
                                 <div className="grid grid-cols-1 sm:grid-cols-4 items-start sm:items-center gap-2 sm:gap-4">
                                   <label className="text-left sm:text-right text-sm font-medium">
-                                    Imagem
+                                    Imagens
                                   </label>
                                   <div className="col-span-3 space-y-4">
                                     <div className="flex items-center gap-4">
@@ -1092,16 +1233,37 @@ const AdminProdutos = () => {
                                         className="w-full"
                                       >
                                         <ImagePlus className="mr-2 h-4 w-4" />
-                                        Alterar Imagem
+                                        Alterar Imagens
                                       </Button>
                                     </div>
-                                    <div className="relative w-full h-40 rounded-md overflow-hidden">
-                                      <img
-                                        src={editImagePreview || product.image}
-                                        alt={product.name}
-                                        className="w-full h-full object-cover"
-                                      />
+                                    
+                                    {/* Grid de pré-visualização das imagens */}
+                                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                                      {editImagePreviews.length > 0 ? (
+                                        editImagePreviews.map((preview, index) => (
+                                          <div key={index} className="relative w-full h-32 rounded-md overflow-hidden border">
+                                            <img
+                                              src={preview}
+                                              alt={`Imagem ${index + 1}`}
+                                              className="w-full h-full object-cover"
+                                            />
+                                            <div className="absolute top-1 right-1 bg-black bg-opacity-50 text-white text-xs px-1 rounded">
+                                              {index + 1}
+                                            </div>
+                                          </div>
+                                        ))
+                                      ) : (
+                                        <div className="col-span-full text-center text-gray-500 py-8">
+                                          Nenhuma imagem selecionada
+                                        </div>
+                                      )}
                                     </div>
+                                    
+                                    {editImagePreviews.length > 0 && (
+                                      <p className="text-xs text-gray-500">
+                                        {editImagePreviews.length} imagem(ns) selecionada(s). A primeira será a imagem principal.
+                                      </p>
+                                    )}
                                   </div>
                                 </div>
                               </div>
@@ -1116,9 +1278,7 @@ const AdminProdutos = () => {
                                     description: editFormData.description,
                                     price: editFormData.price,
                                     category: editFormData.category as 'camiseta' | 'vestido',
-                                    image: imagePreview || product.image,
-                                    // Campos de medidas
-
+                                    image: editImagePreviews[0] || product.image,
                                     sizes: editFormData.sizes
                                   })}
                                 >
@@ -1238,6 +1398,7 @@ const AdminProdutos = () => {
         type="file"
         id="create-image-upload"
         accept="image/*"
+        multiple
         className="hidden"
         onChange={handleImageChange}
       />
@@ -1245,6 +1406,7 @@ const AdminProdutos = () => {
         type="file"
         id="edit-image-upload"
         accept="image/*"
+        multiple
         className="hidden"
         onChange={handleEditImageChange}
       />

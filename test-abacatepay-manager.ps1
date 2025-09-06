@@ -1,13 +1,16 @@
 # Teste da função consolidada abacatepay-manager
 
-# Usar token anônimo diretamente
+# Configuração
 $headers = @{
-    'Authorization' = 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9qeG1meGJmbGJmaW5vZGtoaXhrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5MjUwODAsImV4cCI6MjA3MDUwMTA4MH0.CNziCYvVGA3EUXSJfigtSGuYYiOn7wGE9FfBxlLsE-o'
+    'Authorization' = 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9qeG1meGJmbGJmaW5vZGtoaXhrIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1NDkyNTA4MCwiZXhwIjoyMDcwNTAxMDgwfQ.otn_yr7CqJpg9B_z9XaONVxqHSlNsCro67bVstt5JmQ'
     'Content-Type' = 'application/json'
-    'apikey' = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9qeG1meGJmbGJmaW5vZGtoaXhrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5MjUwODAsImV4cCI6MjA3MDUwMTA4MH0.CNziCYvVGA3EUXSJfigtSGuYYiOn7wGE9FfBxlLsE-o'
+    'apikey' = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9qeG1meGJmbGJmaW5vZGtoaXhrIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1NDkyNTA4MCwiZXhwIjoyMDcwNTAxMDgwfQ.otn_yr7CqJpg9B_z9XaONVxqHSlNsCro67bVstt5JmQ'
+    'ABACATEPAY_API_KEY' = 'abc_dev_LsWsb5rG4YSsKL2KCyP3Hm4n'
 }
 
-$url = 'https://ojxmfxbflbfinodkhixk.supabase.co/functions/v1/abacatepay-manager'
+$baseUrl = "https://ojxmfxbflbfinodkhixk.supabase.co/functions/v1/abacatepay-manager"
+$url = $baseUrl
+$checkUrl = $baseUrl
 
 $body = @{
     action = 'create_payment'
@@ -43,7 +46,6 @@ try {
 
 # Teste de verificação de status
 Write-Host "`n--- Testando verificação de status ---"
-$checkUrl = 'https://ojxmfxbflbfinodkhixk.supabase.co/functions/v1/abacatepay-manager'
 
 # Extrair o transactionId da resposta anterior
 $transactionId = if ($response -and $response.paymentData -and $response.paymentData.id) {

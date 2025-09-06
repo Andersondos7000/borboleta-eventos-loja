@@ -37,7 +37,7 @@ const MobileMenu: React.FC = () => {
       <SheetTrigger asChild>
         <Button variant="ghost" size="icon" className="md:hidden">
           <Menu className="h-8 w-8" />
-          <span className="sr-only">Abrir menu</span>
+          <div className="sr-only">Abrir menu</div>
         </Button>
       </SheetTrigger>
       <SheetContent side="left" className="w-[280px]">
@@ -57,7 +57,7 @@ const MobileMenu: React.FC = () => {
               className="flex items-center px-4 py-3 hover:bg-butterfly-orange/10 rounded-md transition-colors"
               onClick={closeMenu}
             >
-              <span>Home</span>
+              <div>Home</div>
             </Link>
             <Link 
               to="/evento" 
@@ -65,7 +65,7 @@ const MobileMenu: React.FC = () => {
               onClick={closeMenu}
             >
               <Calendar className="mr-2 h-5 w-5" />
-              <span>Evento</span>
+              <div>Evento</div>
             </Link>
             <Link 
               to="/loja" 
@@ -73,7 +73,7 @@ const MobileMenu: React.FC = () => {
               onClick={closeMenu}
             >
               <Shirt className="mr-2 h-5 w-5" />
-              <span>Loja</span>
+              <div>Loja</div>
             </Link>
             <Link 
               to="/ingressos" 
@@ -81,7 +81,7 @@ const MobileMenu: React.FC = () => {
               onClick={closeMenu}
             >
               <Calendar className="mr-2 h-5 w-5" />
-              <span>Ingressos</span>
+              <div>Ingressos</div>
             </Link>
             <Link 
               to="/carrinho" 
@@ -89,14 +89,14 @@ const MobileMenu: React.FC = () => {
               onClick={closeMenu}
             >
               <ShoppingCart className="mr-2 h-5 w-5" />
-              <span>Carrinho</span>
+              <div>Carrinho</div>
             </Link>
             <Link 
               to="/checkout" 
               className="flex items-center px-4 py-3 hover:bg-butterfly-orange/10 rounded-md transition-colors"
               onClick={closeMenu}
             >
-              <span>Checkout</span>
+              <div>Checkout</div>
             </Link>
             {userIsAdmin && (
               <Link 
@@ -105,7 +105,7 @@ const MobileMenu: React.FC = () => {
                 onClick={closeMenu}
               >
                 <Settings className="mr-2 h-5 w-5" />
-                <span>Admin</span>
+                <div>Admin</div>
               </Link>
             )}
 
@@ -119,14 +119,14 @@ const MobileMenu: React.FC = () => {
                   onClick={closeMenu}
                 >
                   <User className="mr-2 h-5 w-5" />
-                  <span>Meu Perfil</span>
+                  <div>Meu Perfil</div>
                 </Link>
                 <button 
                   className="flex items-center px-4 py-3 hover:bg-butterfly-orange/10 rounded-md transition-colors text-left w-full"
                   onClick={handleSignOut}
                 >
                   <LogOut className="mr-2 h-5 w-5" />
-                  <span>Sair</span>
+                  <div>Sair</div>
                 </button>
               </>
             ) : (
@@ -136,7 +136,7 @@ const MobileMenu: React.FC = () => {
                 onClick={closeMenu}
               >
                 <LogIn className="mr-2 h-5 w-5" />
-                <span>Entrar / Cadastrar</span>
+                <div>Entrar / Cadastrar</div>
               </Link>
             )}
           </nav>

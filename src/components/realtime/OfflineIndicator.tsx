@@ -303,10 +303,10 @@ export function ConnectionQualityIndicator({ className = '' }: { className?: str
   
   return (
     <div className={`flex items-center space-x-1 ${className}`}>
-      <span className="text-sm">{config.icon}</span>
-      <span className={`text-xs ${config.color}`}>
+      <div className="text-sm">{config.icon}</div>
+      <div className={`text-xs ${config.color}`}>
         {config.label}
-      </span>
+      </div>
     </div>
   );
 }
