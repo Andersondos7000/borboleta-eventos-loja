@@ -1,6 +1,6 @@
 # Comparação de Esquemas de Banco de Dados
 
-## Análise Comparativa: ojxmfxbflbfinodkhixk vs fdswhhckvweghcavgdvb
+## Análise Comparativa: ojxmfxbflbfinodkhixk vs ojxmfxbflbfinodkhixk
 
 ### 1. Tabela `cart_items`
 

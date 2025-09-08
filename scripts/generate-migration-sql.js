@@ -9,7 +9,7 @@ import path from 'path';
 
 // Configurações da migração
 const MIGRATION_CONFIG = {
-  sourceSchema: 'fdswhhckvweghcavgdvb',
+  sourceSchema: 'ojxmfxbflbfinodkhixk',
   targetSchema: 'ojxmfxbflbfinodkhixk',
   batchSize: 1000,
   timestamp: new Date().toISOString().replace(/[:.]/g, '-')

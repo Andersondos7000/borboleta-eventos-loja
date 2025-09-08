@@ -4,11 +4,12 @@ import { supabase } from '../../lib/supabase';
 import { useAuth } from '../useAuth';
 
 // Tipos para pedidos
+// DEPRECATED: product_sizes table removed - updated interface
 interface OrderItem {
   id: string;
   order_id: string;
   product_id: string;
-  product_size_id: string;
+  size: string; // Changed from product_size_id to direct size string
   quantity: number;
   price: number;
   total_price: number;
@@ -18,11 +19,10 @@ interface OrderItem {
     id: string;
     name: string;
     image_url?: string;
+    sizes?: string[]; // Available sizes from products table
   };
-  product_sizes?: {
-    id: string;
-    size: string;
-  };
+  // DEPRECATED: product_sizes table no longer exists
+  // Use size field directly instead
 }
 
 type OrderStatus = 'pending' | 'confirmed' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
@@ -126,7 +126,7 @@ export function useRealtimeOrders(filters?: OrderFilters): UseRealtimeOrdersRetu
         id,
         order_id,
         product_id,
-        product_size_id,
+        size,
         quantity,
         price,
         total_price,
@@ -134,11 +134,8 @@ export function useRealtimeOrders(filters?: OrderFilters): UseRealtimeOrdersRetu
         products:product_id (
           id,
           name,
-          image_url
-        ),
-        product_sizes:product_size_id (
-          id,
-          size
+          image_url,
+          sizes
         )
       )
     `,
@@ -468,10 +465,7 @@ export function useOrderTracking(orderId: string) {
           name,
           image_url
         ),
-        product_sizes:product_size_id (
-          id,
-          size
-        )
+        // DEPRECATED: product_sizes table removed - size is now stored directly in order_items
       )
     `,
     enableOptimistic: false,

@@ -1,7 +1,8 @@
 
 import React from 'react';
 import { Trash2 } from 'lucide-react';
-import { CartTicket, useCart } from '@/contexts/CartContext';
+import { useCart } from '@/hooks/useCart';
+import { CartTicket } from '@/lib/cart-utils';
 
 interface TicketCartItemProps {
   item: CartTicket;

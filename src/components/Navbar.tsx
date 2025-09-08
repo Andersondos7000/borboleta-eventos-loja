@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { ShoppingCart, Calendar, Shirt, User } from 'lucide-react';
 import ButterflyLogo from './ButterflyLogo';
 import { Button } from '@/components/ui/button';
-import { useCart } from '@/contexts/CartContext';
+import { useCart } from '@/hooks/useCart';
 import { useAuth } from '@/hooks/useAuth';
 import MobileMenu from './MobileMenu';
 

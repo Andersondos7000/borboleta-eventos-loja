@@ -7,7 +7,7 @@
 
 **Escopo**: Sistema de sincronização bidirecional que mantém dados consistentes entre frontend, backend e serviços externos sem necessidade de Docker ou infraestrutura adicional.
 
-**Contexto Atualizado**: A aplicação "Borboleta Eventos Loja" utiliza o projeto Supabase "querenrapuque" (fdswhhckvweghcavgdvb) como ambiente principal, com necessidade de hooks reutilizáveis e estado global sincronizado.
+**Contexto Atualizado**: A aplicação "Borboleta Eventos Loja" utiliza o projeto Supabase "querenrapuque" (ojxmfxbflbfinodkhixk) como ambiente principal, com necessidade de hooks reutilizáveis e estado global sincronizado.
 
 ### 🎯 Objetivos de Negócio
 

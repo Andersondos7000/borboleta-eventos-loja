@@ -25,6 +25,7 @@ const TestComponent: React.FC = () => {
   } = useRealtime()
 
   const metrics = getMetrics()
+  const handleData = jest.fn();
 
   return (
     <div>
@@ -38,7 +39,7 @@ const TestComponent: React.FC = () => {
       
       <button 
         data-testid="subscribe-btn" 
-        onClick={() => subscribe('products')}
+        onClick={() => subscribe('products', handleData)}
       >
         Subscribe
       </button>
@@ -358,7 +359,7 @@ describe('RealtimeProvider', () => {
           supabaseUrl: 'test-url',
           supabaseAnonKey: 'test-key'
         }}
-        showDebugPanel={true}
+        enableDebug={true}
       >
         <TestComponent />
       </RealtimeProvider>
@@ -376,7 +377,7 @@ describe('RealtimeProvider', () => {
           supabaseUrl: 'test-url',
           supabaseAnonKey: 'test-key'
         }}
-        showDebugPanel={false}
+        enableDebug={false}
       >
         <TestComponent />
       </RealtimeProvider>
@@ -388,19 +389,20 @@ describe('RealtimeProvider', () => {
   it('should handle multiple channel subscriptions', async () => {
     const TestMultipleChannels: React.FC = () => {
       const { subscribe, channels } = useRealtime()
+      const handleData = jest.fn();
 
       return (
         <div>
           <div data-testid="channels-count">{channels.size}</div>
           <button 
             data-testid="subscribe-products" 
-            onClick={() => subscribe('products')}
+            onClick={() => subscribe('products', handleData)}
           >
             Subscribe Products
           </button>
           <button 
             data-testid="subscribe-orders" 
-            onClick={() => subscribe('orders')}
+            onClick={() => subscribe('orders', handleData)}
           >
             Subscribe Orders
           </button>

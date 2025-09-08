@@ -3,21 +3,7 @@ import { useRealtimeSync } from './useRealtimeSync';
 import { supabase } from '../../lib/supabase';
 
 // Tipos para produtos
-interface ProductSize {
-  id: string;
-  product_id: string;
-  size: string;
-  created_at: string;
-}
-
-interface ProductStock {
-  id: string;
-  product_id: string;
-  size: string;
-  stock_quantity: number;
-  created_at: string;
-  updated_at: string;
-}
+type ProductSize = 'PP' | 'P' | 'M' | 'G' | 'GG' | 'XG' | 'XXG';
 
 interface Category {
   id: string;
@@ -34,13 +20,13 @@ interface Product {
   category_id: string;
   image_url?: string;
   is_active: boolean;
+  in_stock: boolean;
+  sizes: ProductSize[]; // array de tamanhos disponíveis
   created_at: string;
   updated_at: string;
 
-  size?: 'PP' | 'P' | 'M' | 'G' | 'GG' | 'XG' | 'XXG'; // tamanho do produto
   // Dados relacionados (joins)
   categories?: Category;
-  product_sizes?: ProductStock[]; // Usando ProductStock que agora representa product_sizes
 }
 
 interface ProductFilters {
@@ -59,8 +45,8 @@ interface UseRealtimeProductsReturn {
   isConnected: boolean;
   refetch: () => void;
   getProductById: (id: string) => Product | undefined;
-  getProductStock: (productId: string, sizeId?: string) => number;
-  isProductAvailable: (productId: string, sizeId: string, quantity?: number) => boolean;
+  getProductStock: (productId: string) => boolean;
+  isProductAvailable: (productId: string, size: ProductSize) => boolean;
   getAvailableSizes: (productId: string) => ProductSize[];
 }
 
@@ -108,18 +94,6 @@ export function useRealtimeProducts(filters?: ProductFilters): UseRealtimeProduc
         id,
         name,
         description
-      ),
-      product_sizes (
-        id,
-        product_id,
-        size
-      ),
-      product_sizes (
-        id,
-        product_id,
-        product_size_id,
-        quantity,
-        reserved_quantity
       )
     `,
     orderBy: 'created_at:desc',
@@ -149,10 +123,7 @@ export function useRealtimeProducts(filters?: ProductFilters): UseRealtimeProduc
     if (!filters?.inStock) return filteredProducts;
     
     return filteredProducts.filter(product => {
-      const totalStock = product.product_sizes?.reduce((sum, size) => {
-        return sum + size.stock_quantity;
-      }, 0) || 0;
-      return totalStock > 0;
+      return product.in_stock;
     });
   }, [filteredProducts, filters?.inStock]);
 
@@ -161,38 +132,26 @@ export function useRealtimeProducts(filters?: ProductFilters): UseRealtimeProduc
     return finalProducts.find(product => product.id === id);
   }, [finalProducts]);
 
-  // Obter estoque disponível de um produto
-  const getProductStock = useCallback((productId: string, sizeId?: string): number => {
+  // Verificar se produto tem estoque
+  const getProductStock = useCallback((productId: string): boolean => {
     const product = getProductById(productId);
-    if (!product?.product_sizes) return 0;
-
-    const stockItems = sizeId 
-      ? product.product_sizes.filter(size => size.id === sizeId)
-      : product.product_sizes;
-
-    return stockItems.reduce((sum, size) => {
-      return sum + size.stock_quantity;
-    }, 0);
+    return product?.in_stock || false;
   }, [getProductById]);
 
-  // Verificar se produto está disponível
-  const isProductAvailable = useCallback((productId: string, sizeId: string, quantity: number = 1): boolean => {
+  // Verificar se produto está disponível em um tamanho específico
+  const isProductAvailable = useCallback((productId: string, size: ProductSize): boolean => {
     const product = getProductById(productId);
-    if (!product || !product.is_active) return false;
+    if (!product || !product.is_active || !product.in_stock) return false;
 
-    const availableStock = getProductStock(productId, sizeId);
-    return availableStock >= quantity;
-  }, [getProductById, getProductStock]);
+    return product.sizes.includes(size);
+  }, [getProductById]);
 
   // Obter tamanhos disponíveis de um produto
-  const getAvailableSizes = useCallback((productId: string): ProductStock[] => {
+  const getAvailableSizes = useCallback((productId: string): ProductSize[] => {
     const product = getProductById(productId);
-    if (!product?.product_sizes) return [];
+    if (!product?.sizes || !product.in_stock) return [];
 
-    // Filtrar apenas tamanhos com estoque disponível
-    return product.product_sizes.filter(size => {
-      return size.stock_quantity > 0;
-    });
+    return product.sizes;
   }, [getProductById]);
 
   return {
@@ -223,33 +182,33 @@ export function useRealtimeStock(productId?: string) {
     error,
     isConnected,
     refetch
+  // DEPRECATED: product_sizes table removed - using products.sizes array instead
   } = useRealtimeSync<ProductStock>({
-    table: 'product_sizes',
-    filter,
+    table: 'products', // Changed from product_sizes to products
+    filter: productId ? `id.eq.${productId}` : undefined,
     select: `
-      *,
-      products:product_id (
-        id,
-        name
-      )
+      id,
+      name,
+      sizes,
+      in_stock
     `,
     orderBy: 'updated_at:desc',
     enableOptimistic: true,
-    onUpdate: (updatedStock) => {
-      console.log('Estoque atualizado:', updatedStock);
+    onUpdate: (updatedProduct) => {
+      console.log('Produto atualizado:', updatedProduct);
     }
   });
 
-  // Atualizar estoque
-  const updateStock = useCallback(async (stockId: string, quantity: number) => {
+  // DEPRECATED: product_sizes table removed - simplified stock update
+  const updateStock = useCallback(async (productId: string, inStock: boolean) => {
     try {
       const { error } = await supabase
-        .from('product_sizes')
+        .from('products') // Changed from product_sizes to products
         .update({ 
-          stock_quantity: quantity,
+          in_stock: inStock,
           updated_at: new Date().toISOString()
         })
-        .eq('id', stockId);
+        .eq('id', productId);
 
       if (error) {
         throw new Error(`Erro ao atualizar estoque: ${error.message}`);
@@ -260,27 +219,19 @@ export function useRealtimeStock(productId?: string) {
     }
   }, []);
 
-  // Reservar estoque (para carrinho/pedidos) - reduz stock_quantity
-  const reserveStock = useCallback(async (stockId: string, quantity: number) => {
+  // DEPRECATED: product_sizes table removed - simplified stock reservation
+  const reserveStock = useCallback(async (productId: string, quantity: number) => {
     try {
-      const stockItem = stockItems.find(item => item.id === stockId);
-      if (!stockItem) {
-        throw new Error('Item de estoque não encontrado');
-      }
-
-      if (stockItem.stock_quantity < quantity) {
-        throw new Error('Estoque insuficiente para reserva');
-      }
-
-      const newQuantity = stockItem.stock_quantity - quantity;
-
+      console.warn('DEPRECATED: reserveStock - funcionalidade limitada sem tabela product_sizes');
+      
+      // Simplified: just mark as out of stock if needed
       const { error } = await supabase
-        .from('product_sizes')
+        .from('products') // Changed from product_sizes to products
         .update({ 
-          stock_quantity: newQuantity,
+          in_stock: false, // Simplified logic
           updated_at: new Date().toISOString()
         })
-        .eq('id', stockId);
+        .eq('id', productId);
 
       if (error) {
         throw new Error(`Erro ao reservar estoque: ${error.message}`);
@@ -291,23 +242,19 @@ export function useRealtimeStock(productId?: string) {
     }
   }, [stockItems]);
 
-  // Liberar estoque reservado - aumenta stock_quantity
-  const releaseStock = useCallback(async (stockId: string, quantity: number) => {
+  // DEPRECATED: product_sizes table removed - simplified stock release
+  const releaseStock = useCallback(async (productId: string, quantity: number) => {
     try {
-      const stockItem = stockItems.find(item => item.id === stockId);
-      if (!stockItem) {
-        throw new Error('Item de estoque não encontrado');
-      }
-
-      const newQuantity = stockItem.stock_quantity + quantity;
-
+      console.warn('DEPRECATED: releaseStock - funcionalidade limitada sem tabela product_sizes');
+      
+      // Simplified: just mark as in stock
       const { error } = await supabase
-        .from('product_sizes')
+        .from('products') // Changed from product_sizes to products
         .update({ 
-          stock_quantity: newQuantity,
+          in_stock: true, // Simplified logic
           updated_at: new Date().toISOString()
         })
-        .eq('id', stockId);
+        .eq('id', productId);
 
       if (error) {
         throw new Error(`Erro ao liberar estoque: ${error.message}`);

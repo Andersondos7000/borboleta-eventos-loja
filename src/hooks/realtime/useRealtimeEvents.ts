@@ -27,13 +27,13 @@ interface Ticket {
 
 interface Event {
   id: string;
-  title: string;
+  name: string;
   description?: string;
-  event_date: string;
+  date: string;
   location: string;
   max_capacity: number;
   current_capacity: number;
-  ticket_price: number;
+  price: number;
   vip_price?: number;
   premium_price?: number;
   image_url?: string;

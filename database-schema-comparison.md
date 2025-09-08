@@ -1,11 +1,11 @@
 # Comparação de Esquemas de Banco de Dados
 
 ## Projeto Origem: ojxmfxbflbfinodkhixk
-## Projeto Destino: fdswhhckvweghcavgdvb
+## Projeto Destino: ojxmfxbflbfinodkhixk
 
 ## Resumo Executivo
 
-Este documento apresenta uma análise detalhada das diferenças entre os esquemas de banco de dados `fdswhhckvweghcavgdvb` e `ojxmfxbflbfinodkhixk`. O esquema `fdswhhckvweghcavgdvb` é significativamente mais robusto e completo, adequado para um sistema de e-commerce/eventos em produção, enquanto `ojxmfxbflbfinodkhixk` apresenta uma estrutura mais simplificada.
+Este documento apresenta uma análise detalhada das diferenças entre os esquemas de banco de dados dos projetos. O esquema `ojxmfxbflbfinodkhixk` é significativamente mais robusto e completo, adequado para um sistema de e-commerce/eventos em produção, enquanto o esquema anterior apresentava uma estrutura mais simplificada.
 
 ## 1. Tabela `cart_items`
 

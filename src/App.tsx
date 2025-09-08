@@ -25,7 +25,7 @@ import Auth from "./pages/Auth";
 import AuthCallback from "./pages/Auth/Callback";
 import Profile from "./pages/Profile";
 import ResetPassword from "./pages/ResetPassword";
-import { CustomersPage } from "./pages/CustomersPage";
+import { ProfilesPage } from "./pages/ProfilesPage";
 import { CartProvider } from "./contexts/CartContext";
 import { AuthProvider } from "./contexts/AuthContext";
 import { RealtimeProvider } from "./contexts/RealtimeContext";
@@ -96,7 +96,7 @@ const App = () => (
               <Route path="/user" element={<Navigate to="/perfil" replace />} />
               <Route path="/customers" element={
                 <ProtectedRoute requireAdmin={true}>
-                  <CustomersPage />
+                  <ProfilesPage />
                 </ProtectedRoute>
               } />
 

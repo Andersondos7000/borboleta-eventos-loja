@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { MonitoringIntegration } from '../../components/monitoring/MonitoringIntegration';
+import { describe, it, expect, beforeEach, afterEach } from '@jest/globals';
+import MonitoringIntegration from '../../components/monitoring/MonitoringIntegration';
 import { RealtimeProvider } from '../../contexts/RealtimeContext';
 import type { MonitoringAlert, IntegratedMetrics } from '../../hooks/monitoring/useIntegratedMonitoring';
 
@@ -52,19 +52,19 @@ const mockUseIntegratedMonitoring = {
     enableBrowserTools: true,
     enablePerformanceMonitoring: true
   },
-  startMonitoring: vi.fn(),
-  stopMonitoring: vi.fn(),
-  updateConfig: vi.fn(),
-  addAlert: vi.fn(),
-  resolveAlert: vi.fn(),
-  clearAlerts: vi.fn(),
-  updateMetrics: vi.fn(),
-  takeSnapshot: vi.fn(),
-  exportMetrics: vi.fn(),
-  resetMetrics: vi.fn()
+  startMonitoring: jest.fn(),
+  stopMonitoring: jest.fn(),
+  updateConfig: jest.fn(),
+  addAlert: jest.fn(),
+  resolveAlert: jest.fn(),
+  clearAlerts: jest.fn(),
+  updateMetrics: jest.fn(),
+  takeSnapshot: jest.fn(),
+  exportMetrics: jest.fn(),
+  resetMetrics: jest.fn()
 };
 
-vi.mock('../../hooks/monitoring/useIntegratedMonitoring', () => ({
+jest.mock('../../hooks/monitoring/useIntegratedMonitoring', () => ({
   useIntegratedMonitoring: () => mockUseIntegratedMonitoring
 }));
 

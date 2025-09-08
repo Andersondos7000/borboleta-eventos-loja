@@ -114,3 +114,5 @@ type Result<T, E = Error> =
 - Sync transparente
 
 ---
+#### ✅ Linguagem
+- Falar sempre em português

@@ -45,7 +45,7 @@ const __dirname = path.dirname(__filename);
 const config = {
   supabaseUrl: process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL,
   supabaseKey: process.env.SUPABASE_SERVICE_ROLE_KEY,
-  projectId: process.env.SUPABASE_PROJECT_ID || 'fdswhhckvweghcavgdvb',
+  projectId: process.env.SUPABASE_PROJECT_ID || 'ojxmfxbflbfinodkhixk',
   backupDir: path.join(__dirname, '..', 'backups'),
   migrationsDir: path.join(__dirname, '..', 'supabase', 'migrations'),
   reportsDir: path.join(__dirname, '..', 'reports'),

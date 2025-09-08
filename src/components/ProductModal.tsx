@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, ArrowRight, ZoomIn, ZoomOut, ShoppingCart, Heart, Share2, Star } from "lucide-react";
 import { ProductProps } from './ProductCard';
-import { useCart } from '@/contexts/CartContext';
+import { useCart } from '@/hooks/useCart';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/lib/supabase';
 

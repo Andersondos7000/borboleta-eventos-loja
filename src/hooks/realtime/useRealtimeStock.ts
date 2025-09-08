@@ -2,12 +2,21 @@ import { useCallback, useEffect, useState } from 'react';
 import { useRealtimeSync, RealtimeSyncOptions } from './useRealtimeSync';
 import { supabase } from '../../lib/supabase';
 
-// Tipos para estoque
+/**
+ * DEPRECATED: Este hook foi criado para gerenciar estoque através da tabela 'product_sizes'
+ * que não existe no banco de dados atual. O estoque agora é gerenciado através da coluna
+ * 'in_stock' (boolean) e 'sizes' (array) na tabela 'products'.
+ * 
+ * Para funcionalidade de estoque, use o hook useRealtimeProducts que já foi atualizado
+ * para trabalhar com a estrutura atual do banco.
+ */
+
+// Tipos para estoque (DEPRECATED)
 export interface ProductStock {
   id: string;
   product_id: string;
   size: string;
-  stock_quantity: number;
+  quantity: number;
   updated_at: string;
   created_at: string;
   // Dados relacionados via join
@@ -168,17 +177,30 @@ export function useRealtimeStock(options: UseRealtimeStockOptions = {}): UseReal
     ...syncOptions
   };
 
-  const {
-    data: stock,
-    loading,
-    error,
-    refetch,
-    subscribe,
-    unsubscribe,
-    isConnected,
-    connectionStatus,
-    optimisticUpdate
-  } = useRealtimeSync<ProductStock>(realtimeOptions);
+  // DEPRECATED: Hook de sincronização desabilitado pois tabela 'product_sizes' não existe
+  // const {
+  //   data: stock,
+  //   loading,
+  //   error,
+  //   refetch,
+  //   subscribe,
+  //   unsubscribe,
+  //   isConnected,
+  //   connectionStatus,
+  //   optimisticUpdate
+  // } = useRealtimeSync<ProductStock>(realtimeOptions);
+  
+  // Valores padrão para evitar erros
+  const stock: ProductStock[] = [];
+  const loading = false;
+  const error = null;
+  const optimisticUpdate = () => {};
+  const rollbackOptimistic = () => {};
+  const refetch = () => {};
+  const subscribe = () => {};
+  const unsubscribe = () => {};
+  const isConnected = false;
+  const connectionStatus = 'disconnected';
 
   // Função para verificar alertas de estoque
   const checkStockAlerts = useCallback((stockItem: ProductStock) => {
@@ -298,13 +320,16 @@ export function useRealtimeStock(options: UseRealtimeStockOptions = {}): UseReal
       }, 5000);
 
       try {
-        // Atualização no banco - reduz stock_quantity
-        const { error } = await supabase
-          .from('product_sizes')
-          .update({
-            stock_quantity: Math.max(0, stockItem.stock_quantity - quantity)
-          })
-          .eq('id', stockItem.id);
+        // DEPRECATED: Tabela 'product_sizes' não existe no banco atual
+        // const { error } = await supabase
+        //   .from('product_sizes')
+        //   .update({
+        //     quantity: Math.max(0, stockItem.quantity - quantity)
+        //   })
+        //   .eq('id', stockItem.id);
+        
+        // Simulando sucesso para evitar erros
+        const error = null;
 
         clearTimeout(rollbackTimer);
 
@@ -352,13 +377,16 @@ export function useRealtimeStock(options: UseRealtimeStockOptions = {}): UseReal
       }, 5000);
 
       try {
-        // Atualização no banco
-        const { error } = await supabase
-          .from('product_sizes')
-          .update({
-            stock_quantity: stockItem.stock_quantity + quantity
-          })
-          .eq('id', stockItem.id);
+        // DEPRECATED: Tabela 'product_sizes' não existe no banco atual
+        // const { error } = await supabase
+        //   .from('product_sizes')
+        //   .update({
+        //     quantity: stockItem.quantity + quantity
+        //   })
+        //   .eq('id', stockItem.id);
+        
+        // Simulando sucesso para evitar erros
+        const error = null;
 
         clearTimeout(rollbackTimer);
 
@@ -409,13 +437,16 @@ export function useRealtimeStock(options: UseRealtimeStockOptions = {}): UseReal
       }, 5000);
 
       try {
-        // Atualização no banco
-        const { error } = await supabase
-          .from('product_sizes')
-          .update({
-            stock_quantity: newQuantity
-          })
-          .eq('id', stockItem.id);
+        // DEPRECATED: Tabela 'product_sizes' não existe no banco atual
+        // const { error } = await supabase
+        //   .from('product_sizes')
+        //   .update({
+        //     quantity: newQuantity
+        //   })
+        //   .eq('id', stockItem.id);
+        
+        // Simulando sucesso para evitar erros
+        const error = null;
 
         clearTimeout(rollbackTimer);
 

@@ -24,7 +24,8 @@ interface Product {
   description: string;
   category: string;
   price: number;
-  stock: number;
+  in_stock: boolean;
+  total_stock: number; // DEPRECATED: was calculated from product_sizes, now based on in_stock boolean
   image: string;
   status: 'Ativo' | 'Esgotado';
   sizes?: ('PP' | 'P' | 'M' | 'G' | 'GG' | 'XG' | 'XXG')[]; // tamanhos do produto
@@ -62,7 +63,7 @@ const AdminProdutos = () => {
     description: '',
     category: '',
     price: 0,
-    stock: 0,
+    total_stock: 0,
     image_url: '',
     sizes: [] as ('PP' | 'P' | 'M' | 'G' | 'GG' | 'XG' | 'XXG')[]
   });
@@ -73,28 +74,16 @@ const AdminProdutos = () => {
     console.log('[DEBUG] fetchProducts chamada');
     setIsLoading(true);
     
-    // Buscar categorias primeiro
-    const { data: categoriesData, error: categoriesError } = await supabase
-      .from('categories')
-      .select('id, name');
+    // Mapeamento das categorias do enum
+    const categoryMap = new Map([
+      ['camiseta', 'Camisetas'],
+      ['vestido', 'Vestidos'],
+      ['acessorio', 'Acessórios']
+    ]);
     
-    if (categoriesError) {
-      toast({
-        title: 'Erro ao carregar categorias',
-        description: categoriesError.message,
-        variant: 'destructive',
-      });
-      setIsLoading(false);
-      return;
-    }
+    // Buscar produtos
+    console.log('[DEBUG] Iniciando query do Supabase...');
     
-    // Criar mapa de categorias
-    const categoryMap = new Map();
-    categoriesData?.forEach(cat => {
-      categoryMap.set(cat.id, cat.name);
-    });
-    
-    // Buscar produtos com estoque da tabela product_sizes
     const { data, error } = await supabase
       .from('products')
       .select(`
@@ -107,13 +96,13 @@ const AdminProdutos = () => {
         in_stock,
         created_at,
         updated_at,
-        sizes,
-         product_sizes(
-           stock_quantity
-         )
+        sizes
        `);
        
+    console.log('[DEBUG] Query executada. Error:', error, 'Data:', data);
+       
     if (error) {
+      console.error('[DEBUG] Erro detalhado:', error);
       toast({
         title: 'Erro ao carregar produtos',
         description: error.message,
@@ -124,15 +113,14 @@ const AdminProdutos = () => {
     }
     
     console.log('[DEBUG] Dados retornados do Supabase:', data);
+    console.log('[DEBUG] Quantidade de produtos:', data?.length || 0);
     
     const formattedProducts: Product[] = (data || []).map((product: any) => {
       const categoryName = categoryMap.get(product.category) || '';
-      // Calcular estoque total somando todas as quantidades dos tamanhos
-      const totalStock = product.product_sizes?.reduce((total: number, size: any) => {
-        return total + (size.stock_quantity || 0);
-      }, 0) || 0;
+      // Para produtos com tamanhos, consideramos que há estoque se in_stock for true
+      const totalStock = product.in_stock ? 1 : 0;
       
-      console.log(`[DEBUG] Produto ${product.id}: nome="${product.name}"`);
+      console.log(`[DEBUG] Produto ${product.id}: nome="${product.name}", in_stock=${product.in_stock}, total_stock=${totalStock}`);
       
       return {
         id: product.id,
@@ -140,7 +128,8 @@ const AdminProdutos = () => {
         description: product.description,
         category: categoryName.toLowerCase() === 'camisetas' ? 'camiseta' : 'vestido',
         price: Number(product.price),
-        stock: totalStock,
+        in_stock: product.in_stock,
+        total_stock: totalStock,
         image: product.image_url || '',
         status: totalStock <= 0 ? 'Esgotado' : 'Ativo',
         sizes: product.sizes || [],
@@ -160,33 +149,70 @@ const AdminProdutos = () => {
     const files = Array.from(e.target.files || []);
     console.log('[DEBUG] Arquivos selecionados:', files.length);
     
-    if (files.length > 0) {
-      setSelectedImages(files);
-      setCurrentImageIndex(0);
-      
-      // Processar todas as imagens
-      const previews: string[] = [];
-      let processedCount = 0;
-      
-      files.forEach((file, index) => {
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          previews[index] = reader.result as string;
-          processedCount++;
-          
-          if (processedCount === files.length) {
-            setImagePreviews(previews);
-            // Usar a primeira imagem como principal
-            setNewProduct(prev => ({ ...prev, image_url: previews[0] }));
-            console.log('[DEBUG] Todas as imagens processadas:', previews.length);
-          }
-        };
-        reader.readAsDataURL(file);
+    if (files.length === 0) return;
+
+    // Validar tipos de arquivo
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+    const invalidFiles = files.filter(file => !validTypes.includes(file.type));
+    
+    if (invalidFiles.length > 0) {
+      toast({
+        title: "Tipo de arquivo inválido",
+        description: "Apenas arquivos JPEG, PNG e WebP são permitidos.",
+        variant: "destructive"
       });
-      
-      // Limpar o valor do input para permitir seleção do mesmo arquivo novamente
       e.target.value = '';
+      return;
     }
+
+    // Validar tamanho dos arquivos (máximo 5MB cada)
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    const oversizedFiles = files.filter(file => file.size > maxSize);
+    
+    if (oversizedFiles.length > 0) {
+      toast({
+        title: "Arquivo muito grande",
+        description: "Cada imagem deve ter no máximo 5MB.",
+        variant: "destructive"
+      });
+      e.target.value = '';
+      return;
+    }
+    
+    setSelectedImages(files);
+    setCurrentImageIndex(0);
+    
+    // Processar todas as imagens
+    const previews: string[] = [];
+    let processedCount = 0;
+    
+    files.forEach((file, index) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        previews[index] = reader.result as string;
+        processedCount++;
+        
+        if (processedCount === files.length) {
+          setImagePreviews(previews);
+          setMainImageIndex(0);
+          // Usar a primeira imagem como principal
+          setNewProduct(prev => ({ ...prev, image_url: previews[0] }));
+          console.log('[DEBUG] Todas as imagens processadas:', previews.length);
+        }
+      };
+      reader.onerror = () => {
+        console.error('[DEBUG] Erro ao ler arquivo:', file.name);
+        toast({
+          title: "Erro ao processar imagem",
+          description: `Não foi possível processar a imagem ${file.name}`,
+          variant: "destructive"
+        });
+      };
+      reader.readAsDataURL(file);
+    });
+    
+    // Limpar o valor do input para permitir seleção do mesmo arquivo novamente
+    e.target.value = '';
   };
 
   const handleEditImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -194,28 +220,65 @@ const AdminProdutos = () => {
     const files = Array.from(e.target.files || []);
     console.log('[DEBUG] Arquivos selecionados para edição:', files.length);
     
-    if (files.length > 0) {
-      setEditSelectedImages(files);
-      console.log('[DEBUG] editSelectedImages definido:', files.map(f => f.name));
-      
-      const previews: string[] = [];
-      let processedCount = 0;
-      
-      files.forEach((file, index) => {
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          const result = reader.result as string;
-          previews[index] = result;
-          processedCount++;
-          
-          if (processedCount === files.length) {
-            setEditImagePreviews(previews);
-            console.log('[DEBUG] Todas as imagens de edição processadas:', previews.length);
-          }
-        };
-        reader.readAsDataURL(file);
+    if (files.length === 0) return;
+
+    // Validar tipos de arquivo
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+    const invalidFiles = files.filter(file => !validTypes.includes(file.type));
+    
+    if (invalidFiles.length > 0) {
+      toast({
+        title: "Tipo de arquivo inválido",
+        description: "Apenas arquivos JPEG, PNG e WebP são permitidos.",
+        variant: "destructive"
       });
+      e.target.value = '';
+      return;
     }
+
+    // Validar tamanho dos arquivos (máximo 5MB cada)
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    const oversizedFiles = files.filter(file => file.size > maxSize);
+    
+    if (oversizedFiles.length > 0) {
+      toast({
+        title: "Arquivo muito grande",
+        description: "Cada imagem deve ter no máximo 5MB.",
+        variant: "destructive"
+      });
+      e.target.value = '';
+      return;
+    }
+    
+    setEditSelectedImages(files);
+    console.log('[DEBUG] editSelectedImages definido:', files.map(f => f.name));
+    
+    const previews: string[] = [];
+    let processedCount = 0;
+    
+    files.forEach((file, index) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const result = reader.result as string;
+        previews[index] = result;
+        processedCount++;
+        
+        if (processedCount === files.length) {
+          setEditImagePreviews(previews);
+          console.log('[DEBUG] Todas as imagens de edição processadas:', previews.length);
+        }
+      };
+      reader.onerror = () => {
+        console.error('[DEBUG] Erro ao ler arquivo de edição:', file.name);
+        toast({
+          title: "Erro ao processar imagem",
+          description: `Não foi possível processar a imagem ${file.name}`,
+          variant: "destructive"
+        });
+      };
+      reader.readAsDataURL(file);
+    });
+    
     // Limpar o valor do input para permitir selecionar o mesmo arquivo novamente
     e.target.value = '';
   };
@@ -389,45 +452,8 @@ const AdminProdutos = () => {
         return;
       }
 
-      // Se houver alteração nos tamanhos, atualizar na tabela product_sizes
-      if (updatedData.sizes !== undefined) {
-        // Primeiro, remover todas as entradas existentes para este produto
-        const { error: deleteError } = await supabase
-          .from('product_sizes')
-          .delete()
-          .eq('product_id', productId);
-
-        if (deleteError) {
-          console.error('Erro ao remover entradas antigas de estoque:', deleteError);
-        }
-
-        // Depois, criar novas entradas para cada tamanho selecionado
-        if (updatedData.sizes && updatedData.sizes.length > 0 && updatedData.stock !== undefined && updatedData.stock > 0) {
-          const stockEntries = updatedData.sizes.map(size => ({
-            product_id: productId,
-            size: size,
-            stock_quantity: updatedData.stock || 0
-          }));
-
-          const { error: insertError } = await supabase
-            .from('product_sizes')
-            .insert(stockEntries);
-
-          if (insertError) {
-            console.error('Erro ao criar novas entradas de estoque:', insertError);
-          }
-        }
-      } else if (updatedData.stock !== undefined) {
-        // Se apenas o estoque foi alterado (sem mudança nos tamanhos), atualizar todas as entradas existentes
-        const { error: updateStockError } = await supabase
-          .from('product_sizes')
-          .update({ stock_quantity: updatedData.stock })
-          .eq('product_id', productId);
-
-        if (updateStockError) {
-          console.error('Erro ao atualizar estoque:', updateStockError);
-        }
-      }
+      // Os tamanhos são armazenados diretamente na coluna 'sizes' da tabela products
+      // Não há necessidade de operações adicionais na tabela product_sizes
 
       // Atualizar estado local
       setProducts(prevProducts => 
@@ -471,16 +497,13 @@ const AdminProdutos = () => {
         throw productError;
       }
 
-      // 2. Atualizar ou inserir na tabela product_sizes (assumindo tamanho padrão 'M')
+      // DEPRECATED: product_sizes table removed - updating in_stock status directly in products table
       const { error: stockError } = await supabase
-          .from('product_sizes')
-          .upsert({
-            product_id: productId,
-            size: 'M',
-            stock_quantity: newStock
-          }, {
-            onConflict: 'product_id,size'
-          });
+          .from('products')
+          .update({
+            in_stock: newStock > 0
+          })
+          .eq('id', productId);
 
       if (stockError) {
         throw stockError;
@@ -588,15 +611,8 @@ const AdminProdutos = () => {
         return;
       }
 
-      // Remover tamanhos do produto
-      const { error: sizesError } = await supabase
-        .from('product_sizes')
-        .delete()
-        .eq('product_id', productId);
-
-      if (sizesError) {
-        console.error('Erro ao remover tamanhos do produto:', sizesError);
-      }
+      // DEPRECATED: product_sizes table removed - sizes are now stored in products.sizes array
+      // No need to delete from product_sizes table anymore
 
       // Agora remover o produto
       const { data, error } = await supabase
@@ -675,62 +691,64 @@ const AdminProdutos = () => {
 
     setIsSaving(true);
     try {
+      // Verificar se já existe um produto com o mesmo nome
+      const { data: existingProduct, error: checkError } = await supabase
+        .from('products')
+        .select('id, name')
+        .eq('name', newProduct.name.trim())
+        .single();
+
+      if (checkError && checkError.code !== 'PGRST116') {
+        console.error('Erro ao verificar produto existente:', checkError);
+        throw checkError;
+      }
+
+      if (existingProduct) {
+        toast({
+          title: "Produto já existe",
+          description: `Já existe um produto com o nome "${newProduct.name}". Escolha um nome diferente.`,
+          variant: "destructive"
+        });
+        setIsSaving(false);
+        return;
+      }
       let imageUrl = null;
+      let uploadedImageUrls: string[] = [];
       
       // Upload das imagens para o Supabase Storage se imagens foram selecionadas
       if (selectedImages.length > 0) {
         console.log('[DEBUG] Fazendo upload de', selectedImages.length, 'imagens');
         
-        // Upload da primeira imagem como imagem principal
-        const mainImage = selectedImages[0];
-        const fileExt = mainImage.name.split('.').pop();
-        const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
-        const filePath = `products/${fileName}`;
-
-        const { data: uploadData, error: uploadError } = await supabase.storage
-          .from('product-images')
-          .upload(filePath, mainImage, {
-            cacheControl: '3600',
-            upsert: false
-          });
-
-        if (uploadError) {
-          console.error('[DEBUG] Erro no upload:', uploadError);
-          toast({
-            title: "Erro no upload da imagem",
-            description: uploadError.message,
-            variant: "destructive"
-          });
-          return;
-        }
-
-        // Obter URL pública da imagem principal
-        const { data: { publicUrl } } = supabase.storage
-          .from('product-images')
-          .getPublicUrl(filePath);
+        // Upload de todas as imagens
+        uploadedImageUrls = await uploadMultipleImages(selectedImages);
         
-        imageUrl = publicUrl;
-        console.log('[DEBUG] URL da imagem principal:', imageUrl);
+        if (uploadedImageUrls.length > 0) {
+          imageUrl = uploadedImageUrls[0]; // Primeira imagem como principal
+          console.log('[DEBUG] URLs das imagens:', uploadedImageUrls);
+        }
       }
 
       // Garantir que a categoria esteja em minúsculas conforme constraint do banco
       const categoryValue = newProduct.category.toLowerCase();
+      const productName = newProduct.name.trim(); // Remover espaços extras
 
       const { data, error } = await supabase
         .from('products')
         .insert({
           name: newProduct.name,
           description: newProduct.description,
-          category: categoryValue, // Usar valor em minúsculas
+          category: categoryValue,
           price: newProduct.price,
           image_url: imageUrl,
           in_stock: newProduct.stock > 0,
-          sizes: newProduct.sizes || []
+          sizes: newProduct.sizes || [],
+          stock: newProduct.stock
         })
         .select()
         .single();
 
       if (error) {
+        console.error('[DEBUG] Erro ao criar produto:', error);
         toast({
           title: "Erro ao criar produto",
           description: error.message,
@@ -739,22 +757,15 @@ const AdminProdutos = () => {
         return;
       }
 
-      // Criar entradas na tabela product_sizes para cada tamanho selecionado
-      if (newProduct.sizes && newProduct.sizes.length > 0 && newProduct.stock > 0) {
-        const stockEntries = newProduct.sizes.map(size => ({
-          product_id: data.id,
-          size: size,
-          stock_quantity: newProduct.stock
-        }));
+      console.log('[DEBUG] Produto criado:', data);
 
-        const { error: stockError } = await supabase
-          .from('product_sizes')
-          .insert(stockEntries);
-
-        if (stockError) {
-          console.error('Erro ao criar estoque inicial:', stockError);
-        }
+      // Salvar todas as imagens na tabela product_images
+      if (uploadedImageUrls.length > 0) {
+        await saveProductImages(data.id, uploadedImageUrls);
       }
+
+      // Os tamanhos são armazenados diretamente na coluna 'sizes' da tabela products
+      // Não há necessidade de criar entradas separadas na tabela product_sizes
 
       toast({
         title: "Produto criado",
@@ -766,8 +777,10 @@ const AdminProdutos = () => {
       setSelectedImages([]);
       setImagePreviews([]);
       setCurrentImageIndex(0);
+      setIsDialogOpen(false);
       fetchProducts();
     } catch (error) {
+      console.error('[DEBUG] Erro inesperado:', error);
       toast({
         title: "Erro ao criar produto",
         description: "Ocorreu um erro inesperado.",
@@ -937,10 +950,10 @@ const AdminProdutos = () => {
                     {imagePreviews.length > 0 && (
                       <div className="space-y-2">
                         <div className="relative w-full h-40 rounded-md overflow-hidden border">
-                          <img
-                            src={imagePreviews[currentImageIndex]}
+                          <img 
+                            src={imagePreviews[currentImageIndex]} 
                             alt={`Preview ${currentImageIndex + 1}`}
-                            className="w-full h-full object-cover"
+                            className="w-full h-full object-cover" 
                           />
                         </div>
                         <div className="flex items-center justify-between">

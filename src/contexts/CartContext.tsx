@@ -1,63 +1,9 @@
 
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useToast } from '@/components/ui/use-toast';
-
-// Define the cart item types
-export type CartProduct = {
-  id: string;
-  product_id: string;
-  name: string;
-  price: number;
-  image: string;
-  images: string[];
-  category: string;
-  size?: string; // Optional size property
-  quantity: number;
-  unit_price: number;
-  total_price: number;
-  metadata: Record<string, any>;
-};
-
-export type CartTicket = {
-  id: string;
-  ticket_id: string;
-  event_id: string;
-  event_name: string;
-  event_title: string;
-  event_date: string;
-  ticket_price: number;
-  price: number; // Alias for ticket_price for consistency with CartProduct
-  name: string; // Alias for event_name for consistency with CartProduct
-  quantity: number;
-  unit_price: number;
-  total_price: number;
-};
-
-export type CartItem = CartProduct | CartTicket;
-
-// Helper function to check if item is a product
-export const isCartProduct = (item: CartItem): item is CartProduct => {
-  return 'product_id' in item && 'category' in item;
-};
-
-// Helper function to check if item is a ticket
-export const isCartTicket = (item: CartItem): item is CartTicket => {
-  return 'ticket_id' in item && 'event_id' in item;
-};
-
-interface CartContextType {
-  items: CartItem[];
-  isLoading: boolean;
-  addToCart: (item: CartItem) => Promise<void>;
-  removeFromCart: (itemId: string) => Promise<void>;
-  updateQuantity: (itemId: string, quantity: number) => Promise<void>;
-  updateSize: (itemId: string, size: string) => Promise<void>;
-  clearCart: () => Promise<void>;
-  subtotal: number;
-  shipping: number;
-  total: number;
-}
+import { CartItem, CartProduct, CartTicket, isCartProduct, isCartTicket } from '@/lib/cart-utils';
+import { CartContext, CartContextType } from './cart-context';
 
 // Define the structure of the data returned from Supabase
 interface CartItemFromSupabase {
@@ -81,15 +27,14 @@ interface CartItemFromSupabase {
     event_id: string;
     events?: {
       id: string;
-      title: string;
       name: string;
-      start_date: string;
-      ticket_price: number;
+      date: string;
+      price: number;
     };
   };
 }
 
-const CartContext = createContext<CartContextType | undefined>(undefined);
+
 
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [items, setItems] = useState<CartItem[]>([]);
@@ -126,7 +71,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 id,
                 name,
                 price,
-                images,
+                image_url,
                 category
               ),
               tickets (
@@ -134,9 +79,9 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 event_id,
                 events (
                   id,
-                  title,
-                  start_date,
-                  ticket_price
+                  name,
+                  date,
+                  price
                 )
               )
             `)
@@ -160,9 +105,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
             // Check if this item has products data
             if (item.products) {
               const product = item.products;
-              const imageUrl = Array.isArray(product.images) && product.images.length > 0 
-                ? product.images[0] 
-                : '/placeholder-image.jpg';
+              const imageUrl = product.image_url || '/placeholder-image.jpg';
               
               const cartProduct: CartProduct = {
                 id: item.id,
@@ -170,7 +113,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 name: product.name,
                 price: Number(product.price),
                 image: imageUrl,
-                images: product.images || [],
+                images: product.image_url ? [product.image_url] : [],
                 category: product.category,
                 quantity: item.quantity,
                 unit_price: item.unit_price,
@@ -190,11 +133,11 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 ticket_id: item.ticket_id!,
                 event_id: ticket.event_id,
                 event_name: event.name,
-                event_title: event.title,
-                event_date: event.start_date,
-                ticket_price: event.ticket_price,
-                price: event.ticket_price, // Same as ticket_price for consistency
-                name: event.title, // Alias for event_title for consistency
+                event_title: event.name,
+                event_date: event.date,
+                ticket_price: event.price,
+                price: event.price, // Same as ticket_price for consistency
+                name: event.name, // Alias for event_title for consistency
                 quantity: item.quantity,
                 unit_price: item.unit_price,
                 total_price: item.total_price,
@@ -452,11 +395,5 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   );
 };
 
-// Hook for using the cart context
-export const useCart = () => {
-  const context = useContext(CartContext);
-  if (context === undefined) {
-    throw new Error('useCart must be used within a CartProvider');
-  }
-  return context;
-};
+// Re-export CartContext for other components
+export { CartContext };

@@ -34,13 +34,20 @@ const AdminDashboard = () => {
         setProdutosVendidos(data.reduce((sum, o) => sum + Number(o.quantity), 0));
       }
     };
-    // Buscar itens em estoque (soma de product_sizes)
+    // Buscar itens em estoque (produtos com in_stock = true)
     const fetchEstoque = async () => {
-      const { data, error } = await supabase
-        .from('product_sizes')
-        .select('stock_quantity');
-      if (!error && data) {
-        setItensEstoque(data.reduce((sum, o) => sum + Number(o.stock_quantity), 0));
+      try {
+        // ATUALIZADO: Usar coluna 'in_stock' da tabela 'products' ao invés de 'product_sizes'
+        const { data, error } = await supabase
+          .from('products')
+          .select('in_stock')
+          .eq('in_stock', true);
+
+        if (error) throw error;
+        setItensEstoque(data?.length || 0);
+      } catch (error) {
+        console.error('Erro ao buscar estoque:', error);
+        setItensEstoque(0);
       }
     };
     // Buscar ingressos vendidos (tickets com status paid)

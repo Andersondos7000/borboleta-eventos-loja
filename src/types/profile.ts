@@ -1,4 +1,4 @@
-export interface Customer {
+export interface Profile {
   id: string;
   user_id: string;
   
@@ -38,9 +38,9 @@ export interface Customer {
   sync_status: 'synced' | 'pending' | 'conflict';
 }
 
-export interface CustomerFilters {
-  status?: Customer['status'];
-  customerType?: Customer['customer_type'];
+export interface ProfileFilters {
+  status?: Profile['status'];
+  customerType?: Profile['customer_type'];
   userId?: string;
   search?: string;
   tags?: string[];
@@ -48,12 +48,12 @@ export interface CustomerFilters {
   createdBefore?: string;
 }
 
-export interface CustomerSortOptions {
-  field: keyof Customer;
+export interface ProfileSortOptions {
+  field: keyof Profile;
   direction: 'asc' | 'desc';
 }
 
-export interface CustomerFormData {
+export interface ProfileFormData {
   name: string;
   email: string;
   phone?: string;
@@ -74,7 +74,7 @@ export interface CustomerFormData {
   tags?: string[];
 }
 
-export interface CustomerStats {
+export interface ProfileStats {
   total: number;
   active: number;
   inactive: number;
@@ -84,42 +84,42 @@ export interface CustomerStats {
   recentlyCreated: number;
 }
 
-export interface CustomerValidationError {
-  field: keyof CustomerFormData;
+export interface ProfileValidationError {
+  field: keyof ProfileFormData;
   message: string;
 }
 
-export interface CustomerConflict {
+export interface ProfileConflict {
   id: string;
-  field: keyof Customer;
+  field: keyof Profile;
   localValue: any;
   serverValue: any;
   timestamp: string;
 }
 
 // Utility types
-export type CustomerCreateInput = Omit<Customer, 'id' | 'created_at' | 'updated_at' | 'version' | 'last_sync_at' | 'sync_status'>;
-export type CustomerUpdateInput = Partial<Omit<Customer, 'id' | 'created_at' | 'updated_at' | 'version' | 'last_sync_at' | 'sync_status'>>;
+export type ProfileCreateInput = Omit<Profile, 'id' | 'created_at' | 'updated_at' | 'version' | 'last_sync_at' | 'sync_status'>;
+export type ProfileUpdateInput = Partial<Omit<Profile, 'id' | 'created_at' | 'updated_at' | 'version' | 'last_sync_at' | 'sync_status'>>;
 
 // Event types for realtime
-export interface CustomerRealtimeEvent {
+export interface ProfileRealtimeEvent {
   eventType: 'INSERT' | 'UPDATE' | 'DELETE';
-  new?: Customer;
-  old?: Customer;
+  new?: Profile;
+  old?: Profile;
   timestamp: string;
 }
 
 // Search and pagination
-export interface CustomerSearchParams {
+export interface ProfileSearchParams {
   query?: string;
-  filters?: CustomerFilters;
-  sort?: CustomerSortOptions;
+  filters?: ProfileFilters;
+  sort?: ProfileSortOptions;
   page?: number;
   limit?: number;
 }
 
-export interface CustomerSearchResult {
-  customers: Customer[];
+export interface ProfileSearchResult {
+  profiles: Profile[];
   total: number;
   page: number;
   limit: number;
@@ -127,19 +127,19 @@ export interface CustomerSearchResult {
 }
 
 // Export/Import types
-export interface CustomerExportOptions {
+export interface ProfileExportOptions {
   format: 'csv' | 'xlsx' | 'json';
-  fields?: (keyof Customer)[];
-  filters?: CustomerFilters;
+  fields?: (keyof Profile)[];
+  filters?: ProfileFilters;
 }
 
-export interface CustomerImportResult {
+export interface ProfileImportResult {
   success: number;
   errors: Array<{
     row: number;
     field?: string;
     message: string;
-    data?: Partial<CustomerFormData>;
+    data?: Partial<ProfileFormData>;
   }>;
   duplicates: number;
 }

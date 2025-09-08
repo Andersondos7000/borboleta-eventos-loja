@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Search } from 'lucide-react';
 import { Input } from "@/components/ui/input";
 import AdminSidebar from '@/components/AdminSidebar';
+import OptimizedImage from '@/components/OptimizedImage';
 
 interface OrderItem {
   id: string;

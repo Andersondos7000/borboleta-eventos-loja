@@ -163,7 +163,7 @@ export const useCustomerForm = ({
       setLoading(true);
       
       const { data, error } = await supabase
-        .from('customers')
+        .from('profiles')
         .select('*')
         .eq('id', customerId)
         .single();
@@ -258,7 +258,7 @@ export const useCustomerForm = ({
       setAutoSaveStatus('saving');
       
       const { error } = await supabase
-        .from('customers')
+        .from('profiles')
         .update(formData)
         .eq('id', customerId);
       
@@ -281,7 +281,7 @@ export const useCustomerForm = ({
       if (isOffline) {
         addOperation({
           type: 'update',
-          table: 'customers',
+          table: 'profiles',
           data: formData,
           id: customerId
         });
@@ -303,7 +303,7 @@ export const useCustomerForm = ({
       if (customerId) {
         // Atualizar cliente existente
         const { data, error } = await supabase
-          .from('customers')
+          .from('profiles')
           .update(formData)
           .eq('id', customerId)
           .select()
@@ -314,7 +314,7 @@ export const useCustomerForm = ({
       } else {
         // Criar novo cliente
         const { data, error } = await supabase
-          .from('customers')
+          .from('profiles')
           .insert([{
             ...formData,
             user_id: (await supabase.auth.getUser()).data.user?.id
@@ -341,7 +341,7 @@ export const useCustomerForm = ({
       if (isOffline) {
         addOperation({
           type: customerId ? 'update' : 'create',
-          table: 'customers',
+          table: 'profiles',
           data: formData,
           id: customerId
         });

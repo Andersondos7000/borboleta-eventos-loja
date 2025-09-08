@@ -8,30 +8,17 @@ export default {
   },
   transform: {
     '^.+\\.(ts|tsx)$': ['ts-jest', {
-      tsconfig: {
-        jsx: 'react-jsx',
-        esModuleInterop: true,
-        allowSyntheticDefaultImports: true,
-        moduleResolution: 'node',
-        target: 'ES2020',
-        lib: ['ES2020', 'DOM', 'DOM.Iterable'],
-        module: 'ESNext',
-        skipLibCheck: true,
-        strict: false,
-        noImplicitAny: false,
-        baseUrl: '.',
-        paths: {
-          '@/*': ['./src/*']
-        }
-      }
+      tsconfig: './tsconfig.test.json'
     }],
     '^.+\\.(js|jsx)$': 'babel-jest'
   },
   extensionsToTreatAsEsm: ['.ts', '.tsx'],
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
   testMatch: [
-    '<rootDir>/src/**/__tests__/**/*.(ts|tsx|js)',
-    '<rootDir>/src/**/?(*.)(spec|test).(ts|tsx|js)'
+    '<rootDir>/src/**/__tests__/**/*.(test|spec).(ts|tsx|js)'
+  ],
+  testPathIgnorePatterns: [
+    '<rootDir>/src/__tests__/abacatepay/'
   ],
   collectCoverageFrom: [
     'src/**/*.(ts|tsx)',

@@ -1,7 +1,8 @@
 
 import React from 'react';
 import { Trash2 } from 'lucide-react';
-import { CartProduct, useCart } from '@/contexts/CartContext';
+import { useCart } from '@/hooks/useCart';
+import { CartProduct } from '@/lib/cart-utils';
 import {
   Select,
   SelectContent,

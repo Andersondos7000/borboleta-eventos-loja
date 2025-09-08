@@ -48,9 +48,11 @@ describe('Realtime System E2E Tests', () => {
         primaryKey: 'id'
       }));
 
+      // DEPRECATED: product_sizes table removed
+      // TODO: Update test to use products.sizes array instead
       const { result: stockHook } = renderHook(() => useOfflineFirst({
-        table: 'product_sizes',
-        primaryKey: 'product_id'
+        table: 'products', // Using products table instead
+        primaryKey: 'id'
       }));
 
       // 1. Add item to cart

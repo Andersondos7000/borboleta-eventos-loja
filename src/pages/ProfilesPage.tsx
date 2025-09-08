@@ -1,42 +1,42 @@
 import React, { useState } from 'react';
-import { CustomerForm } from '../components/customers/CustomerForm';
-import { CustomerList } from '../components/customers/CustomerList';
+import { ProfileForm } from '../components/profiles/ProfileForm';
+import { ProfileList } from '../components/profiles/ProfileList';
 import { OfflineIndicator } from '../components/realtime/OfflineIndicator';
-import type { Customer } from '../types/customer';
+import type { Profile } from '../types/profile';
 
 type ViewMode = 'list' | 'create' | 'edit';
 
-export const CustomersPage: React.FC = () => {
+export const ProfilesPage: React.FC = () => {
   const [viewMode, setViewMode] = useState<ViewMode>('list');
-  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
+  const [selectedProfile, setSelectedProfile] = useState<Profile | null>(null);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
 
-  const handleCreateCustomer = () => {
-    setSelectedCustomer(null);
+  const handleCreateProfile = () => {
+    setSelectedProfile(null);
     setViewMode('create');
   };
 
-  const handleEditCustomer = (customer: Customer) => {
-    setSelectedCustomer(customer);
+  const handleEditProfile = (profile: Profile) => {
+    setSelectedProfile(profile);
     setViewMode('edit');
   };
 
-  const handleCustomerSuccess = (customer: Customer) => {
-    setSelectedCustomer(customer);
+  const handleProfileSuccess = (profile: Profile) => {
+    setSelectedProfile(profile);
     setViewMode('list');
     // Mostrar notificação de sucesso
-    console.log('Cliente salvo com sucesso:', customer);
+    console.log('Perfil salvo com sucesso:', profile);
   };
 
   const handleCancel = () => {
-    setSelectedCustomer(null);
+    setSelectedProfile(null);
     setViewMode('list');
   };
 
-  const handleDeleteCustomer = (customer: Customer) => {
-    // Se o cliente deletado estava sendo editado, voltar para lista
-    if (selectedCustomer?.id === customer.id) {
-      setSelectedCustomer(null);
+  const handleDeleteProfile = (profile: Profile) => {
+    // Se o perfil deletado estava sendo editado, voltar para lista
+    if (selectedProfile?.id === profile.id) {
+      setSelectedProfile(null);
       setViewMode('list');
     }
   };
@@ -44,21 +44,21 @@ export const CustomersPage: React.FC = () => {
   const getPageTitle = () => {
     switch (viewMode) {
       case 'create':
-        return 'Novo Cliente';
+        return 'Novo Perfil';
       case 'edit':
-        return `Editar Cliente: ${selectedCustomer?.name || ''}`;
+        return `Editar Perfil: ${selectedProfile?.name || ''}`;
       default:
-        return 'Gerenciar Clientes';
+        return 'Gerenciar Perfis';
     }
   };
 
   const getBreadcrumb = () => {
-    const items = [{ label: 'Clientes', href: '#', current: viewMode === 'list' }];
+    const items = [{ label: 'Perfis', href: '#', current: viewMode === 'list' }];
     
     if (viewMode === 'create') {
-      items.push({ label: 'Novo Cliente', href: '#', current: true });
-    } else if (viewMode === 'edit' && selectedCustomer) {
-      items.push({ label: selectedCustomer.name, href: '#', current: true });
+      items.push({ label: 'Novo Perfil', href: '#', current: true });
+    } else if (viewMode === 'edit' && selectedProfile) {
+      items.push({ label: selectedProfile.name, href: '#', current: true });
     }
     
     return items;

@@ -7,7 +7,8 @@ import Footer from '@/components/Footer';
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from '@/hooks/useAuth';
-import { useCart, CartTicket } from '@/contexts/CartContext';
+import { useCart } from '@/hooks/useCart';
+import { CartTicket } from '@/lib/cart-utils';
 import { supabase } from '@/lib/supabase';
 import { useToast } from '@/components/ui/use-toast';
 
