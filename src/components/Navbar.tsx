@@ -1,18 +1,23 @@
 
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { ShoppingCart, Calendar, Shirt, User } from 'lucide-react';
 import ButterflyLogo from './ButterflyLogo';
 import { Button } from '@/components/ui/button';
 import { useCart } from '@/hooks/useCart';
 import { useAuth } from '@/hooks/useAuth';
 import MobileMenu from './MobileMenu';
+import AdminAccessModal from '@/components/AdminAccessModal';
+import { useAdminAuth } from '@/contexts/AdminAuthContext';
 
 
 const Navbar: React.FC = () => {
   const { items } = useCart();
   const { user, signOut, isAdmin } = useAuth();
   const [userIsAdmin, setUserIsAdmin] = useState(false);
+  const [showAdminModal, setShowAdminModal] = useState(false);
+  const { isAdminLoggedIn } = useAdminAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const checkAdminStatus = async () => {
@@ -80,11 +85,6 @@ const Navbar: React.FC = () => {
             <Link to="/checkout" className="px-3 py-2 rounded-md text-base font-medium hover:bg-butterfly-orange/10 transition-colors">
               Checkout
             </Link>
-            {userIsAdmin && (
-              <Link to="/admin" className="px-3 py-2 rounded-md text-base font-medium hover:bg-butterfly-orange/10 transition-colors">
-                Admin
-              </Link>
-            )}
             <Link to="/ingressos" className="px-3 py-2 rounded-md text-base font-medium hover:bg-butterfly-orange/10 transition-colors flex items-center">
               <Calendar className="mr-1 h-4 w-4" /> Ingressos
             </Link>
@@ -112,13 +112,29 @@ const Navbar: React.FC = () => {
             </Link>
             
             {user ? (
-              <Link 
-                to="/perfil"
-                className="hidden md:flex items-center space-x-2 text-butterfly-orange hover:text-butterfly-orange/80 transition-colors"
-              >
-                <User className="h-5 w-5" />
-                <div className="font-medium">Perfil</div>
-              </Link>
+              <div className="hidden md:flex items-center space-x-4">
+                {userIsAdmin && (
+                  <button 
+                    onClick={() => {
+                      if (user && isAdminLoggedIn) {
+                        navigate('/admin');
+                      } else {
+                        setShowAdminModal(true);
+                      }
+                    }}
+                    className="flex items-center space-x-2 text-butterfly-orange hover:text-butterfly-orange/80 transition-colors"
+                  >
+                    <div className="font-medium">Admin</div>
+                  </button>
+                )}
+                <Link 
+                  to="/perfil"
+                  className="flex items-center space-x-2 text-butterfly-orange hover:text-butterfly-orange/80 transition-colors"
+                >
+                  <User className="h-5 w-5" />
+                  <div className="font-medium">Perfil</div>
+                </Link>
+              </div>
             ) : (
               <Button 
                 variant="default" 
@@ -133,6 +149,11 @@ const Navbar: React.FC = () => {
           </div>
         </div>
       </div>
+      
+      <AdminAccessModal 
+        isOpen={showAdminModal}
+        onClose={() => setShowAdminModal(false)}
+      />
     </nav>
   );
 };

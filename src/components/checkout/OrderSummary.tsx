@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { ShoppingCart, ShieldCheck, LifeBuoy, Lock } from 'lucide-react';
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 
 type CartItemBase = {
   id: string;
@@ -55,7 +55,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ cartItems, subtotal, total 
                     {item.name} x{item.quantity}
                   </span>
                   <span className="font-medium">
-                    {(item.price * item.quantity).toLocaleString('pt-BR', { 
+                    {((Number(item.price) || 0) * (Number(item.quantity) || 1)).toLocaleString('pt-BR', { 
                       style: 'currency', 
                       currency: 'BRL' 
                     })}

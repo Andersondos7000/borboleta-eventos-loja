@@ -208,9 +208,8 @@ export function useConflictMonitor(
         setAutoResolveCount(prev => prev + 1);
       }
       
-      showNotification({
+      showNotification(`Conflito resolvido usando estratégia: ${strategy}`, {
         type: 'success',
-        message: `Conflito resolvido usando estratégia: ${strategy}`,
         duration: 3000
       });
       
@@ -219,17 +218,15 @@ export function useConflictMonitor(
       console.error('Erro ao resolver conflito:', error);
       setErrorCount(prev => prev + 1);
       
-      showNotification({
+      showNotification(`Erro ao resolver conflito: ${error instanceof Error ? error.message : 'Erro desconhecido'}`, {
         type: 'error',
-        message: `Erro ao resolver conflito: ${error instanceof Error ? error.message : 'Erro desconhecido'}`,
         duration: 5000
       });
       
       // Pausar auto-resolução se muitos erros
       if (errorCount >= config.maxRetries) {
-        showNotification({
+        showNotification('Resolução automática pausada devido a muitos erros', {
           type: 'warning',
-          message: 'Resolução automática pausada devido a muitos erros',
           duration: 8000
         });
       }

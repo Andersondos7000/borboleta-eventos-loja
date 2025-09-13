@@ -35,10 +35,10 @@ const MobileMenu: React.FC = () => {
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
       <SheetTrigger asChild>
-        <Button variant="ghost" size="icon" className="md:hidden">
+        <button className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-10 w-10 md:hidden">
           <Menu className="h-8 w-8" />
-          <div className="sr-only">Abrir menu</div>
-        </Button>
+          <span className="sr-only">Abrir menu</span>
+        </button>
       </SheetTrigger>
       <SheetContent side="left" className="w-[280px]">
         <SheetHeader>

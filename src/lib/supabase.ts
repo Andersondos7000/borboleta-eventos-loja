@@ -55,17 +55,77 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   },
 });
 
-// Enhanced error handling for auth state changes
-supabase.auth.onAuthStateChange((event, session) => {
-  if (event === 'SIGNED_OUT' || (event === 'TOKEN_REFRESHED' && !session)) {
-    // Clear any remaining auth data
+// Função para limpar todos os dados de autenticação
+export const clearAuthData = () => {
+  try {
+    // Limpar localStorage
     Object.keys(localStorage).forEach(key => {
-      if (key.startsWith('sb-') || key.includes('supabase')) {
+      if (key.startsWith('sb-') || key.includes('supabase') || key === 'supabase.auth.token') {
         localStorage.removeItem(key);
       }
     });
+    
+    // Limpar sessionStorage também
+    Object.keys(sessionStorage).forEach(key => {
+      if (key.startsWith('sb-') || key.includes('supabase')) {
+        sessionStorage.removeItem(key);
+      }
+    });
+    
+    console.log('✅ Dados de autenticação limpos com sucesso');
+  } catch (error) {
+    console.warn('⚠️ Erro ao limpar dados de autenticação:', error);
+  }
+};
+
+// Função para tratar erros de refresh token
+export const handleAuthError = async (error: any) => {
+  if (error?.message?.includes('Invalid Refresh Token') || 
+      error?.message?.includes('Refresh Token Not Found')) {
+    console.warn('🔄 Token de refresh inválido detectado, limpando sessão...');
+    
+    // Limpar dados de autenticação
+    clearAuthData();
+    
+    // Fazer logout silencioso
+    try {
+      await supabase.auth.signOut({ scope: 'local' });
+    } catch (signOutError) {
+      console.warn('⚠️ Erro durante logout:', signOutError);
+    }
+    
+    // Recarregar a página para resetar o estado
+    if (typeof window !== 'undefined') {
+      window.location.reload();
+    }
+  }
+};
+
+// Enhanced error handling for auth state changes
+supabase.auth.onAuthStateChange(async (event, session) => {
+  console.log('🔐 Auth state change:', event, session ? 'com sessão' : 'sem sessão');
+  
+  if (event === 'SIGNED_OUT' || (event === 'TOKEN_REFRESHED' && !session)) {
+    clearAuthData();
+  }
+  
+  // Tratar erros de token refresh
+  if (event === 'TOKEN_REFRESHED' && !session) {
+    console.warn('⚠️ Falha no refresh do token, limpando sessão...');
+    clearAuthData();
   }
 });
+
+// Interceptar erros globais do Supabase
+if (typeof window !== 'undefined') {
+  window.addEventListener('unhandledrejection', (event) => {
+    if (event.reason?.message?.includes('Invalid Refresh Token') ||
+        event.reason?.message?.includes('Refresh Token Not Found')) {
+      event.preventDefault();
+      handleAuthError(event.reason);
+    }
+  });
+}
 
 // ⚠️ IMPORTANTE: Cliente administrativo removido do frontend
 // Use apenas o MCP do Supabase para operações administrativas

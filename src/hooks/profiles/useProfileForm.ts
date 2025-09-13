@@ -2,10 +2,11 @@ import { useState, useCallback, useEffect } from 'react';
 import { z } from 'zod';
 import { supabase } from '../../lib/supabase';
 import { useOfflineQueue } from '../realtime/useOfflineQueue';
-import type { Customer } from '../../types/customer';
+import { useNetworkStatus } from '../useNetworkStatus';
+import type { Profile } from '../../types/profile';
 
-// Schema de validação Zod para clientes
-const customerSchema = z.object({
+// Schema de validação Zod para perfis
+const profileSchema = z.object({
   name: z.string().min(2, 'Nome deve ter pelo menos 2 caracteres').max(255, 'Nome muito longo'),
   email: z.string().email('Email inválido').max(255, 'Email muito longo'),
   phone: z.string().optional().refine(
@@ -14,9 +15,9 @@ const customerSchema = z.object({
   ),
   document_type: z.enum(['cpf', 'cnpj']).optional(),
   document_number: z.string().optional().refine(
-    (val, ctx) => {
+    (val: string) => {
       if (!val) return true;
-      const docType = ctx.parent.document_type;
+      const docType = val ? val.length === 11 ? 'cpf' : val.length === 14 ? 'cnpj' : undefined : undefined;
       if (docType === 'cpf') {
         return /^\d{11}$/.test(val.replace(/\D/g, ''));
       }
@@ -48,20 +49,20 @@ const customerSchema = z.object({
   tags: z.array(z.string()).optional().default([])
 });
 
-type CustomerFormData = z.infer<typeof customerSchema>;
+type ProfileFormData = z.infer<typeof profileSchema>;
 
-interface UseCustomerFormOptions {
-  customerId?: string;
-  onSuccess?: (customer: Customer) => void;
+interface UseProfileFormOptions {
+  profileId?: string;
+  onSuccess?: (profile: Profile) => void;
   onError?: (error: string) => void;
   autoSave?: boolean;
   autoSaveDelay?: number;
 }
 
-interface UseCustomerFormReturn {
+interface UseProfileFormReturn {
   // Form state
-  formData: CustomerFormData;
-  originalData: CustomerFormData | null;
+  formData: ProfileFormData;
+  originalData: ProfileFormData | null;
   isDirty: boolean;
   isValid: boolean;
   errors: Record<string, string>;
@@ -71,11 +72,11 @@ interface UseCustomerFormReturn {
   saving: boolean;
   
   // Actions
-  setField: <K extends keyof CustomerFormData>(field: K, value: CustomerFormData[K]) => void;
-  setFormData: (data: Partial<CustomerFormData>) => void;
+  setField: <K extends keyof ProfileFormData>(field: K, value: ProfileFormData[K]) => void;
+  setFormData: (data: Partial<ProfileFormData>) => void;
   resetForm: () => void;
   validateForm: () => boolean;
-  submitForm: () => Promise<Customer | null>;
+  submitForm: () => Promise<Profile | null>;
   
   // Auto-save
   autoSaveStatus: 'idle' | 'saving' | 'saved' | 'error';
@@ -86,7 +87,7 @@ interface UseCustomerFormReturn {
   queuedOperations: number;
 }
 
-const defaultFormData: CustomerFormData = {
+const defaultFormData: ProfileFormData = {
   name: '',
   email: '',
   phone: '',
@@ -107,15 +108,15 @@ const defaultFormData: CustomerFormData = {
   tags: []
 };
 
-export const useCustomerForm = ({
-  customerId,
+export const useProfileForm = ({
+  profileId,
   onSuccess,
   onError,
   autoSave = false,
   autoSaveDelay = 2000
-}: UseCustomerFormOptions = {}): UseCustomerFormReturn => {
-  const [formData, setFormDataState] = useState<CustomerFormData>(defaultFormData);
-  const [originalData, setOriginalData] = useState<CustomerFormData | null>(null);
+}: UseProfileFormOptions = {}): UseProfileFormReturn => {
+  const [formData, setFormDataState] = useState<ProfileFormData>(defaultFormData);
+  const [originalData, setOriginalData] = useState<ProfileFormData | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -125,10 +126,12 @@ export const useCustomerForm = ({
 
   // Offline queue para operações quando offline
   const {
-    addOperation,
-    isOffline,
-    queuedOperations
+    addToQueue,
+    queueSize
   } = useOfflineQueue();
+  
+  // Status da rede
+  const { isOffline } = useNetworkStatus();
 
   // Verificar se o formulário foi modificado
   const isDirty = JSON.stringify(formData) !== JSON.stringify(originalData);
@@ -136,7 +139,7 @@ export const useCustomerForm = ({
   // Validar formulário
   const validateForm = useCallback(() => {
     try {
-      customerSchema.parse(formData);
+      profileSchema.parse(formData);
       setErrors({});
       return true;
     } catch (error) {
@@ -155,9 +158,9 @@ export const useCustomerForm = ({
   // Verificar se o formulário é válido
   const isValid = Object.keys(errors).length === 0 && formData.name.trim() !== '' && formData.email.trim() !== '';
 
-  // Carregar dados do cliente existente
-  const loadCustomer = useCallback(async () => {
-    if (!customerId) return;
+  // Carregar dados do perfil existente
+  const loadProfile = useCallback(async () => {
+    if (!profileId) return;
     
     try {
       setLoading(true);
@@ -165,12 +168,12 @@ export const useCustomerForm = ({
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
-        .eq('id', customerId)
+        .eq('user_id', profileId)
         .single();
       
       if (error) throw error;
       
-      const customerData: CustomerFormData = {
+      const profileData: ProfileFormData = {
         name: data.name || '',
         email: data.email || '',
         phone: data.phone || '',
@@ -191,21 +194,21 @@ export const useCustomerForm = ({
         tags: data.tags || []
       };
       
-      setFormDataState(customerData);
-      setOriginalData(customerData);
+      setFormDataState(profileData);
+      setOriginalData(profileData);
       
     } catch (error) {
-      console.error('Erro ao carregar cliente:', error);
-      onError?.(error instanceof Error ? error.message : 'Erro ao carregar cliente');
+      console.error('Erro ao carregar perfil:', error);
+      onError?.(error instanceof Error ? error.message : 'Erro ao carregar perfil');
     } finally {
       setLoading(false);
     }
-  }, [customerId, onError]);
+  }, [profileId, onError]);
 
   // Definir campo específico
-  const setField = useCallback(<K extends keyof CustomerFormData>(
+  const setField = useCallback(<K extends keyof ProfileFormData>(
     field: K,
-    value: CustomerFormData[K]
+    value: ProfileFormData[K]
   ) => {
     setFormDataState(current => ({
       ...current,
@@ -236,7 +239,7 @@ export const useCustomerForm = ({
   }, [errors, autoSave, saving, autoSaveDelay, autoSaveTimeout]);
 
   // Definir dados do formulário
-  const setFormData = useCallback((data: Partial<CustomerFormData>) => {
+  const setFormData = useCallback((data: Partial<ProfileFormData>) => {
     setFormDataState(current => ({ ...current, ...data }));
   }, []);
 
@@ -252,7 +255,7 @@ export const useCustomerForm = ({
 
   // Auto-save
   const handleAutoSave = useCallback(async () => {
-    if (!customerId || !isDirty || !isValid) return;
+    if (!profileId || !isDirty || !isValid) return;
     
     try {
       setAutoSaveStatus('saving');
@@ -260,7 +263,7 @@ export const useCustomerForm = ({
       const { error } = await supabase
         .from('profiles')
         .update(formData)
-        .eq('id', customerId);
+        .eq('user_id', profileId);
       
       if (error) throw error;
       
@@ -279,18 +282,18 @@ export const useCustomerForm = ({
       
       // Adicionar à fila offline se necessário
       if (isOffline) {
-        addOperation({
+        await addToQueue({
           type: 'update',
           table: 'profiles',
           data: formData,
-          id: customerId
+          filter: { id: profileId }
         });
       }
     }
-  }, [customerId, isDirty, isValid, formData, isOffline, addOperation]);
+  }, [profileId, isDirty, isValid, formData, isOffline, addToQueue]);
 
   // Submeter formulário
-  const submitForm = useCallback(async (): Promise<Customer | null> => {
+  const submitForm = useCallback(async (): Promise<Profile | null> => {
     if (!validateForm()) {
       return null;
     }
@@ -300,19 +303,19 @@ export const useCustomerForm = ({
       
       let result;
       
-      if (customerId) {
-        // Atualizar cliente existente
+      if (profileId) {
+        // Atualizar perfil existente
         const { data, error } = await supabase
           .from('profiles')
           .update(formData)
-          .eq('id', customerId)
+          .eq('user_id', profileId)
           .select()
           .single();
         
         if (error) throw error;
         result = data;
       } else {
-        // Criar novo cliente
+        // Criar novo perfil
         const { data, error } = await supabase
           .from('profiles')
           .insert([{
@@ -333,17 +336,17 @@ export const useCustomerForm = ({
       return result;
       
     } catch (error) {
-      console.error('Erro ao salvar cliente:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Erro ao salvar cliente';
+      console.error('Erro ao salvar perfil:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Erro ao salvar perfil';
       onError?.(errorMessage);
       
       // Adicionar à fila offline se necessário
       if (isOffline) {
-        addOperation({
-          type: customerId ? 'update' : 'create',
+        await addToQueue({
+          type: profileId ? 'update' : 'insert',
           table: 'profiles',
           data: formData,
-          id: customerId
+          filter: profileId ? { id: profileId } : undefined
         });
       }
       
@@ -351,16 +354,16 @@ export const useCustomerForm = ({
     } finally {
       setSaving(false);
     }
-  }, [validateForm, customerId, formData, onSuccess, onError, isOffline, addOperation]);
+  }, [validateForm, profileId, formData, onSuccess, onError, isOffline, addToQueue]);
 
   // Carregar dados iniciais
   useEffect(() => {
-    if (customerId) {
-      loadCustomer();
+    if (profileId) {
+      loadProfile();
     } else {
       setOriginalData(defaultFormData);
     }
-  }, [customerId, loadCustomer]);
+  }, [profileId, loadProfile]);
 
   // Validar formulário quando dados mudarem
   useEffect(() => {
@@ -392,6 +395,6 @@ export const useCustomerForm = ({
     autoSaveStatus,
     lastSaved,
     isOffline,
-    queuedOperations: queuedOperations.length
+    queuedOperations: queueSize
   };
 };

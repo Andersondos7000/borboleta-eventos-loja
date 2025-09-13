@@ -116,3 +116,6 @@ type Result<T, E = Error> =
 ---
 #### ✅ Linguagem
 - Falar sempre em português
+
+#### ✅ Linguagem
+nunca usar portas 5173

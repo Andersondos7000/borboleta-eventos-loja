@@ -2,68 +2,93 @@ import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../../lib/supabase';
 import { useRealtimeSync } from '../realtime/useRealtimeSync';
 import { useOfflineFirst } from '../realtime/useOfflineFirst';
-import type { Customer, CustomerFilters, CustomerSortOptions } from '../../types/customer';
+import type { Profile, ProfileFilters, ProfileSortOptions } from '../../types/profile';
 
-interface UseCustomersOptions {
-  filters?: CustomerFilters;
-  sortBy?: CustomerSortOptions;
+interface UseProfilesOptions {
+  filters?: ProfileFilters;
+  sortBy?: ProfileSortOptions;
   limit?: number;
   realtime?: boolean;
 }
 
-interface UseCustomersReturn {
-  customers: Customer[];
+interface UseProfilesReturn {
+  profiles: Profile[];
   loading: boolean;
   error: string | null;
   totalCount: number;
   hasMore: boolean;
-  // Actions
+  // Operações
   refetch: () => Promise<void>;
   loadMore: () => Promise<void>;
-  createCustomer: (data: Omit<Customer, 'id' | 'created_at' | 'updated_at'>) => Promise<Customer>;
-  updateCustomer: (id: string, data: Partial<Customer>) => Promise<Customer>;
-  deleteCustomer: (id: string) => Promise<void>;
-  // Realtime status
-  syncStatus: 'synced' | 'pending' | 'conflict' | 'offline';
-  conflictCount: number;
+  createProfile: (data: Omit<Profile, 'id' | 'created_at' | 'updated_at'>) => Promise<Profile>;
+  updateProfile: (id: string, data: Partial<Profile>) => Promise<Profile>;
+  deleteProfile: (id: string) => Promise<void>;
+  // Status de sincronização
+  isOffline: boolean;
+  isSyncing: boolean;
+  lastSyncAt: Date | null;
+  queueSize: number;
+  pendingActions: number;
 }
 
-export const useCustomers = ({
+export const useProfiles = ({
   filters = {},
   sortBy = { field: 'created_at', direction: 'desc' },
   limit = 50,
   realtime = true
-}: UseCustomersOptions = {}): UseCustomersReturn => {
-  const [customers, setCustomers] = useState<Customer[]>([]);
+}: UseProfilesOptions = {}): UseProfilesReturn => {
+  const [profiles, setProfiles] = useState<Profile[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [totalCount, setTotalCount] = useState(0);
   const [offset, setOffset] = useState(0);
 
   // Offline-first hook para cache e sincronização
-  const {
-    data: cachedCustomers,
-    syncStatus,
-    conflictCount,
-    updateCache,
-    clearCache
-  } = useOfflineFirst<Customer[]>({
-    key: `customers_${JSON.stringify({ filters, sortBy })}`,
-    initialData: [],
-    syncInterval: 30000 // 30 segundos
+  const { 
+    data: cachedProfiles,
+    isLoading: cacheLoading,
+    isOffline,
+    isSyncing,
+    lastSyncAt,
+    error: cacheError,
+    create: createCached,
+    update: updateCached,
+    delete: deleteCached,
+    refresh: refreshCache,
+    clearCache,
+    queueSize,
+    pendingActions
+  } = useOfflineFirst<Profile>({
+    table: 'profiles',
+    cacheKey: `profiles_${JSON.stringify({ filters, sortBy })}`,
+    cacheTTL: 24 * 60 * 60 * 1000, // 24 horas
+    enableOptimisticUpdates: true,
+    syncOnReconnect: true,
+    retryFailedActions: true
   });
 
-  // Realtime sync para atualizações em tempo real
-  const { isConnected } = useRealtimeSync({
-    table: 'customers',
-    filter: buildRealtimeFilter(filters),
-    onUpdate: handleRealtimeUpdate,
-    onError: (err) => setError(err.message),
-    enabled: realtime
-  });
+  // Handler para atualizações realtime
+  const handleRealtimeUpdate = useCallback((payload: any) => {
+    const { eventType, new: newRecord, old: oldRecord } = payload;
+    
+    setProfiles(current => {
+      switch (eventType) {
+        case 'INSERT':
+          return [...current, newRecord];
+        case 'UPDATE':
+          return current.map(profile => 
+            profile.id === newRecord.id ? newRecord : profile
+          );
+        case 'DELETE':
+          return current.filter(profile => profile.id !== oldRecord.id);
+        default:
+          return current;
+      }
+    });
+  }, []);
 
   // Construir filtro para realtime
-  function buildRealtimeFilter(filters: CustomerFilters): string {
+  function buildRealtimeFilter(filters: ProfileFilters): string {
     const conditions: string[] = [];
     
     if (filters.status) {
@@ -79,49 +104,17 @@ export const useCustomers = ({
     return conditions.join('&');
   }
 
-  // Handler para atualizações realtime
-  const handleRealtimeUpdate = useCallback((payload: any) => {
-    const { eventType, new: newRecord, old: oldRecord } = payload;
-    
-    setCustomers(current => {
-      switch (eventType) {
-        case 'INSERT':
-          // Verificar se já existe para evitar duplicatas
-          if (current.find(c => c.id === newRecord.id)) {
-            return current;
-          }
-          return [newRecord, ...current];
-          
-        case 'UPDATE':
-          return current.map(customer => 
-            customer.id === newRecord.id ? newRecord : customer
-          );
-          
-        case 'DELETE':
-          return current.filter(customer => customer.id !== oldRecord.id);
-          
-        default:
-          return current;
-      }
-    });
-    
-    // Atualizar cache offline
-    updateCache(customers => {
-      switch (eventType) {
-        case 'INSERT':
-          return [newRecord, ...customers];
-        case 'UPDATE':
-          return customers.map(c => c.id === newRecord.id ? newRecord : c);
-        case 'DELETE':
-          return customers.filter(c => c.id !== oldRecord.id);
-        default:
-          return customers;
-      }
-    });
-  }, [updateCache]);
+  // Realtime sync para atualizações em tempo real
+  const { isConnected } = useRealtimeSync({
+    table: 'profiles',
+    filter: buildRealtimeFilter(filters),
+    onUpdate: handleRealtimeUpdate,
+    onError: (err) => setError(err.message),
+    enabled: realtime
+  });
 
   // Buscar clientes do servidor
-  const fetchCustomers = useCallback(async (reset = false) => {
+  const fetchProfiles = useCallback(async (reset = false) => {
     try {
       setLoading(true);
       setError(null);
@@ -129,7 +122,7 @@ export const useCustomers = ({
       const currentOffset = reset ? 0 : offset;
       
       let query = supabase
-        .from('customers')
+        .from('profiles')
         .select('*', { count: 'exact' })
         .range(currentOffset, currentOffset + limit - 1)
         .order(sortBy.field, { ascending: sortBy.direction === 'asc' });
@@ -153,49 +146,49 @@ export const useCustomers = ({
       if (fetchError) throw fetchError;
       
       if (reset) {
-        setCustomers(data || []);
+        setProfiles(data || []);
         setOffset(limit);
       } else {
-        setCustomers(current => [...current, ...(data || [])]);
+        setProfiles(current => [...current, ...(data || [])]);
         setOffset(current => current + limit);
       }
       
       setTotalCount(count || 0);
       
       // Atualizar cache
-      updateCache(data || []);
+      refreshCache();
       
     } catch (err) {
       console.error('Erro ao buscar clientes:', err);
       setError(err instanceof Error ? err.message : 'Erro desconhecido');
       
       // Em caso de erro, usar dados do cache se disponível
-      if (cachedCustomers.length > 0) {
-        setCustomers(cachedCustomers);
+      if (cachedProfiles.length > 0) {
+      setProfiles(cachedProfiles);
       }
     } finally {
       setLoading(false);
     }
-  }, [filters, sortBy, limit, offset, updateCache, cachedCustomers]);
+  }, [filters, sortBy, limit, offset, refreshCache, cachedProfiles]);
 
   // Refetch (reset)
   const refetch = useCallback(async () => {
     setOffset(0);
-    await fetchCustomers(true);
-  }, [fetchCustomers]);
+    await fetchProfiles(true);
+  }, [fetchProfiles]);
 
   // Load more
   const loadMore = useCallback(async () => {
     if (!loading && hasMore) {
-      await fetchCustomers(false);
+      await fetchProfiles(false);
     }
-  }, [fetchCustomers, loading]);
+  }, [fetchProfiles, loading]);
 
   // Criar cliente
-  const createCustomer = useCallback(async (data: Omit<Customer, 'id' | 'created_at' | 'updated_at'>) => {
+  const createProfile = useCallback(async (data: Omit<Profile, 'id' | 'created_at' | 'updated_at'>) => {
     try {
-      const { data: newCustomer, error: createError } = await supabase
-        .from('customers')
+      const { data: newProfile, error: createError } = await supabase
+      .from('profiles')
         .insert([{
           ...data,
           user_id: data.user_id || (await supabase.auth.getUser()).data.user?.id
@@ -205,7 +198,7 @@ export const useCustomers = ({
       
       if (createError) throw createError;
       
-      return newCustomer;
+      return newProfile;
     } catch (err) {
       console.error('Erro ao criar cliente:', err);
       throw err;
@@ -213,10 +206,10 @@ export const useCustomers = ({
   }, []);
 
   // Atualizar cliente
-  const updateCustomer = useCallback(async (id: string, data: Partial<Customer>) => {
+  const updateProfile = useCallback(async (id: string, data: Partial<Profile>) => {
     try {
-      const { data: updatedCustomer, error: updateError } = await supabase
-        .from('customers')
+      const { data: updatedProfile, error: updateError } = await supabase
+      .from('profiles')
         .update(data)
         .eq('id', id)
         .select()
@@ -224,7 +217,7 @@ export const useCustomers = ({
       
       if (updateError) throw updateError;
       
-      return updatedCustomer;
+      return updatedProfile;
     } catch (err) {
       console.error('Erro ao atualizar cliente:', err);
       throw err;
@@ -232,10 +225,10 @@ export const useCustomers = ({
   }, []);
 
   // Deletar cliente
-  const deleteCustomer = useCallback(async (id: string) => {
+  const deleteProfile = useCallback(async (id: string) => {
     try {
       const { error: deleteError } = await supabase
-        .from('customers')
+        .from('profiles')
         .delete()
         .eq('id', id);
       
@@ -247,32 +240,35 @@ export const useCustomers = ({
   }, []);
 
   // Calcular se há mais dados
-  const hasMore = customers.length < totalCount;
+  const hasMore = profiles.length < totalCount;
 
   // Carregar dados iniciais
   useEffect(() => {
-    fetchCustomers(true);
+    fetchProfiles(true);
   }, [filters, sortBy]);
 
   // Usar dados do cache quando offline
   useEffect(() => {
-    if (!isConnected && cachedCustomers.length > 0) {
-      setCustomers(cachedCustomers);
+    if (!isConnected && cachedProfiles.length > 0) {
+      setProfiles(cachedProfiles);
     }
-  }, [isConnected, cachedCustomers]);
+  }, [isConnected, cachedProfiles]);
 
   return {
-    customers,
+    profiles,
     loading,
     error,
     totalCount,
     hasMore,
     refetch,
     loadMore,
-    createCustomer,
-    updateCustomer,
-    deleteCustomer,
-    syncStatus: !isConnected ? 'offline' : syncStatus,
-    conflictCount
+    createProfile,
+    updateProfile,
+    deleteProfile,
+    isOffline,
+    isSyncing,
+    lastSyncAt,
+    queueSize,
+    pendingActions
   };
 };

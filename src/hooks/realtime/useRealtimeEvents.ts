@@ -249,7 +249,7 @@ export function useRealtimeTickets(eventId?: string) {
         location,
         image_url
       ),
-      profiles:user_id (
+      profiles:id (
         id,
         full_name,
         email

@@ -1,7 +1,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 import { CartItem, CartProduct, CartTicket, isCartProduct, isCartTicket } from '@/lib/cart-utils';
 import { CartContext, CartContextType } from './cart-context';
 
@@ -14,22 +14,25 @@ interface CartItemFromSupabase {
   quantity: number;
   unit_price: number;
   total_price: number;
-  metadata?: Record<string, any>;
+  size?: string;
+  created_at: string;
   products?: {
     id: string;
     name: string;
     price: number;
-    images?: string[];
-    category: string;
+    image_url?: string;
+    category?: string;
   };
   tickets?: {
     id: string;
     event_id: string;
+    ticket_type: string;
+    unit_price: number;
+    status: string;
     events?: {
       id: string;
-      name: string;
-      date: string;
-      price: number;
+      title: string;
+      cover_image?: string;
     };
   };
 }
@@ -76,12 +79,12 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
               ),
               tickets (
                 id,
-                event_id,
+                ticket_type,
+                unit_price,
+                status,
                 events (
                   id,
-                  name,
-                  date,
-                  price
+                  name
                 )
               )
             `)
@@ -111,36 +114,35 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 id: item.id,
                 product_id: item.product_id!,
                 name: product.name,
-                price: Number(product.price),
+                price: Number(product.price) || 0,
                 image: imageUrl,
                 images: product.image_url ? [product.image_url] : [],
                 category: product.category,
-                quantity: item.quantity,
-                unit_price: item.unit_price,
-                total_price: item.total_price,
+                quantity: item.quantity || 1,
+                unit_price: Number(item.unit_price) || 0,
+                total_price: Number(item.total_price) || (Number(item.unit_price) * item.quantity),
                 metadata: item.metadata || {},
               };
               
               cartItems.push(cartProduct);
             } 
-            // Check if this item has tickets data with events
-            else if (item.tickets && item.tickets.events) {
+            // Check if this item has tickets data
+            else if (item.tickets) {
               const ticket = item.tickets;
               const event = ticket.events;
               
               const cartTicket: CartTicket = {
                 id: item.id,
                 ticket_id: item.ticket_id!,
-                event_id: ticket.event_id,
-                event_name: event.name,
-                event_title: event.name,
-                event_date: event.date,
-                ticket_price: event.price,
-                price: event.price, // Same as ticket_price for consistency
-                name: event.name, // Alias for event_title for consistency
-                quantity: item.quantity,
-                unit_price: item.unit_price,
-                total_price: item.total_price,
+                name: event?.name || ticket.ticket_type || 'Ingresso',
+                price: Number(ticket.unit_price) || 0,
+                quantity: item.quantity || 1,
+                unit_price: Number(item.unit_price) || 0,
+                total_price: Number(item.total_price) || (Number(item.unit_price) * item.quantity),
+                ticket_type: ticket.ticket_type || 'standard',
+                status: ticket.status || 'active',
+                image: '/ingressos.webp',
+                event_title: event?.name || 'Evento',
               };
               
               cartItems.push(cartTicket);
@@ -156,12 +158,20 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
           }
         }
       } catch (error) {
-        console.error('Error fetching cart:', error);
-        toast({
-          title: "Erro ao carregar carrinho",
-          description: "Não foi possível carregar os itens do seu carrinho.",
-          variant: "destructive"
-        });
+        // Only show error if it's not an auth-related issue
+        const isAuthError = error && typeof error === 'object' && 'message' in error && 
+          (error.message?.includes('Invalid Refresh Token') || error.message?.includes('JWT'));
+        
+        if (!isAuthError) {
+          console.error('Error fetching cart:', error);
+          toast({
+            title: "Erro ao carregar carrinho",
+            description: "Não foi possível carregar os itens do seu carrinho.",
+            variant: "destructive"
+          });
+        } else {
+          console.log('Auth token expired, user will be signed out automatically');
+        }
       } finally {
         setIsLoading(false);
       }
@@ -205,7 +215,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
           ticket_id: isCartTicket(item) ? item.ticket_id : null,
           quantity: item.quantity,
           metadata: isCartProduct(item) ? item.metadata : null,
-          unit_price: isCartProduct(item) ? item.unit_price : (isCartTicket(item) ? item.ticket_price : item.price)
+          unit_price: isCartProduct(item) ? item.unit_price : (isCartTicket(item) ? item.price : 0)
         };
         
         console.log('Sending to Edge Function:', requestBody);
@@ -219,13 +229,18 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (!data.success) throw new Error(data.error);
         
         // Update local state with the DB-assigned ID
-        setItems(prev => [...prev, { ...item, id: data.data.id }]);
+        const newItem = { ...item, id: data.data.id };
+        console.log('✅ Item added to cart (logged user):', newItem);
+        setItems(prev => [...prev, newItem]);
       } else {
         // User is not logged in, use local storage
-        setItems(prev => [...prev, { ...item, id: crypto.randomUUID() }]);
+        const tempId = crypto.randomUUID();
+        const newItem = { ...item, id: tempId };
+        console.log('✅ Item added to cart (guest user):', newItem);
+        setItems(prev => [...prev, newItem]);
       }
       
-      const itemName = isCartProduct(item) ? item.name : item.event_title;
+      const itemName = isCartProduct(item) ? item.name : item.name;
       toast({
         title: "Adicionado ao carrinho",
         description: `${itemName} foi adicionado ao seu carrinho.`
@@ -273,35 +288,77 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
   
   // Update item quantity
-  const updateQuantity = async (itemId: string, quantity: number) => {
-    if (quantity < 1) return;
+  const updateQuantity = async (itemId: string, newQuantity: number) => {
+    console.log('🔄 updateQuantity chamada:', { itemId, newQuantity });
     
+    if (newQuantity <= 0) {
+      console.log('⚠️ Quantidade <= 0, removendo item');
+      await removeFromCart(itemId);
+      return;
+    }
+
     try {
-      const { data: sessionData } = await supabase.auth.getSession();
-      
-      if (sessionData.session) {
-        // User is logged in, update in DB
-        const { error } = await supabase
-          .from('cart_items')
-          .update({ quantity })
-          .eq('id', itemId);
-          
-        if (error) throw error;
+      // Find the current item to get the correct unit price
+       const currentItem = items.find(item => item.id === itemId);
+       if (!currentItem) {
+         console.error('❌ Item não encontrado:', itemId);
+         return;
+       }
+       
+       const unitPrice = currentItem.unit_price || currentItem.price || 0;
+       const newTotalPrice = newQuantity * unitPrice;
+       
+       console.log('💰 Calculando preço:', { unitPrice, newQuantity, newTotalPrice });
+       
+       const { error } = await supabase
+         .from('cart_items')
+         .update({ 
+           quantity: newQuantity,
+           total_price: newTotalPrice
+         })
+         .eq('id', itemId);
+
+      if (error) {
+        console.error('❌ Error updating quantity:', error);
+        toast({
+          title: "Erro ao atualizar quantidade",
+          description: "Tente novamente em alguns instantes.",
+          variant: "destructive"
+        });
+        return;
       }
-      
-      // Update local state
-      setItems(prev => 
-        prev.map(item => 
-          item.id === itemId 
-            ? { ...item, quantity } 
-            : item
-        )
-      );
+
+      console.log('✅ Quantidade atualizada no banco de dados');
+
+      // Update local state immediately for better UX
+       setItems(prevItems => {
+         const updatedItems = prevItems.map(item => {
+           if (item.id === itemId) {
+             const itemUnitPrice = item.unit_price || item.price || 0;
+             const updatedItem = { 
+               ...item, 
+               quantity: newQuantity, 
+               total_price: itemUnitPrice * newQuantity 
+             };
+             console.log('📊 Item atualizado:', updatedItem);
+             return updatedItem;
+           }
+           return item;
+         });
+         console.log('📋 Estado atualizado:', updatedItems);
+         console.log('💵 Novo subtotal calculado:', updatedItems.reduce((sum, item) => sum + item.total_price, 0));
+         return updatedItems;
+       });
+
+      toast({
+        title: "Quantidade atualizada",
+        description: "Item atualizado com sucesso."
+      });
     } catch (error) {
-      console.error('Error updating quantity:', error);
+      console.error('❌ Error updating quantity:', error);
       toast({
         title: "Erro ao atualizar quantidade",
-        description: "Não foi possível atualizar a quantidade do item.",
+        description: "Tente novamente em alguns instantes.",
         variant: "destructive"
       });
     }

@@ -8,16 +8,22 @@ import { useCart } from '@/hooks/useCart';
 import { isCartProduct, isCartTicket } from '@/lib/cart-utils';
 import ProductCartItem from '@/components/cart/ProductCartItem';
 import TicketCartItem from '@/components/cart/TicketCartItem';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 
 const CartContent = () => {
   const { items, subtotal, shipping, total, isLoading } = useCart();
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  // Separate products and tickets
-  const products = items.filter(isCartProduct);
-  const tickets = items.filter(isCartTicket);
+  // Separate products and tickets with ID validation
+  const products = items.filter(isCartProduct).filter(item => item.id && item.id !== '');
+  const tickets = items.filter(isCartTicket).filter(item => item.id && item.id !== '');
+  
+  // Debug log para itens sem ID válido
+  const invalidItems = items.filter(item => !item.id || item.id === '');
+  if (invalidItems.length > 0) {
+    console.warn('⚠️ Items with invalid IDs found:', invalidItems);
+  }
   
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', {

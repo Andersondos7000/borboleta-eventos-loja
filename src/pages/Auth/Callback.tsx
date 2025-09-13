@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 
 const AuthCallback = () => {
   const navigate = useNavigate();
@@ -46,7 +46,7 @@ const AuthCallback = () => {
           });
           navigate('/auth', { replace: true });
         }
-      } catch (error: any) {
+      } catch (error: unknown) {
         console.error('Erro inesperado no callback:', error);
         toast({
           title: "Erro inesperado",

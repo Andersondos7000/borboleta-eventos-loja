@@ -1,54 +1,52 @@
 import React, { useState, useMemo } from 'react';
-import { useCustomers } from '../../hooks/customers/useCustomers';
-import { CustomerCard } from './CustomerCard';
+import { useProfiles } from '../../hooks/profiles/useProfiles';
+import { ProfileCard } from './ProfileCard';
 import { SyncStatus } from '../realtime/SyncStatus';
 import { ConflictResolver } from '../realtime/ConflictResolver';
-import type { CustomerFilters, CustomerSortOptions, Customer } from '../../types/customer';
+import type { ProfileFilters, ProfileSortOptions, Profile } from '../../types/profile';
 
-interface CustomerListProps {
-  onSelectCustomer?: (customer: Customer) => void;
-  onEditCustomer?: (customer: Customer) => void;
-  onDeleteCustomer?: (customer: Customer) => void;
+interface ProfileListProps {
+  onSelectProfile?: (profile: Profile) => void;
+  onEditProfile?: (profile: Profile) => void;
+  onDeleteProfile?: (profile: Profile) => void;
   selectable?: boolean;
   className?: string;
 }
 
-export const CustomerList: React.FC<CustomerListProps> = ({
-  onSelectCustomer,
-  onEditCustomer,
-  onDeleteCustomer,
+export const ProfileList: React.FC<ProfileListProps> = ({
+  onSelectProfile,
+  onEditProfile,
+  onDeleteProfile,
   selectable = false,
   className = ''
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [filters, setFilters] = useState<CustomerFilters>({
+  const [filters, setFilters] = useState<ProfileFilters>({
     status: undefined,
-    customer_type: undefined,
-    has_document: undefined
+    customerType: undefined
   });
-  const [sortOptions, setSortOptions] = useState<CustomerSortOptions>({
+  const [sortOptions, setSortOptions] = useState<ProfileSortOptions>({
     field: 'name',
     direction: 'asc'
   });
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
-  const [selectedCustomers, setSelectedCustomers] = useState<Set<string>>(new Set());
+  const [selectedProfiles, setSelectedProfiles] = useState<Set<string>>(new Set());
   const [showFilters, setShowFilters] = useState(false);
 
   const {
-    customers,
+    profiles,
     loading,
     error,
-    stats,
     hasMore,
-    refreshCustomers,
-    deleteCustomer,
+    refetch,
+    deleteProfile,
     isOffline,
-    syncStatus,
-    lastSync,
-    queuedOperations,
-    conflicts
-  } = useCustomers({
+    isSyncing,
+    lastSyncAt,
+    queueSize,
+    pendingActions
+  } = useProfiles({
     filters: {
       ...filters,
       search: searchTerm || undefined
@@ -61,87 +59,87 @@ export const CustomerList: React.FC<CustomerListProps> = ({
   });
 
   // Filtros locais adicionais
-  const filteredCustomers = useMemo(() => {
-    if (!searchTerm) return customers;
+  const filteredProfiles = useMemo(() => {
+    if (!searchTerm) return profiles;
     
     const term = searchTerm.toLowerCase();
-    return customers.filter(customer => 
-      customer.name.toLowerCase().includes(term) ||
-      customer.email.toLowerCase().includes(term) ||
-      (customer.phone && customer.phone.includes(term)) ||
-      (customer.document_number && customer.document_number.includes(term))
+    return profiles.filter(profile => 
+      profile.name.toLowerCase().includes(term) ||
+      profile.email.toLowerCase().includes(term) ||
+      (profile.phone && profile.phone.includes(term)) ||
+      (profile.document_number && profile.document_number.includes(term))
     );
-  }, [customers, searchTerm]);
+  }, [profiles, searchTerm]);
 
-  const handleSelectCustomer = (customer: Customer) => {
-    if (selectable) {
-      const newSelected = new Set(selectedCustomers);
-      if (newSelected.has(customer.id)) {
-        newSelected.delete(customer.id);
-      } else {
-        newSelected.add(customer.id);
-      }
-      setSelectedCustomers(newSelected);
+  const handleSelectProfile = (profile: Profile) => {
+    if (!selectable) return;
+    const newSelected = new Set(selectedProfiles);
+    if (newSelected.has(profile.id)) {
+      newSelected.delete(profile.id);
+    } else {
+      newSelected.add(profile.id);
     }
-    onSelectCustomer?.(customer);
+    setSelectedProfiles(newSelected);
+    
+    onSelectProfile?.(profile);
   };
 
   const handleSelectAll = () => {
-    if (selectedCustomers.size === filteredCustomers.length) {
-      setSelectedCustomers(new Set());
+    if (selectedProfiles.size === filteredProfiles.length) {
+      setSelectedProfiles(new Set());
     } else {
-      setSelectedCustomers(new Set(filteredCustomers.map(c => c.id)));
+      setSelectedProfiles(new Set(filteredProfiles.map(c => c.id)));
     }
   };
 
-  const handleDeleteCustomer = async (customer: Customer) => {
-    if (window.confirm(`Tem certeza que deseja excluir o cliente "${customer.name}"?`)) {
+  const handleDeleteProfile = async (profile: Profile) => {
+    if (window.confirm(`Tem certeza que deseja excluir o perfil "${profile.name}"?`)) {
       try {
-        await deleteCustomer(customer.id);
-        onDeleteCustomer?.(customer);
+        await deleteProfile(profile.id);
+        onDeleteProfile?.(profile);
       } catch (error) {
-        console.error('Erro ao excluir cliente:', error);
+        console.error('Erro ao excluir perfil:', error);
       }
     }
   };
 
   const handleBulkDelete = async () => {
-    if (selectedCustomers.size === 0) return;
+    if (selectedProfiles.size === 0) return;
     
-    if (window.confirm(`Tem certeza que deseja excluir ${selectedCustomers.size} cliente(s)?`)) {
+    if (window.confirm(`Tem certeza que deseja excluir ${selectedProfiles.size} perfil(s)?`)) {
       try {
         await Promise.all(
-          Array.from(selectedCustomers).map(id => deleteCustomer(id))
+          Array.from(selectedProfiles).map(id => deleteProfile(id))
         );
-        setSelectedCustomers(new Set());
+        setSelectedProfiles(new Set());
       } catch (error) {
-        console.error('Erro ao excluir clientes:', error);
+        console.error('Erro ao excluir perfis:', error);
       }
     }
   };
 
   const handleExport = () => {
-    const customersToExport = selectedCustomers.size > 0 
-      ? filteredCustomers.filter(c => selectedCustomers.has(c.id))
-      : filteredCustomers;
+    const profilesToExport = selectedProfiles.size > 0 
+      ? filteredProfiles.filter(c => selectedProfiles.has(c.id))
+      : filteredProfiles;
     
     const csv = [
       'Nome,Email,Telefone,Tipo,Status,Documento,Criado em',
-      ...customersToExport.map(customer => [
-        customer.name,
-        customer.email,
-        customer.phone || '',
-        customer.customer_type === 'individual' ? 'Pessoa Física' : 'Pessoa Jurídica',
-        customer.status === 'active' ? 'Ativo' : customer.status === 'inactive' ? 'Inativo' : 'Bloqueado',
-        customer.document_number || '',
-        new Date(customer.created_at).toLocaleDateString('pt-BR')
+      ...profilesToExport.map(profile => [
+        profile.name,
+        profile.email,
+        profile.phone || '',
+        profile.customer_type === 'individual' ? 'Pessoa Física' : 'Pessoa Jurídica',
+        profile.status === 'active' ? 'Ativo' : profile.status === 'inactive' ? 'Inativo' : 'Bloqueado',
+        profile.document_number || '',
+        new Date(profile.created_at).toLocaleDateString('pt-BR')
       ].join(','))
     ].join('\n');
     
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
-    link.download = `clientes_${new Date().toISOString().split('T')[0]}.csv`;
+    link.download = `perfis_${new Date().toISOString().split('T')[0]}.csv`;
     link.click();
   };
 
@@ -154,7 +152,7 @@ export const CustomerList: React.FC<CustomerListProps> = ({
             <h3 className="text-red-800 font-medium">Erro ao carregar clientes</h3>
             <p className="text-red-600 text-sm mt-1">{error}</p>
             <button
-              onClick={refreshCustomers}
+              onClick={refetch}
               className="mt-2 text-sm text-red-600 hover:text-red-700 underline"
             >
               Tentar novamente
@@ -172,25 +170,23 @@ export const CustomerList: React.FC<CustomerListProps> = ({
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center space-x-4">
             <h2 className="text-lg font-semibold text-gray-900">Clientes</h2>
-            {stats && (
-              <div className="flex items-center space-x-4 text-sm text-gray-600">
-                <span>Total: {stats.total}</span>
-                <span>Ativos: {stats.active}</span>
-                <span>Inativos: {stats.inactive}</span>
-              </div>
-            )}
+            <div className="flex items-center space-x-4 text-sm text-gray-600">
+              <span>Total: {profiles.length}</span>
+              <span>Carregando: {loading ? 'Sim' : 'Não'}</span>
+              <span>Offline: {isOffline ? 'Sim' : 'Não'}</span>
+            </div>
           </div>
           
           <div className="flex items-center space-x-2">
             <SyncStatus
-              status={isOffline ? 'offline' : syncStatus}
-              lastSync={lastSync}
-              queuedOperations={queuedOperations}
+              status={isOffline ? 'offline' : (isSyncing ? 'syncing' : 'synced')}
+              lastSync={lastSyncAt}
+              queuedOperations={queueSize}
               size="sm"
             />
             
             <button
-              onClick={refreshCustomers}
+              onClick={refetch}
               disabled={loading}
               className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-md"
               title="Atualizar lista"
@@ -230,10 +226,10 @@ export const CustomerList: React.FC<CustomerListProps> = ({
             Filtros
           </button>
           
-          {selectedCustomers.size > 0 && (
+          {selectedProfiles.size > 0 && (
             <div className="flex items-center space-x-2">
               <span className="text-sm text-gray-600">
-                {selectedCustomers.size} selecionado(s)
+                {selectedProfiles.size} selecionado(s)
               </span>
               <button
                 onClick={handleBulkDelete}
@@ -277,7 +273,7 @@ export const CustomerList: React.FC<CustomerListProps> = ({
                 </label>
                 <select
                   value={filters.customer_type || ''}
-                  onChange={(e) => setFilters(prev => ({ ...prev, customer_type: e.target.value as any || undefined }))}
+                  onChange={(e) => setFilters(prev => ({ ...prev, customerType: e.target.value as any || undefined }))}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
                 >
                   <option value="">Todos</option>
@@ -320,7 +316,7 @@ export const CustomerList: React.FC<CustomerListProps> = ({
             <div className="mt-4 flex items-center justify-between">
               <button
                 onClick={() => {
-                  setFilters({ status: undefined, customer_type: undefined, has_document: undefined });
+                  setFilters({ status: undefined, customerType: undefined, has_document: undefined });
                   setSortOptions({ field: 'name', direction: 'asc' });
                   setSearchTerm('');
                 }}
@@ -351,11 +347,11 @@ export const CustomerList: React.FC<CustomerListProps> = ({
       </div>
 
       {/* Resolução de conflitos */}
-      {conflicts.length > 0 && (
-        <div className="px-6 py-4 border-b border-gray-200">
-          <ConflictResolver
-            conflicts={conflicts}
-            onResolve={(conflictId, resolution) => {
+        {pendingActions > 0 && (
+          <div className="px-6 py-4 border-b border-gray-200">
+            <ConflictResolver
+              conflicts={[]}
+              onResolve={(conflictId, resolution) => {
               // Implementar resolução de conflitos
               console.log('Resolvendo conflito:', conflictId, resolution);
             }}
@@ -365,12 +361,12 @@ export const CustomerList: React.FC<CustomerListProps> = ({
 
       {/* Lista de clientes */}
       <div className="p-6">
-        {loading && filteredCustomers.length === 0 ? (
+        {loading && filteredProfiles.length === 0 ? (
           <div className="flex items-center justify-center py-12">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
             <span className="ml-2 text-gray-600">Carregando clientes...</span>
           </div>
-        ) : filteredCustomers.length === 0 ? (
+        ) : filteredProfiles.length === 0 ? (
           <div className="text-center py-12">
             <div className="text-gray-400 mb-4">
               <svg className="mx-auto h-12 w-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -395,12 +391,12 @@ export const CustomerList: React.FC<CustomerListProps> = ({
                 <label className="flex items-center">
                   <input
                     type="checkbox"
-                    checked={selectedCustomers.size === filteredCustomers.length && filteredCustomers.length > 0}
+                    checked={selectedProfiles.size === filteredProfiles.length && filteredProfiles.length > 0}
                     onChange={handleSelectAll}
                     className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                   />
                   <span className="ml-2 text-sm text-gray-700">
-                    Selecionar todos ({filteredCustomers.length})
+                    Selecionar todos ({filteredProfiles.length})
                   </span>
                 </label>
               </div>
@@ -408,15 +404,15 @@ export const CustomerList: React.FC<CustomerListProps> = ({
             
             {/* Grid de clientes */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {filteredCustomers.map((customer) => (
-                <CustomerCard
-                  key={customer.id}
-                  customer={customer}
-                  selected={selectedCustomers.has(customer.id)}
+              {filteredProfiles.map((profile) => (
+                <ProfileCard
+                  key={profile.id}
+                  profile={profile}
+                  selected={selectedProfiles.has(profile.id)}
                   selectable={selectable}
-                  onSelect={() => handleSelectCustomer(customer)}
-                  onEdit={onEditCustomer ? () => onEditCustomer(customer) : undefined}
-                  onDelete={onDeleteCustomer ? () => handleDeleteCustomer(customer) : undefined}
+                  onSelect={() => handleSelectProfile(profile)}
+                  onEdit={onEditProfile ? () => onEditProfile(profile) : undefined}
+                  onDelete={onDeleteProfile ? () => handleDeleteProfile(profile) : undefined}
                 />
               ))}
             </div>

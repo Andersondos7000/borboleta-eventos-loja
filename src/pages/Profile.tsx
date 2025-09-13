@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/lib/supabase";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -14,7 +14,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { Loader2, User, Package, Ticket } from "lucide-react";
+import AdminAccessModal from "@/components/AdminAccessModal";
+import { useAdminAuth } from "@/contexts/AdminAuthContext";
+import { Loader2, User, Package, Ticket, Shield } from "lucide-react";
 
 // Profile form schema
 const profileSchema = z.object({
@@ -33,7 +35,7 @@ type ProfileData = {
 };
 
 const Profile = () => {
-  const { user, loading, signOut } = useAuth();
+  const { user, loading, signOut, isAdmin } = useAuth();
   const navigate = useNavigate();
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -44,6 +46,9 @@ const Profile = () => {
   const [tickets, setTickets] = useState([]);
   const [loadingOrders, setLoadingOrders] = useState(true);
   const [loadingTickets, setLoadingTickets] = useState(true);
+  const [userIsAdmin, setUserIsAdmin] = useState(false);
+  const [showAdminModal, setShowAdminModal] = useState(false);
+  const { isAdminLoggedIn, logoutAdmin } = useAdminAuth();
 
   // Profile form
   const profileForm = useForm<ProfileFormValues>({
@@ -192,6 +197,23 @@ const Profile = () => {
     }
   };
 
+  // Check if user is admin
+  useEffect(() => {
+    const checkAdminStatus = async () => {
+      if (user && isAdmin) {
+        try {
+          const adminStatus = await isAdmin();
+          setUserIsAdmin(adminStatus);
+        } catch (error) {
+          console.error('Erro ao verificar status admin:', error);
+          setUserIsAdmin(false);
+        }
+      }
+    };
+
+    checkAdminStatus();
+  }, [user, isAdmin]);
+
   // Redirect to login if not authenticated
   useEffect(() => {
     if (!loading && !user) {
@@ -228,6 +250,27 @@ const Profile = () => {
               <TabsTrigger value="tickets" className="flex items-center gap-2">
                 <Ticket className="h-4 w-4" />
                 <span>Meus Ingressos</span>
+              </TabsTrigger>
+              <TabsTrigger 
+                value="admin" 
+                className="flex items-center gap-2"
+                onClick={() => setShowAdminModal(true)}
+              >
+                <Shield className="h-4 w-4" />
+                <span>
+                  {isAdminLoggedIn ? 'Admin Logado' : 'Painel Admin'}
+                </span>
+                {isAdminLoggedIn && (
+                  <button
+                    onClick={async (e) => {
+                      e.stopPropagation();
+                      await logoutAdmin();
+                    }}
+                    className="ml-2 text-xs text-red-600 hover:text-red-800 underline"
+                  >
+                    Sair
+                  </button>
+                )}
               </TabsTrigger>
             </TabsList>
 
@@ -426,10 +469,17 @@ const Profile = () => {
                 </CardContent>
               </Card>
             </TabsContent>
+
+
           </Tabs>
         </div>
       </div>
 
+      <AdminAccessModal 
+        isOpen={showAdminModal} 
+        onClose={() => setShowAdminModal(false)} 
+      />
+      
       <Footer />
     </div>
   );

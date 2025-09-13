@@ -119,8 +119,8 @@ const ProductModal: React.FC<ProductModalProps> = ({ product, children, onSelect
       images: [product.image],
       category: product.category,
       quantity: quantity,
-      unit_price: product.price,
-      total_price: product.price * quantity,
+      unit_price: Number(product.price) || 0,
+      total_price: (Number(product.price) || 0) * quantity,
       metadata: { size: selectedSize }
     });
 
@@ -155,9 +155,15 @@ const ProductModal: React.FC<ProductModalProps> = ({ product, children, onSelect
   };
 
   const handleQuantityChange = (delta: number) => {
+    console.log('🔍 handleQuantityChange chamada:', { delta, currentQuantity: quantity, productStock: product.stock });
     const newQuantity = quantity + delta;
+    console.log('📊 Nova quantidade calculada:', newQuantity);
+    
     if (newQuantity >= 1 && newQuantity <= product.stock) {
+      console.log('✅ Quantidade válida, atualizando estado');
       setQuantity(newQuantity);
+    } else {
+      console.log('❌ Quantidade inválida:', { newQuantity, min: 1, max: product.stock });
     }
   };
   
@@ -278,7 +284,16 @@ const ProductModal: React.FC<ProductModalProps> = ({ product, children, onSelect
             {/* Price and Actions */}
             <div className="flex items-center justify-between">
               <div className="space-y-1">
-                <p className="text-3xl font-bold text-primary">{formattedPrice}</p>
+                <div className="space-y-1">
+                  <p className="text-lg text-gray-600">Preço unitário: {formattedPrice}</p>
+                  <p className="text-3xl font-bold text-primary">
+                    {new Intl.NumberFormat('pt-BR', {
+                      style: 'currency',
+                      currency: 'BRL'
+                    }).format((Number(product.price) || 0) * quantity)}
+                  </p>
+                  <p className="text-sm text-gray-500">Total: {quantity} x {formattedPrice}</p>
+                </div>
                 {product.stock <= 5 && product.stock > 0 && (
                   <p className="text-sm text-orange-600">Apenas {product.stock} em estoque!</p>
                 )}
@@ -310,7 +325,7 @@ const ProductModal: React.FC<ProductModalProps> = ({ product, children, onSelect
             <div className="space-y-2">
               <h3 className="font-semibold text-lg">Descrição</h3>
               <p className="text-gray-600 leading-relaxed">
-                {product.description || 'Produto de alta qualidade com design exclusivo. Confeccionado com materiais premium para garantir durabilidade e conforto.'}
+                {'Produto de alta qualidade com design exclusivo. Confeccionado com materiais premium para garantir durabilidade e conforto.'}
               </p>
             </div>
             

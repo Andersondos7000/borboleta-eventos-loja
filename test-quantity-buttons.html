@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste Botões Quantidade</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .test-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .quantity-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .quantity-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 10px 0;
+        }
+        .btn {
+            padding: 8px 12px;
+            border: 1px solid #ccc;
+            background: white;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        .btn:hover {
+            background: #f0f0f0;
+        }
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .quantity-display {
+            padding: 8px 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            min-width: 40px;
+            text-align: center;
+            font-weight: bold;
+        }
+        .instructions {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+        .log {
+            background: #f5f5f5;
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 10px;
+            font-family: monospace;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🧪 Teste dos Botões de Quantidade</h1>
+        
+        <div class="instructions">
+            <h3>📋 Instruções:</h3>
+            <ol>
+                <li>Acesse <a href="http://localhost:8081/loja" target="_blank">http://localhost:8081/loja</a></li>
+                <li>Clique em qualquer produto para abrir o modal</li>
+                <li>Teste os botões + e - na seção "Quantidade"</li>
+                <li>Verifique se o número da quantidade muda</li>
+                <li>Compare com o comportamento esperado abaixo</li>
+            </ol>
+        </div>
+
+        <div class="quantity-section">
+            <h3>✅ Comportamento Esperado (Teste Local)</h3>
+            <p>Os botões devem funcionar assim:</p>
+            
+            <div class="quantity-controls">
+                <button class="btn" id="decrease" onclick="changeQuantity(-1)">-</button>
+                <div class="quantity-display" id="quantity">1</div>
+                <button class="btn" id="increase" onclick="changeQuantity(1)">+</button>
+            </div>
+            
+            <p><strong>Estoque simulado:</strong> <span id="stock">10</span> unidades</p>
+            
+            <div class="log" id="log">Log de ações aparecerá aqui...</div>
+        </div>
+
+        <div class="quantity-section">
+            <h3>🔍 Possíveis Problemas:</h3>
+            <ul>
+                <li><strong>Estado não atualiza:</strong> Problema no useState ou setQuantity</li>
+                <li><strong>Botões não respondem:</strong> Problema no onClick ou handleQuantityChange</li>
+                <li><strong>Validação incorreta:</strong> Problema nas condições de min/max</li>
+                <li><strong>Re-render não acontece:</strong> Problema no React state management</li>
+            </ul>
+        </div>
+
+        <div class="quantity-section">
+            <h3>🛠️ Debug Steps:</h3>
+            <ol>
+                <li>Abrir DevTools (F12)</li>
+                <li>Ir para Console</li>
+                <li>Clicar nos botões + e - no modal</li>
+                <li>Verificar se há erros no console</li>
+                <li>Verificar se o estado quantity está mudando</li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        let currentQuantity = 1;
+        const maxStock = 10;
+        
+        function changeQuantity(delta) {
+            const newQuantity = currentQuantity + delta;
+            
+            if (newQuantity >= 1 && newQuantity <= maxStock) {
+                currentQuantity = newQuantity;
+                updateDisplay();
+                logAction(`Quantidade alterada para: ${currentQuantity}`);
+            } else {
+                logAction(`❌ Tentativa inválida: ${newQuantity} (min: 1, max: ${maxStock})`);
+            }
+        }
+        
+        function updateDisplay() {
+            document.getElementById('quantity').textContent = currentQuantity;
+            
+            // Atualizar botões
+            document.getElementById('decrease').disabled = currentQuantity <= 1;
+            document.getElementById('increase').disabled = currentQuantity >= maxStock;
+        }
+        
+        function logAction(message) {
+            const log = document.getElementById('log');
+            const timestamp = new Date().toLocaleTimeString();
+            log.innerHTML += `[${timestamp}] ${message}\n`;
+            log.scrollTop = log.scrollHeight;
+        }
+        
+        // Inicializar
+        updateDisplay();
+        logAction('Teste inicializado com quantidade: 1');
+    </script>
+</body>
+</html>

@@ -26,10 +26,19 @@ import AuthCallback from "./pages/Auth/Callback";
 import Profile from "./pages/Profile";
 import ResetPassword from "./pages/ResetPassword";
 import { ProfilesPage } from "./pages/ProfilesPage";
+import AdminSidebarDemo from "./pages/AdminSidebarDemo";
 import { CartProvider } from "./contexts/CartContext";
 import { AuthProvider } from "./contexts/AuthContext";
+import { AdminAuthProvider } from "./contexts/AdminAuthContext";
 import { RealtimeProvider } from "./contexts/RealtimeContext";
 import ErrorHandler from "./components/ErrorHandler";
+import { useAuthErrorHandler } from "./hooks/useAuthErrorHandler";
+import AuthErrorNotification from "./components/AuthErrorNotification";
+
+// Importar utilitários de teste em desenvolvimento
+if (import.meta.env.DEV) {
+  import('./utils/authTestUtils');
+}
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -39,16 +48,18 @@ const queryClient = new QueryClient({
   },
 });
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <AuthProvider>
-        <RealtimeProvider>
-          <CartProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <ErrorHandler />
+// Componente interno que usa o hook de tratamento de erros
+const AppContent = () => {
+  // Inicializar o tratamento de erros de autenticação
+  const { authError, clearAuthError } = useAuthErrorHandler();
+  
+  return (
+    <BrowserRouter>
+      <ErrorHandler />
+      <AuthErrorNotification 
+        error={authError} 
+        onDismiss={clearAuthError} 
+      />
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/evento" element={<Evento />} />
@@ -99,12 +110,27 @@ const App = () => (
                   <ProfilesPage />
                 </ProtectedRoute>
               } />
+              <Route path="/admin-sidebar-demo" element={<AdminSidebarDemo />} />
 
               <Route path="*" element={<NotFound />} />
             </Routes>
-          </BrowserRouter>
-          </CartProvider>
-        </RealtimeProvider>
+    </BrowserRouter>
+  );
+};
+
+const App = () => (
+  <QueryClientProvider client={queryClient}>
+    <TooltipProvider>
+      <AuthProvider>
+        <AdminAuthProvider>
+          <RealtimeProvider>
+            <CartProvider>
+              <Toaster />
+              <Sonner />
+              <AppContent />
+            </CartProvider>
+          </RealtimeProvider>
+        </AdminAuthProvider>
       </AuthProvider>
     </TooltipProvider>
   </QueryClientProvider>

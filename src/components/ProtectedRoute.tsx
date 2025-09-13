@@ -1,6 +1,7 @@
 import { ReactNode, useEffect, useState } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
+import { useAdminAuth } from '@/contexts/AdminAuthContext';
 import { Loader2 } from 'lucide-react';
 
 interface ProtectedRouteProps {
@@ -11,6 +12,7 @@ interface ProtectedRouteProps {
 
 export const ProtectedRoute = ({ children, requireAuth = true, requireAdmin = false }: ProtectedRouteProps) => {
   const { user, loading, isAdmin } = useAuth();
+  const { isAdminLoggedIn, checkAdminSession } = useAdminAuth();
   const location = useLocation();
   const [adminLoading, setAdminLoading] = useState(requireAdmin);
   const [isUserAdmin, setIsUserAdmin] = useState(false);
@@ -20,8 +22,19 @@ export const ProtectedRoute = ({ children, requireAuth = true, requireAdmin = fa
     const checkAdminStatus = async () => {
       if (requireAdmin && user && !loading) {
         try {
-          const adminStatus = await isAdmin();
-          setIsUserAdmin(adminStatus);
+          // Verificar tanto o role no banco quanto a sessão admin ativa
+          const hasAdminRole = await isAdmin();
+          const hasActiveAdminSession = checkAdminSession();
+          
+          // Usuário precisa ter role admin E sessão admin ativa
+          const isValidAdmin = hasAdminRole && hasActiveAdminSession;
+          setIsUserAdmin(isValidAdmin);
+          
+          console.log('🔍 Verificação admin:', {
+            hasAdminRole,
+            hasActiveAdminSession,
+            isValidAdmin
+          });
         } catch (error) {
           console.error('Erro ao verificar status admin:', error);
           setIsUserAdmin(false);
@@ -32,7 +45,7 @@ export const ProtectedRoute = ({ children, requireAuth = true, requireAdmin = fa
     };
 
     checkAdminStatus();
-  }, [requireAdmin, user, loading, isAdmin]);
+  }, [requireAdmin, user, loading, isAdmin, isAdminLoggedIn, checkAdminSession]);
 
   // Mostrar loading enquanto verifica autenticação ou permissões admin
   if (loading || adminLoading) {
@@ -61,8 +74,20 @@ export const ProtectedRoute = ({ children, requireAuth = true, requireAdmin = fa
     );
   }
 
-  // Se requer permissões admin e usuário não é admin, redirecionar para página inicial
+  // Se requer permissões admin e usuário não é admin, redirecionar para login admin
   if (requireAdmin && user && !isUserAdmin) {
+    // Se não tem sessão admin ativa, redirecionar para login admin
+    if (!checkAdminSession()) {
+      return (
+        <Navigate 
+          to="/admin/login" 
+          state={{ from: location.pathname }} 
+          replace 
+        />
+      );
+    }
+    
+    // Se tem sessão admin mas não tem role, redirecionar para página inicial
     return (
       <Navigate 
         to="/" 

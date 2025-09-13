@@ -1,17 +1,17 @@
 import React, { useState } from 'react';
-import { useCustomerForm } from '../../hooks/customers/useCustomerForm';
+import { useProfileForm } from '../../hooks/profiles/useProfileForm';
 import { SyncStatus } from '../realtime/SyncStatus';
-import type { Customer } from '../../types/customer';
+import type { Profile } from '../../types/profile';
 
-interface CustomerFormProps {
-  customerId?: string;
-  onSuccess?: (customer: Customer) => void;
+interface ProfileFormProps {
+  profileId?: string;
+  onSuccess?: (profile: Profile) => void;
   onCancel?: () => void;
   className?: string;
 }
 
-export const CustomerForm: React.FC<CustomerFormProps> = ({
-  customerId,
+export const ProfileForm: React.FC<ProfileFormProps> = ({
+  profileId,
   onSuccess,
   onCancel,
   className = ''
@@ -32,8 +32,8 @@ export const CustomerForm: React.FC<CustomerFormProps> = ({
     lastSaved,
     isOffline,
     queuedOperations
-  } = useCustomerForm({
-    customerId,
+  } = useProfileForm({
+    profileId,
     onSuccess,
     autoSave: true,
     autoSaveDelay: 2000
@@ -422,7 +422,7 @@ export const CustomerForm: React.FC<CustomerFormProps> = ({
                 Salvando...
               </span>
             ) : (
-              customerId ? 'Atualizar' : 'Criar Cliente'
+              profileId ? 'Atualizar' : 'Criar Cliente'
             )}
           </button>
         </div>
@@ -430,3 +430,5 @@ export const CustomerForm: React.FC<CustomerFormProps> = ({
     </div>
   );
 };
+
+// ProfileForm já foi exportado acima

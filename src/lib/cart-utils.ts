@@ -17,16 +17,15 @@ export type CartProduct = {
 export type CartTicket = {
   id: string;
   ticket_id: string;
-  event_id: string;
-  event_name: string;
-  event_title: string;
-  event_date: string;
-  ticket_price: number;
-  price: number; // Alias for ticket_price for consistency with CartProduct
-  name: string; // Alias for event_name for consistency with CartProduct
+  name: string; // Nome gerado baseado no tipo do ingresso
+  price: number; // From tickets.price
   quantity: number;
   unit_price: number;
   total_price: number;
+  ticket_type?: string; // From tickets.ticket_type
+  status?: string; // From tickets.status
+  image?: string; // From events.cover_image
+  event_title?: string; // From events.title
 };
 
 export type CartItem = CartProduct | CartTicket;
@@ -38,5 +37,5 @@ export const isCartProduct = (item: CartItem): item is CartProduct => {
 
 // Helper function to check if item is a ticket
 export const isCartTicket = (item: CartItem): item is CartTicket => {
-  return 'ticket_id' in item && 'event_id' in item;
+  return 'ticket_id' in item && !('product_id' in item);
 };

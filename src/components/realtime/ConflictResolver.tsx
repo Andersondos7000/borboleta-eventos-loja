@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { useConflictMonitor } from '../../contexts/RealtimeContext';
-import type { RealtimeConflict } from '../../contexts/RealtimeContext';
+import React, { useState, useEffect } from 'react';
+import { useConflictMonitor } from '../../hooks/realtime/useConflictMonitor';
+import type { RealtimeConflict } from '../../types/realtime';
 
 interface ConflictResolverProps {
   className?: string;
@@ -13,21 +13,39 @@ export function ConflictResolver({
   autoResolve = false, 
   autoResolveStrategy = 'latest' 
 }: ConflictResolverProps) {
-  const { conflicts, hasUnresolvedConflicts, resolveConflict, autoResolveConflict } = useConflictMonitor();
+  const { 
+    conflicts, 
+    conflictCount, 
+    resolveConflict, 
+    resolutionStrategy,
+    isMonitoring,
+    startMonitoring 
+  } = useConflictMonitor('products'); // Especificar tabela
+  
   const [selectedConflict, setSelectedConflict] = useState<string | null>(null);
   const [showResolved, setShowResolved] = useState(false);
   
-  const unresolvedConflicts = conflicts.filter(c => !c.resolved);
-  const resolvedConflicts = conflicts.filter(c => c.resolved);
+  const unresolvedConflicts = conflicts.filter(c => c.status === 'pending');
+  const resolvedConflicts = conflicts.filter(c => c.status === 'resolved');
+  const hasUnresolvedConflicts = unresolvedConflicts.length > 0;
+  
+  // Iniciar monitoramento se não estiver ativo
+  useEffect(() => {
+    if (!isMonitoring) {
+      startMonitoring();
+    }
+  }, [isMonitoring, startMonitoring]);
   
   // Auto-resolver conflitos se habilitado
-  React.useEffect(() => {
+  useEffect(() => {
     if (autoResolve && unresolvedConflicts.length > 0) {
       unresolvedConflicts.forEach(conflict => {
-        autoResolveConflict(conflict.id, autoResolveStrategy);
+        const strategy = autoResolveStrategy === 'latest' ? 'timestamp_wins' : 
+                        autoResolveStrategy === 'server_wins' ? 'remote_wins' : 'local_wins';
+        resolveConflict(conflict.id, strategy);
       });
     }
-  }, [autoResolve, autoResolveStrategy, unresolvedConflicts.length]);
+  }, [autoResolve, autoResolveStrategy, unresolvedConflicts.length, resolveConflict]);
   
   if (!hasUnresolvedConflicts && !showResolved) {
     return null;
@@ -61,7 +79,9 @@ export function ConflictResolver({
               <button
                 onClick={() => {
                   unresolvedConflicts.forEach(conflict => {
-                    autoResolveConflict(conflict.id, 'latest');
+                    const strategy = autoResolveStrategy === 'latest' ? 'timestamp_wins' : 
+                                    autoResolveStrategy === 'server_wins' ? 'remote_wins' : 'local_wins';
+                    resolveConflict(conflict.id, strategy);
                   });
                 }}
                 className="text-xs bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700"
@@ -85,7 +105,9 @@ export function ConflictResolver({
               selectedConflict === conflict.id ? null : conflict.id
             )}
             onResolve={(resolution) => {
-              resolveConflict(conflict.id, resolution);
+              const strategy = resolution === 'local' ? 'local_wins' : 
+                              resolution === 'server' ? 'remote_wins' : 'merge';
+              resolveConflict(conflict.id, strategy);
               setSelectedConflict(null);
             }}
           />

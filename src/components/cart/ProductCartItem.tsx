@@ -25,8 +25,14 @@ const ProductCartItem: React.FC<ProductCartItemProps> = ({ item }) => {
   const { updateQuantity, updateSize, removeFromCart } = useCart();
   
   const handleQuantityChange = (newQuantity: number) => {
+    console.log('🔍 ProductCartItem handleQuantityChange:', { newQuantity, currentQuantity: item.quantity, itemId: item.id });
+    console.log('📊 Nova quantidade recebida:', newQuantity);
+    
     if (newQuantity >= 1) {
+      console.log('✅ Chamando updateQuantity com:', { itemId: item.id, newQuantity });
       updateQuantity(item.id, newQuantity);
+    } else {
+      console.log('❌ Quantidade inválida, não atualizando');
     }
   };
   

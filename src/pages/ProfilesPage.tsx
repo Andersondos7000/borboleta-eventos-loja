@@ -76,7 +76,7 @@ export const ProfilesPage: React.FC = () => {
                 <nav className="flex" aria-label="Breadcrumb">
                   <ol className="flex items-center space-x-2">
                     {getBreadcrumb().map((item, index) => (
-                      <li key={index} className="flex items-center">
+                      <li key={`breadcrumb-${item.label}`} className="flex items-center">
                         {index > 0 && (
                           <svg className="w-4 h-4 text-gray-400 mx-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -86,7 +86,7 @@ export const ProfilesPage: React.FC = () => {
                           onClick={() => {
                             if (index === 0) {
                               setViewMode('list');
-                              setSelectedCustomer(null);
+                              setSelectedProfile(null);
                             }
                           }}
                           className={`text-sm font-medium ${
@@ -128,19 +128,19 @@ export const ProfilesPage: React.FC = () => {
                 {viewMode === 'list' && (
                   <>
                     <button
-                      onClick={handleCreateCustomer}
+                      onClick={handleCreateProfile}
                       className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
                     >
                       <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                       </svg>
-                      Novo Cliente
+                      Novo Perfil
                     </button>
                     
                     <button
                       onClick={() => {
-                        // Implementar importação de clientes
-                        console.log('Importar clientes');
+                        // Implementar importação de perfis
+                        console.log('Importar perfis');
                       }}
                       className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
                     >
@@ -175,7 +175,7 @@ export const ProfilesPage: React.FC = () => {
                   <>
                     <button
                       onClick={() => {
-                        handleCreateCustomer();
+                        handleCreateProfile();
                         setShowMobileMenu(false);
                       }}
                       className="w-full flex items-center px-3 py-2 text-sm font-medium text-gray-700 rounded-md hover:bg-gray-100"
@@ -183,12 +183,12 @@ export const ProfilesPage: React.FC = () => {
                       <svg className="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                       </svg>
-                      Novo Cliente
+                      Novo Perfil
                     </button>
                     
                     <button
                       onClick={() => {
-                        console.log('Importar clientes');
+                        console.log('Importar perfis');
                         setShowMobileMenu(false);
                       }}
                       className="w-full flex items-center px-3 py-2 text-sm font-medium text-gray-700 rounded-md hover:bg-gray-100"
@@ -222,18 +222,18 @@ export const ProfilesPage: React.FC = () => {
       {/* Conteúdo principal */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {viewMode === 'list' && (
-          <CustomerList
-            onEditCustomer={handleEditCustomer}
-            onDeleteCustomer={handleDeleteCustomer}
+          <ProfileList
+            onEditProfile={handleEditProfile}
+            onDeleteProfile={handleDeleteProfile}
             selectable={false}
           />
         )}
         
         {(viewMode === 'create' || viewMode === 'edit') && (
           <div className="max-w-4xl mx-auto">
-            <CustomerForm
-              customerId={selectedCustomer?.id}
-              onSuccess={handleCustomerSuccess}
+            <ProfileForm
+              profileId={selectedProfile?.id}
+              onSuccess={handleProfileSuccess}
               onCancel={handleCancel}
             />
           </div>
@@ -244,7 +244,7 @@ export const ProfilesPage: React.FC = () => {
       <div className="sr-only">
         <p>Atalhos de teclado:</p>
         <ul>
-          <li>Ctrl + N: Novo cliente</li>
+          <li>Ctrl + N: Novo perfil</li>
           <li>Escape: Voltar/Cancelar</li>
           <li>Ctrl + S: Salvar (quando em formulário)</li>
         </ul>
@@ -255,7 +255,7 @@ export const ProfilesPage: React.FC = () => {
         onKeyDown={(e) => {
           if (e.ctrlKey && e.key === 'n' && viewMode === 'list') {
             e.preventDefault();
-            handleCreateCustomer();
+            handleCreateProfile();
           } else if (e.key === 'Escape' && viewMode !== 'list') {
             e.preventDefault();
             handleCancel();

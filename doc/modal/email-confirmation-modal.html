@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confirmação de Email</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px 30px;
+            max-width: 450px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+            position: relative;
+            animation: modalAppear 0.3s ease-out;
+        }
+
+        @keyframes modalAppear {
+            from {
+                opacity: 0;
+                transform: scale(0.9) translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .butterfly-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        /* Butterfly Image */
+        .butterfly-svg {
+            width: 300px;
+            height: 150px;
+            object-fit: contain;
+            transform: rotate(-35deg);
+        }
+
+        .modal-title {
+            font-size: 28px;
+            font-weight: 600;
+            color: #ff6b35;
+            margin-bottom: 20px;
+        }
+
+        .modal-subtitle {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .email-address {
+            font-size: 18px;
+            color: #ff6b35;
+            font-weight: 500;
+            margin-bottom: 30px;
+        }
+
+        .divider {
+            height: 1px;
+            background: linear-gradient(to right, transparent, #ddd, transparent);
+            margin: 30px 0;
+        }
+
+        .verification-title {
+            font-size: 22px;
+            color: #ff6b35;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .verification-text {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.5;
+            margin-bottom: 30px;
+        }
+
+        .button-container {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid #ff6b35;
+            min-width: 140px;
+        }
+
+        .btn-resend {
+            background: transparent;
+            color: #ff6b35;
+        }
+
+        .btn-resend:hover {
+            background: #ff6b35;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 107, 53, 0.3);
+        }
+
+        .btn-understand {
+            background: #ff6b35;
+            color: white;
+        }
+
+        .btn-understand:hover {
+            background: #e55a2b;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 107, 53, 0.4);
+        }
+
+        @media (max-width: 480px) {
+            .modal-container {
+                padding: 30px 20px;
+                margin: 10px;
+            }
+            
+            .button-container {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="modal-overlay" id="emailModal">
+        <div class="modal-container">
+            <div class="butterfly-icon">
+                <img class="butterfly-svg" src="borboleta modal email.svg" alt="Borboleta">
+            </div>
+            
+            <h1 class="modal-title">Confirme seu e-mail</h1>
+            
+            <p class="modal-subtitle">Enviamos um link de confirmação para:</p>
+            <p class="email-address" id="userEmail">novousuario@teste.com</p>
+            
+            <div class="divider"></div>
+            
+            <h2 class="verification-title">Verifique sua caixa de entrada</h2>
+            
+            <p class="verification-text">
+                Clique no link no e-mail que enviamos para confirmar sua conta. Se não encontrar o email, verifique sua pasta de spam.
+            </p>
+            
+            <div class="button-container">
+                <button class="btn btn-resend" onclick="resendEmail()">Reenviar e-mail</button>
+                <button class="btn btn-understand" onclick="closeModal()">Entendi</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Função para mostrar o modal automaticamente após cadastro
+        function showEmailConfirmationModal(email) {
+            const modal = document.getElementById('emailModal');
+            const emailElement = document.getElementById('userEmail');
+            
+            if (email) {
+                emailElement.textContent = email;
+            }
+            
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden'; // Previne scroll da página
+        }
+
+        // Função para fechar o modal
+        function closeModal() {
+            const modal = document.getElementById('emailModal');
+            modal.style.display = 'none';
+            document.body.style.overflow = 'auto'; // Restaura scroll da página
+        }
+
+        // Função para reenviar email
+        function resendEmail() {
+            // Aqui você implementaria a lógica para reenviar o email
+            alert('Email de confirmação reenviado!');
+            
+            // Exemplo de como integrar com sua API:
+            /*
+            const email = document.getElementById('userEmail').textContent;
+            fetch('/api/resend-confirmation', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ email: email })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Email reenviado com sucesso!');
+                } else {
+                    alert('Erro ao reenviar email. Tente novamente.');
+                }
+            })
+            .catch(error => {
+                console.error('Erro:', error);
+                alert('Erro ao reenviar email. Tente novamente.');
+            });
+            */
+        }
+
+        // Fechar modal clicando fora dele
+        document.getElementById('emailModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+
+        // Fechar modal com tecla ESC
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeModal();
+            }
+        });
+
+        // Exemplo de como usar após cadastro:
+        // showEmailConfirmationModal('usuario@exemplo.com');
+        
+        // Para demonstração, o modal aparece automaticamente
+        // Remova esta linha em produção
+        window.addEventListener('load', function() {
+            showEmailConfirmationModal('novousuario@teste.com');
+        });
+    </script>
+</body>
+</html>

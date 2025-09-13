@@ -5,6 +5,7 @@
 import React, { useState } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { useEmailConfirmation } from "@/hooks/useEmailConfirmation";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,6 +19,7 @@ import { Eye, EyeOff } from "lucide-react";
 import { FcGoogle } from "react-icons/fc";
 import ForgotPasswordModal from "@/components/ForgotPasswordModal";
 import RoleSelectionModal from "@/components/RoleSelectionModal";
+import EmailConfirmationModal from "@/components/EmailConfirmationModal";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
 
@@ -163,7 +165,7 @@ const LoginForm: React.FC<{ onGoogleAuth: () => void }> = ({ onGoogleAuth }) => 
 // ============================================
 // COMPONENTE DE CADASTRO (ISOLADO)
 // ============================================
-const SignupForm: React.FC<{ onGoogleAuth: () => void; onSuccess: () => void }> = ({ onGoogleAuth, onSuccess }) => {
+const SignupForm: React.FC<{ onGoogleAuth: () => void; onSuccess: (email?: string) => void }> = ({ onGoogleAuth, onSuccess }) => {
   // Estados exclusivos do Cadastro
   const [email, setEmail] = useState('');
   const [username, setUsername] = useState('');
@@ -223,8 +225,8 @@ const SignupForm: React.FC<{ onGoogleAuth: () => void; onSuccess: () => void }> 
       setRole('user');
       setValidationErrors({});
       
-      // Chamar callback de sucesso
-      onSuccess();
+      // Chamar callback de sucesso com o email
+      onSuccess(email);
       
     } catch (err: any) {
       setError(err.message || 'Erro ao criar conta');
@@ -409,14 +411,22 @@ const Auth = () => {
   const [activeTab, setActiveTab] = useState<string>("login");
   const [showForgotPasswordModal, setShowForgotPasswordModal] = useState(false);
   const [showRoleSelectionModal, setShowRoleSelectionModal] = useState(false);
+  const [showEmailConfirmationModal, setShowEmailConfirmationModal] = useState(false);
   const [pendingGoogleAuth, setPendingGoogleAuth] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string>("");
+  const [registeredEmail, setRegisteredEmail] = useState<string>("");
+  const { isResending, resendConfirmationEmail } = useEmailConfirmation();
 
   // Handle signup success
-  const handleSignupSuccess = () => {
-    setSuccessMessage("Conta criada com sucesso! Faça login para continuar.");
-    setActiveTab("login");
-    setTimeout(() => setSuccessMessage(""), 5000);
+  const handleSignupSuccess = (email?: string) => {
+    if (email) {
+      setRegisteredEmail(email);
+      setShowEmailConfirmationModal(true);
+    } else {
+      setSuccessMessage("Conta criada com sucesso! Faça login para continuar.");
+      setActiveTab("login");
+      setTimeout(() => setSuccessMessage(""), 5000);
+    }
   };
 
   // Handle Google login
@@ -529,6 +539,25 @@ const Auth = () => {
           setPendingGoogleAuth(false);
         }}
         onRoleSelect={handleRoleSelection}
+      />
+      
+      <EmailConfirmationModal
+        isOpen={showEmailConfirmationModal}
+        onClose={() => {
+          setShowEmailConfirmationModal(false);
+          setActiveTab("login");
+        }}
+        email={registeredEmail}
+        onResendEmail={async () => {
+          try {
+            await resendConfirmationEmail(registeredEmail);
+            setSuccessMessage('Email de confirmação reenviado com sucesso!');
+            setTimeout(() => setSuccessMessage(''), 3000);
+          } catch (error) {
+            console.error('Erro ao reenviar email:', error);
+          }
+        }}
+        isResending={isResending}
       />
     </div>
   );

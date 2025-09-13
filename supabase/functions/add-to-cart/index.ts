@@ -1,5 +1,5 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
-import { createClient } from '@supabase/supabase-js';
+import { createClient } from 'jsr:@supabase/supabase-js@2';
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 const corsHeaders = {
@@ -90,15 +90,16 @@ serve(async (req: Request) => {
       );
     }
 
+    // Calculate total_price
+    const totalPrice = Number(unit_price) * Number(quantity);
+    
     // Prepare insert data based on whether it's a product or ticket
-    // Note: total_price is a generated column and will be calculated automatically
     const insertData: any = {
       user_id: user.id,
       quantity,
       unit_price: unit_price,
-      metadata: {
-        size: size || null
-      }
+      total_price: totalPrice,
+      size: size || null
     };
 
     // Add product_id or ticket_id (only include the one that's not null)

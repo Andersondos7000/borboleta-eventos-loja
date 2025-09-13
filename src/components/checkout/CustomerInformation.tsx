@@ -93,7 +93,7 @@ const CustomerInformation: React.FC<CustomerInformationProps> = ({ form }) => {
                 <FormControl>
                   <RadioGroup
                     onValueChange={field.onChange}
-                    defaultValue={field.value}
+                    value={field.value}
                     className="flex flex-row space-x-4"
                   >
                     <div className="flex items-center space-x-2">
@@ -128,17 +128,17 @@ const CustomerInformation: React.FC<CustomerInformationProps> = ({ form }) => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
           <FormField
-            control={form.control}
-            name="country"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>País*</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecione um país" />
-                    </SelectTrigger>
-                  </FormControl>
+              control={form.control}
+              name="country"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>País*</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione o país" />
+                      </SelectTrigger>
+                    </FormControl>
                   <SelectContent>
                     <SelectItem value="Brasil">Brasil</SelectItem>
                   </SelectContent>
@@ -230,7 +230,7 @@ const CustomerInformation: React.FC<CustomerInformationProps> = ({ form }) => {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Estado*</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <Select onValueChange={field.onChange} value={field.value}>
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="UF" />

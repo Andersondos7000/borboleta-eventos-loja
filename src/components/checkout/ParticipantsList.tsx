@@ -4,22 +4,25 @@ import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/comp
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
-import { Info } from 'lucide-react';
+import { Info, Upload } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { UseFormReturn } from 'react-hook-form';
+import BulkParticipantsModal from './BulkParticipantsModal';
 
 interface ParticipantsListProps {
   form: UseFormReturn<any>;
   participantCount: number;
   onAddParticipant: () => void;
   onRemoveParticipant: (index: number) => void;
+  onImportParticipants?: (participants: any[]) => void;
 }
 
 const ParticipantsList: React.FC<ParticipantsListProps> = ({ 
   form, 
   participantCount, 
   onAddParticipant, 
-  onRemoveParticipant 
+  onRemoveParticipant,
+  onImportParticipants 
 }) => {
   return (
     <Card>
@@ -29,13 +32,27 @@ const ParticipantsList: React.FC<ParticipantsListProps> = ({
             <Info className="h-5 w-5 text-butterfly-orange" />
             Participantes
           </h2>
-          <Button type="button" variant="outline" onClick={onAddParticipant}>
-            Adicionar Participante
-          </Button>
+          <div className="flex gap-2">
+            {onImportParticipants && (
+              <BulkParticipantsModal onImportParticipants={onImportParticipants}>
+                <Button 
+                  type="button"
+                  variant="outline"
+                  className="border-orange-500 text-orange-500 hover:bg-orange-50 text-sm sm:text-base"
+                >
+                  <Upload className="h-4 w-4 mr-2" />
+                  Importar em Massa
+                </Button>
+              </BulkParticipantsModal>
+            )}
+            <Button type="button" variant="outline" onClick={onAddParticipant}>
+              Adicionar Participante
+            </Button>
+          </div>
         </div>
 
         {Array.from({ length: participantCount }).map((_, index) => (
-          <div key={index} className="border p-4 rounded-md mb-4">
+          <div key={`participant-${index}`} className="border p-4 rounded-md mb-4">
             <div className="flex justify-between items-center mb-4">
               <h3 className="font-medium">Participante {index + 1}</h3>
               {index > 0 && (
@@ -85,7 +102,7 @@ const ParticipantsList: React.FC<ParticipantsListProps> = ({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Camiseta (T-shirt)</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Selecione o tamanho" />
@@ -112,7 +129,7 @@ const ParticipantsList: React.FC<ParticipantsListProps> = ({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Vestido</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Selecione o tamanho" />

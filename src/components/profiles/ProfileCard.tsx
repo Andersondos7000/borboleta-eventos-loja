@@ -1,8 +1,8 @@
 import React from 'react';
-import type { Customer } from '../../types/customer';
+import type { Profile } from '../../types/profile';
 
-interface CustomerCardProps {
-  customer: Customer;
+interface ProfileCardProps {
+  profile: Profile;
   selected?: boolean;
   selectable?: boolean;
   onSelect?: () => void;
@@ -11,8 +11,8 @@ interface CustomerCardProps {
   className?: string;
 }
 
-export const CustomerCard: React.FC<CustomerCardProps> = ({
-  customer,
+export const ProfileCard: React.FC<ProfileCardProps> = ({
+  profile,
   selected = false,
   selectable = false,
   onSelect,
@@ -20,7 +20,7 @@ export const CustomerCard: React.FC<CustomerCardProps> = ({
   onDelete,
   className = ''
 }) => {
-  const getStatusColor = (status: Customer['status']) => {
+  const getStatusColor = (status: Profile['status']) => {
     switch (status) {
       case 'active':
         return 'bg-green-100 text-green-800';
@@ -33,7 +33,7 @@ export const CustomerCard: React.FC<CustomerCardProps> = ({
     }
   };
 
-  const getStatusText = (status: Customer['status']) => {
+  const getStatusText = (status: Profile['status']) => {
     switch (status) {
       case 'active':
         return 'Ativo';
@@ -46,7 +46,7 @@ export const CustomerCard: React.FC<CustomerCardProps> = ({
     }
   };
 
-  const getCustomerTypeText = (type: Customer['customer_type']) => {
+  const getProfileTypeText = (type: Profile['customer_type']) => {
     return type === 'individual' ? 'Pessoa Física' : 'Pessoa Jurídica';
   };
 
@@ -68,17 +68,17 @@ export const CustomerCard: React.FC<CustomerCardProps> = ({
   };
 
   const getSyncStatusIcon = () => {
-    if (customer.sync_status === 'synced') {
+    if (profile.sync_status === 'synced') {
       return (
         <div className="w-2 h-2 bg-green-500 rounded-full" title="Sincronizado" />
       );
-    } else if (customer.sync_status === 'pending') {
+    } else if (profile.sync_status === 'pending') {
       return (
         <div className="w-2 h-2 bg-yellow-500 rounded-full animate-pulse" title="Sincronizando" />
       );
-    } else if (customer.sync_status === 'error') {
+    } else if (profile.sync_status === 'conflict') {
       return (
-        <div className="w-2 h-2 bg-red-500 rounded-full" title="Erro na sincronização" />
+        <div className="w-2 h-2 bg-red-500 rounded-full" title="Conflito na sincronização" />
       );
     }
     return null;
@@ -128,15 +128,15 @@ export const CustomerCard: React.FC<CustomerCardProps> = ({
         <div className="flex items-start justify-between mb-3">
           <div className="flex-1 min-w-0">
             <h3 className="text-lg font-semibold text-gray-900 truncate">
-              {customer.name}
+              {profile.name}
             </h3>
             <p className="text-sm text-gray-600 truncate">
-              {customer.email}
+              {profile.email}
             </p>
           </div>
           
-          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(customer.status)}`}>
-            {getStatusText(customer.status)}
+          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(profile.status)}`}>
+            {getStatusText(profile.status)}
           </span>
         </div>
 
@@ -146,38 +146,38 @@ export const CustomerCard: React.FC<CustomerCardProps> = ({
             <svg className="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
             </svg>
-            <span>{getCustomerTypeText(customer.customer_type)}</span>
+            <span>{getProfileTypeText(profile.customer_type)}</span>
           </div>
 
-          {customer.phone && (
+          {profile.phone && (
             <div className="flex items-center text-sm text-gray-600">
               <svg className="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
               </svg>
-              <span>{formatPhone(customer.phone)}</span>
+              <span>{formatPhone(profile.phone)}</span>
             </div>
           )}
 
-          {customer.document_number && customer.document_type && (
+          {profile.document_number && profile.document_type && (
             <div className="flex items-center text-sm text-gray-600">
               <svg className="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
               <span>
-                {customer.document_type.toUpperCase()}: {formatDocument(customer.document_number, customer.document_type)}
+                {profile.document_type.toUpperCase()}: {formatDocument(profile.document_number, profile.document_type)}
               </span>
             </div>
           )}
 
           {/* Endereço resumido */}
-          {(customer.address_city || customer.address_state) && (
+          {(profile.address_city || profile.address_state) && (
             <div className="flex items-center text-sm text-gray-600">
               <svg className="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
               </svg>
               <span className="truncate">
-                {[customer.address_city, customer.address_state].filter(Boolean).join(', ')}
+                {[profile.address_city, profile.address_state].filter(Boolean).join(', ')}
               </span>
             </div>
           )}
@@ -186,20 +186,20 @@ export const CustomerCard: React.FC<CustomerCardProps> = ({
         {/* Metadados */}
         <div className="flex items-center justify-between text-xs text-gray-500 mb-4">
           <span>
-            Criado em {new Date(customer.created_at).toLocaleDateString('pt-BR')}
+            Criado em {new Date(profile.created_at).toLocaleDateString('pt-BR')}
           </span>
-          {customer.updated_at !== customer.created_at && (
+          {profile.updated_at !== profile.created_at && (
             <span>
-              Atualizado em {new Date(customer.updated_at).toLocaleDateString('pt-BR')}
+              Atualizado em {new Date(profile.updated_at).toLocaleDateString('pt-BR')}
             </span>
           )}
         </div>
 
         {/* Observações (se houver) */}
-        {customer.notes && (
+        {profile.notes && (
           <div className="mb-4">
             <p className="text-sm text-gray-600 bg-gray-50 p-2 rounded border-l-4 border-blue-200">
-              <span className="font-medium">Obs:</span> {customer.notes.length > 100 ? `${customer.notes.substring(0, 100)}...` : customer.notes}
+              <span className="font-medium">Obs:</span> {profile.notes.length > 100 ? `${profile.notes.substring(0, 100)}...` : profile.notes}
             </p>
           </div>
         )}
@@ -241,10 +241,10 @@ export const CustomerCard: React.FC<CustomerCardProps> = ({
       </div>
 
       {/* Indicador de versão/conflito */}
-      {customer.version > 1 && (
+      {profile.version && profile.version > 1 && (
         <div className="absolute bottom-2 left-2">
           <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-600">
-            v{customer.version}
+            v{profile.version}
           </span>
         </div>
       )}

@@ -3,9 +3,8 @@ import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { ShoppingCart, ChevronLeft, ChevronRight } from 'lucide-react';
 import ProductModal from './ProductModal';
-import OptimizedImage from './OptimizedImage';
 import { useCart } from '@/hooks/useCart';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/lib/supabase';
 
 export interface ProductProps {
@@ -39,7 +38,7 @@ const ProductCardContent: React.FC<{ product: ProductProps }> = ({ product }) =>
           .from('product_images')
           .select('image_url')
           .eq('product_id', product.id)
-          .order('id', { ascending: true })
+          .order('display_order', { ascending: true })
         
         if (error) {
           console.error('Erro ao carregar imagens do produto:', error)

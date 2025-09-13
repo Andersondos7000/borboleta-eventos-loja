@@ -117,7 +117,7 @@ export function useRealtimeOrders(filters?: OrderFilters): UseRealtimeOrdersRetu
     filter,
     select: `
       *,
-      profiles:user_id (
+      profiles:id (
         id,
         full_name,
         email

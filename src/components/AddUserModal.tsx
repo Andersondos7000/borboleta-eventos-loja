@@ -100,7 +100,7 @@ const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, onClose, onUserAdde
       const { error: profileError } = await supabase
         .from('profiles')
         .upsert({
-          id: authData.user.id,
+          user_id: authData.user.id,
           first_name: formData.firstName,
           last_name: formData.lastName,
           email: formData.email,

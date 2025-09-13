@@ -17,6 +17,10 @@ interface UseOfflineQueueReturn {
   getQueuedActionsByTable: (table: string) => QueuedAction[];
   getQueuedActionsByStatus: (status: QueuedAction['status']) => QueuedAction[];
   getQueuedActionsByPriority: (priority: OfflineAction['priority']) => QueuedAction[];
+  // Propriedades adicionais para compatibilidade
+  enqueueOperation: (operation: OfflineAction) => Promise<void>;
+  queuedOperations: QueuedAction[];
+  isOffline: boolean;
 }
 
 const DEFAULT_CONFIG: Required<OfflineQueueConfig> = {
@@ -166,9 +170,8 @@ export function useOfflineQueue(config: OfflineQueueConfig = {}): UseOfflineQueu
       
       // Mostrar notificação de erro específica
       if (error.code === '23505') {
-        showNotification({
+        showNotification(`Erro de validação: ${error.message}`, {
           type: 'error',
-          message: `Erro de validação: ${error.message}`,
           duration: 5000
         });
       }
@@ -235,9 +238,8 @@ export function useOfflineQueue(config: OfflineQueueConfig = {}): UseOfflineQueu
           // Remover se excedeu tentativas máximas
           if (updatedAction.retryCount >= updatedAction.maxRetries) {
             updatedActions.splice(actionIndex, 1);
-            showNotification({
+            showNotification('Ação falhou após 3 tentativas e foi removida da fila', {
               type: 'error',
-              message: 'Ação falhou após 3 tentativas e foi removida da fila',
               duration: 5000
             });
           } else {
@@ -362,6 +364,10 @@ export function useOfflineQueue(config: OfflineQueueConfig = {}): UseOfflineQueu
     getQueuedActionsByType,
     getQueuedActionsByTable,
     getQueuedActionsByStatus,
-    getQueuedActionsByPriority
+    getQueuedActionsByPriority,
+    // Propriedades adicionais para compatibilidade
+    enqueueOperation: addToQueue,
+    queuedOperations: queuedActions,
+    isOffline: !isOnline
   };
 }

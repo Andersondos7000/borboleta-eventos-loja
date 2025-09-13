@@ -4,15 +4,15 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form } from "@/components/ui/form";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import CustomerInformation from "@/components/checkout/CustomerInformation";
 import AdditionalNotes from "@/components/checkout/AdditionalNotes";
 import ParticipantsList from "@/components/checkout/ParticipantsList";
-import PaymentSection from "@/components/checkout/PaymentSection";
 import OrderSummary from "@/components/checkout/OrderSummary";
 import TermsSection from "@/components/checkout/TermsSection";
+import MercadoPagoCheckout from "@/components/MercadoPagoCheckout";
 import { useCart } from "@/hooks/useCart";
 import { isCartProduct } from "@/lib/cart-utils";
 import { supabase } from "@/lib/supabase";
@@ -20,6 +20,7 @@ import { supabase } from "@/lib/supabase";
 const formSchema = z.object({
   firstName: z.string().min(2, { message: "Nome deve ter pelo menos 2 caracteres" }),
   lastName: z.string().min(2, { message: "Sobrenome deve ter pelo menos 2 caracteres" }),
+  email: z.string().email({ message: "Email inválido" }),
   personType: z.enum(["fisica", "juridica"]),
   cpf: z.string().min(11, { message: "CPF deve ter pelo menos 11 caracteres" }),
   country: z.string().min(2, { message: "País é obrigatório" }),
@@ -49,7 +50,8 @@ const Checkout = () => {
   const navigate = useNavigate();
   const { items, subtotal, total, clearCart } = useCart();
   const [participantCount, setParticipantCount] = useState(1);
-  const [paymentData, setPaymentData] = useState(null);
+  const [orderCreated, setOrderCreated] = useState(false);
+  const [orderData, setOrderData] = useState<FormValues | null>(null);
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
   
   useEffect(() => {
@@ -87,6 +89,7 @@ const Checkout = () => {
     defaultValues: {
       firstName: "",
       lastName: "",
+      email: "",
       personType: "fisica",
       cpf: "",
       country: "Brasil",
@@ -127,46 +130,60 @@ const Checkout = () => {
 
       // Calcular total dos itens de teste
       const testTotal = testItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+      const orderTotal = items.length === 0 ? testTotal : total;
 
-      // Call Abacate Pay edge function
-      const invokeHeaders = session.session ? {
-        Authorization: `Bearer ${session.session.access_token}`
-      } : {};
+      // Criar pedido no Supabase
+      const orderPayload = {
+        customer_name: `${data.firstName} ${data.lastName}`,
+        customer_email: data.phone + '@teste.com', // Temporário para teste
+        customer_phone: data.phone,
+        customer_document: data.cpf,
+        total_amount: orderTotal,
+        status: 'pending',
+        payment_method: 'pix',
+        shipping_address: {
+          street: data.address,
+          number: data.number,
+          neighborhood: data.neighborhood,
+          city: data.city,
+          state: data.state,
+          zip_code: data.zipCode,
+          country: data.country
+        },
+        items: testItems.map(item => ({
+          product_id: isCartProduct(item) ? item.productId : null,
+          ticket_id: !isCartProduct(item) ? item.ticketId : null,
+          name: item.name,
+          price: item.price,
+          quantity: item.quantity,
+          size: isCartProduct(item) ? item.size : null
+        })),
+        participants: data.participants,
+        additional_notes: data.additionalNotes
+      };
+
+      const { data: orderResponse, error: orderError } = await supabase
+        .from('orders')
+        .insert([orderPayload])
+        .select()
+        .single();
+
+      if (orderError) {
+        throw orderError;
+      }
+
+      // Salvar dados do pedido para usar no checkout
+      setOrderData(data);
+      setOrderCreated(true);
       
-      const { data: paymentResponse, error } = await supabase.functions.invoke('abacatepay-manager', {
-        headers: invokeHeaders,
-        body: {
-          orderData: data,
-          total: items.length === 0 ? testTotal : total,
-          items: testItems.map(item => ({
-            productId: isCartProduct(item) ? item.productId : null,
-            ticketId: !isCartProduct(item) ? item.ticketId : null,
-            price: item.price,
-            quantity: item.quantity,
-            size: isCartProduct(item) ? item.size : null,
-            name: item.name
-          })),
-          isTestUser: isTestUser
-        }
+      // Clear cart after successful order creation
+      await clearCart();
+      
+      toast({
+        title: "Pedido criado com sucesso!",
+        description: "Agora você pode prosseguir com o pagamento PIX.",
       });
-
-      if (error) {
-        throw error;
-      }
-
-      if (paymentResponse.success) {
-        setPaymentData(paymentResponse.paymentData);
-        
-        // Clear cart after successful order creation
-        await clearCart();
-        
-        toast({
-          title: "Pedido criado com sucesso!",
-          description: "Escaneie o QR Code ou copie o código PIX para pagar.",
-        });
-      } else {
-        throw new Error(paymentResponse.error || 'Erro ao processar pagamento');
-      }
+      
     } catch (error) {
       console.error('Error creating order:', error);
       toast({
@@ -191,6 +208,17 @@ const Checkout = () => {
     const currentParticipants = form.getValues().participants || [];
     currentParticipants.splice(index, 1);
     form.setValue('participants', [...currentParticipants]);
+  };
+
+  const handleImportParticipants = (participants: Array<{name: string, cpf: string, tshirt: string, dress: string}>) => {
+    const currentParticipants = form.getValues().participants || [];
+    const newParticipants = [...currentParticipants, ...participants];
+    form.setValue('participants', newParticipants);
+    setParticipantCount(newParticipants.length);
+    toast({
+      title: "Participantes importados",
+      description: `${participants.length} participante(s) foram adicionados com sucesso.`,
+    });
   };
 
   return (
@@ -218,13 +246,46 @@ const Checkout = () => {
                     form={form}
                     participantCount={participantCount}
                     onAddParticipant={addParticipant}
+                    onImportParticipants={handleImportParticipants}
                     onRemoveParticipant={removeParticipant}
                   />
-                  <PaymentSection 
-                    paymentData={paymentData}
-                    isLoading={isProcessingPayment}
-                    isProcessing={isProcessingPayment}
-                  />
+                  {orderCreated && orderData ? (
+                    <MercadoPagoCheckout
+                      orderData={{
+                        customer: {
+                          name: `${orderData.firstName} ${orderData.lastName}`,
+                          email: orderData.phone + '@teste.com',
+                          phone: orderData.phone,
+                          document: orderData.cpf
+                        },
+                        amount: items.length === 0 ? testItems.reduce((sum, item) => sum + (item.price * item.quantity), 0) : total,
+                        description: `Pedido - ${testItems.map(item => item.name).join(', ')}`,
+                        items: testItems.map(item => ({
+                          title: item.name,
+                          quantity: item.quantity,
+                          unit_price: item.price
+                        }))
+                      }}
+                      onPaymentSuccess={(paymentData) => {
+                        toast({
+                          title: "Pagamento aprovado!",
+                          description: "Seu pedido foi confirmado com sucesso.",
+                        });
+                        // Redirecionar para página de sucesso ou dashboard
+                      }}
+                      onPaymentError={(error) => {
+                        toast({
+                          title: "Erro no pagamento",
+                          description: error.message || "Tente novamente.",
+                          variant: "destructive"
+                        });
+                      }}
+                    />
+                  ) : (
+                    <div className="bg-gray-50 p-6 rounded-lg text-center">
+                      <p className="text-gray-600">Complete os dados acima para prosseguir com o pagamento</p>
+                    </div>
+                  )}
                   <TermsSection 
                     form={form} 
                     total={total} 

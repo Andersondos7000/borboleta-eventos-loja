@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Shirt, Search, PlusCircle, ImagePlus, Trash2 } from 'lucide-react';
 import AdminSidebar from '@/components/AdminSidebar';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/lib/supabase';
 
 interface ProductImage {
@@ -38,6 +38,7 @@ const AdminProdutos = () => {
   const [selectedImages, setSelectedImages] = useState<File[]>([]);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [currentImageIndex, setCurrentImageIndex] = useState<number>(0);
+  const [mainImageIndex, setMainImageIndex] = useState<number>(0);
   const [editSelectedImages, setEditSelectedImages] = useState<File[]>([]);
   const [editImagePreviews, setEditImagePreviews] = useState<string[]>([]);
   const [currentProductImages, setCurrentProductImages] = useState<ProductImage[]>([]);
@@ -63,11 +64,12 @@ const AdminProdutos = () => {
     description: '',
     category: '',
     price: 0,
-    total_stock: 0,
+    in_stock: true,
     image_url: '',
     sizes: [] as ('PP' | 'P' | 'M' | 'G' | 'GG' | 'XG' | 'XXG')[]
   });
   const [isSaving, setIsSaving] = useState(false);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   // Função para buscar produtos (reutilizável)
   const fetchProducts = async () => {
@@ -513,7 +515,7 @@ const AdminProdutos = () => {
       setProducts(prevProducts => 
         prevProducts.map(product => 
           product.id === productId 
-            ? { ...product, stock: newStock, status: newStock > 0 ? 'Ativo' : 'Esgotado' }
+            ? { ...product, in_stock: newStock > 0, status: newStock > 0 ? 'Ativo' : 'Esgotado' }
             : product
         )
       );
@@ -666,7 +668,7 @@ const AdminProdutos = () => {
   // Função para abrir diálogo de estoque
   const handleStockClick = (product: Product) => {
     setEditingStockProduct(product);
-    setNewStockValue(product.stock);
+    setNewStockValue(product.total_stock);
   };
 
   // Função para cadastrar produto no Supabase
@@ -712,26 +714,11 @@ const AdminProdutos = () => {
         setIsSaving(false);
         return;
       }
-      let imageUrl = null;
-      let uploadedImageUrls: string[] = [];
-      
-      // Upload das imagens para o Supabase Storage se imagens foram selecionadas
-      if (selectedImages.length > 0) {
-        console.log('[DEBUG] Fazendo upload de', selectedImages.length, 'imagens');
-        
-        // Upload de todas as imagens
-        uploadedImageUrls = await uploadMultipleImages(selectedImages);
-        
-        if (uploadedImageUrls.length > 0) {
-          imageUrl = uploadedImageUrls[0]; // Primeira imagem como principal
-          console.log('[DEBUG] URLs das imagens:', uploadedImageUrls);
-        }
-      }
-
       // Garantir que a categoria esteja em minúsculas conforme constraint do banco
       const categoryValue = newProduct.category.toLowerCase();
       const productName = newProduct.name.trim(); // Remover espaços extras
 
+      // Primeiro, criar o produto sem imagem
       const { data, error } = await supabase
         .from('products')
         .insert({
@@ -739,10 +726,9 @@ const AdminProdutos = () => {
           description: newProduct.description,
           category: categoryValue,
           price: newProduct.price,
-          image_url: imageUrl,
-          in_stock: newProduct.stock > 0,
-          sizes: newProduct.sizes || [],
-          stock: newProduct.stock
+          image_url: null, // Será atualizado após upload das imagens
+          in_stock: newProduct.in_stock,
+          sizes: newProduct.sizes || []
         })
         .select()
         .single();
@@ -759,8 +745,32 @@ const AdminProdutos = () => {
 
       console.log('[DEBUG] Produto criado:', data);
 
-      // Salvar todas as imagens na tabela product_images
-      if (uploadedImageUrls.length > 0) {
+      // Agora fazer upload das imagens com o productId
+      let imageUrl = null;
+      let uploadedImageUrls: string[] = [];
+
+      if (selectedImages.length > 0) {
+        console.log('[DEBUG] Fazendo upload de', selectedImages.length, 'imagens');
+        
+        // Upload de todas as imagens usando o ID do produto criado
+        uploadedImageUrls = await uploadMultipleImages(selectedImages, data.id);
+        
+        if (uploadedImageUrls.length > 0) {
+          imageUrl = uploadedImageUrls[0]; // Primeira imagem como principal
+          console.log('[DEBUG] URLs das imagens:', uploadedImageUrls);
+          
+          // Atualizar o produto com a URL da imagem principal
+          const { error: updateError } = await supabase
+            .from('products')
+            .update({ image_url: imageUrl })
+            .eq('id', data.id);
+            
+          if (updateError) {
+            console.error('[DEBUG] Erro ao atualizar imagem do produto:', updateError);
+          }
+        }
+        
+        // Salvar todas as imagens na tabela product_images
         await saveProductImages(data.id, uploadedImageUrls);
       }
 
@@ -773,7 +783,7 @@ const AdminProdutos = () => {
       });
       
       // Limpar estados
-      setNewProduct({ name: '', description: '', category: '', price: 0, stock: 0, image_url: '', sizes: [] });
+      setNewProduct({ name: '', description: '', category: '', price: 0, in_stock: true, image_url: '', sizes: [] });
       setSelectedImages([]);
       setImagePreviews([]);
       setCurrentImageIndex(0);
@@ -816,7 +826,7 @@ const AdminProdutos = () => {
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold">Produtos</h1>
           
-          <Dialog>
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
               <Button className="bg-butterfly-orange hover:bg-butterfly-orange/90">
                 <PlusCircle className="mr-2 h-4 w-4" /> Adicionar Produto
@@ -880,16 +890,18 @@ const AdminProdutos = () => {
                   />
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-4 items-start sm:items-center gap-2 sm:gap-4">
-                  <label htmlFor="stock" className="text-left sm:text-right text-sm font-medium">
-                    Estoque
+                  <label htmlFor="in_stock" className="text-left sm:text-right text-sm font-medium">
+                    Status Estoque
                   </label>
-                  <Input 
-                    id="stock" 
-                    className="sm:col-span-3" 
-                    type="number"
-                    value={newProduct.stock}
-                    onChange={(e) => setNewProduct({...newProduct, stock: Number(e.target.value) || 0})}
-                  />
+                  <Select value={newProduct.in_stock ? 'true' : 'false'} onValueChange={(value) => setNewProduct({...newProduct, in_stock: value === 'true'})}>
+                    <SelectTrigger className="sm:col-span-3">
+                      <SelectValue placeholder="Status do estoque" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="true">Em Estoque</SelectItem>
+                      <SelectItem value="false">Esgotado</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
 
 
@@ -1110,8 +1122,8 @@ const AdminProdutos = () => {
                         <span className="font-medium">R$ {product.price.toFixed(2)}</span>
                       </td>
                       <td className="py-3 px-4 text-center">
-                        <span className={product.stock <= 5 ? "text-red-500 font-medium" : ""}>
-                          {product.stock}
+                        <span className={!product.in_stock ? "text-red-500 font-medium" : "text-green-600 font-medium"}>
+                          {product.in_stock ? 'Em Estoque' : 'Esgotado'}
                         </span>
                       </td>
                       <td className="py-3 px-4 text-center">
@@ -1303,14 +1315,12 @@ const AdminProdutos = () => {
                           
                           <Dialog>
                             <DialogTrigger asChild>
-                              <Button 
-                                variant="outline" 
-                                size="sm" 
-                                className="h-8"
+                              <button 
+                                className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-8 px-3"
                                 onClick={() => handleStockClick(product)}
                               >
                                 Estoque
-                              </Button>
+                              </button>
                             </DialogTrigger>
                             <DialogContent className="sm:max-w-[425px]">
                               <DialogHeader>
@@ -1322,12 +1332,12 @@ const AdminProdutos = () => {
                               <div className="py-4">
                                 <div className="flex items-center justify-between">
                                   <label className="text-sm font-medium">
-                                    Estoque Atual:
+                                    Status Atual:
                                   </label>
                                   <span 
-                                    className={`font-medium ${product.stock <= 5 ? "text-red-500" : ""}`}
+                                    className={`font-medium ${!product.in_stock ? "text-red-500" : "text-green-600"}`}
                                   >
-                                    {product.stock} unidades
+                                    {product.in_stock ? 'Em Estoque' : 'Esgotado'}
                                   </span>
                                 </div>
                                 <div className="mt-4">

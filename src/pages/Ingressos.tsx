@@ -10,7 +10,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useCart } from '@/hooks/useCart';
 import { CartTicket } from '@/lib/cart-utils';
 import { supabase } from '@/lib/supabase';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 
 interface Event {
   id: string;
@@ -175,15 +175,13 @@ const Ingressos = () => {
         const { data: ticket, error: ticketError } = await supabase
             .from('tickets')
             .insert({
-              event_id: 'b36e9c7c-e3a2-4768-a720-730eb733974d', // ID do evento real
-              customer_id: customerData?.id || null,
               user_id: user.id,
-              ticket_number: ticketNumber,
-              original_price: price,
-              final_price: price,
-              buyer_name: `${user.user_metadata?.first_name || ''} ${user.user_metadata?.last_name || ''}`.trim() || user.email || 'Comprador',
-              buyer_email: user.email || '',
-              status: 'available'
+              ticket_type: `Ingresso - ${ticketNumber}`,
+              unit_price: price,
+              total_price: price,
+              quantity: 1,
+              status: 'active',
+              buyer_email: user.email
             })
             .select()
             .single();
@@ -200,13 +198,13 @@ const Ingressos = () => {
         // For guest users, we'll create a temporary ticket ID for cart purposes
         ticketData = {
           id: `temp-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-          event_id: 'b36e9c7c-e3a2-4768-a720-730eb733974d',
-          ticket_number: `TEMP-${Date.now()}`,
-          original_price: price,
-          final_price: price,
-          buyer_name: 'Convidado',
-          buyer_email: '',
-          status: 'pending'
+          ticket_type: `Ingresso Temporário`,
+          unit_price: price,
+          total_price: price,
+          quantity: 1,
+          user_id: null,
+          status: 'active',
+          created_at: new Date().toISOString()
         };
       }
 
@@ -214,16 +212,13 @@ const Ingressos = () => {
       const cartTicket: CartTicket = {
         id: Date.now().toString() + Math.random().toString(36).substr(2, 9), // Generate unique ID
         ticket_id: ticketData.id,
-        event_id: selectedEvent.id,
-        event_name: selectedEvent.title,
-        event_title: selectedEvent.title,
-        event_date: selectedEvent.start_date,
-        ticket_price: price,
-        price: price, // Alias for ticket_price for consistency
-        name: selectedEvent.title, // Alias for event_title for consistency
+        name: ticketData.ticket_type || selectedEvent.title,
+        price: price,
         quantity: quantity,
         unit_price: price,
-        total_price: price * quantity
+        total_price: price * quantity,
+        ticket_type: 'individual',
+        status: 'active'
       };
 
       console.log('Adding to cart:', cartTicket);
@@ -266,7 +261,7 @@ const Ingressos = () => {
           <div className="grid md:grid-cols-2 gap-8">
             <div>
               <img 
-                src="/placeholder.svg" 
+                src="/ingressos.webp" 
                 alt="Layout do Ingresso"
                 className="w-full rounded-lg shadow-lg mb-6"
               />
