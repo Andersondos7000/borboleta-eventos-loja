@@ -22,7 +22,7 @@ export interface FormValidationIssue {
   description: string;
   severity: 'low' | 'medium' | 'high';
   suggestedFix: string;
-  metadata: Record<string, any>;
+  metadata: Record<string, unknown>;
 }
 
 export interface FormDiagnosticsConfig {
@@ -42,7 +42,7 @@ const DEFAULT_CONFIG: FormDiagnosticsConfig = {
 };
 
 export interface UseFormDiagnosticsOptions {
-  form: UseFormReturn<any>;
+  form: UseFormReturn<Record<string, unknown>>;
   config?: Partial<FormDiagnosticsConfig>;
   onIssueDetected?: (issue: FormValidationIssue) => void;
   onFieldMismatch?: (diagnostic: FormDiagnosticData) => void;

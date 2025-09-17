@@ -19,13 +19,16 @@ CREATE TABLE IF NOT EXISTS public.profiles (
   neighborhood text,
   city text,
   state text,
+  email text,
+  is_verified boolean DEFAULT false,
+  certification_level text CHECK (certification_level IN ('basico', 'intermediario', 'avancado', 'expert')),
   CONSTRAINT username_length CHECK ((char_length(username) >= 3))
 );
 
 -- Habilitar RLS
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 
--- Criar políticas RLS
+-- Criar políticas RLS básicas (sem recursão)
 DROP POLICY IF EXISTS "Users can view own profile" ON public.profiles;
 CREATE POLICY "Users can view own profile" ON public.profiles
   FOR SELECT USING (auth.uid() = id);
@@ -34,43 +37,24 @@ DROP POLICY IF EXISTS "Users can update own profile" ON public.profiles;
 CREATE POLICY "Users can update own profile" ON public.profiles
   FOR UPDATE USING (auth.uid() = id);
 
-DROP POLICY IF EXISTS "Admins can view all profiles" ON public.profiles;
-CREATE POLICY "Admins can view all profiles" ON public.profiles
-  FOR SELECT USING (
-    EXISTS (
-      SELECT 1 FROM public.profiles
-      WHERE id = auth.uid() AND role IN ('admin', 'organizer')
-    )
-  );
-
-DROP POLICY IF EXISTS "Admins can update all profiles" ON public.profiles;
-CREATE POLICY "Admins can update all profiles" ON public.profiles
-  FOR UPDATE USING (
-    EXISTS (
-      SELECT 1 FROM public.profiles
-      WHERE id = auth.uid() AND role IN ('admin', 'organizer')
-    )
-  );
-
 DROP POLICY IF EXISTS "Allow profile creation" ON public.profiles;
 CREATE POLICY "Allow profile creation" ON public.profiles
   FOR INSERT WITH CHECK (auth.uid() = id);
 
--- Criar função para lidar com novos usuários
+-- Nota: Políticas de admin serão criadas em migração posterior para evitar recursão
+
+-- Função para lidar com novos usuários
 CREATE OR REPLACE FUNCTION public.handle_new_user()
-RETURNS trigger AS $$
+RETURNS TRIGGER AS $$
 BEGIN
-  INSERT INTO public.profiles (id, full_name, avatar_url)
-  VALUES (new.id, new.raw_user_meta_data->>'full_name', new.raw_user_meta_data->>'avatar_url');
+  INSERT INTO public.profiles (id, full_name, avatar_url, email)
+  VALUES (new.id, new.raw_user_meta_data->>'full_name', new.raw_user_meta_data->>'avatar_url', new.email);
   RETURN new;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- Criar trigger para novos usuários
+-- Trigger para criar perfil automaticamente
 DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
 CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
   FOR EACH ROW EXECUTE PROCEDURE public.handle_new_user();
-
--- Comentário explicativo
-COMMENT ON TABLE public.profiles IS 'Tabela de perfis de usuários com RLS habilitado. Estrutura completa com todos os campos necessários.';

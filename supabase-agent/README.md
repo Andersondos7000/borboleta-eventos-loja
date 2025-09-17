@@ -107,6 +107,43 @@ Adicione os seguintes secrets ao seu repositório:
 | Gerar tipos | `supabase gen types typescript --linked` |
 | Verificar diff | `supabase db diff --linked` |
 | Listar migrações | `supabase migration list --linked` |
+| Executar SQL | `supabase db reset --linked` |
+| Monitorar locks | `supabase inspect db locks --linked` |
+| Verificar bloat | `supabase inspect db bloat --linked` |
+
+## 🔌 Integração com MCP Supabase
+
+Este agente é otimizado para trabalhar com o servidor MCP Supabase, permitindo:
+
+- Execução de migrações via `apply_migration`
+- Consultas SQL diretas via `execute_sql`
+- Listagem de tabelas e extensões
+- Gerenciamento de projetos e organizações
+
+### Exemplo de uso com MCP:
+
+```javascript
+// Aplicar migração via MCP
+await mcp.run({
+  server_name: "mcp.config.usrlocalmcp.supabase",
+  tool_name: "apply_migration",
+  args: {
+    project_id: "seu-project-id",
+    name: "add_user_profiles",
+    query: "CREATE TABLE profiles (id UUID PRIMARY KEY, user_id UUID REFERENCES auth.users(id));"
+  }
+});
+
+// Executar SQL via MCP
+await mcp.run({
+  server_name: "mcp.config.usrlocalmcp.supabase",
+  tool_name: "execute_sql",
+  args: {
+    project_id: "seu-project-id",
+    query: "SELECT * FROM profiles LIMIT 10;"
+  }
+});
+```
 
 ## ⚙️ Otimizações Recomendadas
 

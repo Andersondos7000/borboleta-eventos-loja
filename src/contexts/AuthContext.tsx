@@ -83,13 +83,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         } else {
           await clearAuthSession();
         }
-      } catch (error: any) {
+      } catch (error: unknown) {
         console.error('Failed to initialize auth:', error);
         
         // Handle any authentication-related errors
-        if (error.message?.includes('refresh_token') || 
-            error.message?.includes('Invalid Refresh Token') ||
-            error.name === 'AuthApiError') {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        const errorName = error instanceof Error ? error.name : '';
+        if (errorMessage?.includes('refresh_token') || 
+            errorMessage?.includes('Invalid Refresh Token') ||
+            errorName === 'AuthApiError') {
           await clearAuthSession();
         }
       } finally {
@@ -164,10 +166,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         title: "Login realizado com sucesso",
         description: "Bem-vindo de volta!"
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const errorDescription = (error as any)?.error_description || errorMessage || "Verifique suas credenciais e tente novamente";
       toast({
         title: "Erro ao fazer login",
-        description: error.error_description || error.message || "Verifique suas credenciais e tente novamente",
+        description: errorDescription,
         variant: "destructive"
       });
       throw error;
@@ -193,10 +197,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         title: "Cadastro realizado com sucesso",
         description: "Verifique seu email para confirmar seu cadastro."
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const errorDescription = (error as any)?.error_description || errorMessage || "Tente novamente mais tarde";
       toast({
         title: "Erro ao criar conta",
-        description: error.error_description || error.message || "Tente novamente mais tarde",
+        description: errorDescription,
         variant: "destructive"
       });
       throw error;
@@ -214,10 +220,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       });
       
       if (error) throw error;
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const errorDescription = (error as any)?.error_description || errorMessage || "Tente novamente mais tarde";
       toast({
         title: "Erro ao fazer login com Google",
-        description: error.error_description || error.message || "Tente novamente mais tarde",
+        description: errorDescription,
         variant: "destructive"
       });
       throw error;
@@ -240,10 +248,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         title: "Perfil atualizado",
         description: "Seu tipo de usuário foi definido com sucesso."
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       toast({
         title: "Erro ao atualizar perfil",
-        description: error.message || "Tente novamente mais tarde",
+        description: errorMessage || "Tente novamente mais tarde",
         variant: "destructive"
       });
       throw error;
@@ -262,7 +271,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         title: "Logout realizado",
         description: "Você foi desconectado com sucesso."
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error during signOut:', error);
       
       // Even if signOut fails, clear local session
@@ -287,10 +296,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         title: "Email de recuperação enviado",
         description: "Verifique sua caixa de entrada para redefinir sua senha."
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const errorDescription = (error as any)?.error_description || errorMessage || "Tente novamente mais tarde";
       toast({
         title: "Erro ao enviar email de recuperação",
-        description: error.error_description || error.message || "Tente novamente mais tarde",
+        description: errorDescription,
         variant: "destructive"
       });
       throw error;
@@ -309,19 +320,65 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         title: "Senha atualizada com sucesso",
         description: "Sua senha foi alterada com sucesso."
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const errorDescription = (error as any)?.error_description || errorMessage || "Tente novamente mais tarde";
       toast({
         title: "Erro ao atualizar senha",
-        description: error.error_description || error.message || "Tente novamente mais tarde",
+        description: errorDescription,
         variant: "destructive"
       });
       throw error;
     }
   };
 
+  // Função para criar perfil automaticamente se não existir
+  const ensureUserProfile = async (userId: string): Promise<void> => {
+    try {
+      const { data: existingProfile } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('id', userId)
+        .single();
+      
+      if (!existingProfile) {
+        console.log('Criando perfil para usuário:', userId);
+        const { error: insertError } = await supabase
+          .from('profiles')
+          .insert({
+            id: userId,
+            full_name: user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Usuário',
+            avatar_url: user?.user_metadata?.avatar_url || null,
+            role: 'user'
+          });
+        
+        if (insertError) {
+          console.error('Erro ao criar perfil:', insertError);
+        } else {
+          console.log('Perfil criado com sucesso para:', userId);
+        }
+      }
+    } catch (error) {
+      console.error('Erro ao verificar/criar perfil:', error);
+    }
+  };
+
   const isAdmin = async (): Promise<boolean> => {
     try {
-      if (!user) return false;
+      // Verificar se há usuário logado e sessão ativa
+      if (!user || !session) {
+        console.log('Usuário não logado ou sessão inválida');
+        return false;
+      }
+      
+      // Verificar se o Supabase está disponível
+      if (!supabase) {
+        console.error('Cliente Supabase não disponível');
+        return false;
+      }
+      
+      // Garantir que o perfil existe antes de verificar o role
+      await ensureUserProfile(user.id);
       
       const { data: profile, error } = await supabase
         .from('profiles')
@@ -330,13 +387,32 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         .single();
       
       if (error) {
-        console.error('Erro ao verificar role do usuário:', error);
+        // Se ainda houver erro após tentar criar o perfil, log detalhado
+        console.error('Erro ao verificar role do usuário:', {
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+          code: error.code,
+          userId: user.id
+        });
         return false;
       }
       
-      return profile?.role === 'admin' || profile?.role === 'organizer';
+      if (!profile) {
+        console.warn('Perfil ainda não encontrado após tentativa de criação:', user.id);
+        return false;
+      }
+      
+      const isAdminUser = profile?.role === 'admin' || profile?.role === 'organizer';
+      console.log('Status admin verificado:', { userId: user.id, role: profile.role, isAdmin: isAdminUser });
+      
+      return isAdminUser;
     } catch (error) {
-      console.error('Erro ao verificar se usuário é admin:', error);
+      console.error('Erro ao verificar se usuário é admin:', {
+        error: error instanceof Error ? error.message : error,
+        stack: error instanceof Error ? error.stack : undefined,
+        userId: user?.id
+      });
       return false;
     }
   };

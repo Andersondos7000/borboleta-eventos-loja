@@ -109,7 +109,7 @@ export function useConflictMonitor(
       const conflictType = timeDiff < 5000 ? 'update_conflict' : 'version_conflict';
       
       const conflict: ConflictData = {
-        id: `conflict_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        id: `conflict_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`,
         table,
         recordId: localData.id || remoteData.id,
         type: conflictType,

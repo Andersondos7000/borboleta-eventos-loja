@@ -229,7 +229,7 @@ export function OfflineIndicator({
                     </h4>
                     <ul className="mt-1 space-y-1 list-disc list-inside">
                       {troubleshootingTips.map((tip, index) => (
-                        <li key={index} className="text-orange-700">{tip}</li>
+                        <li key={`tip-${tip.slice(0, 20)}-${index}`} className="text-orange-700">{tip}</li>
                       ))}
                     </ul>
                   </div>

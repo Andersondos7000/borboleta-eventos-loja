@@ -7,13 +7,14 @@ import Footer from '@/components/Footer';
 import EventCountdown from '@/components/EventCountdown';
 import ButterflyLogo from '@/components/ButterflyLogo';
 import LocationMap from '@/components/LocationMap';
+import OptimizedImage from '@/components/OptimizedImage';
 
 const Index = () => {
-  // Data do evento: 12 de Abril de 2025
-  const eventDate = new Date('2025-04-12T09:00:00');
+  // Data do evento: 15 de Dezembro de 2025
+  const eventDate = new Date('2025-12-15T09:00:00');
 
-  // Data de início das vendas: 4 de Janeiro de 2025
-  const salesStartDate = new Date('2025-01-04T00:00:00');
+  // Data de início das vendas: 1 de Outubro de 2025
+  const salesStartDate = new Date('2025-10-01T00:00:00');
   
   // Verifica se as vendas de ingressos já começaram
   const ticketSalesStarted = new Date() >= salesStartDate;
@@ -38,7 +39,7 @@ const Index = () => {
             </h1>
             
             <p className="text-lg md:text-xl mb-8 text-black">
-              Dias 12 e 13 de Abril de 2025 • Uma jornada de transformação e renovo
+              Dias 15 e 16 de Dezembro de 2025 • Uma jornada de transformação e renovo
             </p>
             
             <div className="flex flex-col md:flex-row gap-4 mb-12">
@@ -63,21 +64,24 @@ const Index = () => {
       {/* Countdown Section */}
       <section className="bg-white py-24 mt-8">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-10">
-            <h2 className="font-display text-3xl font-bold mb-2">Contagem Regressiva</h2>
-            <p className="text-gray-600">O evento começa em:</p>
-          </div>
-          
-          <EventCountdown targetDate={eventDate} className="mb-10" />
-          
-          <div className="text-center mt-8">
+          <div className="text-center">
             {ticketSalesStarted ? (
-              <Button asChild size="lg" className="bg-butterfly-orange hover:bg-butterfly-orange/90">
-                <Link to="/ingressos">Garanta seu Ingresso Agora!</Link>
-              </Button>
+              <div>
+                <div className="mb-10">
+                  <h2 className="font-display text-3xl font-bold mb-2">Contagem Regressiva</h2>
+                  <p className="text-gray-600">O evento começa em:</p>
+                </div>
+                <EventCountdown targetDate={eventDate} className="mb-10" />
+                <Button asChild size="lg" className="bg-butterfly-orange hover:bg-butterfly-orange/90">
+                  <Link to="/ingressos">Garanta seu Ingresso Agora!</Link>
+                </Button>
+              </div>
             ) : (
               <div>
-                <p className="text-xl font-medium mb-3">As vendas começam em:</p>
+                <div className="mb-10">
+                  <h2 className="font-display text-3xl font-bold mb-2">Contagem Regressiva</h2>
+                  <p className="text-xl font-medium mb-3">As vendas começam em:</p>
+                </div>
                 <EventCountdown targetDate={salesStartDate} />
               </div>
             )}
@@ -108,7 +112,7 @@ const Index = () => {
                   </div>
                   <div>
                     <h3 className="font-medium">Data e Horário</h3>
-                    <p className="text-gray-600">12 e 13 de Abril de 2025, das 9h às 18h</p>
+                    <p className="text-gray-600">15 e 16 de Dezembro de 2025, das 9h às 18h</p>
                   </div>
                 </div>
                 <div className="flex items-start mb-4">
@@ -154,10 +158,11 @@ const Index = () => {
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             <div className="rounded-lg overflow-hidden shadow-md border border-gray-200 hover:shadow-xl transition-shadow">
               <div className="h-60 overflow-hidden">
-                <img 
+                <OptimizedImage 
                   src="/yupp-generated-image-543555.webp" 
                   alt="Camiseta do evento" 
                   className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                  fallbackSrc="/placeholder.svg"
                 />
               </div>
               <div className="p-6">
@@ -174,10 +179,11 @@ const Index = () => {
             
             <div className="rounded-lg overflow-hidden shadow-md border border-gray-200 hover:shadow-xl transition-shadow">
               <div className="h-60 overflow-hidden">
-                <img 
+                <OptimizedImage 
                   src="/yupp-generated-image-679235.webp" 
                   alt="Vestido exclusivo" 
                   className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                  fallbackSrc="/placeholder.svg"
                 />
               </div>
               <div className="p-6">
@@ -194,10 +200,11 @@ const Index = () => {
             
             <div className="rounded-lg overflow-hidden shadow-md border border-gray-200 hover:shadow-xl transition-shadow md:col-span-2 lg:col-span-1">
               <div className="h-60 overflow-hidden">
-                <img 
+                <OptimizedImage 
                   src="/yupp-generated-image-871271.webp" 
                   alt="Produtos do evento" 
                   className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                  fallbackSrc="/placeholder.svg"
                 />
               </div>
               <div className="p-6">
@@ -212,59 +219,6 @@ const Index = () => {
         </div>
       </section>
       
-      {/* Instagram Gallery Section */}
-      <section className="bg-gray-50 py-16">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="font-display text-3xl font-bold mb-2">Nos Siga no Instagram</h2>
-            <p className="text-gray-600">Acompanhe as novidades e bastidores do evento</p>
-          </div>
-          
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="overflow-hidden rounded-lg">
-              <img 
-                src="/doc/img/evento/01.jpg" 
-                alt="Momento especial da conferência" 
-                className="w-full h-64 object-cover hover:scale-105 transition-transform duration-300"
-              />
-            </div>
-            <div className="overflow-hidden rounded-lg">
-              <img 
-                src="/doc/img/evento/02.jpg" 
-                alt="Participantes do evento" 
-                className="w-full h-64 object-cover hover:scale-105 transition-transform duration-300"
-              />
-            </div>
-            <div className="overflow-hidden rounded-lg">
-              <img 
-                src="/doc/img/evento/03.jpg" 
-                alt="Workshop interativo" 
-                className="w-full h-64 object-cover hover:scale-105 transition-transform duration-300"
-              />
-            </div>
-            <div className="overflow-hidden rounded-lg">
-              <img 
-                src="/doc/img/evento/04.jpg" 
-                alt="Palestrante inspiradora" 
-                className="w-full h-64 object-cover hover:scale-105 transition-transform duration-300"
-              />
-            </div>
-          </div>
-          
-          <div className="text-center mt-8">
-            <Button asChild variant="outline" className="border-butterfly-orange text-butterfly-orange hover:bg-butterfly-orange hover:text-white">
-              <a href="https://www.instagram.com/" target="_blank" rel="noopener noreferrer" className="flex items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2">
-                  <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
-                  <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
-                  <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
-                </svg>
-                Seguir no Instagram
-              </a>
-            </Button>
-          </div>
-        </div>
-      </section>
       
       {/* CTA Section */}
       <section className="bg-butterfly-orange text-white py-16">

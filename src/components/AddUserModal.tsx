@@ -130,11 +130,12 @@ const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, onClose, onUserAdde
       onUserAdded();
       onClose();
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Erro ao criar usuário:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Ocorreu um erro inesperado. Tente novamente.';
       toast({
         title: "Erro ao criar usuário",
-        description: error.message || "Ocorreu um erro inesperado. Tente novamente.",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {

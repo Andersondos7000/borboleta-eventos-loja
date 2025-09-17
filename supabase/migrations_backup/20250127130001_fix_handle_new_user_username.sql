@@ -15,15 +15,15 @@ BEGIN
     new.raw_user_meta_data ->> 'username',
     CASE 
       WHEN new.raw_user_meta_data ->> 'given_name' IS NOT NULL THEN
-        lower(replace(new.raw_user_meta_data ->> 'given_name', ' ', '')) || '_' || substr(new.id::text, 1, 8)
+        lower(replace(new.raw_user_meta_data ->> 'given_name', ' ', '')) || '_' || substring(new.id::text, 1, 8)
       ELSE
-        'user_' || substr(new.id::text, 1, 8)
+        'user_' || substring(new.id::text, 1, 8)
     END
   );
   
   -- Garantir que o username tenha pelo menos 3 caracteres
   IF length(generated_username) < 3 THEN
-    generated_username := 'user_' || substr(new.id::text, 1, 8);
+    generated_username := 'user_' || substring(new.id::text, 1, 8);
   END IF;
 
   INSERT INTO public.profiles (

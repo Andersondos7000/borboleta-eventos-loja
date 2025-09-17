@@ -17,9 +17,7 @@ export default {
   testMatch: [
     '<rootDir>/src/**/__tests__/**/*.(test|spec).(ts|tsx|js)'
   ],
-  testPathIgnorePatterns: [
-    '<rootDir>/src/__tests__/abacatepay/'
-  ],
+  testPathIgnorePatterns: [],
   collectCoverageFrom: [
     'src/**/*.(ts|tsx)',
     '!src/**/*.d.ts',

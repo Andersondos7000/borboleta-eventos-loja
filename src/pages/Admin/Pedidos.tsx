@@ -68,7 +68,7 @@ const AdminPedidos = () => {
           price: 60,
           quantity: 1,
           size: 'M',
-          image: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?q=80'
+          image: 'https://picsum.photos/400/400?random=1'
         }
       ],
       total: 226,
@@ -119,7 +119,7 @@ const AdminPedidos = () => {
           price: 140,
           quantity: 1,
           size: '6',
-          image: 'https://images.unsplash.com/photo-1539008835657-9e8e9680c956?q=80'
+          image: 'https://picsum.photos/400/400?random=2'
         },
         {
           id: 'P002',
@@ -127,7 +127,7 @@ const AdminPedidos = () => {
           price: 60,
           quantity: 1,
           size: 'P',
-          image: 'https://images.unsplash.com/photo-1583744946564-b52d01a7f084?q=80'
+          image: 'https://picsum.photos/400/400?random=3'
         }
       ],
       total: 200,
@@ -178,7 +178,7 @@ const AdminPedidos = () => {
           price: 140,
           quantity: 1,
           size: '8',
-          image: 'https://images.unsplash.com/photo-1542295669297-4d352b042bca?q=80'
+          image: 'https://picsum.photos/400/400?random=4'
         }
       ],
       total: 140,
@@ -468,7 +468,7 @@ const AdminPedidos = () => {
                                       <h3 className="font-medium text-lg mb-2">Itens do Pedido</h3>
                                       
                                       {selectedOrder.items.map((item, index) => (
-                                        <div key={index} className="flex justify-between border-b py-3">
+                                        <div key={`${item.name}-${index}`} className="flex justify-between border-b py-3">
                                           <div className="flex items-center">
                                             {item.image && !item.isTicket ? (
                                               <div className="h-16 w-16 flex-shrink-0 rounded overflow-hidden mr-3">

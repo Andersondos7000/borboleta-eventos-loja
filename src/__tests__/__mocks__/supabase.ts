@@ -131,7 +131,7 @@ export const mockSupabaseClient = createMockSupabaseClient();
 export const createClient = jest.fn().mockReturnValue(mockSupabaseClient);
 
 // Mock response helpers
-export const createMockResponse = <T>(data: T, error: any = null) => ({
+export const createMockResponse = <T>(data: T, error: unknown = null) => ({
   data,
   error,
   status: error ? 400 : 200,
@@ -146,7 +146,7 @@ export const createMockError = (message: string, code?: string) => ({
 });
 
 // Mock realtime event helpers
-export const createMockRealtimeEvent = (eventType: string, payload: any) => ({
+export const createMockRealtimeEvent = (eventType: string, payload: unknown) => ({
   eventType,
   new: eventType === 'INSERT' || eventType === 'UPDATE' ? payload : null,
   old: eventType === 'DELETE' || eventType === 'UPDATE' ? payload : null,
@@ -174,7 +174,7 @@ export const supabaseTestUtils = {
   },
 
   // Mock realtime subscription
-  mockRealtimeSubscription: (events: Array<{ eventType: string; payload: any }>) => {
+  mockRealtimeSubscription: (events: Array<{ eventType: string; payload: unknown }>) => {
     const mockChannel = mockSupabaseClient.channel();
     
     // Simulate subscription
@@ -192,13 +192,13 @@ export const supabaseTestUtils = {
   },
 
   // Mock auth state
-  mockAuthState: (user: any = null, session: any = null) => {
+  mockAuthState: (user: unknown = null, session: unknown = null) => {
     mockSupabaseClient.auth.getUser.mockResolvedValue(createMockResponse({ user }));
     mockSupabaseClient.auth.getSession.mockResolvedValue(createMockResponse({ session }));
   },
 
   // Mock Edge Function call
-  mockEdgeFunction: (functionName: string, response: any, error: any = null) => {
+  mockEdgeFunction: (functionName: string, response: unknown, error: unknown = null) => {
     mockSupabaseClient.functions.invoke.mockImplementation((name, options) => {
       if (name === functionName) {
         return Promise.resolve(createMockResponse(response, error));

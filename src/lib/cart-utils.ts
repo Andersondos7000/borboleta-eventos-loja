@@ -11,7 +11,7 @@ export type CartProduct = {
   quantity: number;
   unit_price: number;
   total_price: number;
-  metadata: Record<string, any>;
+  metadata: Record<string, unknown>;
 };
 
 export type CartTicket = {

@@ -36,7 +36,7 @@ const BulkParticipantsModal: React.FC<BulkParticipantsModalProps> = ({
   const { toast } = useToast();
 
   // Gerar ID único
-  const generateId = () => Math.random().toString(36).substr(2, 9);
+  const generateId = () => Math.random().toString(36).substring(2, 11);
 
   // Processar CSV
   const processCsvData = (csvContent: string) => {
@@ -391,7 +391,7 @@ const BulkParticipantsModal: React.FC<BulkParticipantsModalProps> = ({
                             value={participant.name}
                             onChange={(e) => updateParticipant(participant.id, 'name', e.target.value)}
                             placeholder="Nome do participante"
-                            size="sm"
+                            className="h-8"
                           />
                         ) : (
                           <p className="text-sm p-2 bg-gray-50 rounded">
@@ -408,7 +408,7 @@ const BulkParticipantsModal: React.FC<BulkParticipantsModalProps> = ({
                             value={participant.cpf}
                             onChange={(e) => updateParticipant(participant.id, 'cpf', e.target.value)}
                             placeholder="000.000.000-00"
-                            size="sm"
+                            className="h-8"
                           />
                         ) : (
                           <p className="text-sm p-2 bg-gray-50 rounded">

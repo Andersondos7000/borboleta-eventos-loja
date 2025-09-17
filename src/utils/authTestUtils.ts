@@ -101,7 +101,7 @@ export const testAuthErrorFlow = async () => {
 
 // Expor funções globalmente para teste no console do navegador
 if (typeof window !== 'undefined') {
-  (window as any).authTestUtils = {
+  (window as unknown as { authTestUtils: Record<string, unknown> }).authTestUtils = {
     simulateInvalidRefreshToken,
     forceRefreshTokenError,
     clearAllAuthData,

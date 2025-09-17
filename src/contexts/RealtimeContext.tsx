@@ -239,7 +239,7 @@ export function RealtimeProvider({ children, config }: RealtimeProviderProps) {
   const addConflict = (conflictData: Omit<RealtimeConflict, 'id' | 'timestamp' | 'resolved'>) => {
     const conflict: RealtimeConflict = {
       ...conflictData,
-      id: `conflict_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      id: `conflict_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`,
       timestamp: new Date(),
       resolved: false
     };

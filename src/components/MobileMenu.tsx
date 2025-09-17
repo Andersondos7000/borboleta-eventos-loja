@@ -9,23 +9,28 @@ import { useAuth } from '@/hooks/useAuth';
 
 const MobileMenu: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const { user, signOut, isAdmin } = useAuth();
+  const { user, session, loading, signOut, isAdmin } = useAuth();
   const [userIsAdmin, setUserIsAdmin] = useState(false);
 
   const closeMenu = () => setIsOpen(false);
 
   useEffect(() => {
     const checkAdminStatus = async () => {
-      if (user) {
-        const adminStatus = await isAdmin();
-        setUserIsAdmin(adminStatus);
+      if (user && session && !loading) {
+        try {
+          const adminStatus = await isAdmin();
+          setUserIsAdmin(adminStatus);
+        } catch (error) {
+          console.error('Erro ao verificar status admin no MobileMenu:', error);
+          setUserIsAdmin(false);
+        }
       } else {
         setUserIsAdmin(false);
       }
     };
 
     checkAdminStatus();
-  }, [user, isAdmin]);
+  }, [user, session, loading, isAdmin]);
 
   const handleSignOut = async () => {
     await signOut();

@@ -17,7 +17,7 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
  
-    --primary: 222.2 47.4% 11.2%;
+    --primary: 27 96% 61%;
     --primary-foreground: 210 40% 98%;
  
     --secondary: 210 40% 96.1%;
@@ -49,8 +49,8 @@
     --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
  
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
+    --primary: 27 96% 61%;
+    --primary-foreground: 210 40% 98%;
  
     --secondary: 217.2 32.6% 17.5%;
     --secondary-foreground: 210 40% 98%;
@@ -109,5 +109,36 @@
   
   .card-hover {
     @apply hover:shadow-md transition-shadow duration-300;
+  }
+  
+  /* Email Confirmation Modal Styles */
+  @keyframes modalAppear {
+    from {
+      opacity: 0;
+      transform: scale(0.9) translateY(-20px);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+    }
+  }
+  
+  .modal-container {
+    animation: modalAppear 0.3s ease-out;
+  }
+  
+  @media (max-width: 480px) {
+    .modal-container {
+      padding: 30px 20px !important;
+      margin: 10px !important;
+    }
+    
+    .button-container {
+      flex-direction: column !important;
+    }
+    
+    .btn {
+      width: 100% !important;
+    }
   }
 }

@@ -72,11 +72,12 @@ const AdminUsuarios = () => {
 
       setUsers(data || []);
       setFilteredUsers(data || []);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Erro inesperado ao buscar usuários:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Falha ao carregar usuários';
       toast({
         title: "Erro inesperado",
-        description: "Falha ao carregar usuários",
+        description: errorMessage,
         variant: "destructive"
       });
     } finally {
@@ -118,20 +119,26 @@ const AdminUsuarios = () => {
       // Excluir usuários um por vez usando a função SQL
       for (const userId of selectedUsers) {
         try {
-          const { error } = await supabase.rpc('delete_user_cascade', {
-            user_uuid: userId
+          const { data, error } = await supabase.rpc('delete_user_complete', {
+            target_user_id: userId
           });
 
-          if (error) {
-            console.error(`Erro ao excluir usuário ${userId}:`, error);
-            errors.push(`Usuário ${userId}: ${error.message}`);
-            errorCount++;
-          } else {
-            successCount++;
-          }
-        } catch (err: any) {
+          // A função retorna um JSON com success/error
+           if (data && !data.success) {
+             console.error(`Erro ao excluir usuário ${userId}:`, data.error);
+             errors.push(`Usuário ${userId}: ${data.error}`);
+             errorCount++;
+           } else if (error) {
+             console.error(`Erro ao excluir usuário ${userId}:`, error);
+             errors.push(`Usuário ${userId}: ${error.message}`);
+             errorCount++;
+           } else {
+             successCount++;
+           }
+        } catch (err: unknown) {
           console.error(`Erro inesperado ao excluir usuário ${userId}:`, err);
-          errors.push(`Usuário ${userId}: ${err.message || 'Erro inesperado'}`);
+          const errorMessage = err instanceof Error ? err.message : 'Erro inesperado';
+          errors.push(`Usuário ${userId}: ${errorMessage}`);
           errorCount++;
         }
       }
@@ -166,11 +173,12 @@ const AdminUsuarios = () => {
 
       // Recarregar lista para garantir sincronização
       await fetchUsers();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Erro geral ao excluir usuários:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Falha na operação de exclusão';
       toast({
         title: "Erro ao excluir usuários",
-        description: error.message || "Falha na operação de exclusão",
+        description: errorMessage,
         variant: "destructive"
       });
     } finally {

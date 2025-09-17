@@ -68,9 +68,9 @@ export const createMonitoringAlert = (
   type: 'error' | 'warning' | 'info',
   source: MonitoringSource,
   message: string,
-  metadata?: Record<string, any>
+  metadata?: Record<string, unknown>
 ): MonitoringAlert => ({
-  id: `${source}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+  id: `${source}_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`,
   type,
   source,
   message,

@@ -17,15 +17,15 @@ BEGIN
     new.raw_user_meta_data ->> 'username',
     CASE 
       WHEN new.raw_user_meta_data ->> 'given_name' IS NOT NULL THEN
-        lower(regexp_replace(new.raw_user_meta_data ->> 'given_name', '[^a-zA-Z0-9]', '', 'g')) || '_' || substr(new.id::text, 1, 8)
+        lower(regexp_replace(new.raw_user_meta_data ->> 'given_name', '[^a-zA-Z0-9]', '', 'g')) || '_' || substring(new.id::text, 1, 8)
       ELSE
-        'user_' || substr(new.id::text, 1, 8)
+        'user_' || substring(new.id::text, 1, 8)
     END
   );
   
   -- Garantir que o username tenha pelo menos 3 caracteres
   IF length(generated_username) < 3 THEN
-    generated_username := 'user_' || substr(new.id::text, 1, 8);
+    generated_username := 'user_' || substring(new.id::text, 1, 8);
   END IF;
 
   -- Verificar unicidade e ajustar se necessário

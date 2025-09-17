@@ -153,16 +153,46 @@ const Ingressos = () => {
       
       if (user) {
         console.log('Getting customer for authenticated user:', user.id);
-        const { data: customer, error: customerError } = await supabase
+        let { data: customer, error: customerError } = await supabase
           .from('customers')
           .select('id')
           .eq('user_id', user.id)
           .single();
 
-        if (customerError) {
+        if (customerError && customerError.code === 'PGRST116') {
+          // Customer doesn't exist, create one
+          console.log('Customer not found, creating new customer record...');
+          const { data: newCustomer, error: createError } = await supabase
+            .from('customers')
+            .insert({
+              user_id: user.id,
+              full_name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'Cliente',
+              email: user.email || '',
+              phone: user.user_metadata?.phone || null
+            })
+            .select('id')
+            .single();
+            
+          if (createError) {
+            console.error('Error creating customer:', createError);
+            toast({
+              title: "Erro",
+              description: "Erro ao criar registro de cliente. Tente novamente.",
+              variant: "destructive"
+            });
+            return;
+          }
+          
+          customerData = newCustomer;
+          console.log('Customer created successfully:', customerData);
+        } else if (customerError) {
           console.error('Error getting customer:', customerError);
-          // For authenticated users without customer record, we'll still allow cart addition
-          console.log('User authenticated but no customer record found, proceeding with cart addition');
+          toast({
+            title: "Erro",
+            description: "Erro ao buscar dados do cliente. Tente novamente.",
+            variant: "destructive"
+          });
+          return;
         } else {
           customerData = customer;
           console.log('Customer found:', customerData);
@@ -170,19 +200,23 @@ const Ingressos = () => {
 
         // Create a new ticket with event reference for authenticated users
         console.log('Creating ticket in database for authenticated user...');
-        const ticketNumber = `TICKET-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+        const ticketNumber = `TICKET-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`;
+        
+        const ticketInsert: any = {
+          ticket_type: `Ingresso - ${ticketName}`,
+          price: price,
+          status: 'active',
+          qr_code: ticketNumber
+        };
+        
+        // Add customer_id if customer exists
+        if (customerData) {
+          ticketInsert.customer_id = customerData.id;
+        }
         
         const { data: ticket, error: ticketError } = await supabase
             .from('tickets')
-            .insert({
-              user_id: user.id,
-              ticket_type: `Ingresso - ${ticketNumber}`,
-              unit_price: price,
-              total_price: price,
-              quantity: 1,
-              status: 'active',
-              buyer_email: user.email
-            })
+            .insert(ticketInsert)
             .select()
             .single();
 
@@ -197,7 +231,7 @@ const Ingressos = () => {
         console.log('Guest user - ticket will be created during checkout');
         // For guest users, we'll create a temporary ticket ID for cart purposes
         ticketData = {
-          id: `temp-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+          id: `temp-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`,
           ticket_type: `Ingresso Temporário`,
           unit_price: price,
           total_price: price,
@@ -210,7 +244,7 @@ const Ingressos = () => {
 
       // Add ticket to cart
       const cartTicket: CartTicket = {
-        id: Date.now().toString() + Math.random().toString(36).substr(2, 9), // Generate unique ID
+        id: Date.now().toString() + Math.random().toString(36).substring(2, 11), // Generate unique ID
         ticket_id: ticketData.id,
         name: ticketData.ticket_type || selectedEvent.title,
         price: price,
@@ -232,9 +266,12 @@ const Ingressos = () => {
       });
       
       navigate('/carrinho');
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Full error details:', error);
-      console.error('Error stack:', error.stack);
+      const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido';
+      if (error instanceof Error && error.stack) {
+        console.error('Error stack:', error.stack);
+      }
       toast({
         title: "Erro ao adicionar ingresso",
         description: "Não foi possível adicionar o ingresso ao carrinho.",

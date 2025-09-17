@@ -341,7 +341,7 @@ export function PerformanceMonitor({
                     <p className="no-data">Nenhum log disponível</p>
                   ) : (
                     networkLogs.slice(-10).map((log, index) => (
-                      <div key={index} className="log-item">
+                      <div key={`${log.url}-${log.timestamp.getTime()}-${index}`} className="log-item">
                         <div className="log-message">{log.url} - {log.method}</div>
                         <div className="log-timestamp">
                           {log.timestamp.toLocaleTimeString()} • {log.status} • {log.responseTime}ms
@@ -362,7 +362,7 @@ export function PerformanceMonitor({
                     </div>
                   ) : (
                     consoleErrors.slice(-5).map((error, index) => (
-                      <div key={index} className={`error-item error-${error.level}`}>
+                      <div key={`${error.message}-${error.timestamp.getTime()}-${index}`} className={`error-item error-${error.level}`}>
                         <div className="error-message">{error.message}</div>
                         <div className="error-timestamp">
                           {error.timestamp.toLocaleTimeString()}

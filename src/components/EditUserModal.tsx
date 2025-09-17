@@ -172,11 +172,12 @@ const EditUserModal: React.FC<EditUserModalProps> = ({ isOpen, onClose, onUserUp
       onUserUpdated();
       onClose();
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Erro ao atualizar usuário:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Ocorreu um erro inesperado. Tente novamente.';
       toast({
         title: "Erro ao atualizar usuário",
-        description: error.message || "Ocorreu um erro inesperado. Tente novamente.",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {

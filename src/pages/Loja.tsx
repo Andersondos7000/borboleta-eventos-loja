@@ -12,6 +12,7 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import ProductCard, { ProductProps } from '@/components/ProductCard';
 import ProductModal from '@/components/ProductModal';
+import OptimizedImage from '@/components/OptimizedImage';
 import SizeChart from '@/components/SizeChart';
 import { supabase } from '@/lib/supabase';
 import { useToast } from '@/hooks/use-toast';
@@ -342,10 +343,11 @@ const Loja = () => {
                     <div key={product.id} className="bg-white rounded-lg shadow-md p-4 flex gap-4 hover:shadow-lg transition-shadow">
                        <ProductModal product={product} onSelectSize={() => {}}>
                          <div className="w-32 h-32 flex-shrink-0 cursor-pointer">
-                           <img 
+                           <OptimizedImage 
                              src={product.image} 
                              alt={product.name}
                              className="w-full h-full object-cover rounded-lg"
+                             fallbackSrc="/placeholder.svg"
                            />
                          </div>
                        </ProductModal>
@@ -481,7 +483,7 @@ const Loja = () => {
                 </li>
                 <li className="flex items-start">
                   <span className="text-butterfly-orange mr-2">•</span>
-                  <span>Frete grátis para compras acima de R$ 200,00</span>
+                  <span>Frete grátis em todos os pedidos</span>
                 </li>
                 <li className="flex items-start">
                   <span className="text-butterfly-orange mr-2">•</span>
@@ -507,7 +509,7 @@ const Loja = () => {
                 </li>
                 <li className="flex items-start">
                   <span className="text-butterfly-orange mr-2">•</span>
-                  <span>O frete de devolução é de responsabilidade do cliente</span>
+                  <span>Devoluções gratuitas em até 30 dias</span>
                 </li>
               </ul>
             </div>

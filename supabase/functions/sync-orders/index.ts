@@ -178,7 +178,7 @@ async function syncOrders(
     if (error) throw error
 
     // Gerar token de sincronização
-    const sync_token = `sync_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+    const sync_token = `sync_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`
 
     return {
       success: true,
@@ -563,7 +563,7 @@ async function simulatePaymentProcessing(paymentData: any) {
 
   return {
     success: true,
-    transaction_id: `txn_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+    transaction_id: `txn_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`,
     amount: paymentData.amount,
     method: paymentData.method,
     processed_at: new Date().toISOString()

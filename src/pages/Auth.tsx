@@ -19,7 +19,7 @@ import { Eye, EyeOff } from "lucide-react";
 import { FcGoogle } from "react-icons/fc";
 import ForgotPasswordModal from "@/components/ForgotPasswordModal";
 import RoleSelectionModal from "@/components/RoleSelectionModal";
-import EmailConfirmationModal from "@/components/EmailConfirmationModal";
+import EmailConfirmationModalNew from "@/components/EmailConfirmationModalNew";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
 
@@ -51,8 +51,9 @@ const LoginForm: React.FC<{ onGoogleAuth: () => void }> = ({ onGoogleAuth }) => 
       // Redireciona após sucesso
       navigate('/');
       
-    } catch (err: any) {
-      setError(err.message || 'Erro ao fazer login');
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Erro ao fazer login';
+      setError(errorMessage);
       console.error('Login error:', err);
     } finally {
       setIsLoading(false);
@@ -228,8 +229,9 @@ const SignupForm: React.FC<{ onGoogleAuth: () => void; onSuccess: (email?: strin
       // Chamar callback de sucesso com o email
       onSuccess(email);
       
-    } catch (err: any) {
-      setError(err.message || 'Erro ao criar conta');
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Erro ao criar conta';
+      setError(errorMessage);
       console.error('Signup error:', err);
     } finally {
       setIsLoading(false);
@@ -541,7 +543,7 @@ const Auth = () => {
         onRoleSelect={handleRoleSelection}
       />
       
-      <EmailConfirmationModal
+      <EmailConfirmationModalNew
         isOpen={showEmailConfirmationModal}
         onClose={() => {
           setShowEmailConfirmationModal(false);

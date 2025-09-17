@@ -89,7 +89,7 @@ export function useOptimisticUpdates<T extends { id: string }>(
 
   // Gerar ID único para operações otimistas
   const generateOptimisticId = useCallback(() => {
-    return `temp-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    return `temp-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`;
   }, []);
 
   // Aplicar mudança otimista no estado local

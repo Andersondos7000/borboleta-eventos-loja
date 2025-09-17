@@ -125,7 +125,7 @@ const DebugInput = () => {
             <p>Nenhum evento ainda...</p>
           ) : (
             debugInfo.map((info, index) => (
-              <p key={index}>{info}</p>
+              <p key={`${info.slice(0, 20)}-${index}`}>{info}</p>
             ))
           )}
         </div>

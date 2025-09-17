@@ -367,7 +367,6 @@ class AutomatedMigration {
           break;
           
         case 'update_sync_functions':
-        // case 'update_abacatepay_manager': // Removido
         case 'update_monitoring_functions':
           await this.updateEdgeFunctions(step);
           break;

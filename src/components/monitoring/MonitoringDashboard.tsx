@@ -347,7 +347,7 @@ const MonitoringDashboard: React.FC<MonitoringDashboardProps> = ({ className }) 
                     <p className="text-muted-foreground text-center py-4">Nenhum log encontrado</p>
                   ) : (
                     metrics.consoleLogs.map((log, index) => (
-                      <div key={index} className="flex items-start space-x-2 text-sm border-b pb-2">
+                      <div key={`${log.message}-${log.timestamp}-${index}`} className="flex items-start space-x-2 text-sm border-b pb-2">
                         <Badge variant="outline" className="text-xs">
                           {log.level}
                         </Badge>
@@ -377,7 +377,7 @@ const MonitoringDashboard: React.FC<MonitoringDashboardProps> = ({ className }) 
                     </div>
                   ) : (
                     metrics.consoleErrors.map((error, index) => (
-                      <div key={index} className="space-y-1 text-sm border-b pb-2">
+                      <div key={`${error.message}-${error.timestamp}-${index}`} className="space-y-1 text-sm border-b pb-2">
                         <p className="font-mono text-red-600">{error.message}</p>
                         <p className="text-xs text-muted-foreground">
                           {error.source}:{error.lineno}:{error.colno}
@@ -406,7 +406,7 @@ const MonitoringDashboard: React.FC<MonitoringDashboardProps> = ({ className }) 
                     <p className="text-muted-foreground text-center py-4">Nenhuma requisição encontrada</p>
                   ) : (
                     metrics.networkLogs.map((request, index) => (
-                      <div key={index} className="flex items-center justify-between text-sm border-b pb-2">
+                      <div key={`${request.url}-${request.timestamp}-${index}`} className="flex items-center justify-between text-sm border-b pb-2">
                         <div className="flex-1">
                           <div className="flex items-center space-x-2">
                             <Badge variant="outline" className="text-xs">
@@ -441,7 +441,7 @@ const MonitoringDashboard: React.FC<MonitoringDashboardProps> = ({ className }) 
                     </div>
                   ) : (
                     metrics.networkErrors.map((error, index) => (
-                      <div key={index} className="space-y-1 text-sm border-b pb-2">
+                      <div key={`${error.url}-${error.timestamp}-${index}`} className="space-y-1 text-sm border-b pb-2">
                         <div className="flex items-center space-x-2">
                           <Badge variant="outline" className="text-xs">
                             {error.method}
@@ -504,7 +504,7 @@ const MonitoringDashboard: React.FC<MonitoringDashboardProps> = ({ className }) 
                 <div className="space-y-2">
                   <h4 className="font-semibold">Paint Timing</h4>
                   {metrics.performanceMetrics.paintTiming.map((paint, index) => (
-                    <div key={index} className="flex justify-between text-sm">
+                    <div key={`${paint.name}-${paint.startTime}-${index}`} className="flex justify-between text-sm">
                       <span>{paint.name}</span>
                       <span className="font-mono">{Math.round(paint.startTime)}ms</span>
                     </div>
@@ -535,7 +535,7 @@ const MonitoringDashboard: React.FC<MonitoringDashboardProps> = ({ className }) 
               </Card>
             ) : (
               metrics.accessibilityIssues.map((issue, index) => (
-                <Card key={index}>
+                <Card key={`${issue.id || issue.description}-${index}`}>
                   <CardHeader>
                     <div className="flex items-center justify-between">
                       <CardTitle className="text-base">{issue.description}</CardTitle>
@@ -551,7 +551,7 @@ const MonitoringDashboard: React.FC<MonitoringDashboardProps> = ({ className }) 
                       <div className="space-y-1">
                         <p className="text-sm font-semibold">Elementos afetados:</p>
                         {issue.nodes.slice(0, 3).map((node, nodeIndex) => (
-                          <div key={nodeIndex} className="bg-muted p-2 rounded text-xs font-mono">
+                          <div key={`${node.target || node.html}-${nodeIndex}`} className="bg-muted p-2 rounded text-xs font-mono">
                             {node.html}
                           </div>
                         ))}

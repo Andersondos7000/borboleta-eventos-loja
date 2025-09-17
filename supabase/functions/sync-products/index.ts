@@ -1,17 +1,27 @@
 import { serve } from 'std/http/server.ts'
-import { createClient } from '@supabase/supabase-js'
+import { createClient, SupabaseClient } from '@supabase/supabase-js'
 import { corsHeaders, handleCors, getAllHeaders } from '../_shared/cors.ts'
+
+interface Product {
+  id: string
+  name: string
+  price: number
+  category_id?: string
+  [key: string]: unknown
+}
+
+interface StockData {
+  product_id: string
+  size_id?: string
+  quantity: number
+  operation?: 'add' | 'subtract' | 'set'
+}
 
 interface ProductSyncRequest {
   action: 'sync' | 'update_stock' | 'reserve_stock' | 'release_stock' | 'bulk_update'
   product_id?: string
-  products?: any[]
-  stock_data?: {
-    product_id: string
-    size_id?: string
-    quantity: number
-    operation?: 'add' | 'subtract' | 'set'
-  }[]
+  products?: Product[]
+  stock_data?: StockData[]
   filters?: {
     category_id?: string
     price_range?: { min: number; max: number }
@@ -21,10 +31,10 @@ interface ProductSyncRequest {
 
 interface ProductSyncResponse {
   success: boolean
-  data?: any
+  data?: unknown
   error?: string
   sync_token?: string
-  conflicts?: any[]
+  conflicts?: unknown[]
 }
 
 serve(async (req: Request): Promise<Response> => {
@@ -128,8 +138,8 @@ serve(async (req: Request): Promise<Response> => {
 
 // Sincronizar produtos com filtros
 async function syncProducts(
-  supabase: any,
-  filters?: any,
+  supabase: SupabaseClient,
+  filters?: ProductSyncRequest['filters'],
   userId?: string
 ): Promise<ProductSyncResponse> {
   try {
@@ -165,7 +175,7 @@ async function syncProducts(
     if (error) throw error
 
     // Gerar token de sincronização
-    const sync_token = `sync_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+    const sync_token = `sync_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`
 
     return {
       success: true,
@@ -183,8 +193,8 @@ async function syncProducts(
 
 // Atualizar estoque
 async function updateStock(
-  supabase: any,
-  stock_data: any[],
+  supabase: SupabaseClient,
+  stock_data: StockData[],
   userId: string
 ): Promise<ProductSyncResponse> {
   try {
@@ -280,8 +290,8 @@ async function updateStock(
 
 // Reservar estoque
 async function reserveStock(
-  supabase: any,
-  stock_data: any[],
+  supabase: SupabaseClient,
+  stock_data: StockData[],
   userId: string
 ): Promise<ProductSyncResponse> {
   try {
@@ -371,8 +381,8 @@ async function reserveStock(
 
 // Liberar estoque reservado
 async function releaseStock(
-  supabase: any,
-  stock_data: any[],
+  supabase: SupabaseClient,
+  stock_data: StockData[],
   userId: string
 ): Promise<ProductSyncResponse> {
   try {
@@ -461,8 +471,8 @@ async function releaseStock(
 
 // Atualização em lote de produtos
 async function bulkUpdateProducts(
-  supabase: any,
-  products: any[],
+  supabase: SupabaseClient,
+  products: Product[],
   userId: string
 ): Promise<ProductSyncResponse> {
   try {

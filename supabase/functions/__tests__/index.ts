@@ -218,29 +218,29 @@ export class TestUtils {
     const generators = {
       product: () => ({
         id: Math.floor(Math.random() * 1000),
-        name: `Product ${Math.random().toString(36).substr(2, 9)}`,
+        name: `Product ${Math.random().toString(36).substring(2, 11)}`,
         price: Math.round(Math.random() * 100 * 100) / 100,
         stock: Math.floor(Math.random() * 100),
         category: ['electronics', 'clothing', 'books', 'home'][Math.floor(Math.random() * 4)]
       }),
       order: () => ({
         id: Math.floor(Math.random() * 1000),
-        user_id: `user-${Math.random().toString(36).substr(2, 9)}`,
+        user_id: `user-${Math.random().toString(36).substring(2, 11)}`,
         status: ['pending', 'paid', 'shipped', 'delivered'][Math.floor(Math.random() * 4)],
         total: Math.round(Math.random() * 500 * 100) / 100,
         created_at: new Date().toISOString()
       }),
       event: () => ({
         id: Math.floor(Math.random() * 1000),
-        name: `Event ${Math.random().toString(36).substr(2, 9)}`,
+        name: `Event ${Math.random().toString(36).substring(2, 11)}`,
         date: new Date(Date.now() + Math.random() * 365 * 24 * 60 * 60 * 1000).toISOString(),
-        location: `Venue ${Math.random().toString(36).substr(2, 5)}`,
+        location: `Venue ${Math.random().toString(36).substring(2, 7)}`,
         status: ['active', 'completed', 'cancelled'][Math.floor(Math.random() * 3)],
-        organizer_id: `org-${Math.random().toString(36).substr(2, 9)}`
+        organizer_id: `org-${Math.random().toString(36).substring(2, 11)}`
       }),
       cart: () => ({
-        id: Math.random().toString(36).substr(2, 9),
-        user_id: `user-${Math.random().toString(36).substr(2, 9)}`,
+        id: Math.random().toString(36).substring(2, 11),
+        user_id: `user-${Math.random().toString(36).substring(2, 11)}`,
         product_id: Math.floor(Math.random() * 100),
         quantity: Math.floor(Math.random() * 5) + 1,
         price: Math.round(Math.random() * 100 * 100) / 100,
@@ -301,10 +301,10 @@ export class TestUtils {
 // Constantes de teste
 export const TEST_CONSTANTS = {
   URLS: {
-    SYNC_CART: 'http://localhost:54321/functions/v1/sync-cart',
-    SYNC_PRODUCTS: 'http://localhost:54321/functions/v1/sync-products',
-    SYNC_ORDERS: 'http://localhost:54321/functions/v1/sync-orders',
-    SYNC_EVENTS: 'http://localhost:54321/functions/v1/sync-events'
+    SYNC_CART: 'https://ojxmfxbflbfinodkhixk.supabase.co/functions/v1/sync-cart',
+  SYNC_PRODUCTS: 'https://ojxmfxbflbfinodkhixk.supabase.co/functions/v1/sync-products',
+  SYNC_ORDERS: 'https://ojxmfxbflbfinodkhixk.supabase.co/functions/v1/sync-orders',
+  SYNC_EVENTS: 'https://ojxmfxbflbfinodkhixk.supabase.co/functions/v1/sync-events'
   },
   HEADERS: {
     DEFAULT: {

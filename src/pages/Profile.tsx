@@ -34,8 +34,24 @@ type ProfileData = {
   created_at: string;
 };
 
+type Order = {
+  id: string;
+  total: number;
+  status: string;
+  created_at: string;
+  [key: string]: unknown;
+};
+
+type Ticket = {
+  id: string;
+  events?: {
+    name: string;
+  };
+  [key: string]: unknown;
+};
+
 const Profile = () => {
-  const { user, loading, signOut, isAdmin } = useAuth();
+  const { user, session, loading, signOut, isAdmin } = useAuth();
   const navigate = useNavigate();
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -80,10 +96,11 @@ const Profile = () => {
             avatar_url: data.avatar_url || "",
           });
         }
-      } catch (error: any) {
+      } catch (error: unknown) {
+        const errorMessage = error instanceof Error ? error.message : "Tente novamente mais tarde";
         toast({
           title: "Erro ao carregar perfil",
-          description: error.message || "Tente novamente mais tarde",
+          description: errorMessage,
           variant: "destructive",
         });
       } finally {
@@ -133,8 +150,8 @@ const Profile = () => {
       try {
         const { data, error } = await supabase
           .from("tickets")
-          .select("*, events(*)")
-          .eq("user_id", user.id)
+          .select("*, events(*), customers!inner(*)")
+          .eq("customers.user_id", user.id)
           .order("created_at", { ascending: false });
 
         if (error) throw error;
@@ -186,10 +203,11 @@ const Profile = () => {
       if (data) {
         setProfile(data);
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : "Tente novamente mais tarde";
       toast({
         title: "Erro ao atualizar perfil",
-        description: error.message || "Tente novamente mais tarde",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
@@ -200,19 +218,21 @@ const Profile = () => {
   // Check if user is admin
   useEffect(() => {
     const checkAdminStatus = async () => {
-      if (user && isAdmin) {
+      if (user && !loading && isAdmin) {
         try {
           const adminStatus = await isAdmin();
           setUserIsAdmin(adminStatus);
         } catch (error) {
-          console.error('Erro ao verificar status admin:', error);
+          console.error('Erro ao verificar status admin no Profile:', error);
           setUserIsAdmin(false);
         }
+      } else {
+        setUserIsAdmin(false);
       }
     };
 
     checkAdminStatus();
-  }, [user, isAdmin]);
+  }, [user, loading, isAdmin]);
 
   // Redirect to login if not authenticated
   useEffect(() => {
@@ -261,15 +281,15 @@ const Profile = () => {
                   {isAdminLoggedIn ? 'Admin Logado' : 'Painel Admin'}
                 </span>
                 {isAdminLoggedIn && (
-                  <button
+                  <span
                     onClick={async (e) => {
                       e.stopPropagation();
                       await logoutAdmin();
                     }}
-                    className="ml-2 text-xs text-red-600 hover:text-red-800 underline"
+                    className="ml-2 text-xs text-red-600 hover:text-red-800 underline cursor-pointer"
                   >
                     Sair
-                  </button>
+                  </span>
                 )}
               </TabsTrigger>
             </TabsList>
@@ -366,12 +386,12 @@ const Profile = () => {
                     </div>
                   ) : orders.length > 0 ? (
                     <div className="space-y-4">
-                      {orders.map((order: any) => (
+                      {orders.map((order: Order) => (
                         <Card key={order.id}>
                           <CardContent className="p-4">
                             <div className="flex justify-between items-center">
                               <div>
-                                <p className="font-medium">Pedido #{order.id.substring(0, 8)}</p>
+                                <p className="font-medium">Pedido #{order.id && typeof order.id === 'string' ? order.id.substring(0, 8) : 'N/A'}</p>
                                 <p className="text-sm text-gray-500">
                                   {new Date(order.created_at).toLocaleString()}
                                 </p>
@@ -424,7 +444,7 @@ const Profile = () => {
                     </div>
                   ) : tickets.length > 0 ? (
                     <div className="space-y-4">
-                      {tickets.map((ticket: any) => (
+                      {tickets.map((ticket: Ticket) => (
                         <Card key={ticket.id}>
                           <CardContent className="p-4">
                             <div className="flex justify-between items-center">
@@ -433,17 +453,17 @@ const Profile = () => {
                                   {ticket.events?.name || "Evento"}
                                 </p>
                                 <p className="text-sm text-gray-500">
-                                  {ticket.events?.date
-                                    ? new Date(ticket.events.date).toLocaleString()
+                                  {ticket.events && 'event_date' in ticket.events
+                                    ? new Date(String(ticket.events.event_date)).toLocaleString()
                                     : "Data não disponível"}
                                 </p>
                               </div>
                               <div>
                                 <p className="font-bold text-butterfly-orange capitalize">
-                                  {ticket.status}
+                                  {ticket.status as string}
                                 </p>
                                 <p className="text-sm text-right">
-                                  {ticket.events?.location || "Local a confirmar"}
+                                  {ticket.events && 'location' in ticket.events ? String(ticket.events.location) : "Local a confirmar"}
                                 </p>
                               </div>
                             </div>

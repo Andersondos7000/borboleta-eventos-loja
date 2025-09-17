@@ -261,7 +261,7 @@ const ProductModal: React.FC<ProductModalProps> = ({ product, children, onSelect
             <div className="flex gap-2 overflow-x-auto pb-2">
               {images.map((image, index) => (
                 <button
-                  key={index}
+                  key={`${image}-${index}`}
                   onClick={() => setCurrentImage(index)}
                   className={`flex-shrink-0 w-16 h-16 rounded-md overflow-hidden border-2 transition-all ${
                     currentImage === index 

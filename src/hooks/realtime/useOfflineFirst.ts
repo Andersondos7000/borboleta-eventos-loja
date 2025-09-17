@@ -179,7 +179,7 @@ export function useOfflineFirst<T extends { id: string }>(
 
   // Criar novo item
   const create = useCallback(async (item: Omit<T, 'id'>): Promise<T> => {
-    const tempId = `temp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const tempId = `temp_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`;
     const newItem = { ...item, id: tempId } as T;
 
     if (isOnline) {

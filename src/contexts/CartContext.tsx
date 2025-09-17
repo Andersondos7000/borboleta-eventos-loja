@@ -5,6 +5,7 @@ import { useToast } from '@/hooks/use-toast';
 import { CartItem, CartProduct, CartTicket, isCartProduct, isCartTicket } from '@/lib/cart-utils';
 import { CartContext, CartContextType } from './cart-context';
 
+
 // Define the structure of the data returned from Supabase
 interface CartItemFromSupabase {
   id: string;
@@ -43,6 +44,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [items, setItems] = useState<CartItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
+
   
   // Calculate subtotal, shipping, and total
   const subtotal = items.reduce((sum, item) => {
@@ -53,7 +55,8 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
     return sum;
   }, 0);
-  const shipping = subtotal > 200 ? 0 : 18.90;
+  // Frete removido - sempre gratuito
+  const shipping = 0;
   const total = subtotal + shipping;
   
   // Get user session and cart items
@@ -80,6 +83,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
               tickets (
                 id,
                 ticket_type,
+                price,
                 unit_price,
                 status,
                 events (
@@ -121,7 +125,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 quantity: item.quantity || 1,
                 unit_price: Number(item.unit_price) || 0,
                 total_price: Number(item.total_price) || (Number(item.unit_price) * item.quantity),
-                metadata: item.metadata || {},
+                metadata: {},
               };
               
               cartItems.push(cartProduct);
@@ -134,15 +138,15 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
               const cartTicket: CartTicket = {
                 id: item.id,
                 ticket_id: item.ticket_id!,
-                name: event?.name || ticket.ticket_type || 'Ingresso',
-                price: Number(ticket.unit_price) || 0,
+                name: event?.title || ticket.ticket_type || 'Ingresso',
+                price: Number(ticket.price) || Number(ticket.unit_price) || 0,
                 quantity: item.quantity || 1,
                 unit_price: Number(item.unit_price) || 0,
                 total_price: Number(item.total_price) || (Number(item.unit_price) * item.quantity),
                 ticket_type: ticket.ticket_type || 'standard',
                 status: ticket.status || 'active',
                 image: '/ingressos.webp',
-                event_title: event?.name || 'Evento',
+                event_title: event?.title || 'Evento',
               };
               
               cartItems.push(cartTicket);
@@ -401,6 +405,10 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
   
+
+
+
+
   // Clear the cart
   const clearCart = async () => {
     try {
@@ -443,6 +451,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       updateQuantity,
       updateSize,
       clearCart,
+
       subtotal,
       shipping,
       total

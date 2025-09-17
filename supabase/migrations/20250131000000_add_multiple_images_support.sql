@@ -16,6 +16,10 @@ CREATE TABLE IF NOT EXISTS public.product_images (
 -- Habilitar RLS
 ALTER TABLE public.product_images ENABLE ROW LEVEL SECURITY;
 
+-- Remover políticas existentes se houver
+DROP POLICY IF EXISTS "Product images are viewable by everyone" ON public.product_images;
+DROP POLICY IF EXISTS "Product images can be managed by authenticated users" ON public.product_images;
+
 -- Política para leitura pública de imagens de produtos
 CREATE POLICY "Product images are viewable by everyone" ON public.product_images
   FOR SELECT USING (true);
@@ -42,6 +46,9 @@ BEGIN
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
+
+-- Remover trigger existente se houver
+DROP TRIGGER IF EXISTS trigger_update_product_images_updated_at ON public.product_images;
 
 -- Trigger para atualizar updated_at
 CREATE TRIGGER trigger_update_product_images_updated_at

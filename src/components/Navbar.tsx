@@ -13,7 +13,7 @@ import { useAdminAuth } from '@/contexts/AdminAuthContext';
 
 const Navbar: React.FC = () => {
   const { items } = useCart();
-  const { user, signOut, isAdmin } = useAuth();
+  const { user, session, loading, signOut, isAdmin } = useAuth();
   const [userIsAdmin, setUserIsAdmin] = useState(false);
   const [showAdminModal, setShowAdminModal] = useState(false);
   const { isAdminLoggedIn } = useAdminAuth();
@@ -21,16 +21,21 @@ const Navbar: React.FC = () => {
 
   useEffect(() => {
     const checkAdminStatus = async () => {
-      if (user) {
-        const adminStatus = await isAdmin();
-        setUserIsAdmin(adminStatus);
+      if (user && session && !loading) {
+        try {
+          const adminStatus = await isAdmin();
+          setUserIsAdmin(adminStatus);
+        } catch (error) {
+          console.error('Erro ao verificar status admin no Navbar:', error);
+          setUserIsAdmin(false);
+        }
       } else {
         setUserIsAdmin(false);
       }
     };
 
     checkAdminStatus();
-  }, [user, isAdmin]);
+  }, [user, session, loading, isAdmin]);
   
   // Calculate total quantity by summing up all item quantities
   const cartItemsCount = items.reduce((total, item) => total + item.quantity, 0);

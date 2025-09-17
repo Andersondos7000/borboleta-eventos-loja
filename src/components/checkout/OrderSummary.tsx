@@ -55,7 +55,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ cartItems, subtotal, total 
                     {item.name} x{item.quantity}
                   </span>
                   <span className="font-medium">
-                    {((Number(item.price) || 0) * (Number(item.quantity) || 1)).toLocaleString('pt-BR', { 
+                    {(((Number(item.price) || 0) * (Number(item.quantity) || 1)) / 100).toLocaleString('pt-BR', { 
                       style: 'currency', 
                       currency: 'BRL' 
                     })}

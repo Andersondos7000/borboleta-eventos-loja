@@ -23,7 +23,7 @@ const formSchema = z.object({
   neighborhood: z.string().optional(),
   city: z.string().min(2, { message: "Cidade é obrigatória" }),
   state: z.string().min(2, { message: "Estado é obrigatório" }),
-  phone: z.string().min(10, { message: "Celular deve ter pelo menos 10 caracteres" }),
+  phone: z.string().optional(),
 });
 
 export type CustomerFormData = z.infer<typeof formSchema>;
@@ -278,7 +278,7 @@ const CustomerInformation: React.FC<CustomerInformationProps> = ({ form }) => {
             name="phone"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Celular*</FormLabel>
+                <FormLabel>Celular (opcional)</FormLabel>
                 <FormControl>
                   <Input placeholder="(00) 00000-0000" {...field} />
                 </FormControl>

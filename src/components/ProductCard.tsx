@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { ShoppingCart, ChevronLeft, ChevronRight } from 'lucide-react';
 import ProductModal from './ProductModal';
+import OptimizedImage from './OptimizedImage';
 import { useCart } from '@/hooks/useCart';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/lib/supabase';
@@ -131,15 +132,11 @@ const ProductCardContent: React.FC<{ product: ProductProps }> = ({ product }) =>
     >
       <ProductModal product={{...product, image: relatedImages[currentImageIndex]}} onSelectSize={handleSelectSize}>
         <div className="relative aspect-square overflow-hidden cursor-pointer bg-gray-50">
-          <img 
+          <OptimizedImage 
             src={relatedImages[currentImageIndex]} 
             alt={product.name} 
             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" 
-            onError={(e) => {
-              const target = e.target as HTMLImageElement;
-              target.src = '/placeholder.svg';
-              target.onerror = null;
-            }}
+            fallbackSrc="/placeholder.svg"
           />
           {!product.inStock && (
             <div className="absolute inset-0 bg-black bg-opacity-60 flex items-center justify-center">
@@ -171,7 +168,7 @@ const ProductCardContent: React.FC<{ product: ProductProps }> = ({ product }) =>
               <div className="absolute bottom-2 left-0 right-0 flex justify-center gap-1">
                 {relatedImages.map((_, index) => (
                   <button 
-                    key={index}
+                    key={`${product.id}-image-${index}`}
                     onClick={(e) => { e.stopPropagation(); setCurrentImageIndex(index); }}
                     className={`h-2 w-2 rounded-full ${currentImageIndex === index ? 'bg-butterfly-orange' : 'bg-gray-300'}`}
                     aria-label={`Ver imagem ${index + 1}`}
@@ -206,7 +203,7 @@ const ProductCardContent: React.FC<{ product: ProductProps }> = ({ product }) =>
           size="lg" 
           className={`w-full flex items-center justify-center font-semibold transition-all duration-200 ${
             product.inStock 
-              ? 'bg-black hover:bg-gray-800 text-white shadow-md hover:shadow-lg' 
+              ? 'bg-butterfly-orange hover:bg-orange-600 text-white shadow-md hover:shadow-lg' 
               : 'bg-gray-100 text-gray-400 cursor-not-allowed'
           }`}
           disabled={!product.inStock}

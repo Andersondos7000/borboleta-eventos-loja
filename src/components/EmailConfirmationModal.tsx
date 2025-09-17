@@ -1,5 +1,5 @@
 import React from 'react';
-import { Dialog, DialogContent, DialogHeader } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Mail, RefreshCw } from 'lucide-react';
 
@@ -21,6 +21,7 @@ const EmailConfirmationModal: React.FC<EmailConfirmationModalProps> = ({
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-md mx-auto bg-white rounded-2xl shadow-2xl border-0 p-0 overflow-hidden">
+        <DialogTitle className="sr-only">Confirmação de E-mail</DialogTitle>
         <div className="bg-gradient-to-br from-orange-50 to-orange-100 p-8 text-center">
           {/* Borboleta Icon */}
           <div className="mb-6 flex justify-center">

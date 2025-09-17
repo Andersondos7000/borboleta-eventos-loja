@@ -42,6 +42,9 @@ BEGIN
 END;
 $$ language 'plpgsql';
 
+-- Remover trigger existente se houver
+DROP TRIGGER IF EXISTS update_orders_updated_at ON orders;
+
 CREATE TRIGGER update_orders_updated_at BEFORE UPDATE ON orders
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 

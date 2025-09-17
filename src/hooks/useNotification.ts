@@ -32,8 +32,8 @@ export function useNotification(): UseNotificationReturn {
     // Tentar usar notificações nativas do navegador
     if ('Notification' in window && Notification.permission === 'granted') {
       const notification = new Notification(message, {
-        icon: '/favicon.ico',
-        badge: '/favicon.ico',
+        icon: '/logo-topo.svg',
+      badge: '/logo-topo.svg',
         tag: `notification-${Date.now()}`,
         requireInteraction: persistent
       });
@@ -131,7 +131,7 @@ export function useSystemNotifications() {
   const addSystemNotification = useCallback((notification: Omit<SystemNotification, 'id' | 'timestamp' | 'read'>) => {
     const systemNotification: SystemNotification = {
       ...notification,
-      id: `sys-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      id: `sys-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`,
       timestamp: new Date(),
       read: false
     };

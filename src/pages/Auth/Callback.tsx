@@ -12,16 +12,32 @@ const AuthCallback = () => {
   useEffect(() => {
     const handleAuthCallback = async () => {
       try {
-        // Aguardar um pouco para garantir que o callback foi processado
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        console.log('Iniciando processamento do callback de autenticação');
         
-        const { data, error } = await supabase.auth.getSession();
+        // Verificar se há parâmetros de erro na URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const error = urlParams.get('error');
+        const errorDescription = urlParams.get('error_description');
         
         if (error) {
-          console.error('Erro no callback de autenticação:', error);
+          console.error('Erro nos parâmetros da URL:', { error, errorDescription });
           toast({
             title: "Erro na autenticação",
-            description: error.message || "Falha ao processar login com Google",
+            description: errorDescription || error || "Falha ao processar login com Google",
+            variant: "destructive"
+          });
+          navigate('/auth', { replace: true });
+          return;
+        }
+        
+        // Processar o callback do OAuth
+        const { data, error: authError } = await supabase.auth.getSession();
+        
+        if (authError) {
+          console.error('Erro no callback de autenticação:', authError);
+          toast({
+            title: "Erro na autenticação",
+            description: authError.message || "Falha ao processar login com Google",
             variant: "destructive"
           });
           navigate('/auth', { replace: true });
@@ -30,10 +46,21 @@ const AuthCallback = () => {
 
         if (data.session && data.session.user) {
           console.log('Usuário autenticado com sucesso:', data.session.user.email);
+          
+          // Verificar se há um role nos parâmetros da URL
+          const role = urlParams.get('role');
+          if (role) {
+            console.log('Role detectado nos parâmetros:', role);
+            // Aqui você pode processar o role se necessário
+          }
+          
           toast({
             title: "Login realizado com sucesso",
             description: `Bem-vindo, ${data.session.user.email}!`
           });
+          
+          // Limpar a URL dos parâmetros antes de redirecionar
+          window.history.replaceState({}, document.title, window.location.pathname);
           
           // Redirecionar para a página inicial
           navigate('/', { replace: true });

@@ -12,7 +12,7 @@ import AdditionalNotes from "@/components/checkout/AdditionalNotes";
 import ParticipantsList from "@/components/checkout/ParticipantsList";
 import OrderSummary from "@/components/checkout/OrderSummary";
 import TermsSection from "@/components/checkout/TermsSection";
-import MercadoPagoCheckout from "@/components/MercadoPagoCheckout";
+
 import { useCart } from "@/hooks/useCart";
 import { isCartProduct } from "@/lib/cart-utils";
 import { supabase } from "@/lib/supabase";
@@ -30,7 +30,7 @@ const formSchema = z.object({
   neighborhood: z.string().optional(),
   city: z.string().min(2, { message: "Cidade é obrigatória" }),
   state: z.string().min(2, { message: "Estado é obrigatório" }),
-  phone: z.string().min(10, { message: "Celular deve ter pelo menos 10 caracteres" }),
+  phone: z.string().optional(),
   additionalNotes: z.string().optional(),
   participants: z.array(
     z.object({
@@ -84,6 +84,15 @@ const Checkout = () => {
     ...(isCartProduct(item) ? { category: item.category, size: item.size } : {})
   }));
 
+  // Calcular subtotal e total baseado nos testItems quando carrinho vazio
+  const calculatedSubtotal = items.length === 0 
+    ? testItems.reduce((sum, item) => sum + (item.price * item.quantity), 0) / 100 // Converter de centavos para reais
+    : subtotal;
+  
+  const calculatedTotal = items.length === 0
+    ? calculatedSubtotal // Para teste PIX, não há frete
+    : total;
+
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -134,13 +143,33 @@ const Checkout = () => {
 
       // Criar pedido no Supabase
       const orderPayload = {
-        customer_name: `${data.firstName} ${data.lastName}`,
-        customer_email: data.phone + '@teste.com', // Temporário para teste
-        customer_phone: data.phone,
-        customer_document: data.cpf,
-        total_amount: orderTotal,
-        status: 'pending',
+        user_id: session.session?.user?.id || null,
+        payment_id: `temp_${Date.now()}`, // Temporary ID, will be updated after payment
+        customer_data: {
+          name: `${data.firstName} ${data.lastName}`,
+          email: data.email,
+          phone: data.phone,
+          document: data.cpf,
+          address: {
+            street: data.address,
+            number: data.number,
+            neighborhood: data.neighborhood,
+            city: data.city,
+            state: data.state,
+            zip_code: data.zipCode,
+            country: 'BR'
+          }
+        },
+        items: testItems.map(item => ({
+          id: item.id,
+          name: item.name,
+          quantity: item.quantity,
+          unit_price: item.price,
+          total_price: item.price * item.quantity
+        })),
+        total: Math.round(orderTotal * 100), // Converter para centavos
         payment_method: 'pix',
+        payment_status: 'pending',
         shipping_address: {
           street: data.address,
           number: data.number,
@@ -148,18 +177,10 @@ const Checkout = () => {
           city: data.city,
           state: data.state,
           zip_code: data.zipCode,
-          country: data.country
+          country: 'BR'
         },
-        items: testItems.map(item => ({
-          product_id: isCartProduct(item) ? item.productId : null,
-          ticket_id: !isCartProduct(item) ? item.ticketId : null,
-          name: item.name,
-          price: item.price,
-          quantity: item.quantity,
-          size: isCartProduct(item) ? item.size : null
-        })),
-        participants: data.participants,
-        additional_notes: data.additionalNotes
+        participants: data.participants || [],
+        additional_notes: data.additionalNotes || ''
       };
 
       const { data: orderResponse, error: orderError } = await supabase
@@ -250,37 +271,10 @@ const Checkout = () => {
                     onRemoveParticipant={removeParticipant}
                   />
                   {orderCreated && orderData ? (
-                    <MercadoPagoCheckout
-                      orderData={{
-                        customer: {
-                          name: `${orderData.firstName} ${orderData.lastName}`,
-                          email: orderData.phone + '@teste.com',
-                          phone: orderData.phone,
-                          document: orderData.cpf
-                        },
-                        amount: items.length === 0 ? testItems.reduce((sum, item) => sum + (item.price * item.quantity), 0) : total,
-                        description: `Pedido - ${testItems.map(item => item.name).join(', ')}`,
-                        items: testItems.map(item => ({
-                          title: item.name,
-                          quantity: item.quantity,
-                          unit_price: item.price
-                        }))
-                      }}
-                      onPaymentSuccess={(paymentData) => {
-                        toast({
-                          title: "Pagamento aprovado!",
-                          description: "Seu pedido foi confirmado com sucesso.",
-                        });
-                        // Redirecionar para página de sucesso ou dashboard
-                      }}
-                      onPaymentError={(error) => {
-                        toast({
-                          title: "Erro no pagamento",
-                          description: error.message || "Tente novamente.",
-                          variant: "destructive"
-                        });
-                      }}
-                    />
+                    <div className="bg-blue-50 p-6 rounded-lg text-center">
+                      <p className="text-blue-600 font-medium">Pedido criado com sucesso!</p>
+                      <p className="text-gray-600 mt-2">Sistema de pagamento será implementado em breve.</p>
+                    </div>
                   ) : (
                     <div className="bg-gray-50 p-6 rounded-lg text-center">
                       <p className="text-gray-600">Complete os dados acima para prosseguir com o pagamento</p>
@@ -288,8 +282,24 @@ const Checkout = () => {
                   )}
                   <TermsSection 
                     form={form} 
-                    total={total} 
+                    total={calculatedTotal} 
                     isProcessing={isProcessingPayment}
+                    onSubmit={onSubmit}
+                    orderData={orderData ? {
+                      customer: {
+                        name: `${orderData.firstName} ${orderData.lastName}`,
+                        email: orderData.email,
+                        phone: orderData.phone,
+                        document: orderData.cpf
+                      },
+                      amount: items.length === 0 ? testItems.reduce((sum, item) => sum + (item.price * item.quantity), 0) : calculatedTotal, // Valor já em reais
+                      description: `Pedido - ${testItems.map(item => item.name).join(', ')}`,
+                      items: testItems.map(item => ({
+                        title: item.name,
+                        quantity: item.quantity,
+                        unit_price: item.price
+                      }))
+                    } : undefined}
                   />
                 </form>
               </Form>
@@ -297,8 +307,8 @@ const Checkout = () => {
             
             <OrderSummary 
               cartItems={formattedCartItems}
-              subtotal={subtotal}
-              total={total}
+              subtotal={calculatedSubtotal}
+              total={calculatedTotal}
             />
           </div>
         </div>

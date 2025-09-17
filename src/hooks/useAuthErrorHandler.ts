@@ -43,7 +43,7 @@ export const useAuthErrorHandler = () => {
     }
   }, [showAuthError]);
 
-  const handleSupabaseError = useCallback(async (error: any) => {
+  const handleSupabaseError = useCallback(async (error: unknown) => {
     const errorMessage = error?.message || '';
     
     // Verificar se é erro de refresh token

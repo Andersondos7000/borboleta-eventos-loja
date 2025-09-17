@@ -128,7 +128,7 @@ const CartContent = () => {
           
           <div className="flex justify-between">
             <span className="text-gray-600">Frete</span>
-            <span>{shipping === 0 ? "Grátis" : formatCurrency(shipping)}</span>
+            <span>Grátis</span>
           </div>
           
           <div className="border-t border-gray-200 pt-3 mt-3">
@@ -137,11 +137,9 @@ const CartContent = () => {
               <span className="text-butterfly-orange" data-testid="total">{formatCurrency(total)}</span>
             </div>
             
-            {subtotal >= 200 && (
-              <div className="mt-2 text-green-600 text-sm">
-                Você ganhou frete grátis!
-              </div>
-            )}
+            <div className="mt-2 text-sm text-green-600 font-medium">
+              🎉 Frete grátis em todos os pedidos!
+            </div>
           </div>
         </div>
         

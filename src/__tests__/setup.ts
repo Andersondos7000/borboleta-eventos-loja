@@ -101,7 +101,7 @@ Object.defineProperty(window, 'performance', {
 // Mock crypto API for UUID generation
 Object.defineProperty(global, 'crypto', {
   value: {
-    randomUUID: jest.fn(() => 'mock-uuid-' + Math.random().toString(36).substr(2, 9)),
+    randomUUID: jest.fn(() => 'mock-uuid-' + Math.random().toString(36).substring(2, 11)),
     getRandomValues: jest.fn((arr) => {
       for (let i = 0; i < arr.length; i++) {
         arr[i] = Math.floor(Math.random() * 256);

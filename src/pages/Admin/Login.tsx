@@ -24,7 +24,7 @@ const AdminLogin = () => {
   const location = useLocation();
   
   // Pegar a rota de origem ou usar dashboard como padrão
-  const from = (location.state as any)?.from || '/admin';
+  const from = (location.state as { from?: string })?.from || '/admin';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,9 +38,9 @@ const AdminLogin = () => {
         description: 'Bem-vindo ao painel administrativo!',
       });
       navigate(from, { replace: true });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Erro no login admin:', error);
-      const errorMessage = error.message || 'Erro ao fazer login';
+      const errorMessage = error instanceof Error ? error.message : 'Erro ao fazer login';
       setError(errorMessage);
       toast({
         title: 'Erro no login',
@@ -63,9 +63,9 @@ const AdminLogin = () => {
         description: 'Bem-vindo ao painel administrativo!',
       });
       navigate(from, { replace: true });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Erro no login com Google:', error);
-      const errorMessage = error.message || 'Erro ao fazer login com Google';
+      const errorMessage = error instanceof Error ? error.message : 'Erro ao fazer login com Google';
       setError(errorMessage);
       toast({
         title: 'Erro no login',

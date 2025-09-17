@@ -92,8 +92,8 @@ export interface ProfileValidationError {
 export interface ProfileConflict {
   id: string;
   field: keyof Profile;
-  localValue: any;
-  serverValue: any;
+  localValue: unknown;
+  serverValue: unknown;
   timestamp: string;
 }
 

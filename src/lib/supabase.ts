@@ -79,7 +79,7 @@ export const clearAuthData = () => {
 };
 
 // Função para tratar erros de refresh token
-export const handleAuthError = async (error: any) => {
+export const handleAuthError = async (error: unknown) => {
   if (error?.message?.includes('Invalid Refresh Token') || 
       error?.message?.includes('Refresh Token Not Found')) {
     console.warn('🔄 Token de refresh inválido detectado, limpando sessão...');

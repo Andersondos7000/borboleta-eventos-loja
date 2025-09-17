@@ -468,7 +468,7 @@ const RealtimeSync: React.FC<RealtimeSyncProps> = ({
             fontSize: '11px'
           }}>
             {lastSyncResults.map((result, index) => (
-              <div key={index} style={{ 
+              <div key={`${result.table}-${index}`} style={{ 
                 display: 'flex', 
                 justifyContent: 'space-between',
                 padding: '4px 0',

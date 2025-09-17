@@ -38,49 +38,35 @@ const OptimizedImage: React.FC<OptimizedImageProps> = ({
   const handleImageError = () => {
     setIsLoading(false);
     
-    // Try alternative Unsplash format first
-    if (imageSrc.includes('source.unsplash.com') && !imageSrc.includes('images.unsplash.com')) {
-      const photoIdMatch = imageSrc.match(/source\.unsplash\.com\/([a-zA-Z0-9_-]+)/);
-      if (photoIdMatch) {
-        const photoId = photoIdMatch[1];
-        setImageSrc(`https://images.unsplash.com/photo-${photoId}?w=400&h=400&fit=crop&crop=center`);
-        return;
-      }
-    }
-    
-    // Try fallback if not already using it
-    if (imageSrc !== fallbackSrc) {
-      setImageSrc(fallbackSrc);
-      setHasError(true);
+    // Strategy 1: Try picsum.photos as primary alternative (no CORS issues)
+    if (imageSrc.includes('images.unsplash.com') || imageSrc.includes('source.unsplash.com')) {
+      const randomId = Math.floor(Math.random() * 1000) + 1;
+      setImageSrc(`https://picsum.photos/400/400?random=${randomId}`);
       return;
     }
     
+    // Strategy 2: Try fallback if not already using it
+    if (imageSrc !== fallbackSrc && !imageSrc.includes('picsum.photos')) {
+      setImageSrc(fallbackSrc);
+      return;
+    }
+    
+    // Final fallback: show error state
     setHasError(true);
     onError?.();
   };
 
-  // For Unsplash images, use a proxy or convert to a more reliable format
+  // Optimize image sources for better compatibility
   const getOptimizedSrc = (originalSrc: string) => {
-    // If it's already a source.unsplash.com URL that failed, try alternatives
-    if (originalSrc.includes('source.unsplash.com')) {
-      // Extract the photo ID from source.unsplash.com URL
-      const photoIdMatch = originalSrc.match(/source\.unsplash\.com\/([a-zA-Z0-9_-]+)/);
-      if (photoIdMatch) {
-        const photoId = photoIdMatch[1];
-        // Try using images.unsplash.com as fallback
-        return `https://images.unsplash.com/photo-${photoId}?w=400&h=400&fit=crop&crop=center`;
-      }
+    // For Unsplash URLs, replace with Picsum Photos to avoid CORS issues
+    if (originalSrc.includes('images.unsplash.com') || originalSrc.includes('source.unsplash.com')) {
+      const randomId = Math.floor(Math.random() * 1000) + 1;
+      return `https://picsum.photos/400/400?random=${randomId}`;
     }
     
-    // If it's an images.unsplash.com image, convert to source API
-    if (originalSrc.includes('images.unsplash.com')) {
-      // Extract the photo ID from Unsplash URL
-      const photoIdMatch = originalSrc.match(/photo-([a-zA-Z0-9_-]+)/);
-      if (photoIdMatch) {
-        const photoId = photoIdMatch[1];
-        // Use Unsplash's source API which is more reliable
-        return `https://source.unsplash.com/${photoId}/400x400`;
-      }
+    // For picsum.photos, keep as is
+    if (originalSrc.includes('picsum.photos')) {
+      return originalSrc;
     }
     
     return originalSrc;
@@ -107,7 +93,7 @@ const OptimizedImage: React.FC<OptimizedImageProps> = ({
         onLoad={handleImageLoad}
         onError={handleImageError}
         loading="lazy"
-        crossOrigin="anonymous"
+        referrerPolicy="no-referrer"
       />
       
       {hasError && (

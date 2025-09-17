@@ -9,6 +9,7 @@ interface CartContextType {
   updateQuantity: (itemId: string, quantity: number) => Promise<void>;
   updateSize: (itemId: string, size: string) => Promise<void>;
   clearCart: () => Promise<void>;
+
   subtotal: number;
   shipping: number;
   total: number;

@@ -21,6 +21,7 @@ CREATE TABLE IF NOT EXISTS public.products (
 ALTER TABLE public.products ENABLE ROW LEVEL SECURITY;
 
 -- Política para leitura pública de produtos ativos
+DROP POLICY IF EXISTS "Products are viewable by everyone" ON public.products;
 CREATE POLICY "Products are viewable by everyone" ON public.products
   FOR SELECT USING (in_stock = true);
 

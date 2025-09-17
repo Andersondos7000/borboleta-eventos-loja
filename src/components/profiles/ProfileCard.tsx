@@ -199,7 +199,7 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
         {profile.notes && (
           <div className="mb-4">
             <p className="text-sm text-gray-600 bg-gray-50 p-2 rounded border-l-4 border-blue-200">
-              <span className="font-medium">Obs:</span> {profile.notes.length > 100 ? `${profile.notes.substring(0, 100)}...` : profile.notes}
+              <span className="font-medium">Obs:</span> {profile.notes && profile.notes.length > 100 ? `${profile.notes.substring(0, 100)}...` : profile.notes || ''}
             </p>
           </div>
         )}

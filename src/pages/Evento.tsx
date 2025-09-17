@@ -8,10 +8,12 @@ import EventCountdown from '@/components/EventCountdown';
 import { Link } from 'react-router-dom';
 
 const Evento = () => {
+  // Data do evento: 15 de Dezembro de 2025
+  const eventDate = new Date('2025-12-15T09:00:00');
   
   const eventSchedule = [
     {
-      day: 'Dia 1 - 17 de Abril',
+      day: 'Dia 1 - 15 de Dezembro',
       activities: [
         { time: '08:00 - 09:00', title: 'Credenciamento e Welcome Coffee' },
         { time: '09:00 - 10:30', title: 'Abertura Oficial e Palestra Principal' },
@@ -25,7 +27,7 @@ const Evento = () => {
       ]
     },
     {
-      day: 'Dia 2 - 18 de Abril',
+      day: 'Dia 2 - 16 de Dezembro',
       activities: [
         { time: '08:30 - 09:00', title: 'Abertura do Segundo Dia' },
         { time: '09:00 - 10:30', title: 'Palestra: Superando Desafios' },
@@ -69,7 +71,7 @@ const Evento = () => {
             <div className="flex flex-wrap gap-6 mb-8">
               <div className="flex items-center">
                 <Calendar className="text-butterfly-orange mr-2 h-5 w-5" />
-                <span>17 e 18 de Abril de 2026</span>
+                <span>15 e 16 de Dezembro de 2025</span>
               </div>
               
               <div className="flex items-center">
@@ -105,7 +107,7 @@ const Evento = () => {
           <div className="text-center mb-6">
             <h2 className="font-display text-2xl font-bold">O Evento Começa Em</h2>
           </div>
-          <EventCountdown />
+          <EventCountdown targetDate={eventDate} />
         </div>
       </section>
       
@@ -186,14 +188,14 @@ const Evento = () => {
           
           <div className="grid md:grid-cols-2 gap-8">
             {eventSchedule.map((day, index) => (
-              <div key={index} className="bg-gray-50 rounded-lg p-6 shadow-sm">
+              <div key={`${day.day}-${index}`} className="bg-gray-50 rounded-lg p-6 shadow-sm">
                 <h3 className="text-xl font-bold mb-6 pb-2 border-b-2 border-butterfly-orange">
                   {day.day}
                 </h3>
                 
                 <div className="space-y-4">
                   {day.activities.map((activity, idx) => (
-                    <div key={idx} className="flex">
+                    <div key={`${activity.title}-${idx}`} className="flex">
                       <div className="w-24 font-medium text-butterfly-orange shrink-0">
                         {activity.time}
                       </div>

@@ -67,7 +67,7 @@ export default function TestMCPPage() {
         {error && (
           <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded text-red-700">
             <p className="font-medium">Erro:</p>
-            <p>{error}</p>
+            <p>{typeof error === 'string' ? error : error.message || 'Erro desconhecido'}</p>
           </div>
         )}
         

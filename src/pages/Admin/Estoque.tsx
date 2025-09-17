@@ -23,6 +23,15 @@ interface StockItem {
   in_stock: boolean; // ATUALIZADO: Status de estoque
 }
 
+interface SupabaseProduct {
+  id: string;
+  name: string;
+  category: string;
+  in_stock: boolean;
+  image: string;
+  sizes?: string[];
+}
+
 const AdminEstoque = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('all');
@@ -45,7 +54,7 @@ const AdminEstoque = () => {
         if (error) throw error;
         
         if (products) {
-          const items: StockItem[] = products.map((p: any) => {
+          const items: StockItem[] = products.map((p: SupabaseProduct) => {
             // Simular estoque baseado no status in_stock
             const stockValue = p.in_stock ? 10 : 0; // Valor simulado
             return {
@@ -86,7 +95,7 @@ const AdminEstoque = () => {
         .select('id, name, category, image_url, sizes, in_stock');
       
       if (products) {
-        const items: StockItem[] = products.map((p: any) => {
+        const items: StockItem[] = products.map((p: SupabaseProduct) => {
           const stockValue = Math.floor(Math.random() * 20) + 1; // SIMULADO
           return {
             id: p.id,

@@ -86,7 +86,7 @@ export function useOfflineQueue(config: OfflineQueueConfig = {}): UseOfflineQueu
 
   // Gerar ID único para ação
   const generateActionId = useCallback(() => {
-    return `action_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    return `action_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`;
   }, []);
 
   // Determinar prioridade baseada no tipo de ação

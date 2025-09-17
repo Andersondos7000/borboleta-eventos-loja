@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste Delete User</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <h1>Teste de Exclusão de Usuário</h1>
+    <div id="result"></div>
+    <button onclick="testDeleteFunction()">Testar Função Delete</button>
+    <button onclick="checkUserPermissions()">Verificar Permissões</button>
+    <button onclick="listUsers()">Listar Usuários</button>
+
+    <script>
+        // Configuração do Supabase
+        const supabaseUrl = 'https://ojxmfxbflbfinodkhixk.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9qeG1meGJmbGJmaW5vZGtoaXhrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzY5NzY5NzIsImV4cCI6MjA1MjU1Mjk3Mn0.Ej4Ej8Ej8Ej8Ej8Ej8Ej8Ej8Ej8Ej8Ej8Ej8Ej8Ej8';
+        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+        function log(message) {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML += '<p>' + JSON.stringify(message, null, 2) + '</p>';
+            console.log(message);
+        }
+
+        async function checkUserPermissions() {
+            try {
+                log('Verificando usuário atual...');
+                const { data: { user }, error: userError } = await supabase.auth.getUser();
+                
+                if (userError) {
+                    log('Erro ao obter usuário: ' + userError.message);
+                    return;
+                }
+                
+                if (!user) {
+                    log('Usuário não logado');
+                    return;
+                }
+                
+                log('Usuário atual: ' + user.id);
+                
+                // Verificar perfil
+                const { data: profile, error: profileError } = await supabase
+                    .from('profiles')
+                    .select('*')
+                    .eq('id', user.id)
+                    .single();
+                    
+                if (profileError) {
+                    log('Erro ao obter perfil: ' + profileError.message);
+                    return;
+                }
+                
+                log('Perfil do usuário:');
+                log(profile);
+                
+                // Testar função can_delete_users
+                const { data: canDelete, error: canDeleteError } = await supabase
+                    .rpc('can_delete_users', { user_id: user.id });
+                    
+                if (canDeleteError) {
+                    log('Erro ao verificar permissões: ' + canDeleteError.message);
+                    return;
+                }
+                
+                log('Pode deletar usuários: ' + canDelete);
+                
+            } catch (error) {
+                log('Erro inesperado: ' + error.message);
+            }
+        }
+
+        async function listUsers() {
+            try {
+                log('Listando usuários...');
+                const { data: users, error } = await supabase
+                    .from('profiles')
+                    .select('id, email, role, is_verified, certification_level')
+                    .limit(5);
+                    
+                if (error) {
+                    log('Erro ao listar usuários: ' + error.message);
+                    return;
+                }
+                
+                log('Usuários encontrados:');
+                log(users);
+                
+            } catch (error) {
+                log('Erro inesperado: ' + error.message);
+            }
+        }
+
+        async function testDeleteFunction() {
+            try {
+                log('Testando função delete_user_complete...');
+                
+                // Primeiro, vamos listar usuários para pegar um ID de teste
+                const { data: users, error: usersError } = await supabase
+                    .from('profiles')
+                    .select('id, email, role')
+                    .neq('role', 'admin') // Não pegar admin para teste
+                    .limit(1);
+                    
+                if (usersError) {
+                    log('Erro ao buscar usuários para teste: ' + usersError.message);
+                    return;
+                }
+                
+                if (!users || users.length === 0) {
+                    log('Nenhum usuário não-admin encontrado para teste');
+                    return;
+                }
+                
+                const testUserId = users[0].id;
+                log('Testando exclusão do usuário: ' + testUserId + ' (' + users[0].email + ')');
+                
+                // Chamar a função delete_user_complete
+                const { data, error } = await supabase.rpc('delete_user_complete', {
+                    target_user_id: testUserId
+                });
+                
+                if (error) {
+                    log('Erro na função RPC: ' + error.message);
+                    log('Detalhes do erro:');
+                    log(error);
+                    return;
+                }
+                
+                log('Resultado da função:');
+                log(data);
+                
+            } catch (error) {
+                log('Erro inesperado: ' + error.message);
+                log('Stack trace:');
+                log(error);
+            }
+        }
+
+        // Auto-verificar permissões ao carregar
+        window.onload = function() {
+            log('Página carregada. Verificando estado...');
+            checkUserPermissions();
+        };
+    </script>
+</body>
+</html>
