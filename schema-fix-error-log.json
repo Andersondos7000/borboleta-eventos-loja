@@ -1,0 +1,6 @@
+{
+  "timestamp": "2025-10-01T05:29:15.487Z",
+  "status": "error",
+  "error": "Erro de conexão: Invalid API key",
+  "stack": "Error: Erro de conexão: Invalid API key\n    at executeSchemaFix (C:\\querenhapuque\\execute-schema-fix-direct-mcp.cjs:32:13)\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)"
+}

@@ -1,0 +1,203 @@
+🔧 PROMPT PARA IMPLEMENTAÇÃO DE SELETORES E EXCLUSÃO MÚLTIPLA
+================================================================
+
+CONTEXTO: Implementar sistema completo de seleção múltipla e exclusão em lote para qualquer lista/tabela de dados em páginas administrativas.
+
+📋 REQUISITOS DE IMPLEMENTAÇÃO
+==============================
+
+Por favor, implemente um sistema de seleção múltipla e exclusão em lote na página [NOME_DA_PÁGINA] seguindo exatamente este padrão:
+
+1. ESTADOS DE CONTROLE
+======================
+```typescript
+const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
+const [selectAllItems, setSelectAllItems] = useState(false);
+```
+
+2. FUNÇÕES PRINCIPAIS
+=====================
+- handleItemSelection(itemId: string, isChecked: boolean): Gerencia seleção individual
+- handleSelectAllItems(): Controla seleção/deseleção de todos os itens
+- deleteSelectedItems(): Executa exclusão em lote com confirmação
+
+3. INTERFACE VISUAL OBRIGATÓRIA
+===============================
+
+A. Checkbox "Selecionar Todos" (Topo da Lista)
+- Texto: "Selecionar todos (X itens)"
+- Posição: Antes da tabela/lista principal
+- Comportamento: Seleciona/deseleciona todos os itens visíveis
+
+B. Contador de Selecionados
+- Texto: "X item(s) selecionado(s)"
+- Visibilidade: Apenas quando há itens selecionados
+- Posição: Ao lado do checkbox "Selecionar todos"
+
+C. Botão de Exclusão
+- Texto: "Excluir Selecionados (X)"
+- Estilo: Botão vermelho destrutivo (variant="destructive")
+- Visibilidade: Apenas quando selectedItems.size > 0
+- Posição: Lado direito do cabeçalho
+
+D. Checkboxes Individuais
+- Um checkbox por item na lista
+- Posição: Primeira coluna de cada linha
+- Classes CSS: "rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+
+4. FUNCIONALIDADES TÉCNICAS
+===========================
+
+A. Processo de Exclusão:
+1. Exibir window.confirm("Tem certeza que deseja excluir X itens selecionados?")
+2. Se confirmado, executar exclusão via Supabase: supabase.from('[TABELA]').delete().in('id', Array.from(selectedItems))
+3. Exibir feedback de sucesso/erro
+4. Recarregar dados ou atualizar estado local
+5. Limpar seleções: setSelectedItems(new Set())
+
+B. Lógica de Seleção:
+- Manter sincronia entre "selecionar todos" e seleções individuais
+- Atualizar selectAllItems baseado no estado das seleções individuais
+- Suportar seleção parcial (alguns itens selecionados)
+
+5. ESTRUTURA HTML/JSX ESPERADA
+==============================
+```jsx
+{/* Cabeçalho com controles */}
+<div className="flex items-center justify-between">
+  <div className="flex items-center space-x-4">
+    <label className="flex items-center space-x-2 cursor-pointer">
+      <input
+        type="checkbox"
+        checked={selectAllItems}
+        onChange={handleSelectAllItems}
+        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+      />
+      <span className="text-sm font-medium">
+        Selecionar todos ({items.length} itens)
+      </span>
+    </label>
+    {selectedItems.size > 0 && (
+      <span className="text-sm text-gray-600">
+        {selectedItems.size} item(s) selecionado(s)
+      </span>
+    )}
+  </div>
+  {selectedItems.size > 0 && (
+    <Button
+      variant="destructive"
+      size="sm"
+      onClick={deleteSelectedItems}
+      className="ml-4"
+    >
+      Excluir Selecionados ({selectedItems.size})
+    </Button>
+  )}
+</div>
+
+{/* Lista/Tabela com checkboxes individuais */}
+{items.map((item) => (
+  <div key={item.id} className="flex items-center space-x-2">
+    <input
+      type="checkbox"
+      checked={selectedItems.has(item.id)}
+      onChange={(e) => handleItemSelection(item.id, e.target.checked)}
+      className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+    />
+    {/* Resto do conteúdo do item */}
+  </div>
+))}
+```
+
+6. PARÂMETROS PERSONALIZÁVEIS
+=============================
+- [NOME_DA_PÁGINA]: Nome da página onde implementar
+- [TABELA]: Nome da tabela no Supabase para exclusão
+- items: Array de dados da lista/tabela
+- item.id: Campo identificador único de cada item
+
+7. VALIDAÇÕES E SEGURANÇA
+=========================
+- Confirmar exclusão antes de executar
+- Validar se há itens selecionados antes de mostrar botão
+- Tratar erros de exclusão com feedback adequado
+- Limpar seleções após operações bem-sucedidas
+
+8. COMPORTAMENTOS ESPECIAIS (SE APLICÁVEL)
+==========================================
+- Para itens agrupados: permitir seleção em grupo
+- Para itens expandíveis: manter seleção ao expandir/recolher
+- Para paginação: manter seleções entre páginas
+
+9. EXEMPLO DE IMPLEMENTAÇÃO COMPLETA DAS FUNÇÕES
+================================================
+```typescript
+// Função para seleção individual
+const handleItemSelection = (itemId: string, isChecked: boolean) => {
+  const newSelected = new Set(selectedItems);
+  if (isChecked) {
+    newSelected.add(itemId);
+  } else {
+    newSelected.delete(itemId);
+  }
+  setSelectedItems(newSelected);
+  
+  // Atualizar estado do "selecionar todos"
+  setSelectAllItems(newSelected.size === items.length);
+};
+
+// Função para selecionar todos
+const handleSelectAllItems = () => {
+  if (selectAllItems) {
+    setSelectedItems(new Set());
+    setSelectAllItems(false);
+  } else {
+    const allIds = new Set(items.map(item => item.id));
+    setSelectedItems(allIds);
+    setSelectAllItems(true);
+  }
+};
+
+// Função para exclusão múltipla
+const deleteSelectedItems = async () => {
+  if (selectedItems.size === 0) return;
+  
+  const confirmed = window.confirm(
+    `Tem certeza que deseja excluir ${selectedItems.size} item(s) selecionado(s)?`
+  );
+  
+  if (!confirmed) return;
+  
+  try {
+    const { error } = await supabase
+      .from('[TABELA]')
+      .delete()
+      .in('id', Array.from(selectedItems));
+    
+    if (error) throw error;
+    
+    alert('Itens excluídos com sucesso!');
+    setSelectedItems(new Set());
+    setSelectAllItems(false);
+    
+    // Recarregar dados ou atualizar estado local
+    // window.location.reload(); // ou chamar função de atualização
+    
+  } catch (error) {
+    console.error('Erro ao excluir itens:', error);
+    alert('Erro ao excluir itens. Tente novamente.');
+  }
+};
+```
+
+10. IMPORTS NECESSÁRIOS
+=======================
+```typescript
+import React, { useState } from 'react';
+import { Button } from "@/components/ui/button";
+import { supabase } from '@/lib/supabase';
+```
+
+INSTRUÇÕES FINAIS
+=================
+Implemente exatamente conforme este padrão, adaptando apenas os nomes das variáveis e tabelas conforme necessário para a página específica. Mantenha a estrutura visual, funcionalidades e comportamentos idênticos ao modelo apresentado.

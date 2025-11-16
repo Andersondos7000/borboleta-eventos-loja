@@ -1,0 +1,2581 @@
+{
+  "timestamp": "2025-10-11T15:13:34.113Z",
+  "period": "24 horas",
+  "summary": {
+    "totalOrders": 71,
+    "suspiciousDuplicates": 17,
+    "totalUsers": 14,
+    "suspiciousUsers": 1
+  },
+  "alerts": [
+    {
+      "type": "HIGH_DUPLICATE_COUNT",
+      "severity": "HIGH",
+      "message": "17 grupos de possíveis duplicatas detectados",
+      "threshold": 5
+    },
+    {
+      "type": "SUSPICIOUS_USER_BEHAVIOR",
+      "severity": "MEDIUM",
+      "message": "1 usuários com comportamento suspeito",
+      "users": [
+        "fotosartdesig@gmail.com"
+      ]
+    },
+    {
+      "type": "RAPID_SUCCESSION_ORDERS",
+      "severity": "HIGH",
+      "message": "1 usuários fizeram pedidos em sucessão muito rápida",
+      "users": [
+        {
+          "email": "fotosartdesig@gmail.com",
+          "count": 13
+        }
+      ]
+    }
+  ],
+  "details": {
+    "duplicatesAnalysis": {
+      "totalOrders": 71,
+      "suspiciousGroups": [
+        {
+          "email": "fotosartdesig@gmail.com",
+          "amount": 2094.4,
+          "count": 2,
+          "orders": [
+            {
+              "id": "58e939a9-34d4-41b1-8d62-3279eddf4ab4",
+              "user_id": null,
+              "customer_id": null,
+              "total_amount": 2094.4,
+              "status": "pending",
+              "payment_id": null,
+              "payment_method": null,
+              "payment_status": "PENDING",
+              "shipping_address": null,
+              "created_at": "2025-10-11T14:28:50.424+00:00",
+              "updated_at": "2025-10-11T14:28:50.645948+00:00",
+              "additional_notes": null,
+              "customer_data": {
+                "cpf": "11144477735",
+                "name": "Anderson Araujo da Silva",
+                "email": "fotosartdesig@gmail.com",
+                "phone": "18991604609"
+              },
+              "mercadopago_payment_id": null,
+              "items": null,
+              "total": null,
+              "participants": null,
+              "customer_email_computed": "fotosartdesig@gmail.com"
+            },
+            {
+              "id": "70dbb817-b5b9-4fd0-8319-fb0d4e870114",
+              "user_id": null,
+              "customer_id": null,
+              "total_amount": 2094.4,
+              "status": "pending",
+              "payment_id": null,
+              "payment_method": null,
+              "payment_status": "PENDING",
+              "shipping_address": null,
+              "created_at": "2025-10-11T14:28:50.497+00:00",
+              "updated_at": "2025-10-11T14:28:50.739026+00:00",
+              "additional_notes": null,
+              "customer_data": {
+                "cpf": "11144477735",
+                "name": "Anderson Araujo da Silva",
+                "email": "fotosartdesig@gmail.com",
+                "phone": "18991604609"
+              },
+              "mercadopago_payment_id": null,
+              "items": null,
+              "total": null,
+              "participants": null,
+              "customer_email_computed": "fotosartdesig@gmail.com"
+            }
+          ],
+          "timeSpan": 0.0012166666666666667
+        },
+        {
+          "email": "joao.silva@teste.com",
+          "amount": 2094.4,
+          "count": 2,
+          "orders": [
+            {
+              "id": "d6795334-e322-4004-ad6b-e46be01e091b",
+              "user_id": null,
+              "customer_id": null,
+              "total_amount": 2094.4,
+              "status": "pending",
+              "payment_id": null,
+              "payment_method": null,
+              "payment_status": "PENDING",
+              "shipping_address": null,
+              "created_at": "2025-10-11T13:49:29.23+00:00",
+              "updated_at": "2025-10-11T13:49:29.432668+00:00",
+              "additional_notes": null,
+              "customer_data": {
+                "cpf": "11144477735",
+                "name": "João Silva",
+                "email": "joao.silva@teste.com"
+              },
+              "mercadopago_payment_id": null,
+              "items": null,
+              "total": null,
+              "participants": null,
+              "customer_email_computed": "joao.silva@teste.com"
+            },
+            {
+              "id": "41688d2b-88b7-400d-a0f1-a1b36125e914",
+              "user_id": null,
+              "customer_id": null,
+              "total_amount": 2094.4,
+              "status": "pending",
+              "payment_id": null,
+              "payment_method": null,
+              "payment_status": "PENDING",
+              "shipping_address": null,
+              "created_at": "2025-10-11T13:49:29.233+00:00",
+              "updated_at": "2025-10-11T13:49:29.484734+00:00",
+              "additional_notes": null,
+              "customer_data": {
+                "cpf": "11144477735",
+                "name": "João Silva",
+                "email": "joao.silva@teste.com"
+              },
+              "mercadopago_payment_id": null,
+              "items": null,
+              "total": null,
+              "participants": null,
+              "customer_email_computed": "joao.silva@teste.com"
+            }
+          ],
+          "timeSpan": 0.00005
+        },
+        {
+          "email": "joao.silva@teste.com",
+          "amount": 209440,
+          "count": 2,
+          "orders": [
+            {
+              "id": "d85e32ff-d0a5-4cd6-877d-0cb652dbb7e1",
+              "user_id": "ae94f9e2-602a-4315-af6f-78d3851b3480",
+              "customer_id": null,
+              "total_amount": 209440,
+              "status": "pending",
+              "payment_id": null,
+              "payment_method": "pix",
+              "payment_status": "pending",
+              "shipping_address": "{\"street\":\"Rua das Flores\",\"number\":\"123\",\"neighborhood\":\"\",\"city\":\"São Paulo\",\"state\":\"SP\",\"zip_code\":\"01234-567\",\"country\":\"BR\"}",
+              "created_at": "2025-10-11T13:18:19.592525+00:00",
+              "updated_at": "2025-10-11T13:18:19.592525+00:00",
+              "additional_notes": "",
+              "customer_data": {
+                "name": "João Silva",
+                "email": "joao.silva@teste.com",
+                "phone": "",
+                "address": {
+                  "city": "São Paulo",
+                  "state": "SP",
+                  "number": "123",
+                  "street": "Rua das Flores",
+                  "country": "BR",
+                  "zip_code": "01234-567",
+                  "neighborhood": ""
+                },
+                "document": "338.837.088-52"
+              },
+              "mercadopago_payment_id": null,
+              "items": [
+                {
+                  "id": "4eef9f4e-af6e-43e0-ab24-b787c9f80627",
+                  "name": "Show de Rock Nacional - Ingresso - Show de Rock Nacional",
+                  "quantity": 3,
+                  "unit_price": 85,
+                  "total_price": 255
+                },
+                {
+                  "id": "5e83172c-d738-4a37-9bfa-9ba82ebb81f4",
+                  "name": "Show de Rock Nacional - Ingresso - Show de Rock Nacional",
+                  "quantity": 23,
+                  "unit_price": 76.5,
+                  "total_price": 1759.5
+                },
+                {
+                  "id": "c807ae9f-7d88-4f6d-9251-92cdc1dfb2a8",
+                  "name": "Camiseta Premium",
+                  "quantity": 1,
+                  "unit_price": 79.9,
+                  "total_price": 79.9
+                }
+              ],
+              "total": null,
+              "participants": [
+                {
+                  "cpf": "",
+                  "name": "",
+                  "dress": "",
+                  "tshirt": ""
+                }
+              ],
+              "customer_email_computed": "joao.silva@teste.com"
+            },
+            {
+              "id": "0b1fc687-10f8-4e89-85c5-fe5c9131cb1d",
+              "user_id": "ae94f9e2-602a-4315-af6f-78d3851b3480",
+              "customer_id": null,
+              "total_amount": 209440,
+              "status": "pending",
+              "payment_id": null,
+              "payment_method": "pix",
+              "payment_status": "pending",
+              "shipping_address": "{\"street\":\"Rua das Flores\",\"number\":\"123\",\"neighborhood\":\"\",\"city\":\"São Paulo\",\"state\":\"SP\",\"zip_code\":\"01234-567\",\"country\":\"BR\"}",
+              "created_at": "2025-10-11T13:49:28.261178+00:00",
+              "updated_at": "2025-10-11T13:49:28.261178+00:00",
+              "additional_notes": "",
+              "customer_data": {
+                "name": "João Silva",
+                "email": "joao.silva@teste.com",
+                "phone": "",
+                "address": {
+                  "city": "São Paulo",
+                  "state": "SP",
+                  "number": "123",
+                  "street": "Rua das Flores",
+                  "country": "BR",
+                  "zip_code": "01234-567",
+                  "neighborhood": ""
+                },
+                "document": "111.444.777-35"
+              },
+              "mercadopago_payment_id": null,
+              "items": [
+                {
+                  "id": "4eef9f4e-af6e-43e0-ab24-b787c9f80627",
+                  "name": "Show de Rock Nacional - Ingresso - Show de Rock Nacional",
+                  "quantity": 3,
+                  "unit_price": 85,
+                  "total_price": 255
+                },
+                {
+                  "id": "5e83172c-d738-4a37-9bfa-9ba82ebb81f4",
+                  "name": "Show de Rock Nacional - Ingresso - Show de Rock Nacional",
+                  "quantity": 23,
+                  "unit_price": 76.5,
+                  "total_price": 1759.5
+                },
+                {
+                  "id": "c807ae9f-7d88-4f6d-9251-92cdc1dfb2a8",
+                  "name": "Camiseta Premium",
+                  "quantity": 1,
+                  "unit_price": 79.9,
+                  "total_price": 79.9
+                }
+              ],
+              "total": null,
+              "participants": [
+                {
+                  "cpf": "",
+                  "name": "",
+                  "dress": "",
+                  "tshirt": ""
+                }
+              ],
+              "customer_email_computed": "joao.silva@teste.com"
+            }
+          ],
+          "timeSpan": 31.144483333333334
+        },
+        {
+          "email": "joao.teste@exemplo.com",
+          "amount": 1000,
+          "count": 2,
+          "orders": [
+            {
+              "id": "031c9c05-75b3-4d57-a9db-1efd2bac7443",
+              "user_id": null,
+              "customer_id": null,
+              "total_amount": 1000,
+              "status": "pending",
+              "payment_id": null,
+              "payment_method": null,
+              "payment_status": "PENDING",
+              "shipping_address": null,
+              "created_at": "2025-10-11T12:53:00.763+00:00",
+              "updated_at": "2025-10-11T12:53:01.459571+00:00",
+              "additional_notes": null,
+              "customer_data": {
+                "cpf": "11144477735",
+                "name": "João Silva Teste",
+                "email": "joao.teste@exemplo.com",
+                "phone": "+5511999999999"
+              },
+              "mercadopago_payment_id": null,
+              "items": null,
+              "total": null,
+              "participants": null,
+              "customer_email_computed": "joao.teste@exemplo.com"
+            },
+            {
+              "id": "437ed6d6-b1c4-4926-9c8b-b77799d5c81a",
+              "user_id": null,
+              "customer_id": null,
+              "total_amount": 1000,
+              "status": "pending",
+              "payment_id": null,
+              "payment_method": null,
+              "payment_status": "PENDING",
+              "shipping_address": null,
+              "created_at": "2025-10-11T13:47:10.231+00:00",
+              "updated_at": "2025-10-11T13:47:10.617074+00:00",
+              "additional_notes": null,
+              "customer_data": {
+                "cpf": "11144477735",
+                "name": "João Silva Teste",
+                "email": "joao.teste@exemplo.com",
+                "phone": "+5511999999999"
+              },
+              "mercadopago_payment_id": null,
+              "items": null,
+              "total": null,
+              "participants": null,
+              "customer_email_computed": "joao.teste@exemplo.com"
+            }
+          ],
+          "timeSpan": 54.1578
+        },
+        {
+          "email": "joao.silva@email.com",
+          "amount": 209440,
+          "count": 2,
+          "orders": [
+            {
+              "id": "687c8490-7ecf-4dc9-8225-03cea6328431",
+              "user_id": "ae94f9e2-602a-4315-af6f-78d3851b3480",
+              "customer_id": null,
+              "total_amount": 209440,
+              "status": "pending",
+              "payment_id": null,
+              "payment_method": "pix",
+              "payment_status": "pending",
+              "shipping_address": "{\"street\":\"Rua das Flores\",\"number\":\"123\",\"neighborhood\":\"\",\"city\":\"São Paulo\",\"state\":\"SP\",\"zip_code\":\"01234-567\",\"country\":\"BR\"}",
+              "created_at": "2025-10-11T13:24:44.151724+00:00",
+              "updated_at": "2025-10-11T13:24:44.151724+00:00",
+              "additional_notes": "",
+              "customer_data": {
+                "name": "João Silva",
+                "email": "joao.silva@email.com",
+                "phone": "",
+                "address": {
+                  "city": "São Paulo",
+                  "state": "SP",
+                  "number": "123",
+                  "street": "Rua das Flores",
+                  "country": "BR",
+                  "zip_code": "01234-567",
+                  "neighborhood": ""
+                },
+                "document": "123.456.789-00"
+              },
+              "mercadopago_payment_id": null,
+              "items": [
+                {
+                  "id": "4eef9f4e-af6e-43e0-ab24-b787c9f80627",
+                  "name": "Show de Rock Nacional - Ingresso - Show de Rock Nacional",
+                  "quantity": 3,
+                  "unit_price": 85,
+                  "total_price": 255
+                },
+                {
+                  "id": "5e83172c-d738-4a37-9bfa-9ba82ebb81f4",
+                  "name": "Show de Rock Nacional - Ingresso - Show de Rock Nacional",
+                  "quantity": 23,
+                  "unit_price": 76.5,
+                  "total_price": 1759.5
+                },
+                {
+                  "id": "c807ae9f-7d88-4f6d-9251-92cdc1dfb2a8",
+                  "name": "Camiseta Premium",
+                  "quantity": 1,
+                  "unit_price": 79.9,
+                  "total_price": 79.9
+                }
+              ],
+              "total": null,
+              "participants": [
+                {
+                  "cpf": "",
+                  "name": "",
+                  "dress": "",
+                  "tshirt": ""
+                }
+              ],
+              "customer_email_computed": "joao.silva@email.com"
+            },
+            {
+              "id": "fdd56ba3-55bb-457d-b60f-bcabe9cd1434",
+              "user_id": "ae94f9e2-602a-4315-af6f-78d3851b3480",
+              "customer_id": null,
+              "total_amount": 209440,
+              "status": "pending",
+              "payment_id": null,
+              "payment_method": "pix",
+              "payment_status": "pending",
+              "shipping_address": "{\"street\":\"Avenida Paulista\",\"number\":\"1000\",\"neighborhood\":\"\",\"city\":\"São Paulo\",\"state\":\"SP\",\"zip_code\":\"01310-100\",\"country\":\"BR\"}",
+              "created_at": "2025-10-11T13:39:15.545159+00:00",
+              "updated_at": "2025-10-11T13:39:15.545159+00:00",
+              "additional_notes": "",
+              "customer_data": {
+                "name": "João Silva",
+                "email": "joao.silva@email.com",
+                "phone": "",
+                "address": {
+                  "city": "São Paulo",
+                  "state": "SP",
+                  "number": "1000",
+                  "street": "Avenida Paulista",
+                  "country": "BR",
+                  "zip_code": "01310-100",
+                  "neighborhood": ""
+                },
+                "document": "111.444.777-35"
+              },
+              "mercadopago_payment_id": null,
+              "items": [
+                {
+                  "id": "4eef9f4e-af6e-43e0-ab24-b787c9f80627",
+                  "name": "Show de Rock Nacional - Ingresso - Show de Rock Nacional",
+                  "quantity": 3,
+                  "unit_price": 85,
+                  "total_price": 255
+                },
+                {
+                  "id": "5e83172c-d738-4a37-9bfa-9ba82ebb81f4",
+                  "name": "Show de Rock Nacional - Ingresso - Show de Rock Nacional",
+                  "quantity": 23,
+                  "unit_price": 76.5,
+                  "total_price": 1759.5
+                },
+                {
+                  "id": "c807ae9f-7d88-4f6d-9251-92cdc1dfb2a8",
+                  "name": "Camiseta Premium",
+                  "quantity": 1,
+                  "unit_price": 79.9,
+                  "total_price": 79.9
+                }
+              ],
+              "total": null,
+              "participants": [
+                {
+                  "cpf": "",
+                  "name": "",
+                  "dress": "",
+                  "tshirt": ""
+                }
+              ],
+              "customer_email_computed": "joao.silva@email.com"
+            }
+          ],
+          "timeSpan": 14.523233333333334
+        },
+        {
+          "email": "anderson@teste.com",
+          "amount": 2014.5,
+          "count": 2,
+          "orders": [
+            {
+              "id": "697a1b65-0660-48af-b7c7-354b70c60677",
+              "user_id": null,
+              "customer_id": null,
+              "total_amount": 2014.5,
+              "status": "pending",
+              "payment_id": null,
+              "payment_method": null,
+              "payment_status": "PENDING",
+              "shipping_address": null,
+              "created_at": "2025-10-11T12:59:26.386+00:00",
+              "updated_at": "2025-10-11T12:59:26.674195+00:00",
+              "additional_notes": null,
+              "customer_data": {
+                "cpf": "11144477735",
+                "name": "Anderson Araújo da Silva",
+                "email": "anderson@teste.com"
+              },
+              "mercadopago_payment_id": null,
+              "items": null,
+              "total": null,
+              "participants": null,
+              "customer_email_computed": "anderson@teste.com"
+            },
+            {
+              "id": "d8148c73-66b2-42ac-9943-ba41027b40aa",
+              "user_id": null,
+              "customer_id": null,
+              "total_amount": 2014.5,
+              "status": "pending",
+              "payment_id": null,
+              "payment_method": null,
+              "payment_status": "PENDING",
+              "shipping_address": null,
+              "created_at": "2025-10-11T13:00:50.824+00:00",
+              "updated_at": "2025-10-11T13:00:50.93181+00:00",
+              "additional_notes": null,
+              "customer_data": {
+                "cpf": "11144477735",
+                "name": "Anderson Araújo da Silva",
+                "email": "anderson@teste.com"
+              },
+              "mercadopago_payment_id": null,
+              "items": null,
+              "total": null,
+              "participants": null,
+              "customer_email_computed": "anderson@teste.com"
+            }
+          ],
+          "timeSpan": 1.4073
+        },
+        {
+          "email": "fotosartdesig@gmail.com",
+          "amount": 201450,
+          "count": 4,
+          "orders": [
+            {
+              "id": "b9ba7ee7-7d11-4db2-869b-16e46e400292",
+              "user_id": "ae94f9e2-602a-4315-af6f-78d3851b3480",
+              "customer_id": null,
+              "total_amount": 201450,
+              "status": "pending",
+              "payment_id": null,
+              "payment_method": "pix",
+              "payment_status": "pending",
+              "shipping_address": "{\"street\":\"RUA GOULART\",\"number\":\"455\",\"neighborhood\":\"VILA MENDONÇA\",\"city\":\"ARAÇATUBA\",\"state\":\"SP\",\"zip_code\":\"16011-073\",\"country\":\"BR\"}",
+              "created_at": "2025-10-11T09:57:15.206347+00:00",
+              "updated_at": "2025-10-11T09:57:15.206347+00:00",
+              "additional_notes": "",
+              "customer_data": {
+                "name": "Anderson Araujo da Silva",
+                "email": "fotosartdesig@gmail.com",
+                "phone": "18991604609",
+                "address": {
+                  "city": "ARAÇATUBA",
+                  "state": "SP",
+                  "number": "455",
+                  "street": "RUA GOULART",
+                  "country": "BR",
+                  "zip_code": "16011-073",
+                  "neighborhood": "VILA MENDONÇA"
+                },
+                "document": "404.631.758-24"
+              },
+              "mercadopago_payment_id": null,
+              "items": [
+                {
+                  "id": "4eef9f4e-af6e-43e0-ab24-b787c9f80627",
+                  "name": "Show de Rock Nacional - Ingresso - Show de Rock Nacional",
+                  "quantity": 3,
+                  "unit_price": 85,
+                  "total_price": 255
+                },
+                {
+                  "id": "5e83172c-d738-4a37-9bfa-9ba82ebb81f4",
+                  "name": "Show de Rock Nacional - Ingresso - Show de Rock Nacional",
+                  "quantity": 23,
+                  "unit_price": 76.5,
+                  "total_price": 1759.5
+                }
+              ],
+              "total": null,
+              "participants": [
+                {
+                  "cpf": "",
+                  "name": "",
+                  "dress": "",
+                  "tshirt": ""
+                }
+              ],
+              "customer_email_computed": "fotosartdesig@gmail.com"
+            },
+            {
+              "id": "4575da2e-5761-40a3-a288-7efdd783555a",
+              "user_id": "ae94f9e2-602a-4315-af6f-78d3851b3480",
+              "customer_id": null,
+              "total_amount": 201450,
+              "status": "pending",
+              "payment_id": null,
+              "payment_method": "pix",
+              "payment_status": "pending",
+              "shipping_address": "{\"street\":\"RUA GOULART\",\"number\":\"455\",\"neighborhood\":\"VILA MENDONÇA\",\"city\":\"ARAÇATUBA\",\"state\":\"SP\",\"zip_code\":\"16011-073\",\"country\":\"BR\"}",
+              "created_at": "2025-10-11T10:03:36.563028+00:00",
+              "updated_at": "2025-10-11T10:03:36.563028+00:00",
+              "additional_notes": "",
+              "customer_data": {
+                "name": "Anderson Araujo da Silva",
+                "email": "fotosartdesig@gmail.com",
+                "phone": "18991604609",
+                "address": {
+                  "city": "ARAÇATUBA",
+                  "state": "SP",
+                  "number": "455",
+                  "street": "RUA GOULART",
+                  "country": "BR",
+                  "zip_code": "16011-073",
+                  "neighborhood": "VILA MENDONÇA"
+                },
+                "document": "404.631.758-24"
+              },
+              "mercadopago_payment_id": null,
+              "items": [
+                {
+                  "id": "4eef9f4e-af6e-43e0-ab24-b787c9f80627",
+                  "name": "Show de Rock Nacional - Ingresso - Show de Rock Nacional",
+                  "quantity": 3,
+                  "unit_price": 85,
+                  "total_price": 255
+                },
+                {
+                  "id": "5e83172c-d738-4a37-9bfa-9ba82ebb81f4",
+                  "name": "Show de Rock Nacional - Ingresso - Show de Rock Nacional",
+                  "quantity": 23,
+                  "unit_price": 76.5,
+                  "total_price": 1759.5
+                }
+              ],
+              "total": null,
+              "participants": [
+                {
+                  "cpf": "",
+                  "name": "",
+                  "dress": "",
+                  "tshirt": ""
+                }
+              ],
+              "customer_email_computed": "fotosartdesig@gmail.com"
+            },
+            {
+              "id": "06a5befc-324d-43e9-8762-8ac34272f876",
+              "user_id": "ae94f9e2-602a-4315-af6f-78d3851b3480",
+              "customer_id": null,
+              "total_amount": 201450,
+              "status": "pending",
+              "payment_id": null,
+              "payment_method": "pix",
+              "payment_status": "pending",
+              "shipping_address": "{\"street\":\"RUA GOULART\",\"number\":\"455\",\"neighborhood\":\"VILA MENDONÇA\",\"city\":\"ARAÇATUBA\",\"state\":\"SP\",\"zip_code\":\"16011-073\",\"country\":\"BR\"}",
+              "created_at": "2025-10-11T10:59:19.568276+00:00",
+              "updated_at": "2025-10-11T10:59:19.568276+00:00",
+              "additional_notes": "",
+              "customer_data": {
+                "name": "Anderson Araujo da Silva",
+                "email": "fotosartdesig@gmail.com",
+                "phone": "18991604609",
+                "address": {
+                  "city": "ARAÇATUBA",
+                  "state": "SP",
+                  "number": "455",
+                  "street": "RUA GOULART",
+                  "country": "BR",
+                  "zip_code": "16011-073",
+                  "neighborhood": "VILA MENDONÇA"
+                },
+                "document": "404.631.758-24"
+              },
+              "mercadopago_payment_id": null,
+              "items": [
+                {
+                  "id": "4eef9f4e-af6e-43e0-ab24-b787c9f80627",
+                  "name": "Show de Rock Nacional - Ingresso - Show de Rock Nacional",
+                  "quantity": 3,
+                  "unit_price": 85,
+                  "total_price": 255
+                },
+                {
+                  "id": "5e83172c-d738-4a37-9bfa-9ba82ebb81f4",
+                  "name": "Show de Rock Nacional - Ingresso - Show de Rock Nacional",
+                  "quantity": 23,
+                  "unit_price": 76.5,
+                  "total_price": 1759.5
+                }
+              ],
+              "total": null,
+              "participants": [
+                {
+                  "cpf": "",
+                  "name": "",
+                  "dress": "",
+                  "tshirt": ""
+                }
+              ],
+              "customer_email_computed": "fotosartdesig@gmail.com"
+            },
+            {
+              "id": "29ac2bc4-5a81-45b2-a4ca-4d869cd40ff9",
+              "user_id": "ae94f9e2-602a-4315-af6f-78d3851b3480",
+              "customer_id": null,
+              "total_amount": 201450,
+              "status": "pending",
+              "payment_id": null,
+              "payment_method": "pix",
+              "payment_status": "pending",
+              "shipping_address": "{\"street\":\"RUA GOULART\",\"number\":\"455\",\"neighborhood\":\"VILA MENDONÇA\",\"city\":\"ARAÇATUBA\",\"state\":\"SP\",\"zip_code\":\"16011-073\",\"country\":\"BR\"}",
+              "created_at": "2025-10-11T12:22:56.033883+00:00",
+              "updated_at": "2025-10-11T12:22:56.033883+00:00",
+              "additional_notes": "",
+              "customer_data": {
+                "name": "Anderson Araujo da Silva",
+                "email": "fotosartdesig@gmail.com",
+                "phone": "18991604609",
+                "address": {
+                  "city": "ARAÇATUBA",
+                  "state": "SP",
+                  "number": "455",
+                  "street": "RUA GOULART",
+                  "country": "BR",
+                  "zip_code": "16011-073",
+                  "neighborhood": "VILA MENDONÇA"
+                },
+                "document": "338.837.088-52"
+              },
+              "mercadopago_payment_id": null,
+              "items": [
+                {
+                  "id": "4eef9f4e-af6e-43e0-ab24-b787c9f80627",
+                  "name": "Show de Rock Nacional - Ingresso - Show de Rock Nacional",
+                  "quantity": 3,
+                  "unit_price": 85,
+                  "total_price": 255
+                },
+                {
+                  "id": "5e83172c-d738-4a37-9bfa-9ba82ebb81f4",
+                  "name": "Show de Rock Nacional - Ingresso - Show de Rock Nacional",
+                  "quantity": 23,
+                  "unit_price": 76.5,
+                  "total_price": 1759.5
+                }
+              ],
+              "total": null,
+              "participants": [
+                {
+                  "cpf": "",
+                  "name": "",
+                  "dress": "",
+                  "tshirt": ""
+                }
+              ],
+              "customer_email_computed": "fotosartdesig@gmail.com"
+            }
+          ],
+          "timeSpan": 145.68045
+        },
+        {
+          "email": "joao.silva@email.com",
+          "amount": 21170,
+          "count": 4,
+          "orders": [
+            {
+              "id": "8036092c-65c7-4af1-afca-643b0d181e52",
+              "user_id": "852e6310-17d6-49b2-99c5-d34edc1de7bb",
+              "customer_id": null,
+              "total_amount": 21170,
+              "status": "pending",
+              "payment_id": null,
+              "payment_method": "pix",
+              "payment_status": "pending",
+              "shipping_address": "{\"street\":\"Avenida Paulista\",\"number\":\"1000\",\"neighborhood\":\"\",\"city\":\"São Paulo\",\"state\":\"SP\",\"zip_code\":\"01310-100\",\"country\":\"BR\"}",
+              "created_at": "2025-10-10T19:18:15.57822+00:00",
+              "updated_at": "2025-10-10T19:18:15.57822+00:00",
+              "additional_notes": "",
+              "customer_data": {
+                "name": "João Silva",
+                "email": "joao.silva@email.com",
+                "phone": "(11) 99999-9999",
+                "address": {
+                  "city": "São Paulo",
+                  "state": "SP",
+                  "number": "1000",
+                  "street": "Avenida Paulista",
+                  "country": "BR",
+                  "zip_code": "01310-100",
+                  "neighborhood": ""
+                },
+                "document": "123.456.789-00"
+              },
+              "mercadopago_payment_id": null,
+              "items": [
+                {
+                  "id": "29021ab1-dd42-497c-bc66-7ac9850af88c",
+                  "name": "Camiseta Preta Conferência",
+                  "quantity": 1,
+                  "unit_price": 65.9,
+                  "total_price": 65.9
+                },
+                {
+                  "id": "4be15d71-d06c-4c77-9b9b-817f02856aa4",
+                  "name": "Camiseta Preta Conferência",
+                  "quantity": 1,
+                  "unit_price": 65.9,
+                  "total_price": 65.9
+                },
+                {
+                  "id": "bd032e50-2a58-4bec-8939-67b5bf499c13",
+                  "name": "Camiseta Premium",
+                  "quantity": 1,
+                  "unit_price": 79.9,
+                  "total_price": 79.9
+                }
+              ],
+              "total": null,
+              "participants": [
+                {
+                  "cpf": "",
+                  "name": "",
+                  "dress": "",
+                  "tshirt": ""
+                }
+              ],
+              "customer_email_computed": "joao.silva@email.com"
+            },
+            {
+              "id": "e4d5179e-67b1-4a1f-83ae-8343ebc0b6d4",
+              "user_id": "852e6310-17d6-49b2-99c5-d34edc1de7bb",
+              "customer_id": null,
+              "total_amount": 21170,
+              "status": "pending",
+              "payment_id": null,
+              "payment_method": "pix",
+              "payment_status": "pending",
+              "shipping_address": "{\"street\":\"Rua das Flores, 123\",\"number\":\"123\",\"neighborhood\":\"\",\"city\":\"São Paulo\",\"state\":\"SP\",\"zip_code\":\"01234-567\",\"country\":\"BR\"}",
+              "created_at": "2025-10-10T20:32:39.824002+00:00",
+              "updated_at": "2025-10-10T20:32:39.824002+00:00",
+              "additional_notes": "",
+              "customer_data": {
+                "name": "João Silva",
+                "email": "joao.silva@email.com",
+                "phone": "(11) 99999-9999",
+                "address": {
+                  "city": "São Paulo",
+                  "state": "SP",
+                  "number": "123",
+                  "street": "Rua das Flores, 123",
+                  "country": "BR",
+                  "zip_code": "01234-567",
+                  "neighborhood": ""
+                },
+                "document": "338.837.088-52"
+              },
+              "mercadopago_payment_id": null,
+              "items": [
+                {
+                  "id": "29021ab1-dd42-497c-bc66-7ac9850af88c",
+                  "name": "Camiseta Preta Conferência",
+                  "quantity": 1,
+                  "unit_price": 65.9,
+                  "total_price": 65.9
+                },
+                {
+                  "id": "4be15d71-d06c-4c77-9b9b-817f02856aa4",
+                  "name": "Camiseta Preta Conferência",
+                  "quantity": 1,
+                  "unit_price": 65.9,
+                  "total_price": 65.9
+                },
+                {
+                  "id": "bd032e50-2a58-4bec-8939-67b5bf499c13",
+                  "name": "Camiseta Premium",
+                  "quantity": 1,
+                  "unit_price": 79.9,
+                  "total_price": 79.9
+                }
+              ],
+              "total": null,
+              "participants": [
+                {
+                  "cpf": "",
+                  "name": "",
+                  "dress": "",
+                  "tshirt": ""
+                }
+              ],
+              "customer_email_computed": "joao.silva@email.com"
+            },
+            {
+              "id": "bfd16115-1651-4558-9950-150c4d7e4ae0",
+              "user_id": "852e6310-17d6-49b2-99c5-d34edc1de7bb",
+              "customer_id": null,
+              "total_amount": 21170,
+              "status": "pending",
+              "payment_id": null,
+              "payment_method": "pix",
+              "payment_status": "pending",
+              "shipping_address": "{\"street\":\"Av. Paulista\",\"number\":\"1000\",\"neighborhood\":\"\",\"city\":\"São Paulo\",\"state\":\"SP\",\"zip_code\":\"01310-100\",\"country\":\"BR\"}",
+              "created_at": "2025-10-10T20:37:13.931217+00:00",
+              "updated_at": "2025-10-10T20:37:13.931217+00:00",
+              "additional_notes": "",
+              "customer_data": {
+                "name": "João Silva Santos",
+                "email": "joao.silva@email.com",
+                "phone": "",
+                "address": {
+                  "city": "São Paulo",
+                  "state": "SP",
+                  "number": "1000",
+                  "street": "Av. Paulista",
+                  "country": "BR",
+                  "zip_code": "01310-100",
+                  "neighborhood": ""
+                },
+                "document": "338.837.088-52"
+              },
+              "mercadopago_payment_id": null,
+              "items": [
+                {
+                  "id": "29021ab1-dd42-497c-bc66-7ac9850af88c",
+                  "name": "Camiseta Preta Conferência",
+                  "quantity": 1,
+                  "unit_price": 65.9,
+                  "total_price": 65.9
+                },
+                {
+                  "id": "4be15d71-d06c-4c77-9b9b-817f02856aa4",
+                  "name": "Camiseta Preta Conferência",
+                  "quantity": 1,
+                  "unit_price": 65.9,
+                  "total_price": 65.9
+                },
+                {
+                  "id": "bd032e50-2a58-4bec-8939-67b5bf499c13",
+                  "name": "Camiseta Premium",
+                  "quantity": 1,
+                  "unit_price": 79.9,
+                  "total_price": 79.9
+                }
+              ],
+              "total": null,
+              "participants": [
+                {
+                  "cpf": "",
+                  "name": "",
+                  "dress": "",
+                  "tshirt": ""
+                }
+              ],
+              "customer_email_computed": "joao.silva@email.com"
+            },
+            {
+              "id": "cf257079-26ad-4fce-ba56-de2f4d6b39df",
+              "user_id": "852e6310-17d6-49b2-99c5-d34edc1de7bb",
+              "customer_id": null,
+              "total_amount": 21170,
+              "status": "pending",
+              "payment_id": null,
+              "payment_method": "pix",
+              "payment_status": "pending",
+              "shipping_address": "{\"street\":\"Rua das Flores\",\"number\":\"123\",\"neighborhood\":\"\",\"city\":\"São Paulo\",\"state\":\"SP\",\"zip_code\":\"01234-567\",\"country\":\"BR\"}",
+              "created_at": "2025-10-11T10:13:05.915737+00:00",
+              "updated_at": "2025-10-11T10:13:05.915737+00:00",
+              "additional_notes": "",
+              "customer_data": {
+                "name": "João Silva",
+                "email": "joao.silva@email.com",
+                "phone": "",
+                "address": {
+                  "city": "São Paulo",
+                  "state": "SP",
+                  "number": "123",
+                  "street": "Rua das Flores",
+                  "country": "BR",
+                  "zip_code": "01234-567",
+                  "neighborhood": ""
+                },
+                "document": "111.444.777-35"
+              },
+              "mercadopago_payment_id": null,
+              "items": [
+                {
+                  "id": "29021ab1-dd42-497c-bc66-7ac9850af88c",
+                  "name": "Camiseta Preta Conferência",
+                  "quantity": 1,
+                  "unit_price": 65.9,
+                  "total_price": 65.9
+                },
+                {
+                  "id": "4be15d71-d06c-4c77-9b9b-817f02856aa4",
+                  "name": "Camiseta Preta Conferência",
+                  "quantity": 1,
+                  "unit_price": 65.9,
+                  "total_price": 65.9
+                },
+                {
+                  "id": "bd032e50-2a58-4bec-8939-67b5bf499c13",
+                  "name": "Camiseta Premium",
+                  "quantity": 1,
+                  "unit_price": 79.9,
+                  "total_price": 79.9
+                }
+              ],
+              "total": null,
+              "participants": [
+                {
+                  "cpf": "",
+                  "name": "",
+                  "dress": "",
+                  "tshirt": ""
+                }
+              ],
+              "customer_email_computed": "joao.silva@email.com"
+            }
+          ],
+          "timeSpan": 894.83895
+        },
+        {
+          "email": "fotosartdesig@gmail.com",
+          "amount": 85,
+          "count": 8,
+          "orders": [
+            {
+              "id": "cdd60772-fccc-4b40-ba61-63ec7f2340cb",
+              "user_id": null,
+              "customer_id": null,
+              "total_amount": 85,
+              "status": "pending",
+              "payment_id": null,
+              "payment_method": null,
+              "payment_status": "PENDING",
+              "shipping_address": null,
+              "created_at": "2025-10-10T23:37:57.216+00:00",
+              "updated_at": "2025-10-10T23:37:57.285163+00:00",
+              "additional_notes": null,
+              "customer_data": {
+                "cpf": "33883708852",
+                "name": "Anderson Araujo da Silva",
+                "email": "fotosartdesig@gmail.com",
+                "phone": "18991604609"
+              },
+              "mercadopago_payment_id": null,
+              "items": null,
+              "total": null,
+              "participants": null,
+              "customer_email_computed": "fotosartdesig@gmail.com"
+            },
+            {
+              "id": "edc49f24-530b-4f77-a54b-7fccbc2db5de",
+              "user_id": null,
+              "customer_id": null,
+              "total_amount": 85,
+              "status": "pending",
+              "payment_id": null,
+              "payment_method": null,
+              "payment_status": "PENDING",
+              "shipping_address": null,
+              "created_at": "2025-10-10T23:37:57.255+00:00",
+              "updated_at": "2025-10-10T23:37:57.300965+00:00",
+              "additional_notes": null,
+              "customer_data": {
+                "cpf": "33883708852",
+                "name": "Anderson Araujo da Silva",
+                "email": "fotosartdesig@gmail.com",
+                "phone": "18991604609"
+              },
+              "mercadopago_payment_id": null,
+              "items": null,
+              "total": null,
+              "participants": null,
+              "customer_email_computed": "fotosartdesig@gmail.com"
+            },
+            {
+              "id": "96c552e5-4cd6-4593-9e36-64ebd2c9336e",
+              "user_id": null,
+              "customer_id": null,
+              "total_amount": 85,
+              "status": "pending",
+              "payment_id": null,
+              "payment_method": null,
+              "payment_status": "PENDING",
+              "shipping_address": null,
+              "created_at": "2025-10-10T23:40:26.912+00:00",
+              "updated_at": "2025-10-10T23:40:26.971104+00:00",
+              "additional_notes": null,
+              "customer_data": {
+                "cpf": "33883708852",
+                "name": "Anderson Araujo da Silva",
+                "email": "fotosartdesig@gmail.com",
+                "phone": "18991604609"
+              },
+              "mercadopago_payment_id": null,
+              "items": null,
+              "total": null,
+              "participants": null,
+              "customer_email_computed": "fotosartdesig@gmail.com"
+            },
+            {
+              "id": "8ace7677-628a-4679-adcd-8e0cb225e2a0",
+              "user_id": null,
+              "customer_id": null,
+              "total_amount": 85,
+              "status": "pending",
+              "payment_id": null,
+              "payment_method": null,
+              "payment_status": "PENDING",
+              "shipping_address": null,
+              "created_at": "2025-10-10T23:40:26.94+00:00",
+              "updated_at": "2025-10-10T23:40:27.029569+00:00",
+              "additional_notes": null,
+              "customer_data": {
+                "cpf": "33883708852",
+                "name": "Anderson Araujo da Silva",
+                "email": "fotosartdesig@gmail.com",
+                "phone": "18991604609"
+              },
+              "mercadopago_payment_id": null,
+              "items": null,
+              "total": null,
+              "participants": null,
+              "customer_email_computed": "fotosartdesig@gmail.com"
+            },
+            {
+              "id": "d73a0da7-687e-40f5-b740-c0d0470d590d",
+              "user_id": null,
+              "customer_id": null,
+              "total_amount": 85,
+              "status": "pending",
+              "payment_id": null,
+              "payment_method": null,
+              "payment_status": "PENDING",
+              "shipping_address": null,
+              "created_at": "2025-10-10T23:44:11.969+00:00",
+              "updated_at": "2025-10-10T23:44:12.041094+00:00",
+              "additional_notes": null,
+              "customer_data": {
+                "cpf": "33883708852",
+                "name": "Anderson Araujo da Silva",
+                "email": "fotosartdesig@gmail.com",
+                "phone": "18991604609"
+              },
+              "mercadopago_payment_id": null,
+              "items": null,
+              "total": null,
+              "participants": null,
+              "customer_email_computed": "fotosartdesig@gmail.com"
+            },
+            {
+              "id": "17bc118f-9505-4536-8106-fd42af700b80",
+              "user_id": null,
+              "customer_id": null,
+              "total_amount": 85,
+              "status": "pending",
+              "payment_id": null,
+              "payment_method": null,
+              "payment_status": "PENDING",
+              "shipping_address": null,
+              "created_at": "2025-10-10T23:44:12.112+00:00",
+              "updated_at": "2025-10-10T23:44:12.156472+00:00",
+              "additional_notes": null,
+              "customer_data": {
+                "cpf": "33883708852",
+                "name": "Anderson Araujo da Silva",
+                "email": "fotosartdesig@gmail.com",
+                "phone": "18991604609"
+              },
+              "mercadopago_payment_id": null,
+              "items": null,
+              "total": null,
+              "participants": null,
+              "customer_email_computed": "fotosartdesig@gmail.com"
+            },
+            {
+              "id": "20d9c7c0-8915-4c24-9ed9-115e5159f29f",
+              "user_id": null,
+              "customer_id": null,
+              "total_amount": 85,
+              "status": "pending",
+              "payment_id": null,
+              "payment_method": null,
+              "payment_status": "PENDING",
+              "shipping_address": null,
+              "created_at": "2025-10-11T00:55:48.268+00:00",
+              "updated_at": "2025-10-11T00:55:48.304719+00:00",
+              "additional_notes": null,
+              "customer_data": {
+                "cpf": "33883708852",
+                "name": "Anderson Araujo da Silva",
+                "email": "fotosartdesig@gmail.com",
+                "phone": "18991604609"
+              },
+              "mercadopago_payment_id": null,
+              "items": null,
+              "total": null,
+              "participants": null,
+              "customer_email_computed": "fotosartdesig@gmail.com"
+            },
+            {
+              "id": "cc6086ff-ee65-4689-8713-7de072988735",
+              "user_id": null,
+              "customer_id": null,
+              "total_amount": 85,
+              "status": "pending",
+              "payment_id": null,
+              "payment_method": null,
+              "payment_status": "PENDING",
+              "shipping_address": null,
+              "created_at": "2025-10-11T00:55:48.269+00:00",
+              "updated_at": "2025-10-11T00:55:48.374906+00:00",
+              "additional_notes": null,
+              "customer_data": {
+                "cpf": "33883708852",
+                "name": "Anderson Araujo da Silva",
+                "email": "fotosartdesig@gmail.com",
+                "phone": "18991604609"
+              },
+              "mercadopago_payment_id": null,
+              "items": null,
+              "total": null,
+              "participants": null,
+              "customer_email_computed": "fotosartdesig@gmail.com"
+            }
+          ],
+          "timeSpan": 77.85088333333333
+        },
+        {
+          "email": "fotosartdesig@gmail.com",
+          "amount": 8500,
+          "count": 5,
+          "orders": [
+            {
+              "id": "c9e00362-59e6-47f8-99db-45228acedbc3",
+              "user_id": "ae94f9e2-602a-4315-af6f-78d3851b3480",
+              "customer_id": null,
+              "total_amount": 8500,
+              "status": "pending",
+              "payment_id": null,
+              "payment_method": "pix",
+              "payment_status": "pending",
+              "shipping_address": "{\"street\":\"RUA GOULART\",\"number\":\"455\",\"neighborhood\":\"VILA MENDONÇA\",\"city\":\"ARAÇATUBA\",\"state\":\"SP\",\"zip_code\":\"16011-073\",\"country\":\"BR\"}",
+              "created_at": "2025-10-10T23:37:56.580232+00:00",
+              "updated_at": "2025-10-10T23:37:56.580232+00:00",
+              "additional_notes": "",
+              "customer_data": {
+                "name": "Anderson Araujo da Silva",
+                "email": "fotosartdesig@gmail.com",
+                "phone": "18991604609",
+                "address": {
+                  "city": "ARAÇATUBA",
+                  "state": "SP",
+                  "number": "455",
+                  "street": "RUA GOULART",
+                  "country": "BR",
+                  "zip_code": "16011-073",
+                  "neighborhood": "VILA MENDONÇA"
+                },
+                "document": "338.837.088-52"
+              },
+              "mercadopago_payment_id": null,
+              "items": [
+                {
+                  "id": "b99e419a-409b-4b1a-9b0f-845b236978bd",
+                  "name": "Show de Rock Nacional - Ingresso - Show de Rock Nacional",
+                  "quantity": 1,
+                  "unit_price": 85,
+                  "total_price": 85
+                }
+              ],
+              "total": null,
+              "participants": [
+                {
+                  "cpf": "",
+                  "name": "",
+                  "dress": "",
+                  "tshirt": ""
+                }
+              ],
+              "customer_email_computed": "fotosartdesig@gmail.com"
+            },
+            {
+              "id": "1b8337fc-acf8-49e1-b192-6d249e4d8cf6",
+              "user_id": null,
+              "customer_id": null,
+              "total_amount": 8500,
+              "status": "pending",
+              "payment_id": null,
+              "payment_method": null,
+              "payment_status": "PENDING",
+              "shipping_address": null,
+              "created_at": "2025-10-10T23:38:13.096+00:00",
+              "updated_at": "2025-10-10T23:38:13.153675+00:00",
+              "additional_notes": null,
+              "customer_data": {
+                "cpf": "33883708852",
+                "name": "Anderson Araujo da Silva",
+                "email": "fotosartdesig@gmail.com",
+                "phone": "18991604609"
+              },
+              "mercadopago_payment_id": null,
+              "items": null,
+              "total": null,
+              "participants": null,
+              "customer_email_computed": "fotosartdesig@gmail.com"
+            },
+            {
+              "id": "13c9aa64-ac47-4260-a4b6-9f1dc766cfef",
+              "user_id": "ae94f9e2-602a-4315-af6f-78d3851b3480",
+              "customer_id": null,
+              "total_amount": 8500,
+              "status": "pending",
+              "payment_id": null,
+              "payment_method": "pix",
+              "payment_status": "pending",
+              "shipping_address": "{\"street\":\"RUA GOULART\",\"number\":\"455\",\"neighborhood\":\"VILA MENDONÇA\",\"city\":\"ARAÇATUBA\",\"state\":\"SP\",\"zip_code\":\"16011-073\",\"country\":\"BR\"}",
+              "created_at": "2025-10-10T23:40:26.274284+00:00",
+              "updated_at": "2025-10-10T23:40:26.274284+00:00",
+              "additional_notes": "",
+              "customer_data": {
+                "name": "Anderson Araujo da Silva",
+                "email": "fotosartdesig@gmail.com",
+                "phone": "18991604609",
+                "address": {
+                  "city": "ARAÇATUBA",
+                  "state": "SP",
+                  "number": "455",
+                  "street": "RUA GOULART",
+                  "country": "BR",
+                  "zip_code": "16011-073",
+                  "neighborhood": "VILA MENDONÇA"
+                },
+                "document": "338.837.088-52"
+              },
+              "mercadopago_payment_id": null,
+              "items": [
+                {
+                  "id": "4eef9f4e-af6e-43e0-ab24-b787c9f80627",
+                  "name": "Show de Rock Nacional - Ingresso - Show de Rock Nacional",
+                  "quantity": 1,
+                  "unit_price": 85,
+                  "total_price": 85
+                }
+              ],
+              "total": null,
+              "participants": [
+                {
+                  "cpf": "",
+                  "name": "",
+                  "dress": "",
+                  "tshirt": ""
+                }
+              ],
+              "customer_email_computed": "fotosartdesig@gmail.com"
+            },
+            {
+              "id": "956cc2bc-5774-4bc8-8216-6b86c63a4e67",
+              "user_id": "ae94f9e2-602a-4315-af6f-78d3851b3480",
+              "customer_id": null,
+              "total_amount": 8500,
+              "status": "pending",
+              "payment_id": null,
+              "payment_method": "pix",
+              "payment_status": "pending",
+              "shipping_address": "{\"street\":\"RUA GOULART\",\"number\":\"455\",\"neighborhood\":\"VILA MENDONÇA\",\"city\":\"ARAÇATUBA\",\"state\":\"SP\",\"zip_code\":\"16011-073\",\"country\":\"BR\"}",
+              "created_at": "2025-10-10T23:44:11.418589+00:00",
+              "updated_at": "2025-10-10T23:44:11.418589+00:00",
+              "additional_notes": "",
+              "customer_data": {
+                "name": "Anderson Araujo da Silva",
+                "email": "fotosartdesig@gmail.com",
+                "phone": "18991604609",
+                "address": {
+                  "city": "ARAÇATUBA",
+                  "state": "SP",
+                  "number": "455",
+                  "street": "RUA GOULART",
+                  "country": "BR",
+                  "zip_code": "16011-073",
+                  "neighborhood": "VILA MENDONÇA"
+                },
+                "document": "338.837.088-52"
+              },
+              "mercadopago_payment_id": null,
+              "items": [
+                {
+                  "id": "4eef9f4e-af6e-43e0-ab24-b787c9f80627",
+                  "name": "Show de Rock Nacional - Ingresso - Show de Rock Nacional",
+                  "quantity": 1,
+                  "unit_price": 85,
+                  "total_price": 85
+                }
+              ],
+              "total": null,
+              "participants": [
+                {
+                  "cpf": "",
+                  "name": "",
+                  "dress": "",
+                  "tshirt": ""
+                }
+              ],
+              "customer_email_computed": "fotosartdesig@gmail.com"
+            },
+            {
+              "id": "ff7c64ef-6512-46c2-9df3-a8403d230149",
+              "user_id": "ae94f9e2-602a-4315-af6f-78d3851b3480",
+              "customer_id": null,
+              "total_amount": 8500,
+              "status": "pending",
+              "payment_id": null,
+              "payment_method": "pix",
+              "payment_status": "pending",
+              "shipping_address": "{\"street\":\"RUA GOULART\",\"number\":\"455\",\"neighborhood\":\"VILA MENDONÇA\",\"city\":\"ARAÇATUBA\",\"state\":\"SP\",\"zip_code\":\"16011-073\",\"country\":\"BR\"}",
+              "created_at": "2025-10-11T00:55:47.366743+00:00",
+              "updated_at": "2025-10-11T00:55:47.366743+00:00",
+              "additional_notes": "",
+              "customer_data": {
+                "name": "Anderson Araujo da Silva",
+                "email": "fotosartdesig@gmail.com",
+                "phone": "18991604609",
+                "address": {
+                  "city": "ARAÇATUBA",
+                  "state": "SP",
+                  "number": "455",
+                  "street": "RUA GOULART",
+                  "country": "BR",
+                  "zip_code": "16011-073",
+                  "neighborhood": "VILA MENDONÇA"
+                },
+                "document": "338.837.088-52"
+              },
+              "mercadopago_payment_id": null,
+              "items": [
+                {
+                  "id": "4eef9f4e-af6e-43e0-ab24-b787c9f80627",
+                  "name": "Show de Rock Nacional - Ingresso - Show de Rock Nacional",
+                  "quantity": 1,
+                  "unit_price": 85,
+                  "total_price": 85
+                }
+              ],
+              "total": null,
+              "participants": [
+                {
+                  "cpf": "",
+                  "name": "",
+                  "dress": "",
+                  "tshirt": ""
+                }
+              ],
+              "customer_email_computed": "fotosartdesig@gmail.com"
+            }
+          ],
+          "timeSpan": 77.84643333333334
+        },
+        {
+          "email": "joao@teste.com",
+          "amount": 6590,
+          "count": 2,
+          "orders": [
+            {
+              "id": "8472447c-031f-4f3b-bb00-06e23086e408",
+              "user_id": "ae94f9e2-602a-4315-af6f-78d3851b3480",
+              "customer_id": null,
+              "total_amount": 6590,
+              "status": "pending",
+              "payment_id": null,
+              "payment_method": "pix",
+              "payment_status": "pending",
+              "shipping_address": "{\"street\":\"Rua Teste, 123\",\"number\":\"123\",\"neighborhood\":\"Vila Mendonça\",\"city\":\"Araçatuba\",\"state\":\"SP\",\"zip_code\":\"16011-073\",\"country\":\"BR\"}",
+              "created_at": "2025-10-10T23:07:16.250703+00:00",
+              "updated_at": "2025-10-10T23:07:16.250703+00:00",
+              "additional_notes": "",
+              "customer_data": {
+                "name": "Anderson da Silva",
+                "email": "joao@teste.com",
+                "phone": "18991604609",
+                "address": {
+                  "city": "Araçatuba",
+                  "state": "SP",
+                  "number": "123",
+                  "street": "Rua Teste, 123",
+                  "country": "BR",
+                  "zip_code": "16011-073",
+                  "neighborhood": "Vila Mendonça"
+                },
+                "document": "338.837.088-52"
+              },
+              "mercadopago_payment_id": null,
+              "items": [
+                {
+                  "id": "db81c8de-5ef6-4c6b-984c-932800cdc572",
+                  "name": "Camiseta Preta Conferência",
+                  "quantity": 1,
+                  "unit_price": 65.9,
+                  "total_price": 65.9
+                }
+              ],
+              "total": null,
+              "participants": [
+                {
+                  "cpf": "",
+                  "name": "",
+                  "dress": "",
+                  "tshirt": ""
+                }
+              ],
+              "customer_email_computed": "joao@teste.com"
+            },
+            {
+              "id": "395d977f-b337-4e4d-bf16-138d7c4663b0",
+              "user_id": null,
+              "customer_id": null,
+              "total_amount": 6590,
+              "status": "pending",
+              "payment_id": null,
+              "payment_method": null,
+              "payment_status": "PENDING",
+              "shipping_address": null,
+              "created_at": "2025-10-10T23:07:51.632+00:00",
+              "updated_at": "2025-10-10T23:07:51.694643+00:00",
+              "additional_notes": null,
+              "customer_data": {
+                "cpf": "33883708852",
+                "name": "Anderson da Silva",
+                "email": "joao@teste.com",
+                "phone": "18991604609"
+              },
+              "mercadopago_payment_id": null,
+              "items": null,
+              "total": null,
+              "participants": null,
+              "customer_email_computed": "joao@teste.com"
+            }
+          ],
+          "timeSpan": 0.5897
+        },
+        {
+          "email": "joao@teste.com",
+          "amount": 65.9,
+          "count": 2,
+          "orders": [
+            {
+              "id": "c2e81277-6fee-48f0-9a41-c31ab8e96633",
+              "user_id": null,
+              "customer_id": null,
+              "total_amount": 65.9,
+              "status": "pending",
+              "payment_id": null,
+              "payment_method": null,
+              "payment_status": "PENDING",
+              "shipping_address": null,
+              "created_at": "2025-10-10T23:07:16.846+00:00",
+              "updated_at": "2025-10-10T23:07:16.959743+00:00",
+              "additional_notes": null,
+              "customer_data": {
+                "cpf": "33883708852",
+                "name": "Anderson da Silva",
+                "email": "joao@teste.com",
+                "phone": "18991604609"
+              },
+              "mercadopago_payment_id": null,
+              "items": null,
+              "total": null,
+              "participants": null,
+              "customer_email_computed": "joao@teste.com"
+            },
+            {
+              "id": "1b04a377-4a4e-406b-9007-a1edba2f6039",
+              "user_id": null,
+              "customer_id": null,
+              "total_amount": 65.9,
+              "status": "pending",
+              "payment_id": null,
+              "payment_method": null,
+              "payment_status": "PENDING",
+              "shipping_address": null,
+              "created_at": "2025-10-10T23:07:16.848+00:00",
+              "updated_at": "2025-10-10T23:07:16.920125+00:00",
+              "additional_notes": null,
+              "customer_data": {
+                "cpf": "33883708852",
+                "name": "Anderson da Silva",
+                "email": "joao@teste.com",
+                "phone": "18991604609"
+              },
+              "mercadopago_payment_id": null,
+              "items": null,
+              "total": null,
+              "participants": null,
+              "customer_email_computed": "joao@teste.com"
+            }
+          ],
+          "timeSpan": 0.000033333333333333335
+        },
+        {
+          "email": "fotosartdesig@gmail.com",
+          "amount": 65.9,
+          "count": 2,
+          "orders": [
+            {
+              "id": "2f668bab-3010-4f7a-952b-684d67ac22b9",
+              "user_id": null,
+              "customer_id": null,
+              "total_amount": 65.9,
+              "status": "pending",
+              "payment_id": null,
+              "payment_method": null,
+              "payment_status": "PENDING",
+              "shipping_address": null,
+              "created_at": "2025-10-10T23:03:06.94+00:00",
+              "updated_at": "2025-10-10T23:03:07.029996+00:00",
+              "additional_notes": null,
+              "customer_data": {
+                "cpf": "33883708852",
+                "name": "Anderson Araujo da Silva",
+                "email": "fotosartdesig@gmail.com",
+                "phone": "18991604609"
+              },
+              "mercadopago_payment_id": null,
+              "items": null,
+              "total": null,
+              "participants": null,
+              "customer_email_computed": "fotosartdesig@gmail.com"
+            },
+            {
+              "id": "63d85e99-1c4a-411f-b7de-7549993b30f3",
+              "user_id": null,
+              "customer_id": null,
+              "total_amount": 65.9,
+              "status": "pending",
+              "payment_id": null,
+              "payment_method": null,
+              "payment_status": "PENDING",
+              "shipping_address": null,
+              "created_at": "2025-10-10T23:03:06.977+00:00",
+              "updated_at": "2025-10-10T23:03:07.030738+00:00",
+              "additional_notes": null,
+              "customer_data": {
+                "cpf": "33883708852",
+                "name": "Anderson Araujo da Silva",
+                "email": "fotosartdesig@gmail.com",
+                "phone": "18991604609"
+              },
+              "mercadopago_payment_id": null,
+              "items": null,
+              "total": null,
+              "participants": null,
+              "customer_email_computed": "fotosartdesig@gmail.com"
+            }
+          ],
+          "timeSpan": 0.0006166666666666666
+        },
+        {
+          "email": "fotosartdesig@gmail.com",
+          "amount": 6590,
+          "count": 2,
+          "orders": [
+            {
+              "id": "83734e3f-74cf-4d4f-81ed-8e47065876c8",
+              "user_id": "ae94f9e2-602a-4315-af6f-78d3851b3480",
+              "customer_id": null,
+              "total_amount": 6590,
+              "status": "pending",
+              "payment_id": null,
+              "payment_method": "pix",
+              "payment_status": "pending",
+              "shipping_address": "{\"street\":\"RUA GOULART\",\"number\":\"455\",\"neighborhood\":\"Vila Mendonça\",\"city\":\"Araçatuba\",\"state\":\"SP\",\"zip_code\":\"16011-073\",\"country\":\"BR\"}",
+              "created_at": "2025-10-10T21:47:49.988486+00:00",
+              "updated_at": "2025-10-10T21:47:49.988486+00:00",
+              "additional_notes": "",
+              "customer_data": {
+                "name": "Anderson da Silva",
+                "email": "fotosartdesig@gmail.com",
+                "phone": "18991604609",
+                "address": {
+                  "city": "Araçatuba",
+                  "state": "SP",
+                  "number": "455",
+                  "street": "RUA GOULART",
+                  "country": "BR",
+                  "zip_code": "16011-073",
+                  "neighborhood": "Vila Mendonça"
+                },
+                "document": "338.837.088-52"
+              },
+              "mercadopago_payment_id": null,
+              "items": [
+                {
+                  "id": "7545eb49-4847-4567-98a9-79a620752bfd",
+                  "name": "Camiseta Preta Conferência",
+                  "quantity": 1,
+                  "unit_price": 65.9,
+                  "total_price": 65.9
+                }
+              ],
+              "total": null,
+              "participants": [
+                {
+                  "cpf": "",
+                  "name": "",
+                  "dress": "",
+                  "tshirt": ""
+                }
+              ],
+              "customer_email_computed": "fotosartdesig@gmail.com"
+            },
+            {
+              "id": "4f42052e-db06-44a1-b26d-d131a9e9b1f8",
+              "user_id": "ae94f9e2-602a-4315-af6f-78d3851b3480",
+              "customer_id": null,
+              "total_amount": 6590,
+              "status": "pending",
+              "payment_id": null,
+              "payment_method": "pix",
+              "payment_status": "pending",
+              "shipping_address": "{\"street\":\"RUA GOULART\",\"number\":\"455\",\"neighborhood\":\"VILA MENDONÇA\",\"city\":\"ARAÇATUBA\",\"state\":\"SP\",\"zip_code\":\"16011-073\",\"country\":\"BR\"}",
+              "created_at": "2025-10-10T23:03:06.231765+00:00",
+              "updated_at": "2025-10-10T23:03:06.231765+00:00",
+              "additional_notes": "",
+              "customer_data": {
+                "name": "Anderson Araujo da Silva",
+                "email": "fotosartdesig@gmail.com",
+                "phone": "18991604609",
+                "address": {
+                  "city": "ARAÇATUBA",
+                  "state": "SP",
+                  "number": "455",
+                  "street": "RUA GOULART",
+                  "country": "BR",
+                  "zip_code": "16011-073",
+                  "neighborhood": "VILA MENDONÇA"
+                },
+                "document": "338.837.088-52"
+              },
+              "mercadopago_payment_id": null,
+              "items": [
+                {
+                  "id": "db81c8de-5ef6-4c6b-984c-932800cdc572",
+                  "name": "Camiseta Preta Conferência",
+                  "quantity": 1,
+                  "unit_price": 65.9,
+                  "total_price": 65.9
+                }
+              ],
+              "total": null,
+              "participants": [
+                {
+                  "cpf": "",
+                  "name": "",
+                  "dress": "",
+                  "tshirt": ""
+                }
+              ],
+              "customer_email_computed": "fotosartdesig@gmail.com"
+            }
+          ],
+          "timeSpan": 75.27071666666667
+        },
+        {
+          "email": "fotosartdesign@gmail.com",
+          "amount": 159.8,
+          "count": 2,
+          "orders": [
+            {
+              "id": "1719b801-c936-4c2a-bcca-e0e61903d443",
+              "user_id": null,
+              "customer_id": null,
+              "total_amount": 159.8,
+              "status": "pending",
+              "payment_id": null,
+              "payment_method": null,
+              "payment_status": "PENDING",
+              "shipping_address": null,
+              "created_at": "2025-10-10T22:39:23.155+00:00",
+              "updated_at": "2025-10-10T22:39:23.240458+00:00",
+              "additional_notes": null,
+              "customer_data": {
+                "cpf": "33883708852",
+                "name": "João Silva",
+                "email": "fotosartdesign@gmail.com"
+              },
+              "mercadopago_payment_id": null,
+              "items": null,
+              "total": null,
+              "participants": null,
+              "customer_email_computed": "fotosartdesign@gmail.com"
+            },
+            {
+              "id": "19b1bf96-6c67-4bab-b06f-184f4d079192",
+              "user_id": null,
+              "customer_id": null,
+              "total_amount": 159.8,
+              "status": "pending",
+              "payment_id": null,
+              "payment_method": null,
+              "payment_status": "PENDING",
+              "shipping_address": null,
+              "created_at": "2025-10-10T22:39:23.156+00:00",
+              "updated_at": "2025-10-10T22:39:23.250004+00:00",
+              "additional_notes": null,
+              "customer_data": {
+                "cpf": "33883708852",
+                "name": "João Silva",
+                "email": "fotosartdesign@gmail.com"
+              },
+              "mercadopago_payment_id": null,
+              "items": null,
+              "total": null,
+              "participants": null,
+              "customer_email_computed": "fotosartdesign@gmail.com"
+            }
+          ],
+          "timeSpan": 0.000016666666666666667
+        },
+        {
+          "email": "fotosartdesig@gmail.com",
+          "amount": 14580,
+          "count": 2,
+          "orders": [
+            {
+              "id": "7c3934c3-fe0b-411e-ad67-343138546de2",
+              "user_id": "852e6310-17d6-49b2-99c5-d34edc1de7bb",
+              "customer_id": null,
+              "total_amount": 14580,
+              "status": "pending",
+              "payment_id": null,
+              "payment_method": "pix",
+              "payment_status": "pending",
+              "shipping_address": "{\"street\":\"RUA GOULART\",\"number\":\"455\",\"neighborhood\":\"VILA MENDONÇA\",\"city\":\"ARAÇATUBA\",\"state\":\"SP\",\"zip_code\":\"16011-073\",\"country\":\"BR\"}",
+              "created_at": "2025-10-10T16:20:22.516799+00:00",
+              "updated_at": "2025-10-10T16:20:22.516799+00:00",
+              "additional_notes": "",
+              "customer_data": {
+                "name": "Anderson Araujo da Silva",
+                "email": "fotosartdesig@gmail.com",
+                "phone": "18991604609",
+                "address": {
+                  "city": "ARAÇATUBA",
+                  "state": "SP",
+                  "number": "455",
+                  "street": "RUA GOULART",
+                  "country": "BR",
+                  "zip_code": "16011-073",
+                  "neighborhood": "VILA MENDONÇA"
+                },
+                "document": "338.837.088-52"
+              },
+              "mercadopago_payment_id": null,
+              "items": [
+                {
+                  "id": "28df2fa5-354e-4039-bba4-fa6616de1767",
+                  "name": "Camiseta Premium",
+                  "quantity": 1,
+                  "unit_price": 79.9,
+                  "total_price": 79.9
+                },
+                {
+                  "id": "1d4fa556-480d-49f0-9028-c4a3385b898d",
+                  "name": "Camiseta Preta Conferência",
+                  "quantity": 1,
+                  "unit_price": 65.9,
+                  "total_price": 65.9
+                }
+              ],
+              "total": null,
+              "participants": [
+                {
+                  "cpf": "",
+                  "name": "",
+                  "dress": "",
+                  "tshirt": ""
+                }
+              ],
+              "customer_email_computed": "fotosartdesig@gmail.com"
+            },
+            {
+              "id": "5d568298-76e2-48f5-91ec-07875ec484c2",
+              "user_id": "ae94f9e2-602a-4315-af6f-78d3851b3480",
+              "customer_id": null,
+              "total_amount": 14580,
+              "status": "pending",
+              "payment_id": null,
+              "payment_method": "pix",
+              "payment_status": "pending",
+              "shipping_address": "{\"street\":\"RUA GOULART\",\"number\":\"455\",\"neighborhood\":\"VILA MENDONÇA\",\"city\":\"ARAÇATUBA\",\"state\":\"SP\",\"zip_code\":\"16011-073\",\"country\":\"BR\"}",
+              "created_at": "2025-10-10T17:57:26.899775+00:00",
+              "updated_at": "2025-10-10T17:57:26.899775+00:00",
+              "additional_notes": "",
+              "customer_data": {
+                "name": "Anderson Araujo da Silva",
+                "email": "fotosartdesig@gmail.com",
+                "phone": "18991604609",
+                "address": {
+                  "city": "ARAÇATUBA",
+                  "state": "SP",
+                  "number": "455",
+                  "street": "RUA GOULART",
+                  "country": "BR",
+                  "zip_code": "16011-073",
+                  "neighborhood": "VILA MENDONÇA"
+                },
+                "document": "338.837.088-52"
+              },
+              "mercadopago_payment_id": null,
+              "items": [
+                {
+                  "id": "7b54842b-1d06-4a69-9ccc-33a004502ad9",
+                  "name": "Camiseta Premium",
+                  "quantity": 1,
+                  "unit_price": 79.9,
+                  "total_price": 79.9
+                },
+                {
+                  "id": "f3106ced-56d2-45fd-9e09-0434d0f037f0",
+                  "name": "Camiseta Preta Conferência",
+                  "quantity": 1,
+                  "unit_price": 65.9,
+                  "total_price": 65.9
+                }
+              ],
+              "total": null,
+              "participants": [
+                {
+                  "cpf": "",
+                  "name": "",
+                  "dress": "",
+                  "tshirt": ""
+                }
+              ],
+              "customer_email_computed": "fotosartdesig@gmail.com"
+            }
+          ],
+          "timeSpan": 97.07305
+        },
+        {
+          "email": "joao.silva@teste.com",
+          "amount": 7990,
+          "count": 3,
+          "orders": [
+            {
+              "id": "ca1f2fc5-d9e9-4a10-a1d5-c5de2c2b132e",
+              "user_id": "852e6310-17d6-49b2-99c5-d34edc1de7bb",
+              "customer_id": null,
+              "total_amount": 7990,
+              "status": "pending",
+              "payment_id": null,
+              "payment_method": "pix",
+              "payment_status": "pending",
+              "shipping_address": "{\"street\":\"Rua das Flores\",\"number\":\"123\",\"neighborhood\":\"\",\"city\":\"São Paulo\",\"state\":\"SP\",\"zip_code\":\"01234-567\",\"country\":\"BR\"}",
+              "created_at": "2025-10-10T16:09:11.533059+00:00",
+              "updated_at": "2025-10-10T16:09:11.533059+00:00",
+              "additional_notes": "",
+              "customer_data": {
+                "name": "João Silva",
+                "email": "joao.silva@teste.com",
+                "phone": "",
+                "address": {
+                  "city": "São Paulo",
+                  "state": "SP",
+                  "number": "123",
+                  "street": "Rua das Flores",
+                  "country": "BR",
+                  "zip_code": "01234-567",
+                  "neighborhood": ""
+                },
+                "document": "111.444.777-35"
+              },
+              "mercadopago_payment_id": null,
+              "items": [
+                {
+                  "id": "28df2fa5-354e-4039-bba4-fa6616de1767",
+                  "name": "Camiseta Premium",
+                  "quantity": 1,
+                  "unit_price": 79.9,
+                  "total_price": 79.9
+                }
+              ],
+              "total": null,
+              "participants": [
+                {
+                  "cpf": "",
+                  "name": "",
+                  "dress": "",
+                  "tshirt": ""
+                }
+              ],
+              "customer_email_computed": "joao.silva@teste.com"
+            },
+            {
+              "id": "52d40ce3-fbfc-466b-93ce-fd9ccbc0d79c",
+              "user_id": "852e6310-17d6-49b2-99c5-d34edc1de7bb",
+              "customer_id": null,
+              "total_amount": 7990,
+              "status": "pending",
+              "payment_id": null,
+              "payment_method": "pix",
+              "payment_status": "pending",
+              "shipping_address": "{\"street\":\"Rua das Flores\",\"number\":\"123\",\"neighborhood\":\"\",\"city\":\"São Paulo\",\"state\":\"SP\",\"zip_code\":\"01234-567\",\"country\":\"BR\"}",
+              "created_at": "2025-10-10T16:10:37.974442+00:00",
+              "updated_at": "2025-10-10T16:10:37.974442+00:00",
+              "additional_notes": "",
+              "customer_data": {
+                "name": "João Silva",
+                "email": "joao.silva@teste.com",
+                "phone": "",
+                "address": {
+                  "city": "São Paulo",
+                  "state": "SP",
+                  "number": "123",
+                  "street": "Rua das Flores",
+                  "country": "BR",
+                  "zip_code": "01234-567",
+                  "neighborhood": ""
+                },
+                "document": "111.444.777-35"
+              },
+              "mercadopago_payment_id": null,
+              "items": [
+                {
+                  "id": "28df2fa5-354e-4039-bba4-fa6616de1767",
+                  "name": "Camiseta Premium",
+                  "quantity": 1,
+                  "unit_price": 79.9,
+                  "total_price": 79.9
+                }
+              ],
+              "total": null,
+              "participants": [
+                {
+                  "cpf": "",
+                  "name": "",
+                  "dress": "",
+                  "tshirt": ""
+                }
+              ],
+              "customer_email_computed": "joao.silva@teste.com"
+            },
+            {
+              "id": "3591ae07-9a3e-418f-96ac-7f5f81d13483",
+              "user_id": "852e6310-17d6-49b2-99c5-d34edc1de7bb",
+              "customer_id": null,
+              "total_amount": 7990,
+              "status": "pending",
+              "payment_id": null,
+              "payment_method": "pix",
+              "payment_status": "pending",
+              "shipping_address": "{\"street\":\"Rua das Flores\",\"number\":\"123\",\"neighborhood\":\"\",\"city\":\"São Paulo\",\"state\":\"SP\",\"zip_code\":\"01234-567\",\"country\":\"BR\"}",
+              "created_at": "2025-10-10T16:41:09.091162+00:00",
+              "updated_at": "2025-10-10T16:41:09.091162+00:00",
+              "additional_notes": "",
+              "customer_data": {
+                "name": "João Silva",
+                "email": "joao.silva@teste.com",
+                "phone": "",
+                "address": {
+                  "city": "São Paulo",
+                  "state": "SP",
+                  "number": "123",
+                  "street": "Rua das Flores",
+                  "country": "BR",
+                  "zip_code": "01234-567",
+                  "neighborhood": ""
+                },
+                "document": "111.444.777-35"
+              },
+              "mercadopago_payment_id": null,
+              "items": [
+                {
+                  "id": "39ffa788-3049-4f35-96a3-a240e20d3609",
+                  "name": "Camiseta Premium",
+                  "quantity": 1,
+                  "unit_price": 79.9,
+                  "total_price": 79.9
+                }
+              ],
+              "total": null,
+              "participants": [
+                {
+                  "cpf": "",
+                  "name": "",
+                  "dress": "",
+                  "tshirt": ""
+                }
+              ],
+              "customer_email_computed": "joao.silva@teste.com"
+            }
+          ],
+          "timeSpan": 31.9593
+        }
+      ],
+      "analysisTime": "2025-10-11T15:13:33.752Z"
+    },
+    "behaviorAnalysis": {
+      "totalUsers": 14,
+      "suspiciousUsers": [
+        {
+          "email": "fotosartdesig@gmail.com",
+          "orders": [
+            {
+              "customer_data": {
+                "name": "Anderson Araujo da Silva",
+                "email": "fotosartdesig@gmail.com",
+                "phone": "18991604609",
+                "address": {
+                  "city": "ARAÇATUBA",
+                  "state": "SP",
+                  "number": "455",
+                  "street": "RUA GOULART",
+                  "country": "BR",
+                  "zip_code": "16011-073",
+                  "neighborhood": "VILA MENDONÇA"
+                },
+                "document": "338.837.088-52"
+              },
+              "created_at": "2025-10-10T15:47:00.89951+00:00",
+              "total_amount": 15090,
+              "payment_status": "pending"
+            },
+            {
+              "customer_data": {
+                "name": "Anderson Araujo da Silva",
+                "email": "fotosartdesig@gmail.com",
+                "phone": "18991604609",
+                "address": {
+                  "city": "ARAÇATUBA",
+                  "state": "SP",
+                  "number": "455",
+                  "street": "RUA GOULART",
+                  "country": "BR",
+                  "zip_code": "16011-073",
+                  "neighborhood": "VILA MENDONÇA"
+                },
+                "document": "338.837.088-52"
+              },
+              "created_at": "2025-10-10T16:20:22.516799+00:00",
+              "total_amount": 14580,
+              "payment_status": "pending"
+            },
+            {
+              "customer_data": {
+                "name": "Anderson Araujo da Silva",
+                "email": "fotosartdesig@gmail.com",
+                "phone": "18991604609",
+                "address": {
+                  "city": "ARAÇATUBA",
+                  "state": "SP",
+                  "number": "455",
+                  "street": "RUA GOULART",
+                  "country": "BR",
+                  "zip_code": "16011-073",
+                  "neighborhood": "VILA MENDONÇA"
+                },
+                "document": "338.837.088-52"
+              },
+              "created_at": "2025-10-10T17:57:26.899775+00:00",
+              "total_amount": 14580,
+              "payment_status": "pending"
+            },
+            {
+              "customer_data": {
+                "name": "Anderson Araujo da Silva",
+                "email": "fotosartdesig@gmail.com",
+                "phone": "18991604609",
+                "address": {
+                  "city": "ARAÇATUBA",
+                  "state": "SP",
+                  "number": "455",
+                  "street": "RUA GOULART",
+                  "country": "BR",
+                  "zip_code": "16011-073",
+                  "neighborhood": "VILA MENDONÇA"
+                },
+                "document": "338.837.088-52"
+              },
+              "created_at": "2025-10-10T20:40:05.90737+00:00",
+              "total_amount": 7990,
+              "payment_status": "pending"
+            },
+            {
+              "customer_data": {
+                "name": "Anderson Araujo da Silva",
+                "email": "fotosartdesig@gmail.com",
+                "phone": "18991604609",
+                "address": {
+                  "city": "ARAÇATUBA",
+                  "state": "SP",
+                  "number": "455",
+                  "street": "RUA GOULART",
+                  "country": "BR",
+                  "zip_code": "16011-073",
+                  "neighborhood": "VILA MENDONÇA"
+                },
+                "document": "338.837.088-52"
+              },
+              "created_at": "2025-10-10T20:43:44.520617+00:00",
+              "total_amount": 0,
+              "payment_status": "pending"
+            },
+            {
+              "customer_data": {
+                "name": "Anderson da Silva",
+                "email": "fotosartdesig@gmail.com",
+                "phone": "18991604609",
+                "address": {
+                  "city": "Araçatuba",
+                  "state": "SP",
+                  "number": "455",
+                  "street": "RUA GOULART",
+                  "country": "BR",
+                  "zip_code": "16011-073",
+                  "neighborhood": "Vila Mendonça"
+                },
+                "document": "338.837.088-52"
+              },
+              "created_at": "2025-10-10T21:47:49.988486+00:00",
+              "total_amount": 6590,
+              "payment_status": "pending"
+            },
+            {
+              "customer_data": {
+                "name": "Anderson Araujo da Silva",
+                "email": "fotosartdesig@gmail.com",
+                "phone": "18991604609",
+                "address": {
+                  "city": "ARAÇATUBA",
+                  "state": "SP",
+                  "number": "455",
+                  "street": "RUA GOULART",
+                  "country": "BR",
+                  "zip_code": "16011-073",
+                  "neighborhood": "VILA MENDONÇA"
+                },
+                "document": "338.837.088-52"
+              },
+              "created_at": "2025-10-10T23:03:06.231765+00:00",
+              "total_amount": 6590,
+              "payment_status": "pending"
+            },
+            {
+              "customer_data": {
+                "cpf": "33883708852",
+                "name": "Anderson Araujo da Silva",
+                "email": "fotosartdesig@gmail.com",
+                "phone": "18991604609"
+              },
+              "created_at": "2025-10-10T23:03:06.94+00:00",
+              "total_amount": 65.9,
+              "payment_status": "PENDING"
+            },
+            {
+              "customer_data": {
+                "cpf": "33883708852",
+                "name": "Anderson Araujo da Silva",
+                "email": "fotosartdesig@gmail.com",
+                "phone": "18991604609"
+              },
+              "created_at": "2025-10-10T23:03:06.977+00:00",
+              "total_amount": 65.9,
+              "payment_status": "PENDING"
+            },
+            {
+              "customer_data": {
+                "name": "Anderson Araujo da Silva",
+                "email": "fotosartdesig@gmail.com",
+                "phone": "18991604609",
+                "address": {
+                  "city": "ARAÇATUBA",
+                  "state": "SP",
+                  "number": "455",
+                  "street": "RUA GOULART",
+                  "country": "BR",
+                  "zip_code": "16011-073",
+                  "neighborhood": "VILA MENDONÇA"
+                },
+                "document": "338.837.088-52"
+              },
+              "created_at": "2025-10-10T23:37:56.580232+00:00",
+              "total_amount": 8500,
+              "payment_status": "pending"
+            },
+            {
+              "customer_data": {
+                "cpf": "33883708852",
+                "name": "Anderson Araujo da Silva",
+                "email": "fotosartdesig@gmail.com",
+                "phone": "18991604609"
+              },
+              "created_at": "2025-10-10T23:37:57.216+00:00",
+              "total_amount": 85,
+              "payment_status": "PENDING"
+            },
+            {
+              "customer_data": {
+                "cpf": "33883708852",
+                "name": "Anderson Araujo da Silva",
+                "email": "fotosartdesig@gmail.com",
+                "phone": "18991604609"
+              },
+              "created_at": "2025-10-10T23:37:57.255+00:00",
+              "total_amount": 85,
+              "payment_status": "PENDING"
+            },
+            {
+              "customer_data": {
+                "cpf": "33883708852",
+                "name": "Anderson Araujo da Silva",
+                "email": "fotosartdesig@gmail.com",
+                "phone": "18991604609"
+              },
+              "created_at": "2025-10-10T23:38:13.096+00:00",
+              "total_amount": 8500,
+              "payment_status": "PENDING"
+            },
+            {
+              "customer_data": {
+                "name": "Anderson Araujo da Silva",
+                "email": "fotosartdesig@gmail.com",
+                "phone": "18991604609",
+                "address": {
+                  "city": "ARAÇATUBA",
+                  "state": "SP",
+                  "number": "455",
+                  "street": "RUA GOULART",
+                  "country": "BR",
+                  "zip_code": "16011-073",
+                  "neighborhood": "VILA MENDONÇA"
+                },
+                "document": "338.837.088-52"
+              },
+              "created_at": "2025-10-10T23:40:26.274284+00:00",
+              "total_amount": 8500,
+              "payment_status": "pending"
+            },
+            {
+              "customer_data": {
+                "cpf": "33883708852",
+                "name": "Anderson Araujo da Silva",
+                "email": "fotosartdesig@gmail.com",
+                "phone": "18991604609"
+              },
+              "created_at": "2025-10-10T23:40:26.912+00:00",
+              "total_amount": 85,
+              "payment_status": "PENDING"
+            },
+            {
+              "customer_data": {
+                "cpf": "33883708852",
+                "name": "Anderson Araujo da Silva",
+                "email": "fotosartdesig@gmail.com",
+                "phone": "18991604609"
+              },
+              "created_at": "2025-10-10T23:40:26.94+00:00",
+              "total_amount": 85,
+              "payment_status": "PENDING"
+            },
+            {
+              "customer_data": {
+                "name": "Anderson Araujo da Silva",
+                "email": "fotosartdesig@gmail.com",
+                "phone": "18991604609",
+                "address": {
+                  "city": "ARAÇATUBA",
+                  "state": "SP",
+                  "number": "455",
+                  "street": "RUA GOULART",
+                  "country": "BR",
+                  "zip_code": "16011-073",
+                  "neighborhood": "VILA MENDONÇA"
+                },
+                "document": "338.837.088-52"
+              },
+              "created_at": "2025-10-10T23:44:11.418589+00:00",
+              "total_amount": 8500,
+              "payment_status": "pending"
+            },
+            {
+              "customer_data": {
+                "cpf": "33883708852",
+                "name": "Anderson Araujo da Silva",
+                "email": "fotosartdesig@gmail.com",
+                "phone": "18991604609"
+              },
+              "created_at": "2025-10-10T23:44:11.969+00:00",
+              "total_amount": 85,
+              "payment_status": "PENDING"
+            },
+            {
+              "customer_data": {
+                "cpf": "33883708852",
+                "name": "Anderson Araujo da Silva",
+                "email": "fotosartdesig@gmail.com",
+                "phone": "18991604609"
+              },
+              "created_at": "2025-10-10T23:44:12.112+00:00",
+              "total_amount": 85,
+              "payment_status": "PENDING"
+            },
+            {
+              "customer_data": {
+                "name": "Anderson Araujo da Silva",
+                "email": "fotosartdesig@gmail.com",
+                "phone": "18991604609",
+                "address": {
+                  "city": "ARAÇATUBA",
+                  "state": "SP",
+                  "number": "455",
+                  "street": "RUA GOULART",
+                  "country": "BR",
+                  "zip_code": "16011-073",
+                  "neighborhood": "VILA MENDONÇA"
+                },
+                "document": "338.837.088-52"
+              },
+              "created_at": "2025-10-11T00:55:47.366743+00:00",
+              "total_amount": 8500,
+              "payment_status": "pending"
+            },
+            {
+              "customer_data": {
+                "cpf": "33883708852",
+                "name": "Anderson Araujo da Silva",
+                "email": "fotosartdesig@gmail.com",
+                "phone": "18991604609"
+              },
+              "created_at": "2025-10-11T00:55:48.268+00:00",
+              "total_amount": 85,
+              "payment_status": "PENDING"
+            },
+            {
+              "customer_data": {
+                "cpf": "33883708852",
+                "name": "Anderson Araujo da Silva",
+                "email": "fotosartdesig@gmail.com",
+                "phone": "18991604609"
+              },
+              "created_at": "2025-10-11T00:55:48.269+00:00",
+              "total_amount": 85,
+              "payment_status": "PENDING"
+            },
+            {
+              "customer_data": {
+                "name": "Anderson Araujo da Silva",
+                "email": "fotosartdesig@gmail.com",
+                "phone": "18991604609",
+                "address": {
+                  "city": "ARAÇATUBA",
+                  "state": "SP",
+                  "number": "455",
+                  "street": "RUA GOULART",
+                  "country": "BR",
+                  "zip_code": "16011-073",
+                  "neighborhood": "VILA MENDONÇA"
+                },
+                "document": "404.631.758-24"
+              },
+              "created_at": "2025-10-11T09:57:15.206347+00:00",
+              "total_amount": 201450,
+              "payment_status": "pending"
+            },
+            {
+              "customer_data": {
+                "name": "Anderson Araujo da Silva",
+                "email": "fotosartdesig@gmail.com",
+                "phone": "18991604609",
+                "address": {
+                  "city": "ARAÇATUBA",
+                  "state": "SP",
+                  "number": "455",
+                  "street": "RUA GOULART",
+                  "country": "BR",
+                  "zip_code": "16011-073",
+                  "neighborhood": "VILA MENDONÇA"
+                },
+                "document": "404.631.758-24"
+              },
+              "created_at": "2025-10-11T10:03:36.563028+00:00",
+              "total_amount": 201450,
+              "payment_status": "pending"
+            },
+            {
+              "customer_data": {
+                "name": "Anderson Araujo da Silva",
+                "email": "fotosartdesig@gmail.com",
+                "phone": "18991604609",
+                "address": {
+                  "city": "ARAÇATUBA",
+                  "state": "SP",
+                  "number": "455",
+                  "street": "RUA GOULART",
+                  "country": "BR",
+                  "zip_code": "16011-073",
+                  "neighborhood": "VILA MENDONÇA"
+                },
+                "document": "404.631.758-24"
+              },
+              "created_at": "2025-10-11T10:59:19.568276+00:00",
+              "total_amount": 201450,
+              "payment_status": "pending"
+            },
+            {
+              "customer_data": {
+                "name": "Anderson Araujo da Silva",
+                "email": "fotosartdesig@gmail.com",
+                "phone": "18991604609",
+                "address": {
+                  "city": "ARAÇATUBA",
+                  "state": "SP",
+                  "number": "455",
+                  "street": "RUA GOULART",
+                  "country": "BR",
+                  "zip_code": "16011-073",
+                  "neighborhood": "VILA MENDONÇA"
+                },
+                "document": "338.837.088-52"
+              },
+              "created_at": "2025-10-11T12:22:56.033883+00:00",
+              "total_amount": 201450,
+              "payment_status": "pending"
+            },
+            {
+              "customer_data": {
+                "name": "Anderson Araujo da Silva",
+                "email": "fotosartdesig@gmail.com",
+                "phone": "18991604609",
+                "address": {
+                  "city": "ARAÇATUBA",
+                  "state": "SP",
+                  "number": "455",
+                  "street": "RUA GOULART",
+                  "country": "BR",
+                  "zip_code": "16011-073",
+                  "neighborhood": "VILA MENDONÇA"
+                },
+                "document": "111.444.777-35"
+              },
+              "created_at": "2025-10-11T14:28:49.107734+00:00",
+              "total_amount": 209440,
+              "payment_status": "pending"
+            },
+            {
+              "customer_data": {
+                "cpf": "11144477735",
+                "name": "Anderson Araujo da Silva",
+                "email": "fotosartdesig@gmail.com",
+                "phone": "18991604609"
+              },
+              "created_at": "2025-10-11T14:28:50.424+00:00",
+              "total_amount": 2094.4,
+              "payment_status": "PENDING"
+            },
+            {
+              "customer_data": {
+                "cpf": "11144477735",
+                "name": "Anderson Araujo da Silva",
+                "email": "fotosartdesig@gmail.com",
+                "phone": "18991604609"
+              },
+              "created_at": "2025-10-11T14:28:50.497+00:00",
+              "total_amount": 2094.4,
+              "payment_status": "PENDING"
+            }
+          ],
+          "totalAmount": 1128160.5999999999,
+          "rapidSuccessionCount": 13
+        }
+      ],
+      "analysisTime": "2025-10-11T15:13:34.113Z"
+    }
+  }
+}

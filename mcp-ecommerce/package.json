@@ -1,0 +1,33 @@
+{
+  "name": "mcp-ecommerce-querenhapuque",
+  "version": "1.0.0",
+  "description": "MCP Server para funcionalidades de ecommerce integrado com Supabase e AbacatePay",
+  "main": "src/index.ts",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "start": "tsx src/index.ts",
+    "dev": "tsx --watch src/index.ts",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "@supabase/supabase-js": "^2.39.0",
+    "axios": "^1.6.0",
+    "dotenv": "^16.6.1",
+    "zod": "^3.22.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "tsx": "^4.0.0",
+    "typescript": "^5.0.0"
+  },
+  "keywords": [
+    "mcp",
+    "ecommerce",
+    "supabase",
+    "abacatepay"
+  ],
+  "author": "Querenhapuque Team",
+  "license": "MIT"
+}

@@ -1,0 +1,43 @@
+[Unit]
+Description=Agente de Reconciliação AbacatePay <> Supabase
+Documentation=https://github.com/querenhapuque/reconciliation-agent
+After=network.target
+Wants=network.target
+
+[Service]
+Type=simple
+User=app
+Group=app
+WorkingDirectory=/opt/querenhapuque
+Environment=NODE_ENV=production
+Environment=LOG_LEVEL=info
+EnvironmentFile=/opt/querenhapuque/.env
+ExecStart=/usr/bin/tsx src/services/reconciliation/scheduler.ts
+ExecReload=/bin/kill -HUP $MAINPID
+Restart=always
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=reconciliation-agent
+
+# Limites de recursos
+LimitNOFILE=65536
+MemoryLimit=1G
+CPUQuota=50%
+
+# Segurança
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/querenhapuque/logs
+ReadOnlyPaths=/opt/querenhapuque
+
+# Timeout
+TimeoutStartSec=60
+TimeoutStopSec=30
+KillMode=mixed
+KillSignal=SIGTERM
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,539 @@
+[
+  {
+    "id": "TC001",
+    "title": "User Authentication Success",
+    "description": "Verify that a user can successfully log in with valid credentials and access protected routes.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to the login page."
+      },
+      {
+        "type": "action",
+        "description": "Input valid username/email and password."
+      },
+      {
+        "type": "action",
+        "description": "Click on the login button."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that the user is redirected to the protected area/dashboard."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that protected routes are accessible."
+      }
+    ]
+  },
+  {
+    "id": "TC002",
+    "title": "User Authentication Failure with Invalid Credentials",
+    "description": "Verify that login fails with incorrect username/email or password and the user remains on the login page with an error message.",
+    "category": "error handling",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to the login page."
+      },
+      {
+        "type": "action",
+        "description": "Input invalid username/email or password."
+      },
+      {
+        "type": "action",
+        "description": "Click on the login button."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that login fails with an appropriate error message."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that the user stays on the login page and protected routes are not accessible."
+      }
+    ]
+  },
+  {
+    "id": "TC003",
+    "title": "Password Recovery Flow",
+    "description": "Verify that the password recovery process allows a user to reset their password and login successfully.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to the password recovery page."
+      },
+      {
+        "type": "action",
+        "description": "Enter a registered email address."
+      },
+      {
+        "type": "action",
+        "description": "Submit the recovery request."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that a password recovery email is sent."
+      },
+      {
+        "type": "action",
+        "description": "Use the link in the email to set a new password."
+      },
+      {
+        "type": "action",
+        "description": "Attempt login with the new password."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that login succeeds with the new password."
+      }
+    ]
+  },
+  {
+    "id": "TC004",
+    "title": "Product Catalog Listing and Filtering",
+    "description": "Verify that products and tickets are listed correctly in the catalog and filters for categories and attributes work as expected.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to the product catalog page."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that products and tickets are displayed with correct basic information."
+      },
+      {
+        "type": "action",
+        "description": "Apply category filters (e.g., tickets, clothing)."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that the list updates to show only filtered category items."
+      },
+      {
+        "type": "action",
+        "description": "Use search input to find a product by name or keyword."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that search results match the query."
+      },
+      {
+        "type": "action",
+        "description": "Select a product/ticket to view details."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that detailed view shows all product/ticket attributes correctly."
+      }
+    ]
+  },
+  {
+    "id": "TC005",
+    "title": "Add and Remove Items in Cart",
+    "description": "Verify that users can add products and tickets to the cart, change quantities, and remove items dynamically.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "From the catalog, add multiple products and tickets to the cart."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that all added items appear in the cart with correct details."
+      },
+      {
+        "type": "action",
+        "description": "Change the quantity of an item in the cart."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that the quantity updates accordingly and total prices adjust."
+      },
+      {
+        "type": "action",
+        "description": "Remove an item from the cart."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that the removed item no longer appears in the cart and totals update."
+      }
+    ]
+  },
+  {
+    "id": "TC006",
+    "title": "Complete Checkout with Multiple Participants",
+    "description": "Verify that the checkout process collects customer and multiple participant information, accepts terms, additional notes, and shows accurate order summary.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Proceed to checkout with items in cart."
+      },
+      {
+        "type": "action",
+        "description": "Fill in customer personal information."
+      },
+      {
+        "type": "action",
+        "description": "Add multiple participants with required details."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that participant data is validated correctly."
+      },
+      {
+        "type": "action",
+        "description": "Review and accept terms and conditions."
+      },
+      {
+        "type": "action",
+        "description": "Add optional additional notes."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that order summary reflects all inputs accurately (items, participants, pricing, notes)."
+      }
+    ]
+  },
+  {
+    "id": "TC007",
+    "title": "Payment Processing via AbacatePay with QR Code Pix",
+    "description": "Verify that a payment generates a QR Code Pix and waits for confirmation via AbacatePay integration, updating order status automatically.",
+    "category": "integration",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Complete checkout form and initiate payment via AbacatePay."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that a QR Code Pix is generated and displayed to the user."
+      },
+      {
+        "type": "action",
+        "description": "Simulate payment confirmation webhook from AbacatePay."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that the system updates the order status to paid automatically."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that tickets are issued automatically after payment confirmation."
+      }
+    ]
+  },
+  {
+    "id": "TC008",
+    "title": "Webhook Processing and Order Reconciliation",
+    "description": "Verify that incoming webhooks from AbacatePay update orders correctly, handle duplicate or conflicting webhook calls, and reconcile order status properly.",
+    "category": "integration",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Send a payment confirmation webhook with correct order details."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that order status updates to paid and tickets are issued."
+      },
+      {
+        "type": "action",
+        "description": "Send a duplicate webhook to simulate repeated notifications."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that the system handles duplicate webhook gracefully without adverse effects."
+      },
+      {
+        "type": "action",
+        "description": "Send a webhook with conflicting or invalid data."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that the system logs the inconsistency and does not corrupt order state."
+      }
+    ]
+  },
+  {
+    "id": "TC009",
+    "title": "Admin Panel: Product and Stock Management",
+    "description": "Verify that admins can access admin panels, view product lists, stocks, and update inventory quantities.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Login as admin and navigate to the product management panel."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that a complete list of products with stock levels appears."
+      },
+      {
+        "type": "action",
+        "description": "Modify stock quantity for one or more products."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that stock changes are saved and reflected instantly."
+      },
+      {
+        "type": "action",
+        "description": "Attempt invalid stock inputs like negative numbers or text."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that input validation prevents invalid stock updates."
+      }
+    ]
+  },
+  {
+    "id": "TC010",
+    "title": "Admin Panel: Orders and Sales Dashboard",
+    "description": "Verify that admins can view recent orders, sales performance, and usage statistics in real-time on dedicated dashboards.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Login as admin and open recent orders panel."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that recent orders are listed with correct statuses and details."
+      },
+      {
+        "type": "action",
+        "description": "Navigate to sales overview dashboard."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that sales metrics (total sales, top products, performance trends) are displayed accurately and updating in real-time."
+      },
+      {
+        "type": "action",
+        "description": "Simulate stock or order changes and verify updates appear in the dashboard without manual refresh."
+      }
+    ]
+  },
+  {
+    "id": "TC011",
+    "title": "Realtime Synchronization and Offline-First Functionality",
+    "description": "Verify that data remains consistent across clients in real-time and that the application supports offline usage with synchronization upon reconnection.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Open the application in two client instances."
+      },
+      {
+        "type": "action",
+        "description": "Make data changes (e.g., update cart, add participants) in one client."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that changes are reflected immediately in the other client."
+      },
+      {
+        "type": "action",
+        "description": "Turn off network access for one client and perform offline actions (add, remove, update items)."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that offline changes are queued and reflected locally."
+      },
+      {
+        "type": "action",
+        "description": "Restore network connection."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that offline changes synchronize correctly with the server and no data conflicts remain."
+      }
+    ]
+  },
+  {
+    "id": "TC012",
+    "title": "UI Responsiveness Across Devices",
+    "description": "Verify that the platform UI including Navbar, Footer, modals, and mobile menus render correctly and are functional across desktop and mobile devices.",
+    "category": "ui",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Access the platform on a desktop browser."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that Navbar, Footer, modals, and menus display and behave correctly."
+      },
+      {
+        "type": "action",
+        "description": "Resize browser window to mobile dimensions or use a mobile device."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that mobile menus open and close correctly and the UI remains usable and visually correct."
+      },
+      {
+        "type": "action",
+        "description": "Open and interact with modals (product details, email confirmations)."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify modals open, close, and trap focus as expected."
+      }
+    ]
+  },
+  {
+    "id": "TC013",
+    "title": "Security: Protected Route Access Control",
+    "description": "Verify that protected routes require authentication and unauthorized users are redirected to login.",
+    "category": "security",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Attempt to directly access protected routes without being logged in."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that the user is redirected to the login page."
+      },
+      {
+        "type": "action",
+        "description": "Login as an authenticated user."
+      },
+      {
+        "type": "action",
+        "description": "Access protected routes after login."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the user has access to protected routes."
+      }
+    ]
+  },
+  {
+    "id": "TC014",
+    "title": "Logs and Monitoring Security",
+    "description": "Verify that application logs and monitoring data do not expose sensitive information like passwords or payment secrets and that logs enable effective diagnostics.",
+    "category": "security",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Perform operations generating logs (login attempts, payments, product updates)."
+      },
+      {
+        "type": "assertion",
+        "description": "Check logs for absence of sensitive data such as passwords, payment credentials, or personal private info."
+      },
+      {
+        "type": "assertion",
+        "description": "Ensure error logs and monitoring data provide sufficient detail for troubleshooting."
+      }
+    ]
+  },
+  {
+    "id": "TC015",
+    "title": "Test Coverage Verification for Core Functionalities",
+    "description": "Verify that unit and integration tests cover all critical flows including authentication, catalog, cart, checkout, payments, admin panels, and realtime synchronization.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Run the full test suite including unit and integration tests."
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm test coverage reports indicate coverage of authentication, cart management, checkout processes, payment integration, admin management, and realtime features."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify no critical functionality remains untested."
+      }
+    ]
+  },
+  {
+    "id": "TC016",
+    "title": "Error Handling on Failed Payment or Webhook",
+    "description": "Verify system behavior when payment fails or webhook notifications cannot be processed, including proper user notification and order status management.",
+    "category": "error handling",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Simulate a payment failure during checkout."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that the user is notified of payment failure and order status remains pending or failed."
+      },
+      {
+        "type": "action",
+        "description": "Send a malformed or invalid webhook to the server."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that the server responds gracefully without crashing and logs the error appropriately."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that order status is not incorrectly updated."
+      }
+    ]
+  },
+  {
+    "id": "TC017",
+    "title": "Checkout Input Validation and Error Messages",
+    "description": "Verify that all checkout input fields including customer info, participants data, terms acceptance, and additional notes are validated with appropriate error messages displayed for invalid inputs.",
+    "category": "error handling",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to checkout page with items in cart."
+      },
+      {
+        "type": "action",
+        "description": "Leave mandatory customer fields empty and attempt to proceed."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that validation errors are displayed and user cannot proceed."
+      },
+      {
+        "type": "action",
+        "description": "Enter invalid email addresses or phone numbers in customer and participant forms."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify error messages prompt correction."
+      },
+      {
+        "type": "action",
+        "description": "Attempt to submit checkout without accepting terms."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that user is prevented from checkout completion with a warning."
+      }
+    ]
+  }
+]

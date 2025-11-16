@@ -1,0 +1,3202 @@
+{
+  "timestamp": "2025-10-15T01:02:11.679Z",
+  "summary": {
+    "totalAbacateCharges": 208,
+    "totalSupabaseOrders": 3,
+    "missingOrders": 205,
+    "statusDistribution": {
+      "PENDING": 205,
+      "PAID": 0,
+      "EXPIRED": 0,
+      "CANCELLED": 0,
+      "REFUNDED": 0,
+      "OTHER": 0
+    }
+  },
+  "missingOrdersList": [
+    {
+      "id": "bill_3EfWH4ehzz6YFmQG6WCUhWRz",
+      "status": "PENDING",
+      "amount": 16490,
+      "customer": {
+        "name": "Anderson da Silva",
+        "cellphone": "18991604609",
+        "taxId": "33883708852",
+        "email": "fotosartdesig@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-14T00:54:19.960Z",
+      "url": "https://abacatepay.com/pay/bill_3EfWH4ehzz6YFmQG6WCUhWRz",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_4rf64scnZ4u5DudE6kezqdsB",
+      "status": "PENDING",
+      "amount": 16490,
+      "customer": {
+        "name": "Anderson da Silva",
+        "cellphone": "18991604609",
+        "taxId": "33883708852",
+        "email": "fotosartdesig@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-14T00:54:19.944Z",
+      "url": "https://abacatepay.com/pay/bill_4rf64scnZ4u5DudE6kezqdsB",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_uYG1XmSmdPLZerXUYRh3KbKz",
+      "status": "PENDING",
+      "amount": 7990,
+      "customer": {
+        "name": "Anderson da Silva",
+        "cellphone": "18991604609",
+        "taxId": "33883708852",
+        "email": "fotosartdesig@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-14T00:41:56.622Z",
+      "url": "https://abacatepay.com/pay/bill_uYG1XmSmdPLZerXUYRh3KbKz",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_63tAeyKmmLTXJwJMU4tacPKU",
+      "status": "PENDING",
+      "amount": 47940,
+      "customer": {
+        "name": "Anderson da Silva",
+        "cellphone": "18991604609",
+        "taxId": "33883708852",
+        "email": "fotosartdesig@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-14T00:30:02.131Z",
+      "url": "https://abacatepay.com/pay/bill_63tAeyKmmLTXJwJMU4tacPKU",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_xDpNw6sNpe3XgtcESap24Eur",
+      "status": "PENDING",
+      "amount": 850000000,
+      "customer": {
+        "name": "Anderson Araujo",
+        "cellphone": "+5511999999999",
+        "taxId": "11144477735",
+        "email": "fotosartdesign@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-14T00:05:17.925Z",
+      "url": "https://abacatepay.com/pay/bill_xDpNw6sNpe3XgtcESap24Eur",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_0LNbdcpsznEXQ5ezATLjsgDT",
+      "status": "PENDING",
+      "amount": 85000,
+      "customer": {
+        "name": "Anderson da Silva",
+        "cellphone": "18991604609",
+        "taxId": "33883708852",
+        "email": "fotosartdesig@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-14T00:03:44.027Z",
+      "url": "https://abacatepay.com/pay/bill_0LNbdcpsznEXQ5ezATLjsgDT",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_bGU2UmzMMkrFFW6xRNkrzJQu",
+      "status": "PENDING",
+      "amount": 47940,
+      "customer": {
+        "name": "Anderson da Silva",
+        "cellphone": "18991604609",
+        "taxId": "33883708852",
+        "email": "fotosartdesig@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-13T23:58:36.892Z",
+      "url": "https://abacatepay.com/pay/bill_bGU2UmzMMkrFFW6xRNkrzJQu",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_2GJ5dFhTaDGBMXwDBXjg0yH0",
+      "status": "PENDING",
+      "amount": 85000,
+      "customer": {
+        "name": "Anderson da Silva",
+        "cellphone": "18991604609",
+        "taxId": "33883708852",
+        "email": "fotosartdesig@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-13T23:48:52.011Z",
+      "url": "https://abacatepay.com/pay/bill_2GJ5dFhTaDGBMXwDBXjg0yH0",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_3p44a4bwpCZs0MAz3huLWDfG",
+      "status": "PENDING",
+      "amount": 8500,
+      "customer": {
+        "name": "Anderson da Silva",
+        "cellphone": "18991604609",
+        "taxId": "33883708852",
+        "email": "fotosartdesig@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-13T23:19:14.381Z",
+      "url": "https://abacatepay.com/pay/bill_3p44a4bwpCZs0MAz3huLWDfG",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_E3ejCRPr2LhfHn0FMCauNmmE",
+      "status": "PENDING",
+      "amount": 14580,
+      "customer": {
+        "name": "João Silva",
+        "cellphone": "(11) 99999-9999",
+        "taxId": "09240529020",
+        "email": "joao.silva@email.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-13T23:14:21.662Z",
+      "url": "https://abacatepay.com/pay/bill_E3ejCRPr2LhfHn0FMCauNmmE",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_tpPdHqTHqN6JdDfSa6AbgDPT",
+      "status": "PENDING",
+      "amount": 2550,
+      "customer": {
+        "name": "João Silva",
+        "cellphone": "(11) 99999-9999",
+        "taxId": "09240529020",
+        "email": "joao.silva@email.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-13T07:27:09.204Z",
+      "url": "https://abacatepay.com/pay/bill_tpPdHqTHqN6JdDfSa6AbgDPT",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_5zxy4bNZ0p2z1sWu15wM5YrA",
+      "status": "PENDING",
+      "amount": 14580,
+      "customer": {
+        "name": "João Silva",
+        "cellphone": "(11) 99999-9999",
+        "taxId": "09240529020",
+        "email": "joao.silva@email.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-13T07:24:44.301Z",
+      "url": "https://abacatepay.com/pay/bill_5zxy4bNZ0p2z1sWu15wM5YrA",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_n0mjLhw2bRugfSkyctuGXu0k",
+      "status": "PENDING",
+      "amount": 14580,
+      "customer": {
+        "name": "João Silva",
+        "cellphone": "(11) 99999-9999",
+        "taxId": "09240529020",
+        "email": "joao.silva@email.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-13T07:20:40.704Z",
+      "url": "https://abacatepay.com/pay/bill_n0mjLhw2bRugfSkyctuGXu0k",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_xqauSpEm4ckZxFc4ULhcJnpp",
+      "status": "PENDING",
+      "amount": 14580,
+      "customer": {
+        "name": "João Silva",
+        "cellphone": "(11) 99999-9999",
+        "taxId": "09240529020",
+        "email": "joao.silva@email.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-13T07:19:08.612Z",
+      "url": "https://abacatepay.com/pay/bill_xqauSpEm4ckZxFc4ULhcJnpp",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_hHAzk4aQAU3DuyQxeuXPs3Yu",
+      "status": "PENDING",
+      "amount": 14580,
+      "createdAt": "2025-10-13T07:12:41.239Z",
+      "url": "https://abacatepay.com/pay/bill_hHAzk4aQAU3DuyQxeuXPs3Yu",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_en2sRjK5Y2eLmp3swUqPLgY6",
+      "status": "PENDING",
+      "amount": 109450,
+      "createdAt": "2025-10-13T06:46:44.594Z",
+      "url": "https://abacatepay.com/pay/bill_en2sRjK5Y2eLmp3swUqPLgY6",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_wh1RdGcj3CWuXd56bbLZjQRG",
+      "status": "PENDING",
+      "amount": 1050,
+      "createdAt": "2025-10-13T06:43:42.135Z",
+      "url": "https://abacatepay.com/pay/bill_wh1RdGcj3CWuXd56bbLZjQRG",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_uNSagEqdcJfeYXQa0ZkfdmfJ",
+      "status": "PENDING",
+      "amount": 109450,
+      "createdAt": "2025-10-13T06:35:38.389Z",
+      "url": "https://abacatepay.com/pay/bill_uNSagEqdcJfeYXQa0ZkfdmfJ",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_SH4Cd0cdPNtQAZLHjsqFHD4K",
+      "status": "PENDING",
+      "amount": 1500,
+      "customer": {
+        "name": "Anderson Araujo",
+        "cellphone": "+5511999999999",
+        "taxId": "11144477735",
+        "email": "fotosartdesign@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-13T06:34:22.031Z",
+      "url": "https://abacatepay.com/pay/bill_SH4Cd0cdPNtQAZLHjsqFHD4K",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_XZ3tWFMAXhpxNNJ1syCbbrRs",
+      "status": "PENDING",
+      "amount": 1000,
+      "customer": {
+        "name": "Anderson Araujo",
+        "cellphone": "+5511999999999",
+        "taxId": "11144477735",
+        "email": "fotosartdesign@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-13T06:32:55.534Z",
+      "url": "https://abacatepay.com/pay/bill_XZ3tWFMAXhpxNNJ1syCbbrRs",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_50f5f2xratpTu5e6pp5NTdNd",
+      "status": "PENDING",
+      "amount": 1500,
+      "customer": {
+        "name": "Anderson Araujo",
+        "cellphone": "+5511999999999",
+        "taxId": "11144477735",
+        "email": "fotosartdesign@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-13T06:31:05.723Z",
+      "url": "https://abacatepay.com/pay/bill_50f5f2xratpTu5e6pp5NTdNd",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_bQ1q6ZsQR0nTEGrt6yRhH0ZS",
+      "status": "PENDING",
+      "amount": 1500,
+      "customer": {
+        "name": "Anderson Araujo",
+        "cellphone": "+5511999999999",
+        "taxId": "11144477735",
+        "email": "fotosartdesign@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-13T06:31:05.514Z",
+      "url": "https://abacatepay.com/pay/bill_bQ1q6ZsQR0nTEGrt6yRhH0ZS",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_X4gCcwbDhqthBSzwwJxzahpD",
+      "status": "PENDING",
+      "amount": 83090,
+      "createdAt": "2025-10-13T06:23:12.837Z",
+      "url": "https://abacatepay.com/pay/bill_X4gCcwbDhqthBSzwwJxzahpD",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_U2ytSeR23ZcLSLthdCKmtxcE",
+      "status": "PENDING",
+      "amount": 1000,
+      "customer": {
+        "name": "Anderson Araujo",
+        "cellphone": "+5511999999999",
+        "taxId": "11144477735",
+        "email": "fotosartdesign@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-13T06:21:28.249Z",
+      "url": "https://abacatepay.com/pay/bill_U2ytSeR23ZcLSLthdCKmtxcE",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_W2nfjK6E3ztseWkaMXrKhWdZ",
+      "status": "PENDING",
+      "amount": 1000,
+      "customer": {
+        "name": "Anderson Araujo",
+        "cellphone": "+5511999999999",
+        "taxId": "11144477735",
+        "email": "fotosartdesign@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-13T06:20:36.548Z",
+      "url": "https://abacatepay.com/pay/bill_W2nfjK6E3ztseWkaMXrKhWdZ",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_PgB35UepaWyWXmKHDKxXynTL",
+      "status": "PENDING",
+      "amount": 1000,
+      "customer": {
+        "name": "Anderson Araujo",
+        "cellphone": "+5511999999999",
+        "taxId": "11144477735",
+        "email": "fotosartdesign@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-13T06:20:13.949Z",
+      "url": "https://abacatepay.com/pay/bill_PgB35UepaWyWXmKHDKxXynTL",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_nYMcPrDFtwGjY3LPjmgbhrjy",
+      "status": "PENDING",
+      "amount": 6590,
+      "createdAt": "2025-10-13T06:15:44.449Z",
+      "url": "https://abacatepay.com/pay/bill_nYMcPrDFtwGjY3LPjmgbhrjy",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_6YLW6TSkhNEP4xgh5NsS061T",
+      "status": "PENDING",
+      "amount": 6590,
+      "createdAt": "2025-10-13T05:06:44.486Z",
+      "url": "https://abacatepay.com/pay/bill_6YLW6TSkhNEP4xgh5NsS061T",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_0uGaxbddec4TGrtbnqZpF4Zy",
+      "status": "PENDING",
+      "amount": 153000,
+      "createdAt": "2025-10-13T04:56:40.338Z",
+      "url": "https://abacatepay.com/pay/bill_0uGaxbddec4TGrtbnqZpF4Zy",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_1HXUdgtNauWsFSHPRBypwAbB",
+      "status": "PENDING",
+      "amount": 161500,
+      "createdAt": "2025-10-13T04:42:06.902Z",
+      "url": "https://abacatepay.com/pay/bill_1HXUdgtNauWsFSHPRBypwAbB",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_Byr6bCMEpCswYEwkuzqdenuJ",
+      "status": "PENDING",
+      "amount": 85000,
+      "createdAt": "2025-10-13T04:39:31.953Z",
+      "url": "https://abacatepay.com/pay/bill_Byr6bCMEpCswYEwkuzqdenuJ",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_wxEQJdKWAZq2jbw3TdWR0qBk",
+      "status": "PENDING",
+      "amount": 85000,
+      "createdAt": "2025-10-13T04:30:21.390Z",
+      "url": "https://abacatepay.com/pay/bill_wxEQJdKWAZq2jbw3TdWR0qBk",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_tsaT4YZTXaufTszA31zPyMn4",
+      "status": "PENDING",
+      "amount": 85000,
+      "createdAt": "2025-10-13T04:22:37.292Z",
+      "url": "https://abacatepay.com/pay/bill_tsaT4YZTXaufTszA31zPyMn4",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_tcHd3bPbe33YLYykYyt1sWn5",
+      "status": "PENDING",
+      "amount": 85000,
+      "createdAt": "2025-10-13T04:18:59.384Z",
+      "url": "https://abacatepay.com/pay/bill_tcHd3bPbe33YLYykYyt1sWn5",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_35pt4YfFgUf6bFcNHb3ns2Pp",
+      "status": "PENDING",
+      "amount": 10000,
+      "createdAt": "2025-10-13T04:18:33.198Z",
+      "url": "https://abacatepay.com/pay/bill_35pt4YfFgUf6bFcNHb3ns2Pp",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_DejQTFchpt6Thw1UrQmAr6jx",
+      "status": "PENDING",
+      "amount": 100000,
+      "createdAt": "2025-10-13T04:10:41.151Z",
+      "url": "https://abacatepay.com/pay/bill_DejQTFchpt6Thw1UrQmAr6jx",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_QL3wk3FEPYrcAbjAYqqJU2W1",
+      "status": "PENDING",
+      "amount": 85000,
+      "createdAt": "2025-10-13T04:04:29.898Z",
+      "url": "https://abacatepay.com/pay/bill_QL3wk3FEPYrcAbjAYqqJU2W1",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_6CJUQrpcj6Y1QSaTb4EEwMDE",
+      "status": "PENDING",
+      "amount": 85000,
+      "createdAt": "2025-10-13T03:56:23.672Z",
+      "url": "https://abacatepay.com/pay/bill_6CJUQrpcj6Y1QSaTb4EEwMDE",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_3AB6FMwjgzZjkGaZmPUETp1Z",
+      "status": "PENDING",
+      "amount": 85000,
+      "createdAt": "2025-10-13T03:52:12.010Z",
+      "url": "https://abacatepay.com/pay/bill_3AB6FMwjgzZjkGaZmPUETp1Z",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_e50wTmPAremtBAfN1NKw2QBg",
+      "status": "PENDING",
+      "amount": 85000,
+      "createdAt": "2025-10-13T03:46:08.725Z",
+      "url": "https://abacatepay.com/pay/bill_e50wTmPAremtBAfN1NKw2QBg",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_HXpqExqnK2kWC6s2m2Yw3BT4",
+      "status": "PENDING",
+      "amount": 91590,
+      "createdAt": "2025-10-13T03:38:49.348Z",
+      "url": "https://abacatepay.com/pay/bill_HXpqExqnK2kWC6s2m2Yw3BT4",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_GxpkqnkAS2SBtt4GftdJw0Mw",
+      "status": "PENDING",
+      "amount": 15090,
+      "createdAt": "2025-10-13T03:33:11.671Z",
+      "url": "https://abacatepay.com/pay/bill_GxpkqnkAS2SBtt4GftdJw0Mw",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_4Acj0LTAKBz2HcNgXNFzeYwD",
+      "status": "PENDING",
+      "amount": 6590,
+      "createdAt": "2025-10-13T03:29:53.100Z",
+      "url": "https://abacatepay.com/pay/bill_4Acj0LTAKBz2HcNgXNFzeYwD",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_NBMZWxwULAQj1zrpswaYb2fD",
+      "status": "PENDING",
+      "amount": 6590,
+      "createdAt": "2025-10-13T03:21:09.900Z",
+      "url": "https://abacatepay.com/pay/bill_NBMZWxwULAQj1zrpswaYb2fD",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_1XjTncJfyn1R1Fsjr4q6C6Qu",
+      "status": "PENDING",
+      "amount": 6590,
+      "createdAt": "2025-10-13T03:08:42.851Z",
+      "url": "https://abacatepay.com/pay/bill_1XjTncJfyn1R1Fsjr4q6C6Qu",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_NxDMDM3LSJ0BfNghkyCtGHPa",
+      "status": "PENDING",
+      "amount": 6590,
+      "createdAt": "2025-10-13T02:58:32.988Z",
+      "url": "https://abacatepay.com/pay/bill_NxDMDM3LSJ0BfNghkyCtGHPa",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_dg5r3MbpU4YXD15YnThTWjHY",
+      "status": "PENDING",
+      "amount": 39950,
+      "createdAt": "2025-10-13T02:55:18.615Z",
+      "url": "https://abacatepay.com/pay/bill_dg5r3MbpU4YXD15YnThTWjHY",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_3EnZU3t1TUWk5HgsA16US2ZF",
+      "status": "PENDING",
+      "amount": 6590,
+      "createdAt": "2025-10-13T02:48:16.283Z",
+      "url": "https://abacatepay.com/pay/bill_3EnZU3t1TUWk5HgsA16US2ZF",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_UjuSKNGhuupyC0E0PUSPpnxY",
+      "status": "PENDING",
+      "amount": 39950,
+      "createdAt": "2025-10-13T02:45:24.258Z",
+      "url": "https://abacatepay.com/pay/bill_UjuSKNGhuupyC0E0PUSPpnxY",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_daxh0PjqdE0ftCRajKMu6BDE",
+      "status": "PENDING",
+      "amount": 500000,
+      "createdAt": "2025-10-13T02:38:40.642Z",
+      "url": "https://abacatepay.com/pay/bill_daxh0PjqdE0ftCRajKMu6BDE",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_UzaaUzmgEkkNnYbAEYz0ydLe",
+      "status": "PENDING",
+      "amount": 31960,
+      "createdAt": "2025-10-13T02:23:21.697Z",
+      "url": "https://abacatepay.com/pay/bill_UzaaUzmgEkkNnYbAEYz0ydLe",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_uNpESQkCYgCuYNZ0PHTfY1HK",
+      "status": "PENDING",
+      "amount": 31960,
+      "createdAt": "2025-10-13T02:19:46.902Z",
+      "url": "https://abacatepay.com/pay/bill_uNpESQkCYgCuYNZ0PHTfY1HK",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_M6XsCmmg34n2aducLrbat2cx",
+      "status": "PENDING",
+      "amount": 6590,
+      "createdAt": "2025-10-13T01:51:06.773Z",
+      "url": "https://abacatepay.com/pay/bill_M6XsCmmg34n2aducLrbat2cx",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_2LYAcaTcKcp0sWXMpgJffwT3",
+      "status": "PENDING",
+      "amount": 15980,
+      "createdAt": "2025-10-13T01:37:03.937Z",
+      "url": "https://abacatepay.com/pay/bill_2LYAcaTcKcp0sWXMpgJffwT3",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_RCqz3GYnCsSkRwMwpqER4QGE",
+      "status": "PENDING",
+      "amount": 6590,
+      "createdAt": "2025-10-13T01:29:48.125Z",
+      "url": "https://abacatepay.com/pay/bill_RCqz3GYnCsSkRwMwpqER4QGE",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_zcW64drG5NDkUZUqcxyeWbCH",
+      "status": "PENDING",
+      "amount": 6590,
+      "createdAt": "2025-10-13T01:28:35.886Z",
+      "url": "https://abacatepay.com/pay/bill_zcW64drG5NDkUZUqcxyeWbCH",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_WXaQnjgJBncWqLpxsJCgkL32",
+      "status": "PENDING",
+      "amount": 6590,
+      "createdAt": "2025-10-13T01:15:55.834Z",
+      "url": "https://abacatepay.com/pay/bill_WXaQnjgJBncWqLpxsJCgkL32",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_BJwssfutHaB21j5FbPeKnyGh",
+      "status": "PENDING",
+      "amount": 6590,
+      "createdAt": "2025-10-12T21:08:08.121Z",
+      "url": "https://abacatepay.com/pay/bill_BJwssfutHaB21j5FbPeKnyGh",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_wwnwNb1Bkd6BjJfQXY4LLssy",
+      "status": "PENDING",
+      "amount": 76500,
+      "createdAt": "2025-10-12T20:44:20.569Z",
+      "url": "https://abacatepay.com/pay/bill_wwnwNb1Bkd6BjJfQXY4LLssy",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_cwUJuM3Rgg4uSNFrnz2bztqX",
+      "status": "PENDING",
+      "amount": 53640,
+      "createdAt": "2025-10-12T20:24:27.444Z",
+      "url": "https://abacatepay.com/pay/bill_cwUJuM3Rgg4uSNFrnz2bztqX",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_zHkcxBtFA1ETSHqawKPZRsLD",
+      "status": "PENDING",
+      "amount": 53640,
+      "createdAt": "2025-10-12T20:24:27.442Z",
+      "url": "https://abacatepay.com/pay/bill_zHkcxBtFA1ETSHqawKPZRsLD",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_2bPu5rYqFLE3ZQEaAF0bX2BQ",
+      "status": "PENDING",
+      "amount": 76500,
+      "createdAt": "2025-10-12T18:57:29.150Z",
+      "url": "https://abacatepay.com/pay/bill_2bPu5rYqFLE3ZQEaAF0bX2BQ",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_tyhaqqaq4QBMcWWzn56Cxzu4",
+      "status": "PENDING",
+      "amount": 53640,
+      "createdAt": "2025-10-12T18:50:50.818Z",
+      "url": "https://abacatepay.com/pay/bill_tyhaqqaq4QBMcWWzn56Cxzu4",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_kKq4KXQJLpBz41PkQtMHnLzF",
+      "status": "PENDING",
+      "amount": 32470,
+      "customer": {
+        "name": "Anderson Araujo",
+        "cellphone": "+5511999999999",
+        "taxId": "11144477735",
+        "email": "fotosartdesign@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-11T19:29:19.067Z",
+      "url": "https://abacatepay.com/pay/bill_kKq4KXQJLpBz41PkQtMHnLzF",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_CqgshEKeRu3TwBhuqdTWMLzn",
+      "status": "PENDING",
+      "amount": 32470,
+      "customer": {
+        "name": "Anderson Araujo",
+        "cellphone": "+5511999999999",
+        "taxId": "11144477735",
+        "email": "fotosartdesign@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-11T19:29:18.072Z",
+      "url": "https://abacatepay.com/pay/bill_CqgshEKeRu3TwBhuqdTWMLzn",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_nbEyrZKPwQhGD1P1C1JYrBPQ",
+      "status": "PENDING",
+      "amount": 5000,
+      "customer": {
+        "name": "João Silva",
+        "cellphone": "11999999999",
+        "taxId": "49280629492",
+        "email": "joao.silva@teste.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-11T19:11:38.488Z",
+      "url": "https://abacatepay.com/pay/bill_nbEyrZKPwQhGD1P1C1JYrBPQ",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_U2AAdJD2akNAU4CNsNdEeJDL",
+      "status": "PENDING",
+      "amount": 209440,
+      "customer": {
+        "name": "Anderson Araujo",
+        "cellphone": "+5511999999999",
+        "taxId": "11144477735",
+        "email": "fotosartdesign@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-11T14:28:50.453Z",
+      "url": "https://abacatepay.com/pay/bill_U2AAdJD2akNAU4CNsNdEeJDL",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_mBsTLd2462aZasNgRYqFN0as",
+      "status": "PENDING",
+      "amount": 209440,
+      "customer": {
+        "name": "Anderson Araujo",
+        "cellphone": "+5511999999999",
+        "taxId": "11144477735",
+        "email": "fotosartdesign@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-11T14:28:49.706Z",
+      "url": "https://abacatepay.com/pay/bill_mBsTLd2462aZasNgRYqFN0as",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_C1PUhHtudJPFNEpgaPspyjn4",
+      "status": "PENDING",
+      "amount": 209440,
+      "customer": {
+        "name": "Anderson Araujo",
+        "cellphone": "+5511999999999",
+        "taxId": "11144477735",
+        "email": "fotosartdesign@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-11T13:49:29.187Z",
+      "url": "https://abacatepay.com/pay/bill_C1PUhHtudJPFNEpgaPspyjn4",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_zw2cGyXs5cfZbdWWPtBN2dJP",
+      "status": "PENDING",
+      "amount": 209440,
+      "customer": {
+        "name": "Anderson Araujo",
+        "cellphone": "+5511999999999",
+        "taxId": "11144477735",
+        "email": "fotosartdesign@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-11T13:49:29.183Z",
+      "url": "https://abacatepay.com/pay/bill_zw2cGyXs5cfZbdWWPtBN2dJP",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_4rSUZWeYEH52LwwHCY5KPrag",
+      "status": "PENDING",
+      "amount": 100000,
+      "customer": {
+        "name": "Anderson Araujo",
+        "cellphone": "+5511999999999",
+        "taxId": "11144477735",
+        "email": "fotosartdesign@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-11T13:47:10.185Z",
+      "url": "https://abacatepay.com/pay/bill_4rSUZWeYEH52LwwHCY5KPrag",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_1ZfXKjn3paGYs3fG6h5YBggF",
+      "status": "PENDING",
+      "amount": 10000,
+      "customer": {
+        "name": "Jo�o",
+        "cellphone": "(11) 99999-9999",
+        "taxId": "64339484482",
+        "email": "joao@teste.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-11T13:30:39.286Z",
+      "url": "https://abacatepay.com/pay/bill_1ZfXKjn3paGYs3fG6h5YBggF",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_EzRY4GYrCDbEn04zLWHJyAej",
+      "status": "PENDING",
+      "amount": 201450,
+      "customer": {
+        "name": "Anderson Araujo",
+        "cellphone": "+5511999999999",
+        "taxId": "11144477735",
+        "email": "fotosartdesign@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-11T13:00:50.778Z",
+      "url": "https://abacatepay.com/pay/bill_EzRY4GYrCDbEn04zLWHJyAej",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_YLA0M4ft6SDFCujnnMFeHFZH",
+      "status": "PENDING",
+      "amount": 201450,
+      "customer": {
+        "name": "Anderson Araujo",
+        "cellphone": "+5511999999999",
+        "taxId": "11144477735",
+        "email": "fotosartdesign@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-11T12:59:26.339Z",
+      "url": "https://abacatepay.com/pay/bill_YLA0M4ft6SDFCujnnMFeHFZH",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_thwPkxMdCWEgCxgRAfYZwrUr",
+      "status": "PENDING",
+      "amount": 100000,
+      "customer": {
+        "name": "Anderson Araujo",
+        "cellphone": "+5511999999999",
+        "taxId": "11144477735",
+        "email": "fotosartdesign@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-11T12:52:59.945Z",
+      "url": "https://abacatepay.com/pay/bill_thwPkxMdCWEgCxgRAfYZwrUr",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_6M1eZ5sTGeJSsmuWSZqbubBS",
+      "status": "PENDING",
+      "amount": 1050,
+      "customer": {
+        "name": "Teste",
+        "cellphone": "(11) 99999-9999",
+        "taxId": "13439264165",
+        "email": "teste@teste.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-11T12:41:38.932Z",
+      "url": "https://abacatepay.com/pay/bill_6M1eZ5sTGeJSsmuWSZqbubBS",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_w125CnFEj4Xnz5g5qqE6kyxs",
+      "status": "PENDING",
+      "amount": 10050,
+      "customer": {
+        "name": "Jo�o Silva",
+        "cellphone": "(11) 99999-9999",
+        "taxId": "82649090278",
+        "email": "joao@teste.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-11T10:39:19.124Z",
+      "url": "https://abacatepay.com/pay/bill_w125CnFEj4Xnz5g5qqE6kyxs",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_hZhmwgW24yPKytLYUmhy1pKN",
+      "status": "PENDING",
+      "amount": 8500,
+      "customer": {
+        "name": "Anderson da Silva",
+        "cellphone": "18991604609",
+        "taxId": "33883708852",
+        "email": "fotosartdesig@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-11T00:55:48.223Z",
+      "url": "https://abacatepay.com/pay/bill_hZhmwgW24yPKytLYUmhy1pKN",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_gU1xGMXrgEnpDsYRHbkus20a",
+      "status": "PENDING",
+      "amount": 8500,
+      "customer": {
+        "name": "Anderson da Silva",
+        "cellphone": "18991604609",
+        "taxId": "33883708852",
+        "email": "fotosartdesig@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-11T00:55:48.220Z",
+      "url": "https://abacatepay.com/pay/bill_gU1xGMXrgEnpDsYRHbkus20a",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_arYH515HF36QSX2mYREXyYsn",
+      "status": "PENDING",
+      "amount": 8500,
+      "customer": {
+        "name": "Anderson da Silva",
+        "cellphone": "18991604609",
+        "taxId": "33883708852",
+        "email": "fotosartdesig@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-10T23:44:12.066Z",
+      "url": "https://abacatepay.com/pay/bill_arYH515HF36QSX2mYREXyYsn",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_CCBuCdTAZPsEr6PxxqnEb6Qm",
+      "status": "PENDING",
+      "amount": 8500,
+      "customer": {
+        "name": "Anderson da Silva",
+        "cellphone": "18991604609",
+        "taxId": "33883708852",
+        "email": "fotosartdesig@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-10T23:44:11.924Z",
+      "url": "https://abacatepay.com/pay/bill_CCBuCdTAZPsEr6PxxqnEb6Qm",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_yGedFYfn3waUuCcxmAYLDQUW",
+      "status": "PENDING",
+      "amount": 8500,
+      "customer": {
+        "name": "Anderson da Silva",
+        "cellphone": "18991604609",
+        "taxId": "33883708852",
+        "email": "fotosartdesig@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-10T23:40:26.855Z",
+      "url": "https://abacatepay.com/pay/bill_yGedFYfn3waUuCcxmAYLDQUW",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_bmcmyuA2KPjhdTphLYtXSpag",
+      "status": "PENDING",
+      "amount": 8500,
+      "customer": {
+        "name": "Anderson da Silva",
+        "cellphone": "18991604609",
+        "taxId": "33883708852",
+        "email": "fotosartdesig@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-10T23:40:26.849Z",
+      "url": "https://abacatepay.com/pay/bill_bmcmyuA2KPjhdTphLYtXSpag",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_ymyYEztGhMfphEEh5m1xZqSr",
+      "status": "PENDING",
+      "amount": 850000,
+      "customer": {
+        "name": "Anderson da Silva",
+        "cellphone": "18991604609",
+        "taxId": "33883708852",
+        "email": "fotosartdesig@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-10T23:38:13.050Z",
+      "url": "https://abacatepay.com/pay/bill_ymyYEztGhMfphEEh5m1xZqSr",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_T44DaXewPdNWRc5W3ngU3djk",
+      "status": "PENDING",
+      "amount": 8500,
+      "customer": {
+        "name": "Anderson da Silva",
+        "cellphone": "18991604609",
+        "taxId": "33883708852",
+        "email": "fotosartdesig@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-10T23:37:57.209Z",
+      "url": "https://abacatepay.com/pay/bill_T44DaXewPdNWRc5W3ngU3djk",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_g1yRxGSedM1bjqQAxdD2K1kA",
+      "status": "PENDING",
+      "amount": 8500,
+      "customer": {
+        "name": "Anderson da Silva",
+        "cellphone": "18991604609",
+        "taxId": "33883708852",
+        "email": "fotosartdesig@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-10T23:37:57.173Z",
+      "url": "https://abacatepay.com/pay/bill_g1yRxGSedM1bjqQAxdD2K1kA",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_PeFKgtNY1qLGTsWbdKHNDwn4",
+      "status": "PENDING",
+      "amount": 100000,
+      "customer": {
+        "name": "Teste",
+        "cellphone": "11999999999",
+        "taxId": "76764724822",
+        "email": "teste@teste.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-10T23:30:30.310Z",
+      "url": "https://abacatepay.com/pay/bill_PeFKgtNY1qLGTsWbdKHNDwn4",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_pSUPzR365DAkmNghZURJGyrQ",
+      "status": "PENDING",
+      "amount": 659000,
+      "customer": {
+        "name": "Anderson da Silva",
+        "cellphone": "18991604609",
+        "taxId": "33883708852",
+        "email": "fotosartdesig@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-10T23:07:51.572Z",
+      "url": "https://abacatepay.com/pay/bill_pSUPzR365DAkmNghZURJGyrQ",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_RbC1BHTMDpuMHq1qyBNwuJZr",
+      "status": "PENDING",
+      "amount": 6590,
+      "customer": {
+        "name": "Anderson da Silva",
+        "cellphone": "18991604609",
+        "taxId": "33883708852",
+        "email": "fotosartdesig@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-10T23:07:16.803Z",
+      "url": "https://abacatepay.com/pay/bill_RbC1BHTMDpuMHq1qyBNwuJZr",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_MAqJKtjFCN35Cgab1HdMRDSp",
+      "status": "PENDING",
+      "amount": 6590,
+      "customer": {
+        "name": "Anderson da Silva",
+        "cellphone": "18991604609",
+        "taxId": "33883708852",
+        "email": "fotosartdesig@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-10T23:07:16.800Z",
+      "url": "https://abacatepay.com/pay/bill_MAqJKtjFCN35Cgab1HdMRDSp",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_1fb5sWX3QXxU4bWQqkeyPcCb",
+      "status": "PENDING",
+      "amount": 6590,
+      "customer": {
+        "name": "Anderson da Silva",
+        "cellphone": "18991604609",
+        "taxId": "33883708852",
+        "email": "fotosartdesig@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-10T23:03:06.927Z",
+      "url": "https://abacatepay.com/pay/bill_1fb5sWX3QXxU4bWQqkeyPcCb",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_W5zq3H16DhMXY1E3Tf4JZP5w",
+      "status": "PENDING",
+      "amount": 6590,
+      "customer": {
+        "name": "Anderson da Silva",
+        "cellphone": "18991604609",
+        "taxId": "33883708852",
+        "email": "fotosartdesig@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-10T23:03:06.890Z",
+      "url": "https://abacatepay.com/pay/bill_W5zq3H16DhMXY1E3Tf4JZP5w",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_BZcz5P6SrcJxrTstsKMHqubB",
+      "status": "PENDING",
+      "amount": 150000,
+      "customer": {
+        "name": "Anderson Araujo",
+        "cellphone": "+5511999999999",
+        "taxId": "11144477735",
+        "email": "fotosartdesign@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-10T22:52:32.056Z",
+      "url": "https://abacatepay.com/pay/bill_BZcz5P6SrcJxrTstsKMHqubB",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_bAefktFMXDF14pa4eMfka0Yx",
+      "status": "PENDING",
+      "amount": 799000,
+      "customer": {
+        "name": "Anderson Araujo",
+        "cellphone": "+5511999999999",
+        "taxId": "11144477735",
+        "email": "fotosartdesign@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-10T22:51:34.808Z",
+      "url": "https://abacatepay.com/pay/bill_bAefktFMXDF14pa4eMfka0Yx",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_5aBT4snHSNNq6TnUy6JpYAN0",
+      "status": "PENDING",
+      "amount": 15980,
+      "customer": {
+        "name": "Anderson da Silva",
+        "cellphone": "18991604609",
+        "taxId": "33883708852",
+        "email": "fotosartdesig@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-10T22:39:23.102Z",
+      "url": "https://abacatepay.com/pay/bill_5aBT4snHSNNq6TnUy6JpYAN0",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_2maqwHsWpaHZR4XTcMhjSYKs",
+      "status": "PENDING",
+      "amount": 15980,
+      "customer": {
+        "name": "Anderson da Silva",
+        "cellphone": "18991604609",
+        "taxId": "33883708852",
+        "email": "fotosartdesig@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-10T22:39:23.100Z",
+      "url": "https://abacatepay.com/pay/bill_2maqwHsWpaHZR4XTcMhjSYKs",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_nbSWmayrY25sMacKsGh5pFTw",
+      "status": "PENDING",
+      "amount": 6590,
+      "customer": {
+        "name": "Teste Correção",
+        "cellphone": "(11) 99999-9999",
+        "taxId": "64355279979",
+        "email": "teste@correcao.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-10T22:13:35.375Z",
+      "url": "https://abacatepay.com/pay/bill_nbSWmayrY25sMacKsGh5pFTw",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_TLbtGmJmuGuaFufEPNKF5yE5",
+      "status": "PENDING",
+      "amount": 1458000,
+      "customer": {
+        "name": "Anderson Araujo",
+        "cellphone": "+5511999999999",
+        "taxId": "11144477735",
+        "email": "fotosartdesign@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-10T18:01:29.783Z",
+      "url": "https://abacatepay.com/pay/bill_TLbtGmJmuGuaFufEPNKF5yE5",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_kPTs6bmh0AC6DmFfe6n6mkxC",
+      "status": "PENDING",
+      "amount": 1000,
+      "customer": {
+        "name": "Anderson Araujo",
+        "cellphone": "+5511999999999",
+        "taxId": "11144477735",
+        "email": "fotosartdesign@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-10T05:27:31.926Z",
+      "url": "https://abacatepay.com/pay/bill_kPTs6bmh0AC6DmFfe6n6mkxC",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_FdTtpWarGkuNLqsdZEhqxW3F",
+      "status": "PENDING",
+      "amount": 3000,
+      "customer": {
+        "name": "Pedro Costa",
+        "cellphone": "(11) 77777-7777",
+        "taxId": "26423390762",
+        "email": "pedro.costa@teste.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-10T05:27:05.507Z",
+      "url": "https://abacatepay.com/pay/bill_FdTtpWarGkuNLqsdZEhqxW3F",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_bKRgB04B3B6ZhfZhfNywytgf",
+      "status": "PENDING",
+      "amount": 1500,
+      "customer": {
+        "name": "Anderson Araujo",
+        "cellphone": "+5511999999999",
+        "taxId": "11144477735",
+        "email": "fotosartdesign@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-10T05:27:04.970Z",
+      "url": "https://abacatepay.com/pay/bill_bKRgB04B3B6ZhfZhfNywytgf",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_N1LT3fg0QuWBjzYPTRH653xN",
+      "status": "PENDING",
+      "amount": 2500,
+      "customer": {
+        "name": "João da Silva",
+        "cellphone": "(11) 99999-9999",
+        "taxId": "68884126363",
+        "email": "joao.silva@teste.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-10T05:27:04.425Z",
+      "url": "https://abacatepay.com/pay/bill_N1LT3fg0QuWBjzYPTRH653xN",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_Ssg1zmq3qmfpH4Zd1u6LZSw1",
+      "status": "PENDING",
+      "amount": 4000,
+      "customer": {
+        "name": "Anderson Araujo",
+        "cellphone": "+5511999999999",
+        "taxId": "11144477735",
+        "email": "fotosartdesign@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-10T05:25:30.589Z",
+      "url": "https://abacatepay.com/pay/bill_Ssg1zmq3qmfpH4Zd1u6LZSw1",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_1DR2rqmL1GTP2UhJYQ4ubbmh",
+      "status": "PENDING",
+      "amount": 1000,
+      "customer": {
+        "name": "Anderson Araujo",
+        "cellphone": "+5511999999999",
+        "taxId": "11144477735",
+        "email": "fotosartdesign@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-10T05:25:29.352Z",
+      "url": "https://abacatepay.com/pay/bill_1DR2rqmL1GTP2UhJYQ4ubbmh",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_zCa0Edbz5QgAPqbSZfNPM5J6",
+      "status": "PENDING",
+      "amount": 659,
+      "customer": {
+        "name": "João Silva",
+        "cellphone": "(11) 99999-9999",
+        "taxId": "00000000191",
+        "email": "joao@teste.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-10T05:20:50.467Z",
+      "url": "https://abacatepay.com/pay/bill_zCa0Edbz5QgAPqbSZfNPM5J6",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_6eLjzjjqrY3cskAzyFsRfydH",
+      "status": "PENDING",
+      "amount": 659,
+      "customer": {
+        "name": "Anderson Araujo",
+        "cellphone": "+5511999999999",
+        "taxId": "11144477735",
+        "email": "fotosartdesign@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-10T05:20:49.514Z",
+      "url": "https://abacatepay.com/pay/bill_6eLjzjjqrY3cskAzyFsRfydH",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_Y2QNNaf3FPjGwdmLbAKZg56j",
+      "status": "PENDING",
+      "amount": 1000,
+      "customer": {
+        "name": "Anderson Araujo",
+        "cellphone": "+5511999999999",
+        "taxId": "11144477735",
+        "email": "fotosartdesign@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-10T05:16:49.690Z",
+      "url": "https://abacatepay.com/pay/bill_Y2QNNaf3FPjGwdmLbAKZg56j",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_hqkmHe1HWm4KQkrb6LHcWQLU",
+      "status": "PENDING",
+      "amount": 1509000,
+      "customer": {
+        "name": "Anderson Araujo",
+        "cellphone": "+5511999999999",
+        "taxId": "11144477735",
+        "email": "fotosartdesign@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-10T05:08:32.425Z",
+      "url": "https://abacatepay.com/pay/bill_hqkmHe1HWm4KQkrb6LHcWQLU",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_qgt4mERCZbJYmeF5a3SdpFpj",
+      "status": "PENDING",
+      "amount": 9159000,
+      "customer": {
+        "name": "Anderson Araujo",
+        "cellphone": "+5511999999999",
+        "taxId": "11144477735",
+        "email": "fotosartdesign@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-10T05:08:26.292Z",
+      "url": "https://abacatepay.com/pay/bill_qgt4mERCZbJYmeF5a3SdpFpj",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_nkLcDc4YHjtqcP5HbMugPQQX",
+      "status": "PENDING",
+      "amount": 1509000,
+      "customer": {
+        "name": "Anderson Araujo",
+        "cellphone": "+5511999999999",
+        "taxId": "11144477735",
+        "email": "fotosartdesign@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-10T05:08:07.551Z",
+      "url": "https://abacatepay.com/pay/bill_nkLcDc4YHjtqcP5HbMugPQQX",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_BHcqR6nHx5zSSw3A55t1PGJF",
+      "status": "PENDING",
+      "amount": 9159000,
+      "customer": {
+        "name": "Anderson Araujo",
+        "cellphone": "+5511999999999",
+        "taxId": "11144477735",
+        "email": "fotosartdesign@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-10T05:08:04.379Z",
+      "url": "https://abacatepay.com/pay/bill_BHcqR6nHx5zSSw3A55t1PGJF",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_rCSrTK2ucFjBKPQzEJtgH24a",
+      "status": "PENDING",
+      "amount": 91590,
+      "customer": {
+        "name": "Anderson da Silva",
+        "cellphone": "18991604609",
+        "taxId": "33883708852",
+        "email": "fotosartdesig@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-10T04:57:34.063Z",
+      "url": "https://abacatepay.com/pay/bill_rCSrTK2ucFjBKPQzEJtgH24a",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_eGJrhrJs0tsY1QSnzHAFNS3e",
+      "status": "PENDING",
+      "amount": 15090,
+      "customer": {
+        "name": "Anderson da Silva",
+        "cellphone": "18991604609",
+        "taxId": "33883708852",
+        "email": "fotosartdesig@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-10T04:11:35.720Z",
+      "url": "https://abacatepay.com/pay/bill_eGJrhrJs0tsY1QSnzHAFNS3e",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_zQbNMe2zTfmQbfytqDtfULnZ",
+      "status": "PENDING",
+      "amount": 89680,
+      "customer": {
+        "name": "Anderson da Silva",
+        "cellphone": "18991604609",
+        "taxId": "33883708852",
+        "email": "fotosartdesig@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-10T03:47:25.550Z",
+      "url": "https://abacatepay.com/pay/bill_zQbNMe2zTfmQbfytqDtfULnZ",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_3q3DPWnYYsuwwaUEnxkmcNqH",
+      "status": "PENDING",
+      "amount": 89680,
+      "customer": {
+        "name": "Anderson da Silva",
+        "cellphone": "18991604609",
+        "taxId": "33883708852",
+        "email": "fotosartdesig@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-10T03:45:39.241Z",
+      "url": "https://abacatepay.com/pay/bill_3q3DPWnYYsuwwaUEnxkmcNqH",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_JPK4CTY6tCBBKQSAWh4SuMHg",
+      "status": "PENDING",
+      "amount": 896,
+      "customer": {
+        "name": "Anderson da Silva",
+        "cellphone": "18991604609",
+        "taxId": "33883708852",
+        "email": "fotosartdesig@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-10T03:40:56.453Z",
+      "url": "https://abacatepay.com/pay/bill_JPK4CTY6tCBBKQSAWh4SuMHg",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_SWWLJBXs20hTNbsQqEgKLDc4",
+      "status": "PENDING",
+      "amount": 896,
+      "customer": {
+        "name": "Anderson da Silva",
+        "cellphone": "18991604609",
+        "taxId": "33883708852",
+        "email": "fotosartdesig@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-10T03:40:13.196Z",
+      "url": "https://abacatepay.com/pay/bill_SWWLJBXs20hTNbsQqEgKLDc4",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_1yLqWGWmJqfxddLtXDNaDYxc",
+      "status": "PENDING",
+      "amount": 896,
+      "customer": {
+        "name": "Anderson da Silva",
+        "cellphone": "18991604609",
+        "taxId": "33883708852",
+        "email": "fotosartdesig@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-10T03:17:39.593Z",
+      "url": "https://abacatepay.com/pay/bill_1yLqWGWmJqfxddLtXDNaDYxc",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_F4D0J6DLXyMCm6TmGCKFJgZX",
+      "status": "PENDING",
+      "amount": 151,
+      "customer": {
+        "name": "Anderson da Silva",
+        "cellphone": "18991604609",
+        "taxId": "33883708852",
+        "email": "fotosartdesig@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-10T03:05:44.925Z",
+      "url": "https://abacatepay.com/pay/bill_F4D0J6DLXyMCm6TmGCKFJgZX",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_C0k1S2Sp0Lfz503asarBa4eB",
+      "status": "PENDING",
+      "amount": 6590,
+      "customer": {
+        "name": "Anderson da Silva",
+        "cellphone": "18991604609",
+        "taxId": "33883708852",
+        "email": "fotosartdesig@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-10T02:50:47.096Z",
+      "url": "https://abacatepay.com/pay/bill_C0k1S2Sp0Lfz503asarBa4eB",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_ZFRqhCa0ArJFg6TgEkNN0zHD",
+      "status": "PENDING",
+      "amount": 659,
+      "customer": {
+        "name": "Anderson Araujo",
+        "cellphone": "+5511999999999",
+        "taxId": "11144477735",
+        "email": "fotosartdesign@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-10T02:48:25.544Z",
+      "url": "https://abacatepay.com/pay/bill_ZFRqhCa0ArJFg6TgEkNN0zHD",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_W63tTJfGB5AweeFdwE13txZR",
+      "status": "PENDING",
+      "amount": 659,
+      "customer": {
+        "name": "Anderson Araujo",
+        "cellphone": "+5511999999999",
+        "taxId": "11144477735",
+        "email": "fotosartdesign@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-10T02:42:53.630Z",
+      "url": "https://abacatepay.com/pay/bill_W63tTJfGB5AweeFdwE13txZR",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_TUGtWpabugRG6GdZ2N3GqXt6",
+      "status": "PENDING",
+      "amount": 659,
+      "customer": {
+        "name": "Anderson Araujo",
+        "cellphone": "+5511999999999",
+        "taxId": "11144477735",
+        "email": "fotosartdesign@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-10T02:30:48.385Z",
+      "url": "https://abacatepay.com/pay/bill_TUGtWpabugRG6GdZ2N3GqXt6",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_4jEey1Wej0rmWW6BWgXHTRf3",
+      "status": "PENDING",
+      "amount": 659,
+      "customer": {
+        "name": "Anderson Araujo",
+        "cellphone": "+5511999999999",
+        "taxId": "11144477735",
+        "email": "fotosartdesign@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-10T02:30:11.739Z",
+      "url": "https://abacatepay.com/pay/bill_4jEey1Wej0rmWW6BWgXHTRf3",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_PxSnDXqsQHj6yz3kCsApy0Nz",
+      "status": "PENDING",
+      "amount": 659,
+      "customer": {
+        "name": "Anderson Araujo",
+        "cellphone": "+5511999999999",
+        "taxId": "11144477735",
+        "email": "fotosartdesign@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-10T02:29:11.313Z",
+      "url": "https://abacatepay.com/pay/bill_PxSnDXqsQHj6yz3kCsApy0Nz",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_CHpH4qL6aWmkESbYpQcPCzfQ",
+      "status": "PENDING",
+      "amount": 65900,
+      "customer": {
+        "name": "Anderson Araujo",
+        "cellphone": "+5511999999999",
+        "taxId": "11144477735",
+        "email": "fotosartdesign@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-10T02:28:06.000Z",
+      "url": "https://abacatepay.com/pay/bill_CHpH4qL6aWmkESbYpQcPCzfQ",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_Uy5pnNa54d56EhpLxCGHzTT1",
+      "status": "PENDING",
+      "amount": 65900000,
+      "customer": {
+        "name": "Anderson da Silva",
+        "cellphone": "18991604609",
+        "taxId": "33883708852",
+        "email": "fotosartdesig@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-10T02:00:43.421Z",
+      "url": "https://abacatepay.com/pay/bill_Uy5pnNa54d56EhpLxCGHzTT1",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_qHFZRcXGDF26fxJJYJPacdsk",
+      "status": "PENDING",
+      "amount": 150900000,
+      "customer": {
+        "name": "Anderson da Silva",
+        "cellphone": "18991604609",
+        "taxId": "33883708852",
+        "email": "fotosartdesig@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-10T01:58:55.483Z",
+      "url": "https://abacatepay.com/pay/bill_qHFZRcXGDF26fxJJYJPacdsk",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_kHwTF5ET4ZqMGesJ6TDj5NLn",
+      "status": "PENDING",
+      "amount": 150900000,
+      "customer": {
+        "name": "Anderson Araujo",
+        "cellphone": "+5511999999999",
+        "taxId": "11144477735",
+        "email": "fotosartdesign@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-10T01:54:44.357Z",
+      "url": "https://abacatepay.com/pay/bill_kHwTF5ET4ZqMGesJ6TDj5NLn",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_PKW2w2RDMBd4gGjhhL3k4bnf",
+      "status": "PENDING",
+      "amount": 100000,
+      "customer": {
+        "name": "Anderson Araujo",
+        "cellphone": "+5511999999999",
+        "taxId": "11144477735",
+        "email": "fotosartdesign@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-10T01:23:25.849Z",
+      "url": "https://abacatepay.com/pay/bill_PKW2w2RDMBd4gGjhhL3k4bnf",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_L2aYwtLmHDZzJ4tzExJ6QBHH",
+      "status": "PENDING",
+      "amount": 15090,
+      "customer": {
+        "name": "Anderson da Silva",
+        "cellphone": "18991604609",
+        "taxId": "33883708852",
+        "email": "fotosartdesig@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-10T01:17:30.510Z",
+      "url": "https://abacatepay.com/pay/bill_L2aYwtLmHDZzJ4tzExJ6QBHH",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_1SRfDJqQrL20BcmnUjCRPy0A",
+      "status": "PENDING",
+      "amount": 6590,
+      "customer": {
+        "name": "Anderson da Silva",
+        "cellphone": "18991604609",
+        "taxId": "33883708852",
+        "email": "fotosartdesig@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-10T01:16:15.006Z",
+      "url": "https://abacatepay.com/pay/bill_1SRfDJqQrL20BcmnUjCRPy0A",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_Pc1ZQGkKDxChyZQtARTZ1Pr6",
+      "status": "PENDING",
+      "amount": 100000,
+      "customer": {
+        "name": "Anderson Araujo",
+        "cellphone": "+5511999999999",
+        "taxId": "11144477735",
+        "email": "fotosartdesign@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-10T01:01:45.150Z",
+      "url": "https://abacatepay.com/pay/bill_Pc1ZQGkKDxChyZQtARTZ1Pr6",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_Njm55F5eDuDqyjMNCBa1wkZy",
+      "status": "PENDING",
+      "amount": 100000,
+      "customer": {
+        "name": "Anderson Araujo",
+        "cellphone": "+5511999999999",
+        "taxId": "11144477735",
+        "email": "fotosartdesign@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-10T01:00:58.533Z",
+      "url": "https://abacatepay.com/pay/bill_Njm55F5eDuDqyjMNCBa1wkZy",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_JUFPdmyzd5cDK0s4xFCffW5t",
+      "status": "PENDING",
+      "amount": 100000,
+      "customer": {
+        "name": "Anderson Araujo",
+        "cellphone": "+5511999999999",
+        "taxId": "11144477735",
+        "email": "fotosartdesign@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-10T01:00:19.384Z",
+      "url": "https://abacatepay.com/pay/bill_JUFPdmyzd5cDK0s4xFCffW5t",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_uWsjJkzJTLeWZwZhEHRyZzB3",
+      "status": "PENDING",
+      "amount": 100000,
+      "customer": {
+        "name": "Anderson Araujo",
+        "cellphone": "+5511999999999",
+        "taxId": "11144477735",
+        "email": "fotosartdesign@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-10T00:58:51.680Z",
+      "url": "https://abacatepay.com/pay/bill_uWsjJkzJTLeWZwZhEHRyZzB3",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_SNp66BpYPphtPwNHwRYhuteC",
+      "status": "PENDING",
+      "amount": 1000,
+      "customer": {
+        "name": "Anderson Araujo",
+        "cellphone": "+5511999999999",
+        "taxId": "11144477735",
+        "email": "fotosartdesign@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-10T00:24:35.637Z",
+      "url": "https://abacatepay.com/pay/bill_SNp66BpYPphtPwNHwRYhuteC",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_2TjDdatNgwN6bJuJ22L3TExS",
+      "status": "PENDING",
+      "amount": 1000,
+      "customer": {
+        "name": "João Silva",
+        "cellphone": "(11) 99999-9999",
+        "taxId": "00000000191",
+        "email": "joao@teste.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-10T00:22:38.096Z",
+      "url": "https://abacatepay.com/pay/bill_2TjDdatNgwN6bJuJ22L3TExS",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_YHazkpAwqDRf6Py5dhNh4hqm",
+      "status": "PENDING",
+      "amount": 1000,
+      "customer": {
+        "name": "João Silva",
+        "cellphone": "(11) 99999-9999",
+        "taxId": "00000000191",
+        "email": "joao@teste.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-10T00:22:19.486Z",
+      "url": "https://abacatepay.com/pay/bill_YHazkpAwqDRf6Py5dhNh4hqm",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_Pm0A51nCDcWxEta3CEZRKwpw",
+      "status": "PENDING",
+      "amount": 6590,
+      "customer": {
+        "name": "Anderson da Silva",
+        "cellphone": "18991604609",
+        "taxId": "33883708852",
+        "email": "fotosartdesig@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-09T23:27:34.237Z",
+      "url": "https://abacatepay.com/pay/bill_Pm0A51nCDcWxEta3CEZRKwpw",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_1CsARq3MFhMETtncKUHD4U6U",
+      "status": "PENDING",
+      "amount": 6590,
+      "customer": {
+        "name": "Anderson da Silva",
+        "cellphone": "18991604609",
+        "taxId": "33883708852",
+        "email": "fotosartdesig@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-09T23:24:55.851Z",
+      "url": "https://abacatepay.com/pay/bill_1CsARq3MFhMETtncKUHD4U6U",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_yBcXPg0FbucdKeHwwdKWS3YQ",
+      "status": "PENDING",
+      "amount": 51050,
+      "customer": {
+        "name": "Anderson Araujo",
+        "cellphone": "+5511999999999",
+        "taxId": "11144477735",
+        "email": "fotosartdesign@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-09T20:40:28.965Z",
+      "url": "https://abacatepay.com/pay/bill_yBcXPg0FbucdKeHwwdKWS3YQ",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_hNRFS6ecbzQcAaw2jxQHS6p3",
+      "status": "PENDING",
+      "amount": 14580,
+      "customer": {
+        "name": "Anderson da Silva",
+        "cellphone": "18991604609",
+        "taxId": "33883708852",
+        "email": "fotosartdesig@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-09T20:14:16.034Z",
+      "url": "https://abacatepay.com/pay/bill_hNRFS6ecbzQcAaw2jxQHS6p3",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_y4EAgTcCwDCNtfN03RHGPwYJ",
+      "status": "PENDING",
+      "amount": 14580,
+      "customer": {
+        "name": "Anderson da Silva",
+        "cellphone": "18991604609",
+        "taxId": "33883708852",
+        "email": "fotosartdesig@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-09T20:13:19.178Z",
+      "url": "https://abacatepay.com/pay/bill_y4EAgTcCwDCNtfN03RHGPwYJ",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_PjzmtpyxM4kSWG5k40GSZpkr",
+      "status": "PENDING",
+      "amount": 2990,
+      "customer": {
+        "name": "Cliente Teste",
+        "cellphone": "(11) 99999-9999",
+        "taxId": "111.444.777-35",
+        "email": "teste@exemplo.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-09T17:33:49.926Z",
+      "url": "https://abacatepay.com/pay/bill_PjzmtpyxM4kSWG5k40GSZpkr",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_GBFUjydLcmzLaetNTZnkQjz4",
+      "status": "PENDING",
+      "amount": 2990,
+      "customer": {
+        "name": "Cliente Teste",
+        "cellphone": "(11) 99999-9999",
+        "taxId": "111.444.777-35",
+        "email": "teste@exemplo.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-09T17:33:10.103Z",
+      "url": "https://abacatepay.com/pay/bill_GBFUjydLcmzLaetNTZnkQjz4",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_BjBTm0sEHubwcrWmS1qeh4cu",
+      "status": "PENDING",
+      "amount": 2500,
+      "customer": {
+        "name": "Cliente Teste",
+        "cellphone": "(11) 99999-9999",
+        "taxId": "111.444.777-35",
+        "email": "teste@exemplo.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-09T17:22:35.579Z",
+      "url": "https://abacatepay.com/pay/bill_BjBTm0sEHubwcrWmS1qeh4cu",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_6cxcUgL5jbGR0gDtGFzcqgp1",
+      "status": "PENDING",
+      "amount": 1000,
+      "customer": {
+        "name": "Anderson Araujo",
+        "cellphone": "+5511999999999",
+        "taxId": "11144477735",
+        "email": "fotosartdesign@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-09T13:18:20.596Z",
+      "url": "https://abacatepay.com/pay/bill_6cxcUgL5jbGR0gDtGFzcqgp1",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_YnGzWm03TQsD3yMGM4JdWMAD",
+      "status": "PENDING",
+      "amount": 1000,
+      "customer": {
+        "name": "João Silva",
+        "cellphone": "(11) 99999-9999",
+        "taxId": "09240529020",
+        "email": "joao.silva@email.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-09T12:45:53.286Z",
+      "url": "https://abacatepay.com/pay/bill_YnGzWm03TQsD3yMGM4JdWMAD",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_XUdry5bJbTkgx4cwycdZCxLg",
+      "status": "PENDING",
+      "amount": 1000,
+      "customer": {
+        "name": "Anderson Araujo",
+        "cellphone": "+5511999999999",
+        "taxId": "11144477735",
+        "email": "fotosartdesign@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-09T12:45:52.883Z",
+      "url": "https://abacatepay.com/pay/bill_XUdry5bJbTkgx4cwycdZCxLg",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_aWtcFxqduKrgmeWawHU1MJx5",
+      "status": "PENDING",
+      "amount": 15090,
+      "customer": {
+        "name": "Anderson da Silva",
+        "cellphone": "18991604609",
+        "taxId": "33883708852",
+        "email": "fotosartdesig@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-08T19:26:10.560Z",
+      "url": "https://abacatepay.com/pay/bill_aWtcFxqduKrgmeWawHU1MJx5",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_QmZpf2AgRSckEtxSgxFUKnKS",
+      "status": "PENDING",
+      "amount": 15090,
+      "customer": {
+        "name": "Anderson da Silva",
+        "cellphone": "18991604609",
+        "taxId": "33883708852",
+        "email": "fotosartdesig@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-08T19:26:10.370Z",
+      "url": "https://abacatepay.com/pay/bill_QmZpf2AgRSckEtxSgxFUKnKS",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_bXgQA4ddEQPHjE4MfuADYuZT",
+      "status": "PENDING",
+      "amount": 799000,
+      "customer": {
+        "name": "Anderson Araujo",
+        "cellphone": "+5511999999999",
+        "taxId": "11144477735",
+        "email": "fotosartdesign@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-08T19:16:10.985Z",
+      "url": "https://abacatepay.com/pay/bill_bXgQA4ddEQPHjE4MfuADYuZT",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_pJqerJJBqM0GufXFXhn5s13t",
+      "status": "PENDING",
+      "amount": 799000,
+      "customer": {
+        "name": "Anderson Araujo",
+        "cellphone": "+5511999999999",
+        "taxId": "11144477735",
+        "email": "fotosartdesign@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-08T19:16:10.020Z",
+      "url": "https://abacatepay.com/pay/bill_pJqerJJBqM0GufXFXhn5s13t",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_C0cPGRPPR53bRt3GueYUkn6U",
+      "status": "PENDING",
+      "amount": 799000,
+      "customer": {
+        "name": "Anderson Araujo",
+        "cellphone": "+5511999999999",
+        "taxId": "11144477735",
+        "email": "fotosartdesign@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-08T19:15:13.140Z",
+      "url": "https://abacatepay.com/pay/bill_C0cPGRPPR53bRt3GueYUkn6U",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_LbX1Tw6NLeRyuRYqS6y5U2kM",
+      "status": "PENDING",
+      "amount": 799000,
+      "customer": {
+        "name": "Anderson Araujo",
+        "cellphone": "+5511999999999",
+        "taxId": "11144477735",
+        "email": "fotosartdesign@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-08T19:15:12.949Z",
+      "url": "https://abacatepay.com/pay/bill_LbX1Tw6NLeRyuRYqS6y5U2kM",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_bmYF5wCMf3c2CMhpWYNMbXfN",
+      "status": "PENDING",
+      "amount": 799000,
+      "customer": {
+        "name": "Anderson Araujo",
+        "cellphone": "+5511999999999",
+        "taxId": "11144477735",
+        "email": "fotosartdesign@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-08T19:13:26.374Z",
+      "url": "https://abacatepay.com/pay/bill_bmYF5wCMf3c2CMhpWYNMbXfN",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_ZqxwBkApGnpaKPaauqPffGKQ",
+      "status": "PENDING",
+      "amount": 799000,
+      "customer": {
+        "name": "Anderson Araujo",
+        "cellphone": "+5511999999999",
+        "taxId": "11144477735",
+        "email": "fotosartdesign@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-08T19:13:26.153Z",
+      "url": "https://abacatepay.com/pay/bill_ZqxwBkApGnpaKPaauqPffGKQ",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_YTSDtFBpq3G2RG4GCZjDPCS6",
+      "status": "PENDING",
+      "amount": 7990,
+      "customer": {
+        "name": "Anderson Araujo",
+        "cellphone": "+5511999999999",
+        "taxId": "11144477735",
+        "email": "fotosartdesign@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-08T19:11:28.797Z",
+      "url": "https://abacatepay.com/pay/bill_YTSDtFBpq3G2RG4GCZjDPCS6",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_nydERMXm5rB43BdxT11gMJuK",
+      "status": "PENDING",
+      "amount": 7990,
+      "customer": {
+        "name": "Anderson Araujo",
+        "cellphone": "+5511999999999",
+        "taxId": "11144477735",
+        "email": "fotosartdesign@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-08T18:18:17.985Z",
+      "url": "https://abacatepay.com/pay/bill_nydERMXm5rB43BdxT11gMJuK",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_UbHJhH4bCP3XMeSqWLJj3PQf",
+      "status": "PENDING",
+      "amount": 100000,
+      "customer": {
+        "name": "João Silva",
+        "cellphone": "(11) 99999-9999",
+        "taxId": "09240529020",
+        "email": "joao.silva@email.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-08T06:51:11.966Z",
+      "url": "https://abacatepay.com/pay/bill_UbHJhH4bCP3XMeSqWLJj3PQf",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_ZfRZ6bGDwBBLS5st5hRrZMpu",
+      "status": "PENDING",
+      "amount": 100000,
+      "customer": {
+        "name": "João Silva",
+        "cellphone": "(11) 99999-9999",
+        "taxId": "09240529020",
+        "email": "joao.silva@email.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-08T06:46:11.289Z",
+      "url": "https://abacatepay.com/pay/bill_ZfRZ6bGDwBBLS5st5hRrZMpu",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_pK6jQcyetW6LHS60t0KKL00U",
+      "status": "PENDING",
+      "amount": 100000,
+      "customer": {
+        "name": "João Silva",
+        "cellphone": "(11) 99999-9999",
+        "taxId": "09240529020",
+        "email": "joao.silva@email.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-08T06:45:13.786Z",
+      "url": "https://abacatepay.com/pay/bill_pK6jQcyetW6LHS60t0KKL00U",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_GfHY3fGuhRxwJQ2MBPGSKZ5q",
+      "status": "PENDING",
+      "amount": 1000,
+      "customer": {
+        "name": "João Silva",
+        "cellphone": "(11) 99999-9999",
+        "taxId": "09240529020",
+        "email": "joao.silva@email.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-08T06:39:41.380Z",
+      "url": "https://abacatepay.com/pay/bill_GfHY3fGuhRxwJQ2MBPGSKZ5q",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_N5FggJh3FkZDJu0aYmhc4qDX",
+      "status": "PENDING",
+      "amount": 1000,
+      "customer": {
+        "name": "João Silva",
+        "cellphone": "(11) 99999-9999",
+        "taxId": "09240529020",
+        "email": "joao.silva@email.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-08T06:38:54.777Z",
+      "url": "https://abacatepay.com/pay/bill_N5FggJh3FkZDJu0aYmhc4qDX",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_xYSndmXnGYqKrKSqbegmfgQ4",
+      "status": "PENDING",
+      "amount": 1000,
+      "createdAt": "2025-10-08T06:36:58.329Z",
+      "url": "https://abacatepay.com/pay/bill_xYSndmXnGYqKrKSqbegmfgQ4",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_2qtKMSPgebxTSPrhAgw1ctJw",
+      "status": "PENDING",
+      "amount": 1000,
+      "customer": {
+        "name": "João Silva",
+        "cellphone": "(11) 99999-9999",
+        "taxId": "09240529020",
+        "email": "joao.silva@email.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-08T06:10:23.968Z",
+      "url": "https://abacatepay.com/pay/bill_2qtKMSPgebxTSPrhAgw1ctJw",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_RfTUBG4NwMPkLcXMXQrc6tM4",
+      "status": "PENDING",
+      "amount": 1000,
+      "customer": {
+        "name": "João Silva",
+        "cellphone": "(11) 99999-9999",
+        "taxId": "09240529020",
+        "email": "joao.silva@email.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-08T06:09:27.535Z",
+      "url": "https://abacatepay.com/pay/bill_RfTUBG4NwMPkLcXMXQrc6tM4",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_NRDU4kFMeceDQzxN4QpxtNtQ",
+      "status": "PENDING",
+      "amount": 1000,
+      "customer": {
+        "name": "João Silva",
+        "cellphone": "(11) 99999-9999",
+        "taxId": "09240529020",
+        "email": "joao.silva@email.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-08T06:08:57.995Z",
+      "url": "https://abacatepay.com/pay/bill_NRDU4kFMeceDQzxN4QpxtNtQ",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_Adrf3jtNsUJDHDCaDwRNQ2LU",
+      "status": "PENDING",
+      "amount": 1000,
+      "customer": {
+        "name": "João Silva",
+        "cellphone": "(11) 99999-9999",
+        "taxId": "09240529020",
+        "email": "joao.silva@email.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-08T06:07:01.922Z",
+      "url": "https://abacatepay.com/pay/bill_Adrf3jtNsUJDHDCaDwRNQ2LU",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_jPDyU2s1zQ2nFDrWKN1jLTpF",
+      "status": "PENDING",
+      "amount": 1000,
+      "customer": {
+        "name": "Anderson Araujo",
+        "cellphone": "+5511999999999",
+        "taxId": "11144477735",
+        "email": "fotosartdesign@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-08T05:54:59.658Z",
+      "url": "https://abacatepay.com/pay/bill_jPDyU2s1zQ2nFDrWKN1jLTpF",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_jUNdd3NfsFd0daTBaabKrXye",
+      "status": "PENDING",
+      "amount": 10050,
+      "customer": {
+        "name": "Anderson Araujo",
+        "cellphone": "+5511999999999",
+        "taxId": "11144477735",
+        "email": "fotosartdesign@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-08T01:58:32.754Z",
+      "url": "https://abacatepay.com/pay/bill_jUNdd3NfsFd0daTBaabKrXye",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_B4ZsrhGcWUXWPK6abTcZNsKL",
+      "status": "PENDING",
+      "amount": 1000,
+      "customer": {
+        "name": "Anderson Araujo",
+        "cellphone": "+5511999999999",
+        "taxId": "11144477735",
+        "email": "fotosartdesign@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-08T01:44:16.012Z",
+      "url": "https://abacatepay.com/pay/bill_B4ZsrhGcWUXWPK6abTcZNsKL",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_1QRyM4xuW6BpScKQkSW4Qk6N",
+      "status": "PENDING",
+      "amount": 100,
+      "customer": {
+        "name": "Anderson Araujo",
+        "cellphone": "+5511999999999",
+        "taxId": "11144477735",
+        "email": "fotosartdesign@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-08T01:43:54.488Z",
+      "url": "https://abacatepay.com/pay/bill_1QRyM4xuW6BpScKQkSW4Qk6N",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_AheexAt2rpxkfANwy0h0jHwF",
+      "status": "PENDING",
+      "amount": 1000,
+      "customer": {
+        "name": "Anderson Araujo",
+        "cellphone": "+5511999999999",
+        "taxId": "11144477735",
+        "email": "fotosartdesign@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-08T00:25:28.748Z",
+      "url": "https://abacatepay.com/pay/bill_AheexAt2rpxkfANwy0h0jHwF",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_KcpEXRSwAkJHtsc6fquC55TG",
+      "status": "PENDING",
+      "amount": 1000,
+      "customer": {
+        "name": "Anderson Araujo",
+        "cellphone": "+5511999999999",
+        "taxId": "11144477735",
+        "email": "fotosartdesign@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-08T00:25:16.442Z",
+      "url": "https://abacatepay.com/pay/bill_KcpEXRSwAkJHtsc6fquC55TG",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_YPb6nPjccsBFYDZPKkZ4W0Bq",
+      "status": "PENDING",
+      "amount": 15980,
+      "customer": {
+        "name": "Anderson da Silva",
+        "cellphone": "18991604609",
+        "taxId": "33883708852",
+        "email": "fotosartdesig@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-04T16:15:21.208Z",
+      "url": "https://abacatepay.com/pay/bill_YPb6nPjccsBFYDZPKkZ4W0Bq",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_YEckZKZfj3ZKPuzgaFumuJYT",
+      "status": "PENDING",
+      "amount": 15980,
+      "customer": {
+        "name": "Anderson da Silva",
+        "cellphone": "18991604609",
+        "taxId": "33883708852",
+        "email": "fotosartdesig@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-04T16:14:39.921Z",
+      "url": "https://abacatepay.com/pay/bill_YEckZKZfj3ZKPuzgaFumuJYT",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_dDAX4yPHtMCUeFne2EB2GESN",
+      "status": "PENDING",
+      "amount": 15980,
+      "customer": {
+        "name": "Anderson da Silva",
+        "cellphone": "18991604609",
+        "taxId": "33883708852",
+        "email": "fotosartdesig@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-04T16:13:59.903Z",
+      "url": "https://abacatepay.com/pay/bill_dDAX4yPHtMCUeFne2EB2GESN",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_gascZh4dtgAx0zXtratFwgCr",
+      "status": "PENDING",
+      "amount": 15980,
+      "customer": {
+        "name": "Anderson da Silva",
+        "cellphone": "18991604609",
+        "taxId": "33883708852",
+        "email": "fotosartdesig@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-04T16:13:10.678Z",
+      "url": "https://abacatepay.com/pay/bill_gascZh4dtgAx0zXtratFwgCr",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_KbTxx2X4a1TxLKJ1TPpaaqWT",
+      "status": "PENDING",
+      "amount": 15980,
+      "customer": {
+        "name": "Anderson da Silva",
+        "cellphone": "18991604609",
+        "taxId": "33883708852",
+        "email": "fotosartdesig@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-04T16:09:38.938Z",
+      "url": "https://abacatepay.com/pay/bill_KbTxx2X4a1TxLKJ1TPpaaqWT",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_Ed5AFkbmXsWQ1UpaM5qHtLZQ",
+      "status": "PENDING",
+      "amount": 15980,
+      "customer": {
+        "name": "Anderson da Silva",
+        "cellphone": "18991604609",
+        "taxId": "33883708852",
+        "email": "fotosartdesig@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-04T15:57:39.961Z",
+      "url": "https://abacatepay.com/pay/bill_Ed5AFkbmXsWQ1UpaM5qHtLZQ",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_RehwM0NeDCfFXWsPwYcW5PJ0",
+      "status": "PENDING",
+      "amount": 100,
+      "customer": {
+        "name": "Anderson Araujo",
+        "cellphone": "+5511999999999",
+        "taxId": "11144477735",
+        "email": "fotosartdesign@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-04T15:54:24.867Z",
+      "url": "https://abacatepay.com/pay/bill_RehwM0NeDCfFXWsPwYcW5PJ0",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_mLWWRqjwqjuQrwfSXx6T0nh2",
+      "status": "PENDING",
+      "amount": 6590,
+      "customer": {
+        "name": "Anderson da Silva",
+        "cellphone": "18991604609",
+        "taxId": "33883708852",
+        "email": "fotosartdesig@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-03T13:54:24.849Z",
+      "url": "https://abacatepay.com/pay/bill_mLWWRqjwqjuQrwfSXx6T0nh2",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_GGYFRdzZAfhgkntpHBjEFBdz",
+      "status": "PENDING",
+      "amount": 10000,
+      "customer": {
+        "name": "Anderson Araujo",
+        "cellphone": "+5511999999999",
+        "taxId": "11144477735",
+        "email": "fotosartdesign@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-03T13:36:25.885Z",
+      "url": "https://abacatepay.com/pay/bill_GGYFRdzZAfhgkntpHBjEFBdz",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_fJatwREXCfALhTt3Feja2ng0",
+      "status": "PENDING",
+      "amount": 10000,
+      "customer": {
+        "name": "Anderson Araujo",
+        "cellphone": "+5511999999999",
+        "taxId": "11144477735",
+        "email": "fotosartdesign@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-02T14:42:32.434Z",
+      "url": "https://abacatepay.com/pay/bill_fJatwREXCfALhTt3Feja2ng0",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_xsMPHNaKu4Se3fppPqASHcsZ",
+      "status": "PENDING",
+      "amount": 10000,
+      "customer": {
+        "name": "Anderson Araujo",
+        "cellphone": "+5511999999999",
+        "taxId": "11144477735",
+        "email": "fotosartdesign@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-02T14:42:32.195Z",
+      "url": "https://abacatepay.com/pay/bill_xsMPHNaKu4Se3fppPqASHcsZ",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_E2p0pRfD0JH416Gn5pfDyTEE",
+      "status": "PENDING",
+      "amount": 1000,
+      "customer": {
+        "name": "João Silva",
+        "cellphone": "(11) 99999-9999",
+        "taxId": "09240529020",
+        "email": "joao.silva@email.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-02T13:15:04.508Z",
+      "url": "https://abacatepay.com/pay/bill_E2p0pRfD0JH416Gn5pfDyTEE",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_weKwNUcUDM21T3KSyA4QNamp",
+      "status": "PENDING",
+      "amount": 2990,
+      "customer": {
+        "name": "Anderson Araujo",
+        "cellphone": "+5511999999999",
+        "taxId": "11144477735",
+        "email": "fotosartdesign@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-10-02T01:57:12.936Z",
+      "url": "https://abacatepay.com/pay/bill_weKwNUcUDM21T3KSyA4QNamp",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_wMgT0JuJgdstHjSW1rj3jpRq",
+      "status": "PENDING",
+      "amount": 10000,
+      "customer": {
+        "name": "Anderson Araujo",
+        "cellphone": "+5511999999999",
+        "taxId": "11144477735",
+        "email": "fotosartdesign@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-08-30T00:01:00.218Z",
+      "url": "https://abacatepay.com/pay/bill_wMgT0JuJgdstHjSW1rj3jpRq",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_zC3ZkcE1yCYxys2w2gCMnLNJ",
+      "status": "PENDING",
+      "amount": 10000,
+      "customer": {
+        "name": "Anderson Araujo",
+        "cellphone": "+5511999999999",
+        "taxId": "11144477735",
+        "email": "fotosartdesign@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-08-29T23:58:33.146Z",
+      "url": "https://abacatepay.com/pay/bill_zC3ZkcE1yCYxys2w2gCMnLNJ",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_nx5BtnjCL5c1bg2za2S1HRAB",
+      "status": "PENDING",
+      "amount": 10000,
+      "customer": {
+        "name": "Anderson Araujo",
+        "cellphone": "+5511999999999",
+        "taxId": "11144477735",
+        "email": "fotosartdesign@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-08-29T23:55:13.163Z",
+      "url": "https://abacatepay.com/pay/bill_nx5BtnjCL5c1bg2za2S1HRAB",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_6kGar44DbwZxSnsJqmzMtAJf",
+      "status": "PENDING",
+      "amount": 10000,
+      "customer": {
+        "name": "Anderson Araujo",
+        "cellphone": "+5511999999999",
+        "taxId": "11144477735",
+        "email": "fotosartdesign@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-08-29T23:54:54.289Z",
+      "url": "https://abacatepay.com/pay/bill_6kGar44DbwZxSnsJqmzMtAJf",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_4YaBRatNGd6fBTJCaCt4eqe4",
+      "status": "PENDING",
+      "amount": 10000,
+      "customer": {
+        "name": "Anderson Araujo",
+        "cellphone": "+5511999999999",
+        "taxId": "11144477735",
+        "email": "fotosartdesign@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-08-29T23:54:37.078Z",
+      "url": "https://abacatepay.com/pay/bill_4YaBRatNGd6fBTJCaCt4eqe4",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_xnzZeaqPmtGADeW2x41FpQsz",
+      "status": "PENDING",
+      "amount": 10000,
+      "customer": {
+        "name": "Anderson Araujo",
+        "cellphone": "+5511999999999",
+        "taxId": "11144477735",
+        "email": "fotosartdesign@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-08-29T23:53:44.316Z",
+      "url": "https://abacatepay.com/pay/bill_xnzZeaqPmtGADeW2x41FpQsz",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_K2uBXAWJFUe1rFpDE6LqcKrm",
+      "status": "PENDING",
+      "amount": 10000,
+      "customer": {
+        "name": "Anderson Araujo",
+        "cellphone": "+5511999999999",
+        "taxId": "11144477735",
+        "email": "fotosartdesign@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-08-29T23:51:47.578Z",
+      "url": "https://abacatepay.com/pay/bill_K2uBXAWJFUe1rFpDE6LqcKrm",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_tefmbFAdWT0Mc6uPFfBHRcx1",
+      "status": "PENDING",
+      "amount": 10000,
+      "customer": {
+        "name": "Anderson Araujo",
+        "cellphone": "+5511999999999",
+        "taxId": "11144477735",
+        "email": "fotosartdesign@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-08-29T20:49:40.657Z",
+      "url": "https://abacatepay.com/pay/bill_tefmbFAdWT0Mc6uPFfBHRcx1",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_Wp1zSaxQ1q1Q5XTRpZH5jfF6",
+      "status": "PENDING",
+      "amount": 10000,
+      "customer": {
+        "name": "Anderson Araujo",
+        "cellphone": "+5511999999999",
+        "taxId": "11144477735",
+        "email": "fotosartdesign@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-08-29T17:59:06.431Z",
+      "url": "https://abacatepay.com/pay/bill_Wp1zSaxQ1q1Q5XTRpZH5jfF6",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_kEJ42hKY6mUpCmk4jE4U3s0m",
+      "status": "PENDING",
+      "amount": 10000,
+      "customer": {
+        "name": "Anderson Araujo",
+        "cellphone": "+5511999999999",
+        "taxId": "11144477735",
+        "email": "fotosartdesign@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-08-29T17:45:52.921Z",
+      "url": "https://abacatepay.com/pay/bill_kEJ42hKY6mUpCmk4jE4U3s0m",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_Ktf2DCYNTguFwyGMMPyQUU6r",
+      "status": "PENDING",
+      "amount": 10000,
+      "customer": {
+        "name": "Anderson Araujo",
+        "cellphone": "+5511999999999",
+        "taxId": "11144477735",
+        "email": "fotosartdesign@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-08-29T00:56:15.913Z",
+      "url": "https://abacatepay.com/pay/bill_Ktf2DCYNTguFwyGMMPyQUU6r",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_ertePTrqXCYqU0a0eRH0WqBb",
+      "status": "PENDING",
+      "amount": 10000,
+      "customer": {
+        "name": "Anderson Araujo",
+        "cellphone": "+5511999999999",
+        "taxId": "11144477735",
+        "email": "fotosartdesign@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-08-29T00:50:18.119Z",
+      "url": "https://abacatepay.com/pay/bill_ertePTrqXCYqU0a0eRH0WqBb",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_k22mLMffhZJWkBj1mmJBpBdL",
+      "status": "PENDING",
+      "amount": 1500,
+      "customer": {
+        "name": "Anderson Araujo",
+        "cellphone": "+5511999999999",
+        "taxId": "11144477735",
+        "email": "fotosartdesign@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-08-09T01:34:05.137Z",
+      "url": "https://abacatepay.com/pay/bill_k22mLMffhZJWkBj1mmJBpBdL",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_NgHxBXuLKJEc3qNepFfPYP2k",
+      "status": "PENDING",
+      "amount": 1500,
+      "customer": {
+        "name": "Anderson da Silva",
+        "cellphone": "18991604609",
+        "taxId": "33883708852",
+        "email": "fotosartdesig@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-08-05T21:53:34.887Z",
+      "url": "https://abacatepay.com/pay/bill_NgHxBXuLKJEc3qNepFfPYP2k",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_emX2bm6sH5ExAZGxJCP23LFb",
+      "status": "PENDING",
+      "amount": 1500,
+      "customer": {
+        "name": "Anderson da Silva",
+        "cellphone": "18991604609",
+        "taxId": "33883708852",
+        "email": "fotosartdesig@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-08-05T21:52:15.648Z",
+      "url": "https://abacatepay.com/pay/bill_emX2bm6sH5ExAZGxJCP23LFb",
+      "methods": [
+        "PIX"
+      ]
+    },
+    {
+      "id": "bill_fNDQ1urQg4bu43kEDTANuBYG",
+      "status": "PENDING",
+      "amount": 1500,
+      "customer": {
+        "name": "Anderson da Silva",
+        "cellphone": "18991604609",
+        "taxId": "33883708852",
+        "email": "fotosartdesig@gmail.com",
+        "zipCode": ""
+      },
+      "createdAt": "2025-08-05T21:48:47.418Z",
+      "url": "https://abacatepay.com/pay/bill_fNDQ1urQg4bu43kEDTANuBYG",
+      "methods": [
+        "PIX"
+      ]
+    }
+  ]
+}

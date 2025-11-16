@@ -1,0 +1,17 @@
+{
+  "status": "init",
+  "scope": "codebase",
+  "type": "frontend",
+  "localEndpoint": "http://localhost:8084/",
+  "serverPort": 49239,
+  "executionArgs": {
+    "projectName": "querenhapuque",
+    "projectPath": "J:\\Protegido\\queren2\\querenhapuque",
+    "testIds": [],
+    "additionalInstruction": "",
+    "envs": {
+      "API_KEY": "sk-user-qeHzLFl_dLwfyutOp0vVijBnE98uakUAY34jvS2NNUyue2Ef5YOAJrKCnkOzlwBt2EbqP2Zfklj0hUeFLbCnt1GWgn8knRywE9s3FGxF-cPwsmCRIOHLqm4sxlZNN7K8Xl0"
+    }
+  },
+  "proxy": "http://97339bdb-1824-4144-abc5-be2936b930ba:ARz2dK03g8qb3Y7eTXZZeWwms72yAb0p@tun.testsprite.com:8080"
+}

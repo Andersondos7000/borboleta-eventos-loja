@@ -1,0 +1,62 @@
+📊 RELATÓRIO DE ANÁLISE DE ESPAÇO EM DISCO
+===========================================
+
+📁 ANÁLISE POR PASTAS PRINCIPAIS (Mais Pesadas):
+
+1. node_modules/           - 332.54 MB ⭐ MAIOR PASTA
+2. abacatepay-mcp-oficial/ -  98.44 MB
+3. nodejs-portable/        -  80.48 MB  
+4. mcp-ecommerce/          -  58.59 MB
+5. backups/                -  23.97 MB
+6. src/                    -   2.87 MB
+7. public/                 -   2.94 MB
+8. docs/                   -   0.32 MB
+9. monitoring/             -   0.21 MB
+10. deployment/            -   0.04 MB
+
+📊 ANÁLISE POR TIPO DE ARQUIVO:
+
+1. .node (Node.js binários)     - 45.62 MB
+2. .tsx (TypeScript React)       -  2.79 MB  
+3. .js (JavaScript)              -  0.45 MB
+4. .ts (TypeScript)              -  0.34 MB
+5. .json (JSON files)            -  0.19 MB
+
+🔍 ARQUIVOS INDIVIDUAIS MAIORES:
+
+Baseado na análise inicial, os maiores arquivos incluem:
+- Arquivos .node (binários do Node.js)
+- Arquivos de imagem (.jpg, .webp)
+- Arquivos de lock (package-lock.json, bun.lockb)
+- Possíveis arquivos de backup ou log
+
+💡 RECOMENDAÇÕES PARA OTIMIZAÇÃO:
+
+1. 🗑️ node_modules/ - 332.54 MB
+   → Esta é a pasta mais pesada! 
+   → Você pode deletar e reinstalar com "npm install" quando necessário
+   → Adicione ao .gitignore se ainda não estiver
+
+2. 🔧 abacatepay-mcp-oficial/ - 98.44 MB  
+   → Verifique se todos os arquivos são necessários
+   → Considere usar uma versão mais leve ou separar em outro repositório
+
+3. 📦 nodejs-portable/ - 80.48 MB
+   → Esta pasta contém o Node.js portátil
+   → Se não estiver usando, considere removê-la
+
+4. 💾 backups/ - 23.97 MB
+   → Verifique a necessidade de backups antigos
+   → Considere mover para armazenamento externo
+
+5. 🛠️ mcp-ecommerce/ - 58.59 MB
+   → Analise se todos os arquivos são necessários
+   → Verifique arquivos de build ou cache desnecessários
+
+⚠️ ARQUIVOS QUE PODEM SER REMOVIDOS/OTIMIZADOS:
+
+- node_modules/ (pode ser recriado com npm install)
+- Arquivos .log ou de cache
+- Arquivos de backup antigos
+- Dependências não utilizadas
+- Arquivos de build desatualizados

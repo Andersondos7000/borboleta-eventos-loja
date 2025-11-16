@@ -1,0 +1,13 @@
+{
+  "namespace": "recebimento",
+  "subdomain": "webh-dev-abacatepay",
+  "localUrl": "https://ojxmfxbflbfinodkhixk.supabase.co/functions/v1/webhook-abacatepay",
+  "publicUrl": "https://recebimento-webh-dev-abacatepay.ultrahook.com",
+  "endpointId": "webh-dev-abacatepay",
+  "abacatePayWebhookSecret": "whsec_dev_AWChUaMh0HTZKDtTPxsBAWpf",
+  "abacatePayApiKey": "abc_dev_fhb5Dh0s24wHQ6XWgFAGdzjc",
+  "abacatePayBaseUrl": "https://api.abacatepay.com/v1",
+  "updatedAt": "2025-02-14T23:46:00.000Z",
+  "webhookPort": null,
+  "description": "Configuração migrada para Supabase Function - túnel ativo redirecionando https://recebimento-webh-dev-abacatepay.ultrahook.com para https://ojxmfxbflbfinodkhixk.supabase.co/functions/v1/webhook-abacatepay"
+}

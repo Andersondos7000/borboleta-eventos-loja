@@ -1,0 +1,137 @@
+{
+  "tech_stack": [
+    "TypeScript",
+    "React",
+    "Vite",
+    "Supabase (Postgres)",
+    "Express",
+    "TailwindCSS",
+    "Jest",
+    "Testing Library",
+    "Radix UI",
+    "TanStack Query"
+  ],
+  "features": [
+    {
+      "name": "API AbacatePay",
+      "description": "Integração de pagamentos e webhooks AbacatePay",
+      "files": [
+        "src/api/abacatepay.ts",
+        "src/api/webhook-abacatepay.ts",
+        "src/api/webhook-endpoint.ts",
+        "src/api/webhook-admin-endpoint.ts"
+      ]
+    },
+    {
+      "name": "Componentes Admin",
+      "description": "Gestão de produtos, pedidos, estoque e dashboards admin",
+      "files": [
+        "src/components/admin/ProductsManager.tsx",
+        "src/components/admin/EstoqueContent.tsx",
+        "src/components/admin/ClothingGroupedContent.tsx",
+        "src/components/admin/RecentOrders.tsx",
+        "src/components/admin/SalesOverview.tsx",
+        "src/components/admin/TicketControlPanel.tsx",
+        "src/components/admin/RLSPerformanceDashboard.tsx",
+        "src/components/admin/TopProducts.tsx"
+      ]
+    },
+    {
+      "name": "Checkout",
+      "description": "Fluxo de checkout com pagamentos, participantes e resumo",
+      "files": [
+        "src/components/checkout/PaymentSection.tsx",
+        "src/components/checkout/OrderSummary.tsx",
+        "src/components/checkout/CustomerInformation.tsx",
+        "src/components/checkout/ParticipantsList.tsx",
+        "src/components/checkout/ProfileInformation.tsx",
+        "src/components/checkout/TermsSection.tsx",
+        "src/components/checkout/AdditionalNotes.tsx",
+        "src/components/cart/ProductCartItem.tsx",
+        "src/components/cart/TicketCartItem.tsx"
+      ]
+    },
+    {
+      "name": "Autenticação",
+      "description": "Proteção de rotas e testes de autenticação",
+      "files": [
+        "src/components/ProtectedRoute.tsx",
+        "src/components/auth/AuthTestComponent.tsx",
+        "src/__tests__/auth.integration.test.ts"
+      ]
+    },
+    {
+      "name": "Realtime e Offline",
+      "description": "Hooks e componentes para sincronização em tempo real e offline-first",
+      "files": [
+        "src/__tests__/hooks/realtime/conflictResolution.test.ts",
+        "src/__tests__/hooks/realtime/performance.test.ts",
+        "src/__tests__/hooks/realtime/useOfflineFirst.test.ts",
+        "src/__tests__/hooks/realtime/useOfflineQueue.test.ts",
+        "src/components/ConnectionStatus.tsx"
+      ]
+    },
+    {
+      "name": "UI Base",
+      "description": "Navbar, Footer, modais e elementos visuais",
+      "files": [
+        "src/components/Navbar.tsx",
+        "src/components/Footer.tsx",
+        "src/components/ProductModal.tsx",
+        "src/components/EmailConfirmationModal.tsx",
+        "src/components/EmailConfirmationModalNew.tsx",
+        "src/components/MobileMenu.tsx"
+      ]
+    },
+    {
+      "name": "Testes Unitários e Integração",
+      "description": "Suíte Jest e Testing Library",
+      "files": [
+        "src/__tests__/components/index.tsx",
+        "src/__tests__/integration/realtime-e2e.test.ts",
+        "src/__tests__/integration/supabase-integration.test.ts",
+        "src/__tests__/setup.ts",
+        "jest.config.cjs"
+      ]
+    },
+    {
+      "name": "Aplicação",
+      "description": "App e rotas principais",
+      "files": [
+        "src/App.tsx",
+        "src/App.css",
+        "public/index.html",
+        "index.html"
+      ]
+    },
+    {
+      "name": "Monitoramento e Logs",
+      "description": "Scripts de monitoramento e relatórios",
+      "files": [
+        "monitoring/monitor-duplicatas.js",
+        "monitoring/reports/duplicates-report-2025-10-11T15-13-20-496Z.json",
+        "monitoring/reports/duplicates-report-2025-10-11T15-13-34-113Z.json"
+      ]
+    },
+    {
+      "name": "Webhooks e Serviços Auxiliares",
+      "description": "Servidor de webhooks e tarefas auxiliares",
+      "files": [
+        "src/server/webhook-server-standalone.ts",
+        "server.js",
+        "webhook-abacatepay-sync.cjs"
+      ]
+    },
+    {
+      "name": "MCP AbacatePay",
+      "description": "Ferramentas MCP para integração AbacatePay",
+      "files": [
+        "abacatepay-mcp-oficial/src/http/api.ts",
+        "abacatepay-mcp-oficial/src/tools/pix.ts",
+        "abacatepay-mcp-oficial/src/tools/customer.ts",
+        "abacatepay-mcp-oficial/src/index.ts",
+        "abacatepay-mcp-oficial/package.json"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,188 @@
+{
+  "meta": {
+    "project": "Plataforma de Ingressos e Loja",
+    "date": "2025-11-14",
+    "prepared_by": "Software Development Manager"
+  },
+  "product_overview": "Plataforma integrada de venda de ingressos e produtos, com autenticação segura, catálogo completo, carrinho de compras, checkout com múltiplos participantes, pagamentos via AbacatePay e gerenciamento administrativo robusto.",
+  "core_goals": [
+    "Garantir fluxo seguro de autenticação e autorização de usuários.",
+    "Oferecer catálogo amigável de produtos e ingressos com recursos de busca e filtragem.",
+    "Facilitar processo de checkout detalhado com suporte a múltiplos participantes e resumo claro.",
+    "Integrar pagamentos via AbacatePay, incluindo geração de QR Code Pix e confirmação automática por webhooks.",
+    "Fornecer painéis administrativos para gestão de estoque, pedidos, vendas e desempenho.",
+    "Assegurar sincronização em tempo real e operação offline-first para melhor experiência do usuário.",
+    "Garantir qualidade e segurança via testes abrangentes e boas práticas de logs e monitoramento."
+  ],
+  "key_features": [
+    "Autenticação de usuários com proteção de rotas e recuperação de senha.",
+    "Catálogo de produtos e ingressos com listagem, filtragem e visualização detalhada.",
+    "Carrinho de compras dinâmico com adição e remoção de itens, além de suporte a diferentes categorias como roupas e tickets.",
+    "Checkout completo com seções para informações do cliente, participantes, termos, notas adicionais e resumo do pedido.",
+    "Integração com AbacatePay inclui pagamento via QR Code Pix, monitoramento de status e emissão automática de tickets.",
+    "Processamento e reconciliamento de webhooks para atualização automática de pedidos e confirmação de pagamento.",
+    "Painéis administrativos completos para gerenciamento de produtos, estoque, pedidos recentes, vendas e performance.",
+    "Sincronização em tempo real e funcionalidades offline-first para manter dados consistentes mesmo sem conexão permanente.",
+    "Interface responsiva com componentes UI base como Navbar, Footer, modais e menus móveis.",
+    "Cobertura extensiva de testes unitários e de integração para garantir estabilidade e segurança."
+  ],
+  "user_flow_summary": [
+    "Usuário realiza login ou recuperação de senha para acesso seguro.",
+    "Navega pelo catálogo de produtos e ingressos, podendo filtrar e visualizar detalhes.",
+    "Adiciona produtos e/ou ingressos ao carrinho, podendo editar quantidades ou remover itens.",
+    "Preenche informações pessoais e de participantes, revisa termos e adiciona observações no checkout.",
+    "Realiza pagamento via AbacatePay gerando QR Code Pix e aguarda confirmação automática.",
+    "Sistema processa webhooks de AbacatePay para atualizar status do pedido e emitir tickets.",
+    "Usuário visualiza resumo do pedido concluído e recebe confirmação.",
+    "Administrador acessa painel para gerenciar estoque, pedidos, vendas e desempenho em tempo real."
+  ],
+  "validation_criteria": [
+    "Autenticação e autorização funcionando corretamente com proteção de rotas.",
+    "Catálogo exibe produtos corretamente com filtros e detalhes acessíveis.",
+    "Carrinho reflete corretamente adição, remoção e alteração de itens.",
+    "Checkout coleta e valida informações do cliente, participantes e aceitação de termos.",
+    "Pagamentos via AbacatePay processam QR Code e atualizam status via webhooks em tempo real.",
+    "Tickets são emitidos automaticamente após confirmação de pagamento.",
+    "Painéis administrativos mostram dados atualizados e permitem gerenciamento eficiente.",
+    "Sincronização em tempo real opera sem conflitos, com suporte offline testado.",
+    "Testes unitários e de integração cobrem os principais fluxos críticos e funções.",
+    "Logs e monitoramento não expõem segredos e suportam diagnóstico eficaz."
+  ],
+  "code_summary": {
+    "tech_stack": [
+      "TypeScript",
+      "React",
+      "Vite",
+      "Supabase (Postgres)",
+      "Express",
+      "TailwindCSS",
+      "Jest",
+      "Testing Library",
+      "Radix UI",
+      "TanStack Query"
+    ],
+    "features": [
+      {
+        "name": "API AbacatePay",
+        "description": "Integração de pagamentos e webhooks AbacatePay",
+        "files": [
+          "src/api/abacatepay.ts",
+          "src/api/webhook-abacatepay.ts",
+          "src/api/webhook-endpoint.ts",
+          "src/api/webhook-admin-endpoint.ts"
+        ]
+      },
+      {
+        "name": "Componentes Admin",
+        "description": "Gestão de produtos, pedidos, estoque e dashboards admin",
+        "files": [
+          "src/components/admin/ProductsManager.tsx",
+          "src/components/admin/EstoqueContent.tsx",
+          "src/components/admin/ClothingGroupedContent.tsx",
+          "src/components/admin/RecentOrders.tsx",
+          "src/components/admin/SalesOverview.tsx",
+          "src/components/admin/TicketControlPanel.tsx",
+          "src/components/admin/RLSPerformanceDashboard.tsx",
+          "src/components/admin/TopProducts.tsx"
+        ]
+      },
+      {
+        "name": "Checkout",
+        "description": "Fluxo de checkout com pagamentos, participantes e resumo",
+        "files": [
+          "src/components/checkout/PaymentSection.tsx",
+          "src/components/checkout/OrderSummary.tsx",
+          "src/components/checkout/CustomerInformation.tsx",
+          "src/components/checkout/ParticipantsList.tsx",
+          "src/components/checkout/ProfileInformation.tsx",
+          "src/components/checkout/TermsSection.tsx",
+          "src/components/checkout/AdditionalNotes.tsx",
+          "src/components/cart/ProductCartItem.tsx",
+          "src/components/cart/TicketCartItem.tsx"
+        ]
+      },
+      {
+        "name": "Autenticação",
+        "description": "Proteção de rotas e testes de autenticação",
+        "files": [
+          "src/components/ProtectedRoute.tsx",
+          "src/components/auth/AuthTestComponent.tsx",
+          "src/__tests__/auth.integration.test.ts"
+        ]
+      },
+      {
+        "name": "Realtime e Offline",
+        "description": "Hooks e componentes para sincronização em tempo real e offline-first",
+        "files": [
+          "src/__tests__/hooks/realtime/conflictResolution.test.ts",
+          "src/__tests__/hooks/realtime/performance.test.ts",
+          "src/__tests__/hooks/realtime/useOfflineFirst.test.ts",
+          "src/__tests__/hooks/realtime/useOfflineQueue.test.ts",
+          "src/components/ConnectionStatus.tsx"
+        ]
+      },
+      {
+        "name": "UI Base",
+        "description": "Navbar, Footer, modais e elementos visuais",
+        "files": [
+          "src/components/Navbar.tsx",
+          "src/components/Footer.tsx",
+          "src/components/ProductModal.tsx",
+          "src/components/EmailConfirmationModal.tsx",
+          "src/components/EmailConfirmationModalNew.tsx",
+          "src/components/MobileMenu.tsx"
+        ]
+      },
+      {
+        "name": "Testes Unitários e Integração",
+        "description": "Suíte Jest e Testing Library",
+        "files": [
+          "src/__tests__/components/index.tsx",
+          "src/__tests__/integration/realtime-e2e.test.ts",
+          "src/__tests__/integration/supabase-integration.test.ts",
+          "src/__tests__/setup.ts",
+          "jest.config.cjs"
+        ]
+      },
+      {
+        "name": "Aplicação",
+        "description": "App e rotas principais",
+        "files": [
+          "src/App.tsx",
+          "src/App.css",
+          "public/index.html",
+          "index.html"
+        ]
+      },
+      {
+        "name": "Monitoramento e Logs",
+        "description": "Scripts de monitoramento e relatórios",
+        "files": [
+          "monitoring/monitor-duplicatas.js",
+          "monitoring/reports/duplicates-report-2025-10-11T15-13-20-496Z.json",
+          "monitoring/reports/duplicates-report-2025-10-11T15-13-34-113Z.json"
+        ]
+      },
+      {
+        "name": "Webhooks e Serviços Auxiliares",
+        "description": "Servidor de webhooks e tarefas auxiliares",
+        "files": [
+          "src/server/webhook-server-standalone.ts",
+          "server.js",
+          "webhook-abacatepay-sync.cjs"
+        ]
+      },
+      {
+        "name": "MCP AbacatePay",
+        "description": "Ferramentas MCP para integração AbacatePay",
+        "files": [
+          "abacatepay-mcp-oficial/src/http/api.ts",
+          "abacatepay-mcp-oficial/src/tools/pix.ts",
+          "abacatepay-mcp-oficial/src/tools/customer.ts",
+          "abacatepay-mcp-oficial/src/index.ts",
+          "abacatepay-mcp-oficial/package.json"
+        ]
+      }
+    ]
+  }
+}
